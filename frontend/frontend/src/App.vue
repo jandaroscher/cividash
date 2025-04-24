@@ -1,30 +1,28 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+    <div>
+        <header class="py-4 flex items-center">
+            <img
+                v-if="branding.logoUrl"
+                :src="branding.logoUrl"
+                alt="Logo"
+                class="h-12 mr-4"
+            />
+            <h1 class="text-2xl font-bold text-primary-color">
+                Open Source Dashboard
+            </h1>
+        </header>
+
+        <!-- Dashboard content goes here -->
+    </div>
 </template>
 
+<script setup>
+import { useBrandingStore } from './stores/branding';
+const branding = useBrandingStore();
+</script>
+
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.text-primary-color {
+    color: var(--primary-color);
 }
 </style>

@@ -1,5 +1,15 @@
-import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+import './style.css';
+import { useBrandingStore } from './stores/branding';
 
-createApp(App).mount('#app')
+const app = createApp(App);
+const pinia = createPinia();
+app.use(pinia);
+
+// Fetch branding before mounting
+const branding = useBrandingStore();
+branding.fetch().then(() => {
+    app.mount('#app');
+});
