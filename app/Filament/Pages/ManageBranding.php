@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Settings\BrandingSettings;
 use Filament\Forms;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
@@ -27,9 +28,13 @@ class ManageBranding extends SettingsPage
                     ->label('Secondary Color')
                     ->required(),
 
-                TextInput::make('logo_url')
-                    ->label('Logo URL')
-                    ->url()
+                FileUpload::make('logo_url')
+                ->label('Logo')
+                    ->disk('public')
+                    ->directory('branding')
+                    ->image()
+                    ->preserveFilenames()
+                    ->required(false),
             ]);
     }
 }
