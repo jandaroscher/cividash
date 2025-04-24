@@ -8,18 +8,35 @@ class TileResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $locale = $request->query('locale');
+
         return [
-            'id'             => $this->id,
-            'title'          => $this->title,
-            'description'    => $this->description,
-            'icon'           => $this->icon,
-            'position'       => $this->position,
-            'categories'     => $this->categories->pluck('slug'),
-            // use the new resource here
-            'backgroundPage' => new BackgroundPageResource(
-                $this->whenLoaded('backgroundPage')
-            ),
-            'years'          => TileYearResource::collection(
+            'id'         => $this->id,
+            'categories' => $this->categories->pluck('slug'),
+
+            // Title & description: all or single
+            'title'       => $locale
+                ? $this->getTranslation('title', $locale)
+                : $this->getTranslations('title'),
+
+            'description' => $locale
+                ? $this->getTranslation('description', $locale)
+                : $this->getTranslations('description'),
+
+            // BackgroundPage: same pattern
+            'backgroundPage' => $this->backgroundPage
+                ? [
+                    'slug'    => $locale
+                        ? $this->backgroundPage->getTranslation('slug', $locale)
+                        : $this->backgroundPage->getTranslations('slug'),
+                    'content' => $locale
+                        ? $this->backgroundPage->getTranslation('content', $locale)
+                        : $this->backgroundPage->getTranslations('content'),
+                ]
+                : null,
+
+            // Years & Metrics: delegate to their Resources
+            'years' => TileYearResource::collection(
                 $this->whenLoaded('tileYears')
             ),
         ];

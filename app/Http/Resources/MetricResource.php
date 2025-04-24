@@ -6,19 +6,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class MetricResource extends JsonResource
 {
-    /**
-     * Transform the metric into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array<string,mixed>
-     */
     public function toArray($request): array
     {
+        $locale = $request->query('locale');
+
         return [
             'id'    => $this->id,
-            'label' => $this->label,
+            'label' => $locale
+                ? $this->getTranslation('label', $locale)
+                : $this->getTranslations('label'),
             'value' => (float) $this->value,
-            'unit'  => $this->unit,
+            'unit'  => $locale
+                ? $this->getTranslation('unit', $locale)
+                : $this->getTranslations('unit'),
             'icon'  => $this->icon,
         ];
     }

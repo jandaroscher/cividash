@@ -6,9 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class TileYearResource extends JsonResource
 {
-    /**
-     * Transform the tile‑year group into an array.
-     */
     public function toArray($request): array
     {
         return [

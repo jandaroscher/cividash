@@ -10,6 +10,7 @@ use Filament\Forms\Components\MultiSelect;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -19,9 +20,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Resources\Concerns\Translatable;
 
 class TileResource extends Resource
 {
+    use Translatable;
+
     protected static ?string $model = Tile::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -35,9 +39,10 @@ class TileResource extends Resource
                         // Tab 1: Kachel
                         Tabs\Tab::make('Kachel')
                             ->schema([
-                                MultiSelect::make('categories')
+                                Select::make('categories')
                                     ->relationship('categories', 'slug')
-                                    ->preload(),
+                                    ->preload()
+                                    ->multiple(),
                                 TextInput::make('title')->required(),
                                 RichEditor::make('description'),
                                 TextInput::make('icon'),

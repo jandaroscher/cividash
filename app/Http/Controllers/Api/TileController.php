@@ -6,37 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\TileResource;
 use App\Models\Tile;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class TileController extends Controller
 {
-    /**
-     * Return all tiles with their nested relations.
-     */
-    public function index(): ResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $tiles = Tile::with([
-            'categories',
-            'backgroundPage',
-            'tileYears.metrics',
-        ])
+        $locale = $request->query('locale');
+
+        $tiles = Tile::with(['categories','backgroundPage','tileYears.metrics'])
             ->orderBy('position')
             ->get();
 
+        // Pass the locale along to the Resource via the request
         return TileResource::collection($tiles);
     }
 
-    /**
-     * Return a single tile with its nested relations.
-     */
-    public function show(Tile $tile): JsonResource
+    public function show(Request $request, Tile $tile): TileResource
     {
-        $tile->load(['categories', 'backgroundPage', 'tileYears.metrics']);
+        $tile->load(['categories','backgroundPage','tileYears.metrics']);
 
-        return new JsonResource($tile);
+        return new TileResource($tile);
     }
-
     /**
      * Store a newly created resource in storage.
      */
