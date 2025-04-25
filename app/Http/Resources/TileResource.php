@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class TileResource extends JsonResource
 {
@@ -22,6 +23,10 @@ class TileResource extends JsonResource
             'description' => $locale
                 ? $this->getTranslation('description', $locale)
                 : $this->getTranslations('description'),
+
+            'icon'        => $this->icon
+                ? Storage::disk('public')->url($this->icon)
+                : null,
 
             // BackgroundPage: same pattern
             'backgroundPage' => $this->backgroundPage

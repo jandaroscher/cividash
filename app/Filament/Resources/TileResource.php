@@ -5,8 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TileResource\Pages;
 use App\Filament\Resources\TileResource\RelationManagers;
 use App\Models\Tile;
-use Filament\Forms;
-use Filament\Forms\Components\MultiSelect;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
@@ -17,9 +16,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+
 use Filament\Resources\Concerns\Translatable;
 
 class TileResource extends Resource
@@ -45,7 +42,12 @@ class TileResource extends Resource
                                     ->multiple(),
                                 TextInput::make('title')->required(),
                                 RichEditor::make('description'),
-                                TextInput::make('icon'),
+                                FileUpload::make('icon')
+                                    ->label('Icon')
+                                    ->disk('public')
+                                    ->directory('tiles')
+                                    ->preserveFilenames()
+                                    ->required(false),
                                 TextInput::make('position')
                                     ->numeric()
                                     ->default(0),
@@ -89,8 +91,13 @@ class TileResource extends Resource
                                                     ->numeric(),
                                                 TextInput::make('unit')
                                                     ->label('Einheit'),
-                                                TextInput::make('icon')
-                                                    ->label('Icon'),
+                                                FileUpload::make('icon')
+                                                    ->label('Icon')
+                                                    ->disk('public')
+                                                    ->directory('metrics')
+                                                    ->image()
+                                                    ->preserveFilenames()
+                                                    ->required(false),
                                             ])
                                             ->collapsible()
                                     ])

@@ -13,3 +13,4 @@ Route::get('/tiles', [TileController::class, 'index']);
 Route::get('/tiles/{tile}', [TileController::class, 'show']);
 Route::get('/config/branding', [ConfigController::class, 'branding']);
 Route::get('/config/general', [ConfigController::class, 'general']);
+Route::get('/config/footer', [ConfigController::class, 'footer']);
