@@ -23,3 +23,4 @@ dev-debug.log
 /.nova
 /.vscode
 /.zed
+.specstory/*
