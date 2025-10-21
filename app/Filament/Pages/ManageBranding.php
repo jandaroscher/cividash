@@ -13,7 +13,7 @@ use Filament\Pages\SettingsPage;
 class ManageBranding extends SettingsPage
 {
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static ?string $title = 'Branding-Einstellungen';
+    protected static ?string $title = 'Seiteneinstellungen';
 
     protected static string $settings = BrandingSettings::class;
 

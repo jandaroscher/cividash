@@ -12,6 +12,7 @@ use Filament\Pages\SettingsPage;
 class ManageGeneral extends SettingsPage
 {
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static ?string $title = 'Seiteneinstellungen';
 
     protected static string $settings = GeneralSettings::class;
 
@@ -20,10 +21,10 @@ class ManageGeneral extends SettingsPage
         return $form
             ->schema([
                 TextInput::make('site_name')
-                    ->label('Site name')
+                    ->label(__('filament.pages.manage_general.site_name'))
                     ->required(),
                 Forms\Components\Checkbox::make('site_active')
-                    ->label('Site active')
+                    ->label(__('filament.pages.manage_general.site_active'))
             ]);
     }
 }

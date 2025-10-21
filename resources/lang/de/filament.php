@@ -36,6 +36,11 @@ return [
             'secondary_color' => 'Sekundärfarbe',
             'logo' => 'Logo',
         ],
+        'manage_general' => [
+            'title' => 'Seiteneinstellungen',
+            'site_name' => 'Seitenname',
+            'site_active' => 'Seite aktiv',
+        ],
     ],
     'resources' => [
         'category' => [
