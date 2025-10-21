@@ -47,7 +47,7 @@ return [
             'navigation_label' => 'Kategorien',
             'model_label' => 'Kategorie',
             'plural_model_label' => 'Kategorien',
-            'slug' => 'Slug',
+            'title' => 'Titel',
             'position' => 'Position',
             'created_at' => 'Erstellt am',
             'updated_at' => 'Aktualisiert am',

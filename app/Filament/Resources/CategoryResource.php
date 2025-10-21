@@ -42,7 +42,7 @@ class CategoryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('slug')
-                    ->label(__('filament.resources.category.slug'))
+                    ->label(__('filament.resources.category.title'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('position')
@@ -58,7 +58,7 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('slug')
-                    ->label(__('filament.resources.category.slug'))
+                    ->label(__('filament.resources.category.title'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('position')
                     ->label(__('filament.resources.category.position'))
