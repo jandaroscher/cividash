@@ -107,6 +107,7 @@ class TileResource extends Resource
                                         Repeater::make('metrics')
                                             ->relationship('metrics')
                                             ->label(__('filament.resources.tile.metrics_label'))
+                                            ->itemLabel(fn (array $state): ?string => $state['label'] ?? null)
                                             ->schema([
                                                 TextInput::make('label')
                                                     ->label(__('filament.resources.tile.label')),
