@@ -21,17 +21,17 @@ class CategoryResource extends Resource
     protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    
+
     public static function getNavigationLabel(): string
     {
         return __('filament.resources.category.navigation_label');
     }
-    
+
     public static function getModelLabel(): string
     {
         return __('filament.resources.category.model_label');
     }
-    
+
     public static function getPluralModelLabel(): string
     {
         return __('filament.resources.category.plural_model_label');
@@ -60,10 +60,6 @@ class CategoryResource extends Resource
                 Tables\Columns\TextColumn::make('slug')
                     ->label(__('filament.resources.category.title'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('position')
-                    ->label(__('filament.resources.category.position'))
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('filament.resources.category.created_at'))
                     ->dateTime()

@@ -140,10 +140,6 @@ class TileResource extends Resource
                 Tables\Columns\TextColumn::make('icon')
                     ->label(__('filament.resources.tile.icon'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('position')
-                    ->label(__('filament.resources.tile.position'))
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('filament.resources.tile.created_at'))
                     ->dateTime()
