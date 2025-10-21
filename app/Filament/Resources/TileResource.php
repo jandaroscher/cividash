@@ -26,73 +26,96 @@ class TileResource extends Resource
     protected static ?string $model = Tile::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.resources.tile.navigation_label');
+    }
+    
+    public static function getModelLabel(): string
+    {
+        return __('filament.resources.tile.model_label');
+    }
+    
+    public static function getPluralModelLabel(): string
+    {
+        return __('filament.resources.tile.plural_model_label');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Tabs::make('Inhalte')
+                Tabs::make(__('filament.tabs.contents'))
                     ->tabs([
                         // Tab 1: Kachel
-                        Tabs\Tab::make('Kachel')
+                        Tabs\Tab::make(__('filament.tabs.tile'))
                             ->schema([
                                 Select::make('categories')
+                                    ->label(__('filament.resources.tile.categories'))
                                     ->relationship('categories', 'slug')
                                     ->preload()
                                     ->multiple(),
-                                TextInput::make('title')->required(),
-                                RichEditor::make('description'),
+                                TextInput::make('title')
+                                    ->label(__('filament.resources.tile.title'))
+                                    ->required(),
+                                RichEditor::make('description')
+                                    ->label(__('filament.resources.tile.description')),
                                 FileUpload::make('icon')
-                                    ->label('Icon')
+                                    ->label(__('filament.resources.tile.icon'))
                                     ->disk('public')
                                     ->directory('tiles')
                                     ->preserveFilenames()
                                     ->required(false),
                                 TextInput::make('position')
+                                    ->label(__('filament.resources.tile.position'))
                                     ->numeric()
                                     ->default(0),
                             ]),
 
                         // Tab 2: Hintergrundseite
-                        Tabs\Tab::make('Hintergrundseite')
+                        Tabs\Tab::make(__('filament.tabs.background_page'))
                             ->schema([
-                                Section::make('Hintergrund')
+                                Section::make(__('filament.sections.background'))
                                     ->relationship('backgroundPage')
                                     ->schema([
                                         TextInput::make('slug')
+                                            ->label(__('filament.resources.tile.slug'))
                                             ->unique(ignoreRecord: true),
-                                        RichEditor::make('content'),
+                                        RichEditor::make('content')
+                                            ->label(__('filament.resources.tile.content')),
                                         TextInput::make('position')
+                                            ->label(__('filament.resources.tile.position'))
                                             ->numeric()
                                             ->default(0),
                                     ]),
                             ]),
 
                         // Tab 3: Kennzahlen
-                        Tabs\Tab::make('Kennzahlen')
+                        Tabs\Tab::make(__('filament.tabs.metrics'))
                             ->schema([
                                 Repeater::make('tileYears')
                                     ->relationship('tileYears')
-                                    ->label('Jahresgruppen')
+                                    ->label(__('filament.resources.tile.year_groups'))
                                     ->defaultItems(0)            // 0 leere Einträge erzeugen
-                                    ->addActionLabel('Jahresgruppe hinzufügen')
+                                    ->addActionLabel(__('filament.resources.tile.add_year_group'))
                                     ->schema([
                                         TextInput::make('year')
-                                            ->label('Jahr')
+                                            ->label(__('filament.resources.tile.year'))
                                             ->numeric(),
                                         Repeater::make('metrics')
                                             ->relationship('metrics')
-                                            ->label('Kennzahlen')
+                                            ->label(__('filament.resources.tile.metrics_label'))
                                             ->schema([
                                                 TextInput::make('label')
-                                                    ->label('Bezeichnung'),
+                                                    ->label(__('filament.resources.tile.label')),
                                                 TextInput::make('value')
-                                                    ->label('Wert')
+                                                    ->label(__('filament.resources.tile.value'))
                                                     ->numeric(),
                                                 TextInput::make('unit')
-                                                    ->label('Einheit'),
+                                                    ->label(__('filament.resources.tile.unit')),
                                                 FileUpload::make('icon')
-                                                    ->label('Icon')
+                                                    ->label(__('filament.resources.tile.icon'))
                                                     ->disk('public')
                                                     ->directory('metrics')
                                                     ->image()
@@ -112,17 +135,22 @@ class TileResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')
+                    ->label(__('filament.resources.tile.title'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('icon')
+                    ->label(__('filament.resources.tile.icon'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('position')
+                    ->label(__('filament.resources.tile.position'))
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label(__('filament.resources.tile.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label(__('filament.resources.tile.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

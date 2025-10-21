@@ -13,6 +13,7 @@ use Filament\Pages\SettingsPage;
 class ManageBranding extends SettingsPage
 {
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static ?string $title = 'Branding-Einstellungen';
 
     protected static string $settings = BrandingSettings::class;
 
@@ -21,15 +22,15 @@ class ManageBranding extends SettingsPage
         return $form
             ->schema([
                 ColorPicker::make('primary_color')
-                    ->label('Primary Color')
+                    ->label(__('filament.pages.manage_branding.primary_color'))
                     ->required(),
 
                 ColorPicker::make('secondary_color')
-                    ->label('Secondary Color')
+                    ->label(__('filament.pages.manage_branding.secondary_color'))
                     ->required(),
 
                 FileUpload::make('logo_url')
-                ->label('Logo')
+                ->label(__('filament.pages.manage_branding.logo'))
                     ->disk('public')
                     ->directory('branding')
                     ->image()
