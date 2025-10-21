@@ -99,6 +99,7 @@ class TileResource extends Resource
                                     ->label(__('filament.resources.tile.year_groups'))
                                     ->defaultItems(0)            // 0 leere Einträge erzeugen
                                     ->addActionLabel(__('filament.resources.tile.add_year_group'))
+                                    ->itemLabel(fn (array $state): ?string => $state['year'] ?? null)
                                     ->schema([
                                         TextInput::make('year')
                                             ->label(__('filament.resources.tile.year'))
