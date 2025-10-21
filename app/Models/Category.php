@@ -13,7 +13,7 @@ class Category extends Model
         'slug'
     ];
 
-    protected $fillable = ['slug', 'position'];
+    protected $fillable = ['slug', 'position', 'icon'];
 
     // cast the JSON -> PHP array
     protected $casts = [

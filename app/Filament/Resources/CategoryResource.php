@@ -45,6 +45,13 @@ class CategoryResource extends Resource
                     ->label(__('filament.resources.category.title'))
                     ->required()
                     ->maxLength(255),
+                Forms\Components\FileUpload::make('icon')
+                    ->label(__('filament.resources.category.icon'))
+                    ->disk('public')
+                    ->directory('categories')
+                    ->image()
+                    ->preserveFilenames()
+                    ->required(false),
                 Forms\Components\TextInput::make('position')
                     ->label(__('filament.resources.category.position'))
                     ->required()
@@ -60,6 +67,11 @@ class CategoryResource extends Resource
                 Tables\Columns\TextColumn::make('slug')
                     ->label(__('filament.resources.category.title'))
                     ->searchable(),
+                Tables\Columns\ImageColumn::make('icon')
+                    ->label(__('filament.resources.category.icon'))
+                    ->disk('public')
+                    ->square()
+                    ->size(40),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('filament.resources.category.created_at'))
                     ->dateTime()
