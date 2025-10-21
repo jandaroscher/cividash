@@ -99,7 +99,7 @@ class TileResource extends Resource
                                     ->label(__('filament.resources.tile.year_groups'))
                                     ->defaultItems(0)            // 0 leere Einträge erzeugen
                                     ->addActionLabel(__('filament.resources.tile.add_year_group'))
-                                    ->itemLabel(fn (array $state): ?string => $state['year'] ?? null)
+                                    ->itemLabel(fn(array $state): ?string => $state['year'] ?? null)
                                     ->schema([
                                         TextInput::make('year')
                                             ->label(__('filament.resources.tile.year'))
@@ -107,7 +107,7 @@ class TileResource extends Resource
                                         Repeater::make('metrics')
                                             ->relationship('metrics')
                                             ->label(__('filament.resources.tile.metrics_label'))
-                                            ->itemLabel(fn (array $state): ?string => $state['label'] ?? null)
+                                            ->itemLabel(fn(array $state): ?string => $state['label'] ?? null)
                                             ->schema([
                                                 TextInput::make('label')
                                                     ->label(__('filament.resources.tile.label')),
@@ -139,9 +139,11 @@ class TileResource extends Resource
                 Tables\Columns\TextColumn::make('title')
                     ->label(__('filament.resources.tile.title'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('icon')
+                Tables\Columns\ImageColumn::make('icon')
                     ->label(__('filament.resources.tile.icon'))
-                    ->searchable(),
+                    ->disk('public')
+                    ->square()
+                    ->size(40),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('filament.resources.tile.created_at'))
                     ->dateTime()
