@@ -63,7 +63,7 @@ return [
             'categories' => 'Kategorien',
             'background_page' => 'Hintergrundseite',
             'background' => 'Hintergrund',
-            'slug' => 'Slug',
+            'slug' => 'Titel',
             'content' => 'Inhalt',
             'metrics' => 'Kennzahlen',
             'year_groups' => 'Jahresgruppen',

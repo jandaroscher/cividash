@@ -26,17 +26,17 @@ class TileResource extends Resource
     protected static ?string $model = Tile::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    
+
     public static function getNavigationLabel(): string
     {
         return __('filament.resources.tile.navigation_label');
     }
-    
+
     public static function getModelLabel(): string
     {
         return __('filament.resources.tile.model_label');
     }
-    
+
     public static function getPluralModelLabel(): string
     {
         return __('filament.resources.tile.plural_model_label');
