@@ -13,19 +13,19 @@ class ManageFooter extends SettingsPage
 {
     protected static string $settings = FooterSettings::class;
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static ?string $title = 'Footer Settings';
+    protected static ?string $title = 'Footer-Einstellungen';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Repeater::make('footer_links')
-                    ->label('Footer Links')
+                    ->label(__('filament.pages.manage_footer.footer_links'))
                     ->schema([
                         TextInput::make('label')
-                            ->label('Link Label'),
+                            ->label(__('filament.pages.manage_footer.link_label')),
                         TextInput::make('url')
-                            ->label('Link URL')
+                            ->label(__('filament.pages.manage_footer.link_url'))
                             ->url()
                             ->required(),
                     ])
@@ -33,36 +33,36 @@ class ManageFooter extends SettingsPage
                     ->columns(2),
 
                 Repeater::make('footer_logos')
-                    ->label('Footer Logos')
+                    ->label(__('filament.pages.manage_footer.footer_logos'))
                     ->schema([
                         FileUpload::make('logo_url')
-                            ->label('Logo Image')
+                            ->label(__('filament.pages.manage_footer.logo_image'))
                             ->image()
                             ->directory('footer-logos')
                             ->required(),
                         TextInput::make('link')
-                            ->label('Destination URL')
+                            ->label(__('filament.pages.manage_footer.destination_url'))
                             ->url(),
                         TextInput::make('title')
-                            ->label('Alt / Tooltip Text'),
+                            ->label(__('filament.pages.manage_footer.alt_tooltip_text')),
                     ])
                     ->orderable()
                     ->columns(3),
 
                 Repeater::make('social_links')
-                    ->label('Social Media Links')
+                    ->label(__('filament.pages.manage_footer.social_media_links'))
                     ->schema([
                         FileUpload::make('icon')
-                            ->label('Icon')
+                            ->label(__('filament.pages.manage_footer.icon'))
                             ->image()
                             ->directory('footer-social-icons')
                             ->required(),
                         TextInput::make('link')
-                            ->label('Profile URL')
+                            ->label(__('filament.pages.manage_footer.profile_url'))
                             ->url()
                             ->required(),
                         TextInput::make('title')
-                            ->label('Tooltip Text'),
+                            ->label(__('filament.pages.manage_footer.tooltip_text')),
                     ])
                     ->orderable()
                     ->columns(3),

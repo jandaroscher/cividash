@@ -22,14 +22,38 @@ class CategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.resources.category.navigation_label');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('filament.resources.category.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('filament.resources.category.plural_model_label');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('slug')
+                    ->label(__('filament.resources.category.title'))
                     ->required()
                     ->maxLength(255),
+                Forms\Components\FileUpload::make('icon')
+                    ->label(__('filament.resources.category.icon'))
+                    ->disk('public')
+                    ->directory('categories')
+                    ->image()
+                    ->preserveFilenames()
+                    ->required(false),
                 Forms\Components\TextInput::make('position')
+                    ->label(__('filament.resources.category.position'))
                     ->required()
                     ->numeric()
                     ->default(0),
@@ -41,15 +65,20 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('slug')
+                    ->label(__('filament.resources.category.title'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('position')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\ImageColumn::make('icon')
+                    ->label(__('filament.resources.category.icon'))
+                    ->disk('public')
+                    ->square()
+                    ->size(40),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label(__('filament.resources.category.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label(__('filament.resources.category.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

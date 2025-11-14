@@ -14,54 +14,54 @@ class ManageContent extends SettingsPage
 {
     protected static string $settings = ContentSettings::class;
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static ?string $title = 'Content Section';
+    protected static ?string $title = 'Inhaltsbereich';
 
     public function form(\Filament\Forms\Form $form): \Filament\Forms\Form
     {
         return $form->schema([
             Builder::make('hero_content')
-                ->label('Hero Blocks')
+                ->label(__('filament.pages.manage_content.hero_blocks'))
                 ->blocks([
                     Builder\Block::make('heading')
-                        ->label('Heading')
+                        ->label(__('filament.pages.manage_content.heading'))
                         ->schema([
                             TextInput::make('content')
-                                ->label('Heading Text')
+                                ->label(__('filament.pages.manage_content.heading_text'))
                                 ->required(),
                             TextInput::make('level')
-                                ->label('HTML Tag (h1–h6)')
+                                ->label(__('filament.pages.manage_content.html_tag'))
                                 ->required(),
                         ]),
 
                     Builder\Block::make('paragraph')
-                        ->label('Paragraph')
+                        ->label(__('filament.pages.manage_content.paragraph'))
                         ->schema([
                             RichEditor::make('content')
-                                ->label('Body Text')
+                                ->label(__('filament.pages.manage_content.body_text'))
                                 ->required(),
                         ]),
 
                     Builder\Block::make('image')
-                        ->label('Image')
+                        ->label(__('filament.pages.manage_content.image'))
                         ->schema([
                             FileUpload::make('url')
-                                ->label('Image File')
+                                ->label(__('filament.pages.manage_content.image_file'))
                                 ->image()
                                 ->required(),
                             TextInput::make('alt')
-                                ->label('Alt Text')
+                                ->label(__('filament.pages.manage_content.alt_text'))
                                 ->required(),
                         ]),
                     Builder\Block::make('text_image')
-                        ->label('Text + Image')
+                        ->label(__('filament.pages.manage_content.text_image'))
                         ->schema([
                             Grid::make()
                                 ->schema([
                                     RichEditor::make('text')
-                                        ->label('Text')
+                                        ->label(__('filament.pages.manage_content.text'))
                                         ->required(),
                                     FileUpload::make('image')
-                                        ->label('Image')
+                                        ->label(__('filament.pages.manage_content.image'))
                                         ->image()
                                         ->directory('hero')
                                         ->required(),
