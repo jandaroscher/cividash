@@ -23,4 +23,14 @@ dev-debug.log
 /.nova
 /.vscode
 /.zed
-.specstory/*
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+.DS_Store
+
+# Task files
+# tasks.json
+# tasks/ 
