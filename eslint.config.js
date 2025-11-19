@@ -6,10 +6,10 @@ export default [
   js.configs.recommended,
   ...vue.configs['flat/recommended'],
   {
+    files: ['resources/js/**/*.{js,vue}'],
     languageOptions: {
       globals: {
         ...globals.browser,
-        ...globals.node,
       },
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -19,6 +19,14 @@ export default [
       'vue/no-unused-vars': 'warn',
       'no-unused-vars': 'warn',
       'no-console': 'warn',
+    },
+  },
+  {
+    files: ['vite.config.js', '*.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
     },
   },
   {
