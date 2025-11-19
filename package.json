@@ -4,7 +4,8 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "lint": "eslint resources/js/**/*.js --fix"
+        "lint": "eslint resources/js/**/*.js",
+        "lint:fix": "eslint resources/js/**/*.js --fix"
     },
     "devDependencies": {
         "@eslint/js": "^9.17.0",
