@@ -17,8 +17,8 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
             $table->integer('year');
+            $table->integer('sort')->default(0);
             $table->timestamps();
-            $table->integer('sort')->default(0)->after('year');
         });
     }
 
