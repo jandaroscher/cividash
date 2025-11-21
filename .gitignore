@@ -36,4 +36,7 @@ dev-debug.log
 # tasks/
 
 # Cursor MCP configuration (contains sensitive API keys)
-.cursor/mcp.json 
+.cursor/mcp.json
+
+# Password files
+.htpasswd 
