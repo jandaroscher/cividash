@@ -9,22 +9,18 @@ export const useBrandingStore = defineStore('branding', {
     actions: {
         async fetch() {
             try {
+                const apiUrl = window.APP_URL || '';
                 const res = await fetch(
-                    import.meta.env.VITE_API_URL + '/api/config/branding',
+                    apiUrl + '/api/config/branding',
                     { credentials: 'include' },
                 );
                 const json = await res.json();
 
                 const { primary_color, secondary_color, logo_url } = json.data;
 
-                this.primaryColor   = primary_color;
+                this.primaryColor = primary_color;
                 this.secondaryColor = secondary_color;
-                this.logoUrl        = logo_url;
-;
-                console.log('branding payload:', json.data);
-                console.log('primaryColor:', this.primaryColor);
-                console.log('secondaryColor:', this.secondaryColor);
-                console.log('logoUrl:', this.logoUrl);
+                this.logoUrl = logo_url;
 
                 document.documentElement.style.setProperty('--primary-color', this.primaryColor);
                 document.documentElement.style.setProperty('--secondary-color', this.secondaryColor);
@@ -34,3 +30,4 @@ export const useBrandingStore = defineStore('branding', {
         },
     },
 });
+

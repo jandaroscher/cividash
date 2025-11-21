@@ -11,7 +11,8 @@ export const useTilesStore = defineStore('tiles', {
             this.loading = true;
             this.error = null;
             try {
-                const res  = await fetch(`${import.meta.env.VITE_API_URL}/api/tiles`);
+                const apiUrl = window.APP_URL || '';
+                const res = await fetch(`${apiUrl}/api/tiles`);
                 const json = await res.json();
                 // ResourceCollection comes back as { data: [ … ] }
                 this.tiles = json.data;
@@ -23,3 +24,4 @@ export const useTilesStore = defineStore('tiles', {
         },
     },
 });
+

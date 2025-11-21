@@ -36,20 +36,17 @@
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue';
+import { onMounted } from 'vue';
 import TileCard from './components/TileCard.vue';
 import { useBrandingStore } from './stores/branding';
-import { useTilesStore }    from './stores/tiles';
-
-// your locale – adjust if you have i18n
-const currentLocale = navigator.language.startsWith('en') ? 'en' : 'de';
+import { useTilesStore } from './stores/tiles';
 
 const branding = useBrandingStore();
 const tilesStore = useTilesStore();
 
 // fetch tiles once the component mounts
+// Note: branding.fetch() is already called in app.js before mounting
 onMounted(() => {
-    branding.fetch();
     tilesStore.fetchAll();
 });
 </script>
@@ -59,3 +56,4 @@ onMounted(() => {
     color: var(--primary-color);
 }
 </style>
+
