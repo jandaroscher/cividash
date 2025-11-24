@@ -1,10 +1,10 @@
 # Basic Authentication
-<IfModule mod_auth_basic.c>
-    AuthType Basic
-    AuthName "Protected Area"
-    AuthUserFile ${DOCUMENT_ROOT}/../.htpasswd
-    Require valid-user
-</IfModule>
+# <IfModule mod_auth_basic.c>
+#     AuthType Basic
+#     AuthName "Protected Area"
+#     AuthUserFile ${DOCUMENT_ROOT}/../.htpasswd
+#     Require valid-user
+# </IfModule>
 
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
