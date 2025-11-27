@@ -12,6 +12,8 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
 use Filament\SpatieLaravelTranslatablePlugin;
+use Z3d0X\FilamentFabricator\FilamentFabricatorPlugin;
+use Z3d0X\FilamentFabricator\Enums\BlockPickerStyle;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -53,10 +55,12 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->plugin(
+            ->plugins([
                 SpatieLaravelTranslatablePlugin::make()
-                    ->defaultLocales(['de', 'en'])
-            )
+                    ->defaultLocales(['de', 'en']),
+                FilamentFabricatorPlugin::make()
+                    ->blockPickerStyle(BlockPickerStyle::Modal),
+            ])
             ->authMiddleware([
                 Authenticate::class,
             ]);

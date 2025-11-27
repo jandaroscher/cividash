@@ -37,6 +37,13 @@ dev-debug.log
 
 # Cursor MCP configuration (contains sensitive API keys)
 .cursor/mcp.json
-
+.cursor/plans/
 # Password files
-.htpasswd 
+.htpasswd
+
+# Debug scripts (should not be committed)
+/check_*.php
+/debug_*.php
+/test_*_model.php 
+/test_*.php
+/stadt-regensburg-dashboard/

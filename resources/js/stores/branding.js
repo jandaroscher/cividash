@@ -22,8 +22,12 @@ export const useBrandingStore = defineStore('branding', {
                 this.secondaryColor = secondary_color;
                 this.logoUrl = logo_url;
 
-                document.documentElement.style.setProperty('--primary-color', this.primaryColor);
-                document.documentElement.style.setProperty('--secondary-color', this.secondaryColor);
+                document.documentElement.style.setProperty('--primary-color', this.primaryColor || '#1976d2');
+                document.documentElement.style.setProperty('--secondary-color', this.secondaryColor || '#0d47a1');
+                
+                // Set accent color for themeable styling (use primary color as accent, or fallback to default)
+                document.documentElement.style.setProperty('--accent-color', this.primaryColor || '#E30613');
+                document.documentElement.style.setProperty('--accent-color-dark', this.secondaryColor || '#891F00');
             } catch (error) {
                 logError('Failed to fetch branding settings:', error);
             }

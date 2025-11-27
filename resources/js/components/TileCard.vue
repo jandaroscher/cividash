@@ -1,16 +1,16 @@
 <template>
-    <div class="rounded-lg overflow-hidden">
+    <div class="max-w-[363px] block hyphens-auto shadow-card">
         <!-- Colored header pane -->
         <div :class="[backgroundClass]" class="py-6 px-4 text-black relative">
             <img
                 v-if="tile.icon"
                 :src="tile.icon"
-                alt=""
+                :alt="`${localizedTitle} icon`"
                 class="w-8 h-8 absolute top-4 right-4"
             />
-            <h2 class="text-3xl font-bold hyphens-auto">
+            <div class="text-3xl font-bold mb-4 hyphens-auto px-4">
                 {{ localizedTitle }}
-            </h2>
+            </div>
         </div>
 
         <!-- White content pane -->

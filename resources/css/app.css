@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -7,16 +8,123 @@
 @source '../**/*.vue';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    /* Font Family */
+    --font-sans: 'Open Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    
+    /* Tailwind Color Tokens - Themeable via CSS variables */
+    --color-accent: var(--accent-color, #E30613);
+    --color-accent-dark: var(--accent-color-dark, #891F00);
+    --color-orange-100: var(--dimension-orange-color-100, #FFDEC5);
+    --color-orange-200: var(--dimension-orange-color-200, #ea8e05);
+    --color-orange-300: var(--dimension-orange-color-300, #e46e38);
+    --color-orange-400: var(--dimension-orange-color-400, #c44c19);
+    --color-blue-100: var(--dimension-blue-color-100, #CBE5F5);
+    --color-blue-200: var(--dimension-blue-color-200, #5D99BC);
+    --color-blue-300: var(--dimension-blue-color-300, #337ea9);
+    --color-blue-400: var(--dimension-blue-color-400, #3381AF);
+    --color-green-100: var(--dimension-green-color-100, #C8E3D4);
+    --color-green-200: var(--dimension-green-color-200, #69A985);
+    --color-green-300: var(--dimension-green-color-300, #469267);
+    --color-green-400: var(--dimension-green-color-400, #0D7B56);
+    
+    /* Gray Colors (non-themeable, static) */
+    --color-gray-100: #dcdddd;
+    --color-gray-200: #E5E5E5;
+    --color-gray-250: #B7B7B7;
+    --color-gray-300: #969696;
+    --color-gray-400: #9B9B9B;
+    --color-gray-500: #707070;
+    --color-gray-700: #191919;
+    
+    /* Custom Spacing */
+    --spacing-13: 52px;
+    --spacing-15: 60px;
+    --spacing-19: 76px;
+    --spacing-20: 80px;
+    --spacing-30: 120px;
+    
+    /* Z-index tokens for better management */
+    --z-base: 0;
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
 }
 
 :root {
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     line-height: 1.5;
     font-weight: 400;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    
+    /* Default themeable colors (can be overridden by backend via branding store) */
+    --accent-color: #E30613;
+    --accent-color-dark: #891F00;
+    --dimension-orange-color-100: #FFDEC5;
+    --dimension-orange-color-200: #ea8e05;
+    --dimension-orange-color-300: #e46e38;
+    --dimension-orange-color-400: #c44c19;
+    --dimension-blue-color-100: #CBE5F5;
+    --dimension-blue-color-200: #5D99BC;
+    --dimension-blue-color-300: #337ea9;
+    --dimension-blue-color-400: #3381AF;
+    --dimension-green-color-100: #C8E3D4;
+    --dimension-green-color-200: #69A985;
+    --dimension-green-color-300: #469267;
+    --dimension-green-color-400: #0D7B56;
+}
+
+/* Custom container class */
+@layer components {
+    .container {
+        width: 100%;
+        margin-right: auto;
+        margin-left: auto;
+        padding-right: 30px;
+        padding-left: 30px;
+    }
+    
+    @media (min-width: 1024px) {
+        .container {
+            max-width: 1024px;
+        }
+    }
+    
+    @media (min-width: 1230px) {
+        .container {
+            max-width: 1230px;
+        }
+    }
+}
+
+/* Custom utility classes for shadows */
+@layer utilities {
+    .shadow-header {
+        box-shadow: 0px 3px 15px #00000029;
+    }
+    .shadow-card {
+        box-shadow: 0px 4px 10px #0000001A;
+    }
+    .shadow-filter {
+        box-shadow: 0px 4px 10px #707070;
+    }
+    .shadow-info {
+        box-shadow: 0px 1px 10px #707070;
+    }
+    .shadow-info-close {
+        box-shadow: 0px 1px 10px #9B9B9B;
+    }
+    .shadow-textarea {
+        box-shadow: 0px 3px 15px #00000029;
+    }
+    .shadow-arrow {
+        box-shadow: 0px 3px 6px #00000029;
+    }
 }

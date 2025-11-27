@@ -13,7 +13,8 @@
         "filament/spatie-laravel-translatable-plugin": "^3.2",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
-        "laravel/tinker": "^2.10"
+        "laravel/tinker": "^2.10",
+        "z3d0x/filament-fabricator": "^2.7"
     },
     "require-dev": {
         "laravel/pail": "^1.2.2",

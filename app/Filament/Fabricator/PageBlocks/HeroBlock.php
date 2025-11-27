@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Filament\Fabricator\PageBlocks;
+
+use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
+
+class HeroBlock extends PageBlock
+{
+    public static function getBlockSchema(): Block
+    {
+        return Block::make('hero')
+            ->label('Hero Section')
+            ->icon('heroicon-o-photo')
+            ->schema([
+                TextInput::make('title')
+                    ->label('Titel')
+                    ->required()
+                    ->maxLength(255),
+                Textarea::make('subtitle')
+                    ->label('Untertitel')
+                    ->rows(3)
+                    ->maxLength(500),
+                FileUpload::make('image')
+                    ->label('Bild')
+                    ->image()
+                    ->directory('hero-images')
+                    ->disk('public')
+                    ->imageEditor()
+                    ->imageEditorAspectRatios([
+                        '16:9',
+                        '21:9',
+                    ]),
+                TextInput::make('image_alt')
+                    ->label('Image Alt Text')
+                    ->helperText('Describe the image for screen reader users')
+                    ->maxLength(255),
+                TextInput::make('cta_text')
+                    ->label('CTA Button Text')
+                    ->maxLength(50),
+                TextInput::make('cta_url')
+                    ->label('CTA Button URL')
+                    ->url()
+                    ->maxLength(255),
+            ]);
+    }
+}
+
