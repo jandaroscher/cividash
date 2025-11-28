@@ -12,11 +12,17 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class TileController extends Controller
 {
+    /**
+     * Return a collection of TileResource instances ordered by tile position.
+     *
+     * The returned resources include eager-loaded `categories` and `tileYears.metrics`.
+     *
+     * @param Request $request Request that may contain an optional `locale` query parameter for localization.
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection A collection of TileResource objects representing tiles ordered by `position`.
+     */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $locale = $request->query('locale');
-
-        $tiles = Tile::with(['categories','backgroundPage','tileYears.metrics'])
+        $tiles = Tile::with(['categories','tileYears.metrics'])
             ->orderBy('position')
             ->get();
 
@@ -24,9 +30,15 @@ class TileController extends Controller
         return TileResource::collection($tiles);
     }
 
-    public function show(Request $request, Tile $tile): TileResource
+    /**
+     * Create a TileResource for the provided Tile with categories and tile years' metrics preloaded.
+     *
+     * @param \App\Models\Tile $tile The Tile model to wrap.
+     * @return \App\Http\Resources\TileResource A resource representing the tile including its categories and tile years' metrics.
+     */
+    public function show(Tile $tile): TileResource
     {
-        $tile->load(['categories','backgroundPage','tileYears.metrics']);
+        $tile->load(['categories','tileYears.metrics']);
 
         return new TileResource($tile);
     }

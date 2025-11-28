@@ -64,6 +64,7 @@ return [
             'categories' => 'Kategorien',
             'background_page' => 'Hintergrundseite',
             'background' => 'Hintergrund',
+            'background_blocks' => 'Hintergrund-Blöcke',
             'slug' => 'Titel',
             'content' => 'Inhalt',
             'metrics' => 'Kennzahlen',

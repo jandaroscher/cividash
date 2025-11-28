@@ -2,14 +2,30 @@
 
 namespace App\Http\Resources;
 
+use App\Services\Content\BlockTransformer;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
 class TileResource extends JsonResource
 {
+    /**
+     * Transform the resource into an array for JSON responses.
+     *
+     * Returns an associative array containing:
+     * - `id`: tile identifier
+     * - `categories`: collection of category slugs
+     * - `title` / `description`: either all translations or a single locale's translation when the `locale` query parameter is provided
+     * - `icon`: public URL for the icon or `null`
+     * - `background_blocks`: transformed blocks in API format or `null`
+     * - `years`: collection of related years via TileYearResource when the relation is loaded
+     *
+     * @param \Illuminate\Http\Request $request Incoming request (reads optional `locale` query parameter).
+     * @return array The resource represented as an associative array for JSON serialization.
+     */
     public function toArray($request): array
     {
         $locale = $request->query('locale');
+        $blockTransformer = new BlockTransformer();
 
         return [
             'id'         => $this->id,
@@ -28,16 +44,9 @@ class TileResource extends JsonResource
                 ? Storage::disk('public')->url($this->icon)
                 : null,
 
-            // BackgroundPage: same pattern
-            'backgroundPage' => $this->backgroundPage
-                ? [
-                    'slug'    => $locale
-                        ? $this->backgroundPage->getTranslation('slug', $locale)
-                        : $this->backgroundPage->getTranslations('slug'),
-                    'content' => $locale
-                        ? $this->backgroundPage->getTranslation('content', $locale)
-                        : $this->backgroundPage->getTranslations('content'),
-                ]
+            // Background blocks: transform from Filament Builder format to API format
+            'background_blocks' => $this->background_blocks
+                ? $blockTransformer->transform($this->background_blocks)
                 : null,
 
             // Years & Metrics: delegate to their Resources

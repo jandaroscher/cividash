@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TileResource\Pages;
 use App\Filament\Resources\TileResource\RelationManagers;
 use App\Models\Tile;
+use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -16,6 +17,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Z3d0X\FilamentFabricator\Facades\FilamentFabricator;
 
 use Filament\Resources\Concerns\Translatable;
 
@@ -42,6 +44,12 @@ class TileResource extends Resource
         return __('filament.resources.tile.plural_model_label');
     }
 
+    /**
+     * Configure the form schema for the Tile resource with three tabs: Tile (basic fields and relationships), Background Page (block builder), and Metrics (nested repeaters for year groups and metrics).
+     *
+     * @param Form $form The form instance to configure.
+     * @return Form The configured form containing the Tabs schema, a Builder for background blocks, and nested Repeaters for tile years and metrics.
+     */
     public static function form(Form $form): Form
     {
         return $form
@@ -76,19 +84,11 @@ class TileResource extends Resource
                         // Tab 2: Hintergrundseite
                         Tabs\Tab::make(__('filament.tabs.background_page'))
                             ->schema([
-                                Section::make(__('filament.sections.background'))
-                                    ->relationship('backgroundPage')
-                                    ->schema([
-                                        TextInput::make('slug')
-                                            ->label(__('filament.resources.tile.slug'))
-                                            ->unique(ignoreRecord: true),
-                                        RichEditor::make('content')
-                                            ->label(__('filament.resources.tile.content')),
-                                        TextInput::make('position')
-                                            ->label(__('filament.resources.tile.position'))
-                                            ->numeric()
-                                            ->default(0),
-                                    ]),
+                                Builder::make('background_blocks')
+                                    ->label(__('filament.resources.tile.background_blocks'))
+                                    ->blocks(static::getBackgroundBlockSchemas())
+                                    ->collapsible()
+                                    ->collapsed(false),
                             ]),
 
                         // Tab 3: Kennzahlen
@@ -175,6 +175,11 @@ class TileResource extends Resource
         ];
     }
 
+    /**
+     * Register the resource's pages and their routes.
+     *
+     * @return array<string, mixed> Associative array mapping page identifiers ('index', 'create', 'edit') to their routed page classes.
+     */
     public static function getPages(): array
     {
         return [
@@ -182,5 +187,27 @@ class TileResource extends Resource
             'create' => Pages\CreateTile::route('/create'),
             'edit' => Pages\EditTile::route('/{record}/edit'),
         ];
+    }
+
+    /**
+         * Load and return Builder block schemas registered via the Fabricator configuration.
+         *
+         * Reads the `filament-fabricator.page-blocks.register` config, calls `getBlockSchema()` on each valid block class,
+         * and returns the collected Builder block schemas.
+         *
+         * @return array<\Filament\Forms\Components\Builder\Block> The array of Builder block schemas to use in the background blocks.
+         */
+    protected static function getBackgroundBlockSchemas(): array
+    {
+        $blocks = [];
+        $registeredBlocks = config('filament-fabricator.page-blocks.register', []);
+
+        foreach ($registeredBlocks as $blockClass) {
+            if (class_exists($blockClass) && method_exists($blockClass, 'getBlockSchema')) {
+                $blocks[] = $blockClass::getBlockSchema();
+            }
+        }
+
+        return $blocks;
     }
 }
