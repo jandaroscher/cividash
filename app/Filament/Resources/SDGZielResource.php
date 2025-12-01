@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CategoryResource\Pages;
-use App\Filament\Resources\CategoryResource\RelationManagers;
-use App\Models\Category;
+use App\Filament\Resources\SDGZielResource\Pages;
+use App\Filament\Resources\SDGZielResource\RelationManagers;
+use App\Models\SDGZiel;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Concerns\Translatable;
@@ -14,46 +14,54 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class CategoryResource extends Resource
+class SDGZielResource extends Resource
 {
     use Translatable;
 
-    protected static ?string $model = Category::class;
+    protected static ?string $model = SDGZiel::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?int $navigationSort = 3;
+
     public static function getNavigationLabel(): string
     {
-        return __('filament.resources.category.navigation_label');
+        return __('filament.resources.sdg_ziel.navigation_label');
     }
 
     public static function getModelLabel(): string
     {
-        return __('filament.resources.category.model_label');
+        return __('filament.resources.sdg_ziel.model_label');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('filament.resources.category.plural_model_label');
+        return __('filament.resources.sdg_ziel.plural_model_label');
     }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('slug')
-                    ->label(__('filament.resources.category.title'))
+                Forms\Components\TextInput::make('number')
+                    ->label(__('filament.resources.sdg_ziel.number'))
                     ->required()
-                    ->maxLength(255),
+                    ->numeric()
+                    ->minValue(1)
+                    ->maxValue(17)
+                    ->disabled(fn ($record) => $record !== null), // Number cannot be changed after creation
+                Forms\Components\TextInput::make('title')
+                    ->label(__('filament.resources.sdg_ziel.title'))
+                    ->required(),
                 Forms\Components\FileUpload::make('icon')
-                    ->label(__('filament.resources.category.icon'))
+                    ->label(__('filament.resources.sdg_ziel.icon'))
                     ->disk('public')
-                    ->directory('categories')
+                    ->directory('sdg-ziele')
                     ->image()
                     ->preserveFilenames()
                     ->required(false),
                 Forms\Components\TextInput::make('position')
-                    ->label(__('filament.resources.category.position'))
+                    ->label(__('filament.resources.sdg_ziel.position'))
                     ->required()
                     ->numeric()
                     ->default(0),
@@ -64,21 +72,29 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('slug')
-                    ->label(__('filament.resources.category.title'))
+                Tables\Columns\TextColumn::make('number')
+                    ->label(__('filament.resources.sdg_ziel.number'))
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('title')
+                    ->label(__('filament.resources.sdg_ziel.title'))
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('icon')
-                    ->label(__('filament.resources.category.icon'))
+                    ->label(__('filament.resources.sdg_ziel.icon'))
                     ->disk('public')
                     ->square()
                     ->size(40),
+                Tables\Columns\TextColumn::make('position')
+                    ->label(__('filament.resources.sdg_ziel.position'))
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label(__('filament.resources.category.created_at'))
+                    ->label(__('filament.resources.sdg_ziel.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label(__('filament.resources.category.updated_at'))
+                    ->label(__('filament.resources.sdg_ziel.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -106,14 +122,9 @@ class CategoryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCategories::route('/'),
-            'create' => Pages\CreateCategory::route('/create'),
-            'edit' => Pages\EditCategory::route('/{record}/edit'),
+            'index' => Pages\ListSDGZiels::route('/'),
+            'create' => Pages\CreateSDGZiel::route('/create'),
+            'edit' => Pages\EditSDGZiel::route('/{record}/edit'),
         ];
-    }
-
-    public static function shouldRegisterNavigation(): bool
-    {
-        return false; // Hide from navigation, use HandlungsfeldResource instead
     }
 }

@@ -22,7 +22,7 @@ class TileController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $tiles = Tile::with(['categories','tileYears.metrics'])
+        $tiles = Tile::with(['categories', 'handlungsdimension', 'sdgZiele', 'tileYears.metrics'])
             ->orderBy('position')
             ->get();
 
@@ -38,7 +38,7 @@ class TileController extends Controller
      */
     public function show(Tile $tile): TileResource
     {
-        $tile->load(['categories','tileYears.metrics']);
+        $tile->load(['categories', 'handlungsdimension', 'sdgZiele', 'tileYears.metrics']);
 
         return new TileResource($tile);
     }

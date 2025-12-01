@@ -29,7 +29,22 @@ class TileResource extends JsonResource
 
         return [
             'id'         => $this->id,
-            'categories' => $this->categories->pluck('slug'),
+
+            // Handlungsfelder (same as categories, but using resource)
+            'handlungsfelder' => HandlungsfeldResource::collection(
+                $this->relationLoaded('handlungsfelder') ? $this->handlungsfelder : $this->categories
+            ),
+
+            // Handlungsdimension
+            'handlungsdimension' => $this->when(
+                $this->relationLoaded('handlungsdimension') && $this->handlungsdimension,
+                fn () => new HandlungsdimensionResource($this->handlungsdimension)
+            ),
+
+            // SDG-Ziele
+            'sdg_ziele' => SDGZielResource::collection(
+                $this->whenLoaded('sdgZiele')
+            ),
 
             // Title & description: all or single
             'title'       => $locale

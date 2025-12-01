@@ -1,0 +1,10 @@
+{
+  "handlungsfelder": {
+    "1": {
+      "title": "Test Category"
+    }
+  },
+  "kacheln": {
+    "invalid": "not a valid tile structure"
+  }
+invalid json here

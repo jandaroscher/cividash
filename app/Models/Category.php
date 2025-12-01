@@ -13,11 +13,12 @@ class Category extends Model
         'slug'
     ];
 
-    protected $fillable = ['slug', 'position', 'icon'];
+    protected $fillable = ['slug', 'position', 'icon', 'last_synced_at', 'source_hash'];
 
     // cast the JSON -> PHP array
     protected $casts = [
         'slug' => 'array',
+        'last_synced_at' => 'datetime',
     ];
 
     public function tiles()

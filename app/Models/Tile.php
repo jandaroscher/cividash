@@ -15,10 +15,13 @@ class Tile extends Model
         'description',
     ];
 
-    protected $fillable = ['title', 'description', 'icon', 'position', 'background_blocks'];
+    protected $fillable = ['title', 'description', 'icon', 'position', 'background_blocks', 'last_synced_at', 'source_hash', 'handlungsdimension_id'];
 
     protected $casts = [
+        'title' => 'array',
+        'description' => 'array',
         'background_blocks' => 'array',
+        'last_synced_at' => 'datetime',
     ];
 
     /**
@@ -29,6 +32,31 @@ class Tile extends Model
     public function categories()
     {
         return $this->belongsToMany(Category::class);
+    }
+
+    /**
+     * Get the handlungsfelder (categories) that belong to this tile.
+     * Alias for categories() for consistency with new naming.
+     */
+    public function handlungsfelder()
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    /**
+     * Get the SDG goals that belong to this tile.
+     */
+    public function sdgZiele()
+    {
+        return $this->belongsToMany(SDGZiel::class, 'tile_sdg_ziel', 'tile_id', 'sdg_ziel_id');
+    }
+
+    /**
+     * Get the handlungsdimension that belongs to this tile.
+     */
+    public function handlungsdimension()
+    {
+        return $this->belongsTo(Handlungsdimension::class);
     }
 
     // Background blocks are now embedded directly in the tile model

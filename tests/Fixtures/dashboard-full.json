@@ -1,0 +1,97 @@
+{
+  "handlungsfelder": {
+    "1": {
+      "title": "Partizipation und Teilhabe"
+    },
+    "2": {
+      "title": "Digitalisierung"
+    },
+    "3": {
+      "title": "Klimaschutz"
+    },
+    "4": {
+      "title": "Nachhaltige Mobilität"
+    },
+    "5": {
+      "title": "Soziale Gerechtigkeit"
+    }
+  },
+  "kacheln": {
+    "1": {
+      "id": 1,
+      "title": "Bürgerbeteiligung",
+      "title_en": "Citizen Participation",
+      "descr": "Umfassende Beschreibung zur Bürgerbeteiligung mit vielen Details",
+      "descr_en": "Comprehensive description of citizen participation with many details",
+      "sortby": 1,
+      "upload_grafik": "/uploads/icons/buergerbeteiligung.png",
+      "background_image": "/uploads/backgrounds/bg1.jpg",
+      "background_text": "Ausführlicher Hintergrundtext zur Bürgerbeteiligung mit mehreren Absätzen",
+      "background_text_en": "Detailed background text on citizen participation with multiple paragraphs",
+      "contribution_text": "Beitragstext zur Bürgerbeteiligung",
+      "contribution_text_en": "Contribution text on citizen participation",
+      "lnk_handlungsfelder": [1, 2],
+      "slider_title_1": "Erstes Slider-Element",
+      "slider_text_1": "Beschreibung des ersten Slider-Elements",
+      "slider_image_1": "/uploads/slider/slide1.jpg",
+      "slider_link_1": "https://example.com/slide1",
+      "slider_title_1_en": "First Slider Item",
+      "slider_text_1_en": "Description of first slider item",
+      "slider_title_2": "Zweites Slider-Element",
+      "slider_text_2": "Beschreibung des zweiten Slider-Elements",
+      "slider_image_2": "/uploads/slider/slide2.jpg",
+      "slider_link_2": "https://example.com/slide2",
+      "slider_title_2_en": "Second Slider Item",
+      "slider_text_2_en": "Description of second slider item",
+      "slider_title_3": "Drittes Slider-Element",
+      "slider_text_3": "Beschreibung des dritten Slider-Elements",
+      "slider_image_3": "/uploads/slider/slide3.jpg"
+    },
+    "2": {
+      "id": 2,
+      "title": "Digitale Verwaltung",
+      "title_en": "Digital Administration",
+      "descr": "Beschreibung zur digitalen Verwaltung",
+      "descr_en": "Description of digital administration",
+      "sortby": 2,
+      "background_text": "Hintergrundtext zur digitalen Verwaltung",
+      "background_text_en": "Background text on digital administration",
+      "lnk_handlungsfelder": [2]
+    },
+    "3": {
+      "id": 3,
+      "title": "Klimaneutralität",
+      "title_en": "Climate Neutrality",
+      "descr": "Beschreibung zur Klimaneutralität",
+      "descr_en": "Description of climate neutrality",
+      "sortby": 3,
+      "background_text": "Hintergrundtext",
+      "contribution_text": "Beitragstext zur Klimaneutralität",
+      "contribution_text_en": "Contribution text on climate neutrality",
+      "lnk_handlungsfelder": [3]
+    },
+    "4": {
+      "id": 4,
+      "title": "E-Mobilität",
+      "title_en": null,
+      "descr": "Beschreibung zur E-Mobilität",
+      "descr_en": null,
+      "sortby": 4,
+      "lnk_handlungsfelder": [4],
+      "slider_title_1": "E-Auto",
+      "slider_text_1": "Informationen zu E-Autos",
+      "slider_image_1": "/uploads/slider/eauto.jpg"
+    },
+    "5": {
+      "id": 5,
+      "title": "Soziale Projekte",
+      "title_en": "Social Projects",
+      "descr": "Beschreibung zu sozialen Projekten",
+      "descr_en": "Description of social projects",
+      "sortby": 5,
+      "background_text": "Hintergrundtext",
+      "lnk_handlungsfelder": [5, 1]
+    }
+  }
+}
+

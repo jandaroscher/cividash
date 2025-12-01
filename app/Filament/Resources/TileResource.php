@@ -59,11 +59,25 @@ class TileResource extends Resource
                         // Tab 1: Kachel
                         Tabs\Tab::make(__('filament.tabs.tile'))
                             ->schema([
-                                Select::make('categories')
-                                    ->label(__('filament.resources.tile.categories'))
-                                    ->relationship('categories', 'slug')
+                                Select::make('handlungsfelder')
+                                    ->label(__('filament.resources.tile.handlungsfelder'))
+                                    ->relationship('handlungsfelder', 'slug')
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->getTranslation('slug', app()->getLocale()))
                                     ->preload()
                                     ->multiple(),
+                                Select::make('handlungsdimension_id')
+                                    ->label(__('filament.resources.tile.handlungsdimension'))
+                                    ->relationship('handlungsdimension', 'title')
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->getTranslation('title', app()->getLocale()))
+                                    ->preload()
+                                    ->searchable(),
+                                Select::make('sdgZiele')
+                                    ->label(__('filament.resources.tile.sdg_ziele'))
+                                    ->relationship('sdgZiele', 'title')
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->getTranslation('title', app()->getLocale()))
+                                    ->preload()
+                                    ->multiple()
+                                    ->searchable(),
                                 TextInput::make('title')
                                     ->label(__('filament.resources.tile.title'))
                                     ->required(),

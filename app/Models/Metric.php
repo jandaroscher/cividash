@@ -16,6 +16,7 @@ class Metric extends Model
 
     protected $fillable = [
         'tile_year_id',
+        'metric_key',
         'label',
         'value',
         'unit',

@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\ConfigController;
+use App\Http\Controllers\Api\HandlungsdimensionController;
+use App\Http\Controllers\Api\HandlungsfeldController;
+use App\Http\Controllers\Api\SDGZielController;
 use App\Http\Controllers\Api\TileController;
 use App\Http\Controllers\Api\Content\PageController as ContentPageController;
 use Illuminate\Http\Request;
@@ -12,6 +15,9 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/tiles', [TileController::class, 'index']);
 Route::get('/tiles/{tile}', [TileController::class, 'show']);
+Route::get('/handlungsfelder', [HandlungsfeldController::class, 'index']);
+Route::get('/handlungsdimensionen', [HandlungsdimensionController::class, 'index']);
+Route::get('/sdg-ziele', [SDGZielController::class, 'index']);
 Route::get('/config/branding', [ConfigController::class, 'branding']);
 Route::get('/config/general', [ConfigController::class, 'general']);
 Route::get('/config/footer', [ConfigController::class, 'footer']);

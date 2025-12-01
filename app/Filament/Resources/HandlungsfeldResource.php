@@ -2,8 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CategoryResource\Pages;
-use App\Filament\Resources\CategoryResource\RelationManagers;
+use App\Filament\Resources\HandlungsfeldResource\Pages;
 use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,10 +10,8 @@ use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class CategoryResource extends Resource
+class HandlungsfeldResource extends Resource
 {
     use Translatable;
 
@@ -22,19 +19,21 @@ class CategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?int $navigationSort = 1;
+
     public static function getNavigationLabel(): string
     {
-        return __('filament.resources.category.navigation_label');
+        return __('filament.resources.handlungsfeld.navigation_label');
     }
 
     public static function getModelLabel(): string
     {
-        return __('filament.resources.category.model_label');
+        return __('filament.resources.handlungsfeld.model_label');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('filament.resources.category.plural_model_label');
+        return __('filament.resources.handlungsfeld.plural_model_label');
     }
 
     public static function form(Form $form): Form
@@ -42,18 +41,18 @@ class CategoryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('slug')
-                    ->label(__('filament.resources.category.title'))
+                    ->label(__('filament.resources.handlungsfeld.title'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\FileUpload::make('icon')
-                    ->label(__('filament.resources.category.icon'))
+                    ->label(__('filament.resources.handlungsfeld.icon'))
                     ->disk('public')
-                    ->directory('categories')
+                    ->directory('handlungsfelder')
                     ->image()
                     ->preserveFilenames()
                     ->required(false),
                 Forms\Components\TextInput::make('position')
-                    ->label(__('filament.resources.category.position'))
+                    ->label(__('filament.resources.handlungsfeld.position'))
                     ->required()
                     ->numeric()
                     ->default(0),
@@ -65,20 +64,24 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('slug')
-                    ->label(__('filament.resources.category.title'))
+                    ->label(__('filament.resources.handlungsfeld.title'))
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('icon')
-                    ->label(__('filament.resources.category.icon'))
+                    ->label(__('filament.resources.handlungsfeld.icon'))
                     ->disk('public')
                     ->square()
                     ->size(40),
+                Tables\Columns\TextColumn::make('position')
+                    ->label(__('filament.resources.handlungsfeld.position'))
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label(__('filament.resources.category.created_at'))
+                    ->label(__('filament.resources.handlungsfeld.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label(__('filament.resources.category.updated_at'))
+                    ->label(__('filament.resources.handlungsfeld.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -106,14 +109,10 @@ class CategoryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCategories::route('/'),
-            'create' => Pages\CreateCategory::route('/create'),
-            'edit' => Pages\EditCategory::route('/{record}/edit'),
+            'index' => Pages\ListHandlungsfelder::route('/'),
+            'create' => Pages\CreateHandlungsfeld::route('/create'),
+            'edit' => Pages\EditHandlungsfeld::route('/{record}/edit'),
         ];
     }
-
-    public static function shouldRegisterNavigation(): bool
-    {
-        return false; // Hide from navigation, use HandlungsfeldResource instead
-    }
 }
+

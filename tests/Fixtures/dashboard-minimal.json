@@ -1,0 +1,93 @@
+{
+  "handlungsfelder": {
+    "1": {
+      "title": "Partizipation und Teilhabe"
+    },
+    "2": {
+      "title": "Digitalisierung"
+    },
+    "3": {
+      "title": "Klimaschutz"
+    }
+  },
+  "kacheln": {
+    "1": {
+      "id": 1,
+      "title": "Bürgerbeteiligung",
+      "title_en": "Citizen Participation",
+      "descr": "Beschreibung zur Bürgerbeteiligung",
+      "descr_en": "Description of citizen participation",
+      "sortby": 1,
+      "upload_grafik": "/uploads/icons/buergerbeteiligung.png",
+      "background_text": "Hintergrundtext zur Bürgerbeteiligung",
+      "background_text_en": "Background text on citizen participation",
+      "contribution_text": "Beitragstext",
+      "contribution_text_en": "Contribution text",
+      "lnk_handlungsfelder": [1, 2],
+      "slider_title_1": "Slider Item 1",
+      "slider_text_1": "Beschreibung Slider 1",
+      "slider_image_1": "/uploads/slider/slide1.jpg",
+      "slider_link_1": "https://example.com/slide1",
+      "slider_title_1_en": "Slider Item 1 EN",
+      "slider_text_1_en": "Description Slider 1 EN"
+    },
+    "2": {
+      "id": 2,
+      "title": "Digitale Verwaltung",
+      "title_en": null,
+      "descr": "Beschreibung zur digitalen Verwaltung",
+      "descr_en": null,
+      "sortby": 2,
+      "background_text": "Hintergrundtext",
+      "lnk_handlungsfelder": [2]
+    },
+    "3": {
+      "id": 3,
+      "title": "Klimaneutralität",
+      "title_en": "Climate Neutrality",
+      "descr": "Beschreibung zur Klimaneutralität",
+      "descr_en": "Description of climate neutrality",
+      "sortby": 3,
+      "background_text": "Hintergrundtext",
+      "contribution_text": "Beitragstext",
+      "lnk_handlungsfelder": [3],
+      "slider_title_1": "Slider 1",
+      "slider_text_1": "Text 1",
+      "slider_image_1": "/uploads/slider/slide1.jpg",
+      "slider_title_2": "Slider 2",
+      "slider_text_2": "Text 2",
+      "slider_image_2": "/uploads/slider/slide2.jpg",
+      "lnk_kennzahlen": [101]
+    }
+  },
+  "Kennzahlen": {
+    "101": {
+      "id": 101,
+      "key": "test_metric",
+      "title": "Test Kennzahl",
+      "title_en": "Test Metric",
+      "unit": "Stück",
+      "upload": {
+        "systemurl": "/uploads/icons/metric.png"
+      }
+    }
+  },
+  "daten": {
+    "1": {
+      "id": 1,
+      "datetime": "2020-12-31 00:00:00",
+      "test_metric": 100
+    },
+    "2": {
+      "id": 2,
+      "datetime": "2021-12-31 00:00:00",
+      "test_metric": 110
+    },
+    "3": {
+      "id": 3,
+      "datetime": "2022-12-31 00:00:00",
+      "test_metric": 120
+    }
+  }
+}
+
