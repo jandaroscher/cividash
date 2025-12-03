@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class HandlungsdimensionResource extends JsonResource
 {
@@ -23,8 +24,9 @@ class HandlungsdimensionResource extends JsonResource
             'title' => $locale
                 ? $this->getTranslation('title', $locale)
                 : $this->getTranslations('title'),
-            'icon' => $this->icon,
+            'icon' => $this->icon ? Storage::disk('public')->url($this->icon) : null,
             'position' => $this->position,
+            'color' => $this->color,
         ];
     }
 }

@@ -21,6 +21,7 @@ class Metric extends Model
         'value',
         'unit',
         'icon',
+        'indicator_type',
     ];
 
     public function tileYear()

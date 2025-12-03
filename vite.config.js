@@ -9,7 +9,13 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/islands.js'],
             refresh: true,
         }),
-        vue(),
+        vue({
+            template: {
+                compilerOptions: {
+                    isCustomElement: (tag) => ['dotlottie-player'].includes(tag),
+                },
+            },
+        }),
         tailwindcss(),
     ],
 });

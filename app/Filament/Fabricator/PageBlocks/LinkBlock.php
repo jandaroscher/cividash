@@ -22,8 +22,7 @@ class LinkBlock extends PageBlock
                 TextInput::make('url')
                     ->label('URL')
                     ->url()
-                    ->required()
-                    ->maxLength(500),
+                    ->required(),
                 Select::make('target')
                     ->label('Ziel')
                     ->options([

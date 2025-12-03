@@ -108,35 +108,60 @@ class TileResource extends Resource
                         // Tab 3: Kennzahlen
                         Tabs\Tab::make(__('filament.tabs.metrics'))
                             ->schema([
-                                Repeater::make('tileYears')
-                                    ->relationship('tileYears')
-                                    ->label(__('filament.resources.tile.year_groups'))
-                                    ->defaultItems(0)            // 0 leere Einträge erzeugen
-                                    ->addActionLabel(__('filament.resources.tile.add_year_group'))
-                                    ->itemLabel(fn(array $state): ?string => $state['year'] ?? null)
+                                Repeater::make('metricDefinitions')
+                                    ->relationship('metricDefinitions')
+                                    ->label(__('filament.resources.tile.metrics_label'))
+                                    ->itemLabel(fn(array $state): ?string => $state['label'] ?? null)
                                     ->schema([
-                                        TextInput::make('year')
-                                            ->label(__('filament.resources.tile.year'))
-                                            ->numeric(),
-                                        Repeater::make('metrics')
-                                            ->relationship('metrics')
-                                            ->label(__('filament.resources.tile.metrics_label'))
-                                            ->itemLabel(fn(array $state): ?string => $state['label'] ?? null)
+                                        TextInput::make('metric_key')
+                                            ->label(__('filament.resources.tile.metric_key'))
+                                            ->required(),
+                                        TextInput::make('label')
+                                            ->label(__('filament.resources.tile.label'))
+                                            ->required(),
+                                        TextInput::make('unit')
+                                            ->label(__('filament.resources.tile.unit')),
+                                        Select::make('indicator_type')
+                                            ->label(__('filament.resources.tile.indicator_type'))
+                                            ->options([
+                                                'small' => __('filament.resources.tile.indicator_type_small'),
+                                                'big' => __('filament.resources.tile.indicator_type_big'),
+                                            ])
+                                            ->default('small')
+                                            ->required(),
+                                        FileUpload::make('icon')
+                                            ->label(__('filament.resources.tile.icon'))
+                                            ->disk('public')
+                                            ->directory('metrics')
+                                            ->image()
+                                            ->preserveFilenames()
+                                            ->required(false),
+                                        Repeater::make('metricValues')
+                                            ->relationship('metricValues')
+                                            ->label(__('filament.resources.tile.metric_values'))
+                                            ->itemLabel(function (array $state, $record): ?string {
+                                                // Display the year as label for each metric value entry
+                                                // Prefer loaded relationship to avoid N+1 queries
+                                                if ($record && $record->relationLoaded('tileYear') && $record->tileYear) {
+                                                    return (string) $record->tileYear->year;
+                                                }
+                                                // Fallback: load from database if relationship not loaded
+                                                if (isset($state['tile_year_id'])) {
+                                                    $tileYear = \App\Models\TileYear::find($state['tile_year_id']);
+                                                    return $tileYear ? (string) $tileYear->year : null;
+                                                }
+                                                return null;
+                                            })
                                             ->schema([
-                                                TextInput::make('label')
-                                                    ->label(__('filament.resources.tile.label')),
+                                                Select::make('tile_year_id')
+                                                    ->label(__('filament.resources.tile.year'))
+                                                    ->relationship('tileYear', 'year')
+                                                    ->getOptionLabelFromRecordUsing(fn ($record) => (string) $record->year)
+                                                    ->required(),
                                                 TextInput::make('value')
                                                     ->label(__('filament.resources.tile.value'))
-                                                    ->numeric(),
-                                                TextInput::make('unit')
-                                                    ->label(__('filament.resources.tile.unit')),
-                                                FileUpload::make('icon')
-                                                    ->label(__('filament.resources.tile.icon'))
-                                                    ->disk('public')
-                                                    ->directory('metrics')
-                                                    ->image()
-                                                    ->preserveFilenames()
-                                                    ->required(false),
+                                                    ->numeric()
+                                                    ->required(),
                                             ])
                                             ->collapsible()
                                     ])

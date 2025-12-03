@@ -70,4 +70,9 @@ class Tile extends Model
     {
         return $this->hasMany(TileYear::class)->orderBy('year');
     }
+
+    public function metricDefinitions()
+    {
+        return $this->hasMany(MetricDefinition::class);
+    }
 }

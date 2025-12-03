@@ -17,4 +17,9 @@ class TileYear extends Model
     {
         return $this->hasMany(Metric::class)->orderBy('id');
     }
+
+    public function metricValues()
+    {
+        return $this->hasMany(MetricValue::class);
+    }
 }

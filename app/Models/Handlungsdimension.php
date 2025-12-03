@@ -13,7 +13,7 @@ class Handlungsdimension extends Model
         'title',
     ];
 
-    protected $fillable = ['key', 'title', 'icon', 'position'];
+    protected $fillable = ['key', 'title', 'icon', 'position', 'color'];
 
     protected $casts = [
         'title' => 'array',

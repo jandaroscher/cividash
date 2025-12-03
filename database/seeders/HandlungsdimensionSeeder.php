@@ -50,6 +50,7 @@ class HandlungsdimensionSeeder extends Seeder
                 ],
                 'icon_path' => 'dimensionen/gruen.svg',
                 'position' => 0,
+                'color' => '#dcfce7', // Entspricht bg-green-100 (Tailwind v4)
                 'handlungsfeld_ids' => [542754, 542755, 542756], // Original IDs
             ],
             'gerecht' => [
@@ -59,6 +60,7 @@ class HandlungsdimensionSeeder extends Seeder
                 ],
                 'icon_path' => 'dimensionen/gerecht.svg',
                 'position' => 1,
+                'color' => '#ffedd4', // Entspricht bg-orange-100 (Tailwind v4)
                 'handlungsfeld_ids' => [542748, 542752, 542753], // Original IDs
             ],
             'produktiv' => [
@@ -68,6 +70,7 @@ class HandlungsdimensionSeeder extends Seeder
                 ],
                 'icon_path' => 'dimensionen/produktiv.svg',
                 'position' => 2,
+                'color' => '#dbeafe', // Entspricht bg-blue-100 (Tailwind v4)
                 'handlungsfeld_ids' => [542749, 542750, 542751], // Original IDs
             ],
         ];
@@ -90,6 +93,7 @@ class HandlungsdimensionSeeder extends Seeder
                 $dimension->title = $data['title'];
                 $dimension->icon = $iconPath; // Store as string (local path)
                 $dimension->position = $data['position'];
+                $dimension->color = $data['color'] ?? null;
                 $dimension->save();
             } else {
                 // Update if needed
@@ -108,6 +112,10 @@ class HandlungsdimensionSeeder extends Seeder
                 }
                 if ($dimension->position !== $data['position']) {
                     $dimension->position = $data['position'];
+                    $needsUpdate = true;
+                }
+                if (isset($data['color']) && $dimension->color !== $data['color']) {
+                    $dimension->color = $data['color'];
                     $needsUpdate = true;
                 }
                 if ($needsUpdate) {

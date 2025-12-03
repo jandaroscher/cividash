@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Metric;
+use App\Models\MetricDefinition;
+use App\Models\MetricValue;
 use App\Models\Tile;
 use App\Models\TileYear;
 use App\Services\MediaDownloadService;
@@ -58,7 +60,33 @@ class MetricSeeder extends Seeder
                     continue; // Metric not found or has no years
                 }
 
-                // Process each year for this metric
+                $labelDe = $parsedMetric->title;
+                $labelEn = $parsedMetric->titleEn;
+
+                // Generate metric_key from parsed metric key (stable identifier)
+                $metricKey = $parsedMetric->key ?? \Illuminate\Support\Str::slug($labelDe);
+
+                // 1. Create or update MetricDefinition (once per tile)
+                $definition = MetricDefinition::updateOrCreate(
+                    [
+                        'tile_id' => $tileId,
+                        'metric_key' => $metricKey,
+                    ],
+                    [
+                        'label' => [
+                            'de' => $labelDe,
+                            'en' => $labelEn,
+                        ],
+                        'unit' => $parsedMetric->unit ? [
+                            'de' => $parsedMetric->unit,
+                            'en' => null, // Units typically don't have EN translations
+                        ] : null,
+                        'icon' => $this->downloadIcon($parsedMetric->icon),
+                        'indicator_type' => $parsedMetric->indicator_type ?? 'small',
+                    ]
+                );
+
+                // 2. Create or update MetricValues for all years
                 foreach ($parsedMetric->years as $yearData) {
                     $year = (int) $yearData['year'];
                     $value = $yearData['value'];
@@ -77,75 +105,19 @@ class MetricSeeder extends Seeder
                         ]
                     );
 
-                    // Find or create Metric
-                    $labelDe = $parsedMetric->title;
-                    $labelEn = $parsedMetric->titleEn;
-
-                    // Use metric key as unique identifier for idempotency
-                    // Generate metric_key from parsed metric key (stable identifier)
-                    $metricKey = $parsedMetric->key ?? \Illuminate\Support\Str::slug($labelDe);
-
-                    // Lookup by metric_key and tile_year_id (stable, idempotent)
-                    $metric = Metric::where('tile_year_id', $tileYear->id)
-                        ->where('metric_key', $metricKey)
-                        ->first();
-
-                    if (! $metric) {
-                        $metric = new Metric();
-                        $metric->tile_year_id = $tileYear->id;
-                        $metric->metric_key = $metricKey;
-                        $metric->label = [
-                            'de' => $labelDe,
-                            'en' => $labelEn,
-                        ];
-                        $metric->value = $decimalValue;
-                        $metric->unit = $parsedMetric->unit ? [
-                            'de' => $parsedMetric->unit,
-                            'en' => null, // Units typically don't have EN translations
-                        ] : null;
-                        // Download icon if available
-                        $iconPath = $this->downloadIcon($parsedMetric->icon);
-                        $metric->icon = $iconPath;
-                        $metric->save();
-                    } else {
-                        // Update if values changed (idempotent)
-                        $needsUpdate = false;
-
-                        // Ensure metric_key is set (for existing records that might not have it)
-                        if (empty($metric->metric_key)) {
-                            $metric->metric_key = $metricKey;
-                            $needsUpdate = true;
-                        }
-
-                        if ($metric->getTranslation('label', 'de') !== $labelDe) {
-                            $metric->setTranslation('label', 'de', $labelDe);
-                            $needsUpdate = true;
-                        }
-                        if ($labelEn !== null && $metric->getTranslation('label', 'en') !== $labelEn) {
-                            $metric->setTranslation('label', 'en', $labelEn);
-                            $needsUpdate = true;
-                        }
-                        if ($metric->value !== $decimalValue) {
-                            $metric->value = $decimalValue;
-                            $needsUpdate = true;
-                        }
-                        if ($parsedMetric->unit && $metric->getTranslation('unit', 'de') !== $parsedMetric->unit) {
-                            $metric->setTranslation('unit', 'de', $parsedMetric->unit);
-                            $needsUpdate = true;
-                        }
-                        $newIcon = $this->downloadIcon($parsedMetric->icon);
-                        if ($metric->icon !== $newIcon) {
-                            $metric->icon = $newIcon;
-                            $needsUpdate = true;
-                        }
-
-                        if ($needsUpdate) {
-                            $metric->save();
-                        }
-                    }
+                    // Create or update MetricValue
+                    MetricValue::updateOrCreate(
+                        [
+                            'metric_definition_id' => $definition->id,
+                            'tile_year_id' => $tileYear->id,
+                        ],
+                        [
+                            'value' => $decimalValue,
+                        ]
+                    );
 
                     if ($this->command) {
-                        $this->command->info("Metric seeded: {$labelDe} for year {$year} (Tile: {$tile->getTranslation('title', 'de')})");
+                        $this->command->info("Metric value seeded: {$labelDe} for year {$year} (Tile: {$tile->getTranslation('title', 'de')})");
                     }
                 }
             }

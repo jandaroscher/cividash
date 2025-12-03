@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ConfigController;
+use App\Http\Controllers\Api\FilterController;
 use App\Http\Controllers\Api\HandlungsdimensionController;
 use App\Http\Controllers\Api\HandlungsfeldController;
 use App\Http\Controllers\Api\SDGZielController;
@@ -15,6 +16,7 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/tiles', [TileController::class, 'index']);
 Route::get('/tiles/{tile}', [TileController::class, 'show']);
+Route::get('/filters', [FilterController::class, 'index']);
 Route::get('/handlungsfelder', [HandlungsfeldController::class, 'index']);
 Route::get('/handlungsdimensionen', [HandlungsdimensionController::class, 'index']);
 Route::get('/sdg-ziele', [SDGZielController::class, 'index']);

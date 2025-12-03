@@ -25,8 +25,7 @@ class SliderBlock extends PageBlock
                             ->maxLength(255),
                         Textarea::make('description')
                             ->label('Beschreibung')
-                            ->rows(3)
-                            ->maxLength(500),
+                            ->rows(3),
                         FileUpload::make('image')
                             ->label('Bild')
                             ->image()

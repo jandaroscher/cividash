@@ -58,6 +58,10 @@ class HandlungsdimensionResource extends Resource
                     ->image()
                     ->preserveFilenames()
                     ->required(false),
+                Forms\Components\ColorPicker::make('color')
+                    ->label(__('filament.resources.handlungsdimension.color'))
+                    ->required(false)
+                    ->hex(),
                 Forms\Components\Select::make('handlungsfelder')
                     ->label(__('filament.resources.handlungsdimension.handlungsfelder'))
                     ->relationship('handlungsfelder', 'slug')
@@ -87,6 +91,9 @@ class HandlungsdimensionResource extends Resource
                     ->disk('public')
                     ->square()
                     ->size(40),
+                Tables\Columns\ColorColumn::make('color')
+                    ->label(__('filament.resources.handlungsdimension.color'))
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('position')
                     ->label(__('filament.resources.handlungsdimension.position'))
                     ->numeric()

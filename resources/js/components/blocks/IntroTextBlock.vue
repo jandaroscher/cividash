@@ -1,18 +1,16 @@
 <template>
     <section class="py-12 md:py-16">
-        <div class="container">
-            <h2
-                v-if="block.props.heading"
-                class="text-3xl font-bold mb-6"
-            >
-                {{ block.props.heading }}
-            </h2>
-            <div
-                v-if="block.props.text"
-                class="prose prose-lg max-w-none"
-                v-html="sanitizedText"
-            />
-        </div>
+        <h2
+            v-if="block.props.heading"
+            class="text-3xl font-bold mb-6"
+        >
+            {{ block.props.heading }}
+        </h2>
+        <div
+            v-if="block.props.text"
+            class="prose prose-lg max-w-none"
+            v-html="sanitizedText"
+        />
     </section>
 </template>
 

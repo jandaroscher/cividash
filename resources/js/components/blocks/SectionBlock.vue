@@ -1,12 +1,10 @@
 <template>
     <section :class="['py-12 md:py-16', block.props.background_color || 'bg-white']">
-        <div class="container">
-            <div
-                v-if="block.props.content"
-                class="prose prose-lg max-w-none"
-                v-html="sanitizedContent"
-            />
-        </div>
+        <div
+            v-if="block.props.content"
+            class="prose prose-lg max-w-none"
+            v-html="sanitizedContent"
+        />
     </section>
 </template>
 

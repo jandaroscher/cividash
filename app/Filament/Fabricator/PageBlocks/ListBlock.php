@@ -22,7 +22,6 @@ class ListBlock extends PageBlock
                         TextInput::make('text')
                             ->label('Text')
                             ->required()
-                            ->maxLength(500),
                     ])
                     ->defaultItems(1)
                     ->collapsible(),

@@ -64,7 +64,12 @@ class TileResource extends JsonResource
                 ? $blockTransformer->transform($this->background_blocks)
                 : null,
 
-            // Years & Metrics: delegate to their Resources
+            // Metric definitions: new structure (Option B)
+            'metric_definitions' => MetricDefinitionResource::collection(
+                $this->whenLoaded('metricDefinitions')
+            ),
+
+            // Years: delegate to their Resources
             'years' => TileYearResource::collection(
                 $this->whenLoaded('tileYears')
             ),

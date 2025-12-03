@@ -114,7 +114,7 @@ class DashboardJsonParser
                 description: $tile['descr'] ?? $tile['description'] ?? null,
                 descriptionEn: $tile['descr_en'] ?? null,
                 position: isset($tile['sortby']) ? (int) $tile['sortby'] : null,
-                icon: $tile['upload_grafik'] ?? $tile['background_image'] ?? null,
+                icon: $tile['upload_grafik'] ?? null, // Only use upload_grafik, not background_image (which belongs to background)
                 backgroundText: $tile['background_text'] ?? null,
                 backgroundTextEn: $tile['background_text_en'] ?? null,
                 contributionText: $tile['contribution_text'] ?? null,
@@ -244,6 +244,21 @@ class DashboardJsonParser
                 }
             }
 
+            // Extract indicator_type and map German values to English
+            $indicatorType = null;
+            if (isset($metric['indikatortyp'])) {
+                // Map German values to English
+                $indicatorType = match($metric['indikatortyp']) {
+                    'groß' => 'big',
+                    'klein' => 'small',
+                    'normal' => 'small',
+                    default => $metric['indikatortyp'], // Fallback for other values
+                };
+            } elseif (isset($metric['indicator_type'])) {
+                // Already in English format
+                $indicatorType = $metric['indicator_type'];
+            }
+
             return new ParsedMetric(
                 id: $metricId,
                 key: $metricKey,
@@ -252,6 +267,7 @@ class DashboardJsonParser
                 unit: $metric['unit'] ?? null,
                 icon: $icon,
                 years: $years,
+                indicator_type: $indicatorType,
             );
         });
     }
@@ -417,6 +433,7 @@ class ParsedMetric
         public readonly ?string $unit,
         public readonly mixed $icon,
         public readonly array $years, // [{year: int, value: mixed}]
+        public readonly ?string $indicator_type = null,
     ) {
     }
 }

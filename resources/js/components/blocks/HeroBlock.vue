@@ -10,7 +10,7 @@
                 class="w-full h-full object-cover opacity-50"
             />
         </div>
-        <div class="container relative z-20">
+        <div class="relative z-20">
             <div>
                 <h1
                     v-if="block.props.title"
