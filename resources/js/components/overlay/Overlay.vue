@@ -79,8 +79,49 @@ function onScroll(e) {
 
 // Focus handling
 let previousActiveElement = null;
-
 let anchorClickHandler = null;
+let focusTrapHandler = null;
+
+/**
+ * Get all focusable elements within the overlay container
+ */
+function getFocusableElements() {
+    if (!sidebarContainer.value) return [];
+    
+    const selector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    return Array.from(sidebarContainer.value.querySelectorAll(selector)).filter(
+        (el) => {
+            // Filter out elements that are not visible
+            const style = window.getComputedStyle(el);
+            return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+        }
+    );
+}
+
+/**
+ * Focus trap handler - keeps Tab navigation within the overlay
+ */
+function handleFocusTrap(e) {
+    // Only trap focus when overlay is open
+    if (!overlayStore.open || e.key !== 'Tab') return;
+    
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length === 0) return;
+    
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    // If Shift+Tab is pressed on the first element, move focus to the last element
+    if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+    }
+    // If Tab is pressed on the last element, move focus to the first element
+    else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+    }
+}
 
 onMounted(() => {
     if (overlayStore.open && sidebar.value) {
@@ -90,12 +131,10 @@ onMounted(() => {
     
     // Setup smooth scroll for anchor links
     setupSmoothScroll();
-});
-
-onBeforeUnmount(() => {
-    if (anchorClickHandler && sidebarContainer.value) {
-        sidebarContainer.value.removeEventListener('click', anchorClickHandler);
-    }
+    
+    // Setup focus trap - handler checks overlayStore.open internally
+    focusTrapHandler = handleFocusTrap;
+    document.addEventListener('keydown', focusTrapHandler);
 });
 
 function setupSmoothScroll() {
@@ -127,8 +166,19 @@ function setupSmoothScroll() {
 }
 
 onBeforeUnmount(() => {
-    if (previousActiveElement) {
+    // Clean up event listeners
+    if (anchorClickHandler && sidebarContainer.value) {
+        sidebarContainer.value.removeEventListener('click', anchorClickHandler);
+    }
+    if (focusTrapHandler) {
+        document.removeEventListener('keydown', focusTrapHandler);
+    }
+    
+    // Restore focus only if overlay is still open when component is destroyed
+    // (normal close already handles focus restoration in the watch handler)
+    if (overlayStore.open && previousActiveElement) {
         previousActiveElement.focus();
+        previousActiveElement = null;
     }
 });
 
@@ -137,14 +187,25 @@ watch(
     (isOpen) => {
         if (isOpen) {
             previousActiveElement = document.activeElement;
-            setTimeout(() => {
-                if (sidebar.value) {
-                    sidebar.value.focus();
-                }
-            }, 100);
-        } else if (previousActiveElement) {
-            previousActiveElement.focus();
-            previousActiveElement = null;
+            // Wait for content to render, then focus first focusable element
+            nextTick(() => {
+                setTimeout(() => {
+                    const focusableElements = getFocusableElements();
+                    if (focusableElements.length > 0) {
+                        // Focus first focusable element (usually the close button)
+                        focusableElements[0].focus();
+                    } else if (sidebar.value) {
+                        // Fallback to sidebar if no focusable elements found
+                        sidebar.value.focus();
+                    }
+                }, 100);
+            });
+        } else {
+            // Restore focus to previous element
+            if (previousActiveElement) {
+                previousActiveElement.focus();
+                previousActiveElement = null;
+            }
         }
     }
 );

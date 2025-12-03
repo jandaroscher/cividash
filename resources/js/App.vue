@@ -16,12 +16,13 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import Cards from './components/Cards.vue';
 import Filter from './components/Filter.vue';
 import Overlay from './components/overlay/Overlay.vue';
 import { useBrandingStore } from './stores/branding';
 import { useTilesStore } from './stores/tiles';
+import { useOverlayStore } from './stores/overlay';
 
 // Define props to accept attributes passed from islands.js
 const props = defineProps({
@@ -57,15 +58,58 @@ const props = defineProps({
 
 const branding = useBrandingStore();
 const tilesStore = useTilesStore();
+const overlayStore = useOverlayStore();
 
 // Set locale from props or detect from browser
 const effectiveLocale = props.locale || (navigator.language.startsWith('en') ? 'en' : 'de');
 tilesStore.setLocale(effectiveLocale);
 
+// Watch for tiles to be loaded, then check URL for deep-linking
+watch(
+    () => tilesStore.tiles,
+    (tiles) => {
+        if (tiles && tiles.length > 0 && !overlayStore.open) {
+            // Try to open overlay from URL parameter
+            overlayStore.openFromUrl(tiles);
+        }
+    },
+    { immediate: true }
+);
+
+// Handle browser back/forward button - close overlay if tile parameter is removed
+// Use ref to ensure proper cleanup on remount
+const popStateHandler = ref(null);
+
 // fetch tiles once the component mounts
 // Note: branding.fetch() is already called in app.js before mounting
 onMounted(() => {
     tilesStore.fetchAll(effectiveLocale);
+    
+    // Remove any existing handler before adding a new one (prevents duplicates on remount)
+    if (popStateHandler.value) {
+        window.removeEventListener('popstate', popStateHandler.value);
+    }
+    
+    // Setup popstate handler for browser back/forward button
+    popStateHandler.value = () => {
+        const tileSlug = new URLSearchParams(window.location.search).get('tile');
+        if (!tileSlug && overlayStore.open) {
+            // URL parameter was removed (e.g., via back button), close overlay
+            overlayStore.closeOverlay();
+        } else if (tileSlug && !overlayStore.open && tilesStore.tiles.length > 0) {
+            // URL parameter was added (e.g., via forward button), open overlay
+            overlayStore.openFromUrl(tilesStore.tiles);
+        }
+    };
+    
+    window.addEventListener('popstate', popStateHandler.value);
+});
+
+onBeforeUnmount(() => {
+    if (popStateHandler.value) {
+        window.removeEventListener('popstate', popStateHandler.value);
+        popStateHandler.value = null;
+    }
 });
 </script>
 
