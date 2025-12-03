@@ -20,6 +20,24 @@
             </button>
         </div>
 
+        <!-- Search Input -->
+        <div class="mb-6">
+            <input
+                v-model="searchQuery"
+                @input="handleSearchInput"
+                type="text"
+                :placeholder="searchPlaceholder"
+                class="w-full px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-0"
+                :style="{ 
+                    '--tw-ring-color': brandingStore.primaryColor,
+                    height: '4rem',
+                    fontSize: '1.25rem',
+                    lineHeight: '2rem'
+                }"
+                aria-label="Search tiles"
+            />
+        </div>
+
         <div class="-mx-[30px] sm:mx-0">
             <Dimensions v-if="filterStore.level1Filter === 'dimensions'" />
             <Fields v-if="filterStore.level1Filter === 'fields'" />
@@ -29,7 +47,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useFilterStore } from '../stores/filter';
 import { useBrandingStore } from '../stores/branding';
 import { useLocale } from '../composables/useLocale';
@@ -40,6 +58,38 @@ import SDG from './filter/SDG.vue';
 const filterStore = useFilterStore();
 const brandingStore = useBrandingStore();
 const { currentLocale } = useLocale();
+
+// Search input with debouncing
+const searchQuery = ref(filterStore.searchQuery || '');
+let searchTimeout = null;
+
+const searchPlaceholder = computed(() => {
+    return currentLocale.value === 'en' ? 'Search tiles...' : 'Tiles durchsuchen...';
+});
+
+function handleSearchInput(event) {
+    const value = event.target.value;
+    searchQuery.value = value;
+    
+    // Debounce search updates (300ms)
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    
+    searchTimeout = setTimeout(() => {
+        filterStore.setSearchQuery(value);
+    }, 300);
+}
+
+// Sync searchQuery with store when restored from URL
+watch(
+    () => filterStore.searchQuery,
+    (newValue) => {
+        if (newValue !== searchQuery.value) {
+            searchQuery.value = newValue;
+        }
+    }
+);
 
 const level1Filters = ['dimensions', 'fields', 'sdg'];
 
@@ -88,6 +138,14 @@ async function fetchFilterLabels(locale) {
 // Fetch labels on mount and when locale changes
 onMounted(() => {
     fetchFilterLabels(currentLocale.value);
+});
+
+// Cleanup debounce timer on component unmount
+onBeforeUnmount(() => {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+        searchTimeout = null;
+    }
 });
 
 watch(currentLocale, (newLocale) => {

@@ -23,6 +23,7 @@ import Overlay from './components/overlay/Overlay.vue';
 import { useBrandingStore } from './stores/branding';
 import { useTilesStore } from './stores/tiles';
 import { useOverlayStore } from './stores/overlay';
+import { useFilterStore } from './stores/filter';
 
 // Define props to accept attributes passed from islands.js
 const props = defineProps({
@@ -59,6 +60,7 @@ const props = defineProps({
 const branding = useBrandingStore();
 const tilesStore = useTilesStore();
 const overlayStore = useOverlayStore();
+const filterStore = useFilterStore();
 
 // Set locale from props or detect from browser
 const effectiveLocale = props.locale || (navigator.language.startsWith('en') ? 'en' : 'de');
@@ -83,6 +85,9 @@ const popStateHandler = ref(null);
 // fetch tiles once the component mounts
 // Note: branding.fetch() is already called in app.js before mounting
 onMounted(() => {
+    // Restore filter state from URL before fetching tiles
+    filterStore.restoreFromUrl();
+    
     tilesStore.fetchAll(effectiveLocale);
     
     // Remove any existing handler before adding a new one (prevents duplicates on remount)
@@ -92,6 +97,7 @@ onMounted(() => {
     
     // Setup popstate handler for browser back/forward button
     popStateHandler.value = () => {
+        // Handle overlay state
         const tileSlug = new URLSearchParams(window.location.search).get('tile');
         if (!tileSlug && overlayStore.open) {
             // URL parameter was removed (e.g., via back button), close overlay
@@ -100,6 +106,9 @@ onMounted(() => {
             // URL parameter was added (e.g., via forward button), open overlay
             overlayStore.openFromUrl(tilesStore.tiles);
         }
+        
+        // Handle filter state
+        filterStore.restoreFromUrl();
     };
     
     window.addEventListener('popstate', popStateHandler.value);

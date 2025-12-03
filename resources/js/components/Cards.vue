@@ -1,7 +1,7 @@
 <template>
     <div class="container pt-6 md:mb-10 px-3 sm:px-[30px] overflow-hidden">
         <VueFlexWaterfall
-            v-if="tilesStore.tiles.length > 0"
+            v-if="filteredTiles.length > 0"
             ref="waterfall"
             class="h-full max-w-[363px] mx-auto md:max-w-none md:mx-0"
             align-content="center"
@@ -10,13 +10,21 @@
             :break-at="{ 1280: mdColCount, 825: 1 }"
         >
             <TileCard
-                v-for="tile in tilesStore.tiles"
+                v-for="tile in filteredTiles"
                 :key="tile.id"
                 :tile="tile"
             />
         </VueFlexWaterfall>
-        <div v-if="filterStore.level2Filter?.key && visibleTilesCount === 0" class="text-center py-10 text-gray-600">
-            {{ currentLocale.value === 'en' ? 'No tiles found for filter:' : 'Keine Tiles gefunden für Filter:' }} {{ filterStore.level2Filter.title }}
+        <div v-if="visibleTilesCount === 0" class="text-center py-10 text-gray-600">
+            <template v-if="filterStore.searchQuery && filterStore.level2Filter?.key">
+                {{ currentLocale === 'en' ? 'No tiles found for filter and search:' : 'Keine Tiles gefunden für Filter und Suche:' }} {{ filterStore.level2Filter.title }} / "{{ filterStore.searchQuery }}"
+            </template>
+            <template v-else-if="filterStore.searchQuery">
+                {{ currentLocale === 'en' ? 'No tiles found for search:' : 'Keine Tiles gefunden für Suche:' }} "{{ filterStore.searchQuery }}"
+            </template>
+            <template v-else-if="filterStore.level2Filter?.key">
+                {{ currentLocale === 'en' ? 'No tiles found for filter:' : 'Keine Tiles gefunden für Filter:' }} {{ filterStore.level2Filter.title }}
+            </template>
         </div>
     </div>
 </template>
@@ -40,8 +48,38 @@ let resizeObserver = null;
 let layoutUpdateTimeout = null;
 const cardHeights = new Map(); // Track card heights to detect actual changes
 
+// Function to check if a tile matches the search query
+function matchesSearch(tile, searchQuery) {
+    if (!searchQuery || !searchQuery.trim()) {
+        return true;
+    }
+    
+    const query = searchQuery.trim().toLowerCase();
+    const locale = currentLocale.value;
+    
+    // Search in title
+    const title = tile.title?.[locale] || tile.title?.de || tile.title || '';
+    if (typeof title === 'string' && title.toLowerCase().includes(query)) {
+        return true;
+    }
+    
+    // Search in description
+    const description = tile.description?.[locale] || tile.description?.de || tile.description || '';
+    if (typeof description === 'string' && description.toLowerCase().includes(query)) {
+        return true;
+    }
+    
+    return false;
+}
+
 // Function to check if a tile should be visible based on current filter
 function isTileVisible(tile) {
+    // First check search query
+    if (!matchesSearch(tile, filterStore.searchQuery)) {
+        return false;
+    }
+    
+    // Then check filter
     if (!filterStore.level2Filter?.key) {
         return true;
     }
@@ -83,10 +121,6 @@ function isTileVisible(tile) {
 }
 
 const filteredTiles = computed(() => {
-    if (!filterStore.level2Filter?.key) {
-        return tilesStore.tiles;
-    }
-
     return tilesStore.tiles.filter(tile => isTileVisible(tile));
 });
 
@@ -119,6 +153,13 @@ watch(
         refreshLayout(filter);
     },
     { deep: true }
+);
+
+watch(
+    () => filterStore.searchQuery,
+    () => {
+        refreshLayout(filterStore.level2Filter);
+    }
 );
 
 watch(
