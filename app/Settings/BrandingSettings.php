@@ -18,6 +18,8 @@ class BrandingSettings extends Settings
     public ?string $card_background_color;
     public ?string $hero_background_color;
     public ?string $overlay_background_color;
+    public ?string $header_background_color;
+    public ?string $footer_background_color;
     public ?string $text_primary_color;
     public ?string $text_secondary_color;
     public ?string $text_inverse_color;

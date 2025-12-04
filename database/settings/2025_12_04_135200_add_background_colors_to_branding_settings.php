@@ -4,7 +4,7 @@ use Spatie\LaravelSettings\Migrations\SettingsMigration;
 
 return new class extends SettingsMigration
 {
-    / **
+    /**
      * Adds default branding background color settings to the settings store.
      *
      * Registers four settings: 'branding.background_color' (nullable default),

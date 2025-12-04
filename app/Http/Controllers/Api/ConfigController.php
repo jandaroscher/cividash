@@ -24,9 +24,9 @@ class ConfigController extends Controller
      * @return JsonResource JSON resource containing the following keys: `primary_color`, `secondary_color`,
      * `logo_url`, `accent_color`, `typography_font_family`, `typography_font_weights`, `slider_colors`,
      * `background_color`, `card_background_color`, `hero_background_color`, `overlay_background_color`,
-     * `text_primary_color`, `text_secondary_color`, `text_inverse_color`, `link_color`, `link_hover_color`,
-     * `border_color`, `divider_color`, `shadow_color`, `typography_font_sizes`,
-     * `typography_custom_font_name`, `typography_custom_font_file`.
+     * `header_background_color`, `footer_background_color`, `text_primary_color`, `text_secondary_color`,
+     * `text_inverse_color`, `link_color`, `link_hover_color`, `border_color`, `divider_color`, `shadow_color`,
+     * `typography_font_sizes`, `typography_custom_font_name`, `typography_custom_font_file`.
      */
     public function branding(): JsonResource
     {
@@ -47,6 +47,8 @@ class ConfigController extends Controller
             'card_background_color' => $settings->card_background_color,
             'hero_background_color' => $settings->hero_background_color,
             'overlay_background_color' => $settings->overlay_background_color,
+            'header_background_color' => $settings->header_background_color,
+            'footer_background_color' => $settings->footer_background_color,
             'text_primary_color' => $settings->text_primary_color,
             'text_secondary_color' => $settings->text_secondary_color,
             'text_inverse_color' => $settings->text_inverse_color,
@@ -90,13 +92,13 @@ class ConfigController extends Controller
     }
 
     /**
-     * Update branding settings from validated input and return the updated branding payload.
+     * Update stored branding settings with the validated request data and return the updated branding payload.
      *
-     * Only fields present in the validated request are persisted. File path fields
-     * (logo and custom font file) are converted to public URLs when present.
+     * Only keys present in the validated input are persisted. File path fields (`logo_url` and
+     * `typography_custom_font_file`) are converted to public URLs when present; otherwise they are `null`.
      *
-     * @param UpdateBrandingRequest $request Validated request containing branding fields to update.
-     * @return JsonResource Associative array of branding properties; includes color, typography, background, text, link, border/divider/shadow values, font sizes and names, and public URLs for `logo_url` and `typography_custom_font_file` when available (otherwise `null`).
+     * @param UpdateBrandingRequest $request Request containing validated branding fields to update.
+     * @return JsonResource Associative array of branding properties (colors, typography, background/header/footer values, text/link/border/divider/shadow colors, font sizes and names), with `logo_url` and `typography_custom_font_file` as public URLs when available, otherwise `null`.
      */
     public function updateBranding(UpdateBrandingRequest $request): JsonResource
     {
@@ -130,6 +132,8 @@ class ConfigController extends Controller
             'card_background_color' => $settings->card_background_color,
             'hero_background_color' => $settings->hero_background_color,
             'overlay_background_color' => $settings->overlay_background_color,
+            'header_background_color' => $settings->header_background_color,
+            'footer_background_color' => $settings->footer_background_color,
             'text_primary_color' => $settings->text_primary_color,
             'text_secondary_color' => $settings->text_secondary_color,
             'text_inverse_color' => $settings->text_inverse_color,

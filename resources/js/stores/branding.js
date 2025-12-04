@@ -30,6 +30,8 @@ export const useBrandingStore = defineStore('branding', {
         cardBackgroundColor: '#FFFFFF',
         heroBackgroundColor: '#111827',
         overlayBackgroundColor: 'rgba(0,0,0,0.4)',
+        headerBackgroundColor: '#FFFFFF',
+        footerBackgroundColor: '#E5E7EB',
         textPrimaryColor: null,
         textSecondaryColor: null,
         textInverseColor: null,
@@ -64,6 +66,8 @@ export const useBrandingStore = defineStore('branding', {
                     card_background_color,
                     hero_background_color,
                     overlay_background_color,
+                    header_background_color,
+                    footer_background_color,
                     text_primary_color,
                     text_secondary_color,
                     text_inverse_color,
@@ -100,6 +104,8 @@ export const useBrandingStore = defineStore('branding', {
                 this.cardBackgroundColor = card_background_color || this.cardBackgroundColor;
                 this.heroBackgroundColor = hero_background_color || this.heroBackgroundColor;
                 this.overlayBackgroundColor = overlay_background_color || this.overlayBackgroundColor;
+                this.headerBackgroundColor = header_background_color || this.headerBackgroundColor;
+                this.footerBackgroundColor = footer_background_color || this.footerBackgroundColor;
 
                 // Update text colors if provided
                 this.textPrimaryColor = text_primary_color !== undefined ? text_primary_color : this.textPrimaryColor;
@@ -152,6 +158,8 @@ export const useBrandingStore = defineStore('branding', {
                 document.documentElement.style.setProperty('--card-background-color', this.cardBackgroundColor || '#FFFFFF');
                 document.documentElement.style.setProperty('--hero-background-color', this.heroBackgroundColor || '#111827');
                 document.documentElement.style.setProperty('--overlay-background-color', this.overlayBackgroundColor || 'rgba(0,0,0,0.4)');
+                document.documentElement.style.setProperty('--header-background-color', this.headerBackgroundColor || '#FFFFFF');
+                document.documentElement.style.setProperty('--footer-background-color', this.footerBackgroundColor || '#E5E7EB');
 
                 // Set text colors as CSS variables
                 if (this.textPrimaryColor) {

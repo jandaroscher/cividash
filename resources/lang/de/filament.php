@@ -57,6 +57,8 @@ return [
             'card_background_color' => 'Karten-Hintergrundfarbe',
             'hero_background_color' => 'Hero-Block Hintergrundfarbe',
             'overlay_background_color' => 'Overlay-Hintergrundfarbe',
+            'header_background_color' => 'Header-Hintergrundfarbe',
+            'footer_background_color' => 'Footer-Hintergrundfarbe',
             'text_colors_section' => 'Text-Farben',
             'text_primary_color' => 'Primäre Textfarbe',
             'text_primary_color_helper' => 'Haupttextfarbe (Standard: Schwarz)',

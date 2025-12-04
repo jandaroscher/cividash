@@ -39,6 +39,8 @@ class BrandingConfigApiTest extends TestCase
                         'handle',
                         'handleBorder',
                     ],
+                    'header_background_color',
+                    'footer_background_color',
                 ],
             ]);
     }
@@ -58,6 +60,8 @@ class BrandingConfigApiTest extends TestCase
         $this->assertIsArray($data['typography_font_sizes']);
         $this->assertNull($data['typography_custom_font_name']);
         $this->assertNull($data['typography_custom_font_file']);
+        $this->assertEquals('#FFFFFF', $data['header_background_color']);
+        $this->assertEquals('#E5E7EB', $data['footer_background_color']);
     }
 
     public function test_post_branding_config_requires_authentication(): void
@@ -243,6 +247,40 @@ class BrandingConfigApiTest extends TestCase
         
         $this->assertEquals('#123456', $data['primary_color']);
         $this->assertEquals('Inter', $data['typography_font_family']);
+    }
+
+    public function test_post_branding_config_updates_header_footer_colors(): void
+    {
+        $user = User::factory()->create();
+        
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/admin/config/branding', [
+                'header_background_color' => '#F0F0F0',
+                'footer_background_color' => '#CCCCCC',
+            ]);
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        
+        $this->assertEquals('#F0F0F0', $data['header_background_color']);
+        $this->assertEquals('#CCCCCC', $data['footer_background_color']);
+
+        $settings = app(BrandingSettings::class);
+        $this->assertEquals('#F0F0F0', $settings->header_background_color);
+        $this->assertEquals('#CCCCCC', $settings->footer_background_color);
+    }
+
+    public function test_post_branding_config_validates_header_footer_color_format(): void
+    {
+        $user = User::factory()->create();
+        
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/admin/config/branding', [
+                'header_background_color' => 'invalid-color',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['header_background_color']);
     }
 }
 

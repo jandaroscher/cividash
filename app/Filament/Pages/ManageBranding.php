@@ -204,6 +204,16 @@ class ManageBranding extends SettingsPage
                             ->rgba()
                             ->default('rgba(0,0,0,0.4)')
                             ->nullable(),
+
+                        ColorPicker::make('header_background_color')
+                            ->label(__('filament.pages.manage_branding.header_background_color'))
+                            ->default('#FFFFFF')
+                            ->nullable(),
+
+                        ColorPicker::make('footer_background_color')
+                            ->label(__('filament.pages.manage_branding.footer_background_color'))
+                            ->default('#E5E7EB')
+                            ->nullable(),
                     ])
                     ->columns(2),
 
