@@ -6,14 +6,16 @@
             @click.self="closeOverlay"
             tabindex="0"
             id="default-sidebar"
-            class="fixed z-40 w-full top-0 left-0 h-dvh bg-[rgba(0,0,0,.4)] transition-all"
+            class="fixed z-40 w-full top-0 left-0 h-dvh transition-all"
+            :style="{ backgroundColor: 'var(--overlay-background-color, rgba(0,0,0,0.4))' }"
             :class="{ 'opacity-0 !-z-[1]': !overlayStore.open }"
             aria-label="Sidebar"
         >
             <div
                 ref="sidebarContainer"
                 @scroll.passive="onScroll"
-                class="h-full overflow-y-auto bg-white w-full lg:w-[62%] duration-150 lg:max-w-[1192px] transition-transform top-0 right-0 absolute overscroll-contain"
+                class="h-full overflow-y-auto w-full lg:w-[62%] duration-150 lg:max-w-[1192px] transition-transform top-0 right-0 absolute overscroll-contain"
+                :style="{ backgroundColor: 'var(--card-background-color, #FFFFFF)' }"
                 :class="[!overlayStore.open ? 'translate-x-full' : 'translate-x-0']"
             >
                 <div v-if="overlayStore.tile && overlayStore.open" class="h-full">

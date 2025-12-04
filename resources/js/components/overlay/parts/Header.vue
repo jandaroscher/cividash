@@ -1,7 +1,7 @@
 <template>
-    <div class="px-6 xl:px-20 py-8 shadow-header flex flex-col gap-6 bg-white">
+    <div class="px-6 xl:px-20 py-8 shadow-header flex flex-col gap-6" :style="{ backgroundColor: 'var(--card-background-color, #FFFFFF)' }">
         <div class="flex flex-row justify-between space-x-4">
-            <div v-if="tile" class="text-black font-bold text-4xl md:text-5xl hyphens-auto min-w-0">
+            <div v-if="tile" class="text-theme-primary font-bold text-4xl md:text-5xl hyphens-auto min-w-0">
                 {{ title }}
             </div>
             <button

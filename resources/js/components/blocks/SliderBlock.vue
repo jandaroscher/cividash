@@ -29,7 +29,7 @@
 
                             <div v-if="!slide.image" class="bg-gray-200 pt-[66.66%]"></div>
 
-                            <div class="bg-white px-4 pt-5 pb-6 flex flex-col justify-between h-full">
+                            <div class="px-4 pt-5 pb-6 flex flex-col justify-between h-full" :style="{ backgroundColor: 'var(--card-background-color, #FFFFFF)' }">
                                 <div>
                                     <p v-if="slide.title" class="text-xl font-bold mb-2">{{ slide.title }}</p>
                                     <p v-if="slide.description" class="whitespace-break-spaces">{{ slide.description }}</p>

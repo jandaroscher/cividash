@@ -1,5 +1,8 @@
 <template>
-    <section :class="['py-12 md:py-16', block.props.background_color || 'bg-white']">
+    <section 
+        class="py-12 md:py-16"
+        :style="{ backgroundColor: block.props.background_color || 'var(--card-background-color, #FFFFFF)' }"
+    >
         <div
             v-if="block.props.content"
             class="prose prose-lg max-w-none"

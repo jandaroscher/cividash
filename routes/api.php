@@ -32,3 +32,9 @@ Route::get('/content/pages/root', [ContentPageController::class, 'showRoot']);
 
 // Get page by ID
 Route::get('/content/pages/{id}', [ContentPageController::class, 'show'])->where('id', '[0-9]+');
+
+// Admin API routes (secured with Sanctum)
+Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+    Route::post('/config/branding', [ConfigController::class, 'updateBranding']);
+    Route::patch('/config/branding', [ConfigController::class, 'updateBranding']);
+});

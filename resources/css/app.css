@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+/* Google Fonts will be loaded dynamically via branding store */
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -8,9 +8,9 @@
 @source '../**/*.vue';
 
 @theme {
-    /* Font Family */
-    --font-sans: 'Open Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Font Family - will be overridden by branding store via CSS variable */
+    --font-sans: var(--font-family, 'Open Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji');
     
     /* Tailwind Color Tokens - Themeable via CSS variables */
     --color-accent: var(--accent-color, #E30613);
@@ -56,6 +56,8 @@
 }
 
 :root {
+    /* Default font family - will be overridden by branding store */
+    --font-family: 'Open Sans', ui-sans-serif, system-ui, sans-serif;
     font-family: var(--font-sans);
     line-height: 1.5;
     font-weight: 400;
@@ -67,6 +69,29 @@
     /* Default themeable colors (can be overridden by backend via branding store) */
     --accent-color: #E30613;
     --accent-color-dark: #891F00;
+    
+    /* Text colors (can be overridden by backend) */
+    --text-primary-color: #000000;
+    --text-secondary-color: #4B5563; /* gray-600 */
+    --text-inverse-color: #FFFFFF;
+    --link-color: var(--accent-color, #E30613);
+    --link-hover-color: var(--accent-color-dark, #891F00);
+    
+    /* Border and shadow colors (can be overridden by backend) */
+    --border-color: #D1D5DB; /* gray-300 */
+    --divider-color: #E5E7EB; /* gray-200 */
+    --shadow-color: #000000;
+    
+    /* Typography font sizes (can be overridden by backend) */
+    --font-size-base: 1rem;
+    --font-size-small: 0.875rem;
+    --font-size-large: 1.125rem;
+    --font-size-h1: 3rem;
+    --font-size-h2: 2.25rem;
+    --font-size-h3: 1.875rem;
+    --font-size-h4: 1.5rem;
+    --font-size-h5: 1.25rem;
+    --font-size-h6: 1.125rem;
     --dimension-orange-color-100: #FFDEC5;
     --dimension-orange-color-200: #ea8e05;
     --dimension-orange-color-300: #e46e38;
@@ -104,27 +129,76 @@
     }
 }
 
-/* Custom utility classes for shadows */
+/* Custom utility classes for shadows - now using themeable shadow color */
 @layer utilities {
     .shadow-header {
-        box-shadow: 0px 3px 15px #00000029;
+        box-shadow: 0px 3px 15px color-mix(in srgb, var(--shadow-color, #000000) 16%, transparent);
     }
     .shadow-card {
-        box-shadow: 0px 4px 10px #0000001A;
+        box-shadow: 0px 4px 10px color-mix(in srgb, var(--shadow-color, #000000) 10%, transparent);
     }
     .shadow-filter {
-        box-shadow: 0px 4px 10px #707070;
+        box-shadow: 0px 4px 10px color-mix(in srgb, var(--shadow-color, #000000) 44%, transparent);
     }
     .shadow-info {
-        box-shadow: 0px 1px 10px #707070;
+        box-shadow: 0px 1px 10px color-mix(in srgb, var(--shadow-color, #000000) 44%, transparent);
     }
     .shadow-info-close {
-        box-shadow: 0px 1px 10px #9B9B9B;
+        box-shadow: 0px 1px 10px color-mix(in srgb, var(--shadow-color, #000000) 61%, transparent);
     }
     .shadow-textarea {
-        box-shadow: 0px 3px 15px #00000029;
+        box-shadow: 0px 3px 15px color-mix(in srgb, var(--shadow-color, #000000) 16%, transparent);
     }
     .shadow-arrow {
-        box-shadow: 0px 3px 6px #00000029;
+        box-shadow: 0px 3px 6px color-mix(in srgb, var(--shadow-color, #000000) 16%, transparent);
+    }
+    
+    /* Themeable text color utilities */
+    .text-theme-primary {
+        color: var(--text-primary-color, #000000);
+    }
+    .text-theme-secondary {
+        color: var(--text-secondary-color, #4B5563);
+    }
+    .text-theme-inverse {
+        color: var(--text-inverse-color, #FFFFFF);
+    }
+    
+    /* Themeable link styles */
+    a.text-theme-link {
+        color: var(--link-color, var(--accent-color, #E30613));
+        transition: color 0.2s;
+    }
+    a.text-theme-link:hover {
+        color: var(--link-hover-color, var(--accent-color-dark, #891F00));
+    }
+    
+    /* Themeable font size utilities */
+    .text-theme-base {
+        font-size: var(--font-size-base, 1rem);
+    }
+    .text-theme-small {
+        font-size: var(--font-size-small, 0.875rem);
+    }
+    .text-theme-large {
+        font-size: var(--font-size-large, 1.125rem);
+    }
+    .text-theme-h1 {
+        font-size: var(--font-size-h1, 3rem);
+    }
+    .text-theme-h2 {
+        font-size: var(--font-size-h2, 2.25rem);
+    }
+    .text-theme-h3 {
+        font-size: var(--font-size-h3, 1.875rem);
+    }
+    .text-theme-h4 {
+        font-size: var(--font-size-h4, 1.5rem);
+    }
+    .text-theme-h5 {
+        font-size: var(--font-size-h5, 1.25rem);
+    }
+    .text-theme-h6 {
+        font-size: var(--font-size-h6, 1.125rem);
     }
 }

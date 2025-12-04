@@ -1,6 +1,7 @@
 <template>
     <section 
-        class="relative bg-gray-900 text-white py-20"
+        class="relative text-white py-20"
+        :style="{ backgroundColor: 'var(--hero-background-color, #111827)' }"
         :aria-label="block.props.title || 'Hero section'"
     >
         <div v-if="imageUrl" class="absolute inset-0 z-10">
@@ -14,7 +15,7 @@
             <div>
                 <h1
                     v-if="block.props.title"
-                    class="text-4xl lg:text-5xl text-white font-bold mb-6 hyphens-auto"
+                    class="text-4xl lg:text-5xl text-theme-inverse font-bold mb-6 hyphens-auto"
                 >
                     {{ block.props.title }}
                 </h1>

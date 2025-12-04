@@ -40,7 +40,7 @@
                 </div>
             </div>
 
-            <div class="bg-white py-6 px-4">
+            <div class="py-6 px-4" :style="{ backgroundColor: 'var(--card-background-color, #FFFFFF)' }">
                 <template v-for="indicator in indicators" :key="indicator.id">
                     <IndicatorSmall
                         v-if="indicator.type === 'small' || indicator.indikatortyp === 'normal' || lottieUrl || imageUrl"
@@ -171,16 +171,8 @@ const backgroundClass = computed(() => {
         return null;
     }
     
-    // Fallback zu alter Logik
-    if (props.tile.handlungsdimension?.key) {
-        return brandingStore.getCategoryColor(props.tile.handlungsdimension.key);
-    }
-    // Fallback to handlungsfelder/categories slug
-    const categories = props.tile.handlungsfelder || props.tile.categories || [];
-    const dim = categories[0]?.slug;
-    // Handle both string and object slug (can be {de: "...", en: "..."})
-    const slug = typeof dim === 'string' ? dim : (dim?.[currentLocale.value] || dim?.de || '');
-    return brandingStore.getCategoryColor(slug);
+    // Fallback: Wenn keine color vorhanden, verwende Standard-Grau
+    return 'bg-gray-100';
 });
 
 const backgroundColorStyle = computed(() => {
@@ -403,7 +395,7 @@ function handleSliderInteractionEnd() {
 
 :deep(.vue-slider-dot-handle) {
     box-shadow: none;
-    background: var(--primary-color, #e30613);
+    background: var(--slider-handle-color, #E30613);
     border: 2px solid var(--slider-handle-border-color, #191919);
 }
 
