@@ -22,20 +22,27 @@
 
         <!-- Search Input -->
         <div class="mb-6">
-            <input
-                v-model="searchQuery"
-                @input="handleSearchInput"
-                type="text"
-                :placeholder="searchPlaceholder"
-                class="w-full px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-0"
-                :style="{ 
-                    '--tw-ring-color': brandingStore.primaryColor,
-                    height: '4rem',
-                    fontSize: '1.25rem',
-                    lineHeight: '2rem'
-                }"
-                aria-label="Search tiles"
-            />
+            <Tooltip
+                :text="getSearchTooltip()"
+                position="top"
+                wrapper-class="w-full"
+                trigger-class="w-full"
+            >
+                <input
+                    v-model="searchQuery"
+                    @input="handleSearchInput"
+                    type="text"
+                    :placeholder="searchPlaceholder"
+                    class="w-full px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-0"
+                    :style="{ 
+                        '--tw-ring-color': brandingStore.primaryColor,
+                        height: '4rem',
+                        fontSize: '1.25rem',
+                        lineHeight: '2rem'
+                    }"
+                    aria-label="Search tiles"
+                />
+            </Tooltip>
         </div>
 
         <div class="-mx-[30px] sm:mx-0">
@@ -51,6 +58,8 @@ import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useFilterStore } from '../stores/filter';
 import { useBrandingStore } from '../stores/branding';
 import { useLocale } from '../composables/useLocale';
+import { useHelpContext } from '../composables/useHelpContext';
+import Tooltip from './help/Tooltip.vue';
 import Dimensions from './filter/Dimensions.vue';
 import Fields from './filter/Fields.vue';
 import SDG from './filter/SDG.vue';
@@ -58,13 +67,14 @@ import SDG from './filter/SDG.vue';
 const filterStore = useFilterStore();
 const brandingStore = useBrandingStore();
 const { currentLocale } = useLocale();
+const { getTooltip } = useHelpContext();
 
 // Search input with debouncing
 const searchQuery = ref(filterStore.searchQuery || '');
 let searchTimeout = null;
 
 const searchPlaceholder = computed(() => {
-    return currentLocale.value === 'en' ? 'Search tiles...' : 'Tiles durchsuchen...';
+    return currentLocale.value === 'en' ? 'Search tiles...' : 'Kacheln durchsuchen...';
 });
 
 function handleSearchInput(event) {
@@ -164,6 +174,10 @@ function changeLevel1Filter(filter) {
     filterStore.setLevel1Filter(filter);
 }
 
+function getSearchTooltip() {
+    return getTooltip('searchInput') || (currentLocale.value === 'en' ? 'Search tiles by title or description' : 'Durchsuchen Sie Kacheln nach Titel oder Beschreibung');
+}
+
 function getButtonStyles(filter) {
     const isActive = filterStore.level1Filter === filter;
     return {
@@ -174,6 +188,7 @@ function getButtonStyles(filter) {
         color: isActive ? 'white' : '#191919',
     };
 }
+
 </script>
 
 <style scoped>

@@ -50,12 +50,29 @@
                 </template>
 
                 <div v-if="years.length > 0" class="max-w-[214px] mx-auto my-4">
-                    <VueSlider
-                        :data="years"
-                        v-model="currentYear"
-                        :tooltip="'none'"
-                        :dot-attrs="{ 'aria-label': 'Select year' }"
-                    />
+                    <Tooltip
+                        :text="getYearSliderTooltip()"
+                        position="top"
+                        wrapper-class="w-full"
+                        trigger-class="w-full"
+                        :disabled="isSliderInteracting"
+                    >
+                        <div 
+                            class="w-full"
+                            @mousedown="handleSliderInteractionStart"
+                            @mouseup="handleSliderInteractionEnd"
+                            @mouseleave="handleSliderInteractionEnd"
+                            @touchstart="handleSliderInteractionStart"
+                            @touchend="handleSliderInteractionEnd"
+                        >
+                            <VueSlider
+                                :data="years"
+                                v-model="currentYear"
+                                :tooltip="'none'"
+                                :dot-attrs="{ 'aria-label': 'Select year' }"
+                            />
+                        </div>
+                    </Tooltip>
                 </div>
                 <div v-if="years.length > 0" class="text-black font-bold text-center text-lg mb-4">
                     {{ currentYear }}
@@ -64,26 +81,31 @@
                 <div v-if="footnote" class="text-sm text-gray-300">{{ footnote }}</div>
 
                 <div v-if="!isIframe" class="flex justify-end mt-2.5 space-x-2.5">
-                    <button
+                    <Tooltip
                         v-if="infoButtonVisible"
-                        @click="toggleOverlay"
-                        class="rounded-full shrink-0 w-9 h-9 text-xl font-bold hover:shadow-info transition-shadow duration-200"
-                        :style="{ color: brandingStore.primaryColor }"
-                        aria-label="Info"
+                        :text="getInfoButtonTooltip()"
+                        position="left"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="36"
-                            height="36"
-                            viewBox="0 0 36 36"
-                            fill="none"
+                        <button
+                            @click="toggleOverlay"
+                            class="rounded-full shrink-0 w-9 h-9 text-xl font-bold hover:shadow-info transition-shadow duration-200"
+                            :style="{ color: brandingStore.primaryColor }"
+                            aria-label="Info"
                         >
-                            <path d="M18 0.5C27.665 0.5 35.5 8.33502 35.5 18C35.5 27.665 27.665 35.5 18 35.5C8.33502 35.5 0.5 27.665 0.5 18C0.5 8.33502 8.33502 0.5 18 0.5Z" fill="currentColor" stroke="#191919"/>
-                            <path d="M18 35C27.3888 35 35 27.3888 35 18C35 8.61116 27.3888 1 18 1C8.61116 1 1 8.61116 1 18C1 27.3888 8.61116 35 18 35Z" stroke="#191919" stroke-width="2"/>
-                            <path d="M18.3137 29.313V6.68556" stroke="white" stroke-width="2"/>
-                            <path d="M7.00148 18.0005H29.6289" stroke="white" stroke-width="2"/>
-                        </svg>
-                    </button>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="36"
+                                height="36"
+                                viewBox="0 0 36 36"
+                                fill="none"
+                            >
+                                <path d="M18 0.5C27.665 0.5 35.5 8.33502 35.5 18C35.5 27.665 27.665 35.5 18 35.5C8.33502 35.5 0.5 27.665 0.5 18C0.5 8.33502 8.33502 0.5 18 0.5Z" fill="currentColor" stroke="#191919"/>
+                                <path d="M18 35C27.3888 35 35 27.3888 35 18C35 8.61116 27.3888 1 18 1C8.61116 1 1 8.61116 1 18C1 27.3888 8.61116 35 18 35Z" stroke="#191919" stroke-width="2"/>
+                                <path d="M18.3137 29.313V6.68556" stroke="white" stroke-width="2"/>
+                                <path d="M7.00148 18.0005H29.6289" stroke="white" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </Tooltip>
                 </div>
             </div>
         </div>
@@ -97,10 +119,12 @@ import VueSlider from 'vue-slider-component/lib/vue-slider.vue';
 import 'vue-slider-component/theme/default.css';
 import IndicatorBig from './cards/indicators/IndicatorBig.vue';
 import IndicatorSmall from './cards/indicators/IndicatorSmall.vue';
+import Tooltip from './help/Tooltip.vue';
 import { useFilterStore } from '../stores/filter';
 import { useOverlayStore } from '../stores/overlay';
 import { useBrandingStore } from '../stores/branding';
 import { useLocale } from '../composables/useLocale';
+import { useHelpContext } from '../composables/useHelpContext';
 
 const props = defineProps({
     tile: {
@@ -116,8 +140,7 @@ const props = defineProps({
 const filterStore = useFilterStore();
 const overlayStore = useOverlayStore();
 const brandingStore = useBrandingStore();
-
-
+const { getTooltip } = useHelpContext();
 const { currentLocale } = useLocale();
 
 const header = computed(() => {
@@ -225,6 +248,7 @@ const lottieUrl = ref(null);
 const lottiePlayer = ref(null);
 const intersected = ref(false);
 const infoButtonVisible = ref(false);
+const isSliderInteracting = ref(false);
 
 // Process indicators from metric definitions (new API structure)
 onMounted(() => {
@@ -343,6 +367,26 @@ function onIntersectionObserver([{ isIntersecting }]) {
 function toggleOverlay() {
     overlayStore.openOverlay(props.tile);
 }
+
+function getInfoButtonTooltip() {
+    return getTooltip('tileInfoButton') || (currentLocale.value === 'en' ? 'Shows additional information about this tile' : 'Zeigt weitere Informationen zu dieser Kachel');
+}
+
+function getYearSliderTooltip() {
+    return getTooltip('yearSlider') || (currentLocale.value === 'en' ? 'Select a year to display values for that year' : 'Wählen Sie ein Jahr aus, um die Werte für dieses Jahr anzuzeigen');
+}
+
+function handleSliderInteractionStart() {
+    isSliderInteracting.value = true;
+}
+
+function handleSliderInteractionEnd() {
+    // Small delay to prevent tooltip from showing immediately after interaction
+    setTimeout(() => {
+        isSliderInteracting.value = false;
+    }, 100);
+}
+
 </script>
 
 <style scoped>
