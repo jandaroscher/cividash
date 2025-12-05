@@ -53,3 +53,4 @@ class FilterSliderBlockTest extends TestCase
 
 
 
+

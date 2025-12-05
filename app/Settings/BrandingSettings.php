@@ -28,6 +28,9 @@ class BrandingSettings extends Settings
     public ?string $border_color;
     public ?string $divider_color;
     public ?string $shadow_color;
+    public ?string $nav_text_color;
+    public ?string $nav_text_color_inactive;
+    public ?string $nav_hover_color;
     public ?array $typography_font_sizes;
     public ?string $typography_custom_font_name;
     public ?string $typography_custom_font_file;

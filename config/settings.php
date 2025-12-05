@@ -3,6 +3,7 @@
 use App\Settings\BrandingSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\FooterSettings;
+use App\Settings\HeaderSettings;
 
 return [
 
@@ -13,7 +14,8 @@ return [
     'settings' => [
         GeneralSettings::class,
         BrandingSettings::class,
-        FooterSettings::class
+        FooterSettings::class,
+        HeaderSettings::class,
     ],
 
     /*

@@ -5,23 +5,9 @@
                 {{ filterHeader }}
             </h2>
         </div>
-        <div class="flex flex-wrap mb-15">
-            <button
-                v-for="filter in level1Filters"
-                :key="filter"
-                @click="changeLevel1Filter(filter)"
-                :class="[
-                    'filter-button',
-                    { 'filter-button--active': filterStore.level1Filter === filter }
-                ]"
-                :style="getButtonStyles(filter)"
-            >
-                {{ getFilterLabel(filter) }}
-            </button>
-        </div>
 
         <!-- Search Input -->
-        <div class="mb-6">
+        <div class="mb-5 md:mb-10">
             <Tooltip
                 :text="getSearchTooltip()"
                 position="top"
@@ -33,9 +19,10 @@
                     @input="handleSearchInput"
                     type="text"
                     :placeholder="searchPlaceholder"
-                    class="w-full px-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-0"
+                    class="w-full px-4 border focus:outline-none focus:ring-2 focus:ring-offset-0"
                     :style="{ 
                         '--tw-ring-color': brandingStore.primaryColor,
+                        borderColor: '#191919',
                         height: '4rem',
                         fontSize: '1.25rem',
                         lineHeight: '2rem'
@@ -45,10 +32,56 @@
             </Tooltip>
         </div>
 
+        <div 
+            class="flex flex-wrap mb-5 md:mb-10" 
+            role="tablist"
+            aria-label="Filter navigation"
+        >
+            <button
+                v-for="(filter, index) in level1Filters"
+                :key="filter"
+                :id="getTabId(filter)"
+                role="tab"
+                :aria-selected="filterStore.level1Filter === filter"
+                :aria-controls="getPanelId(filter)"
+                :tabindex="filterStore.level1Filter === filter ? 0 : -1"
+                @click="changeLevel1Filter(filter)"
+                @keydown="handleTabKeydown($event, filter, index)"
+                :class="[
+                    'filter-button',
+                    { 'filter-button--active': filterStore.level1Filter === filter }
+                ]"
+                :style="getButtonStyles(filter)"
+            >
+                {{ getFilterLabel(filter) }}
+            </button>
+        </div>
+
         <div class="-mx-[30px] sm:mx-0">
-            <Dimensions v-if="filterStore.level1Filter === 'dimensions'" />
-            <Fields v-if="filterStore.level1Filter === 'fields'" />
-            <SDG v-if="filterStore.level1Filter === 'sdg'" />
+            <div
+                v-if="filterStore.level1Filter === 'dimensions'"
+                id="dimensions-panel"
+                role="tabpanel"
+                :aria-labelledby="getTabId('dimensions')"
+            >
+                <Dimensions />
+            </div>
+            <div
+                v-if="filterStore.level1Filter === 'fields'"
+                id="fields-panel"
+                role="tabpanel"
+                :aria-labelledby="getTabId('fields')"
+            >
+                <Fields />
+            </div>
+            <div
+                v-if="filterStore.level1Filter === 'sdg'"
+                id="sdg-panel"
+                role="tabpanel"
+                :aria-labelledby="getTabId('sdg')"
+            >
+                <SDG />
+            </div>
         </div>
     </div>
 </template>
@@ -170,8 +203,52 @@ function getFilterLabel(filter) {
     return filterLabels.value[filter] || filter;
 }
 
+function getPanelId(filter) {
+    return `${filter}-panel`;
+}
+
+function getTabId(filter) {
+    return `${filter}-tab`;
+}
+
 function changeLevel1Filter(filter) {
     filterStore.setLevel1Filter(filter);
+}
+
+function handleTabKeydown(event, filter, currentIndex) {
+    const { key } = event;
+
+    switch (key) {
+        case 'ArrowLeft':
+        case 'ArrowRight':
+            event.preventDefault();
+            // Calculate target index with wrap-around
+            let targetIndex = currentIndex;
+            if (key === 'ArrowLeft') {
+                targetIndex = currentIndex > 0 ? currentIndex - 1 : level1Filters.length - 1;
+            } else {
+                targetIndex = currentIndex < level1Filters.length - 1 ? currentIndex + 1 : 0;
+            }
+            
+            // Only move focus, do not activate the tab
+            setTimeout(() => {
+                const tablist = event.target.closest('[role="tablist"]');
+                if (tablist) {
+                    const buttons = tablist.querySelectorAll('[role="tab"]');
+                    if (buttons[targetIndex]) {
+                        buttons[targetIndex].focus();
+                    }
+                }
+            }, 0);
+            break;
+        case 'Enter':
+        case ' ':
+            event.preventDefault();
+            changeLevel1Filter(filter);
+            break;
+        default:
+            return;
+    }
 }
 
 function getSearchTooltip() {
@@ -270,7 +347,13 @@ function getButtonStyles(filter) {
     font-size: 1.25rem;
     line-height: 2rem;
     border: 1px solid;
+    border-right: none;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.filter-button:last-child {
+    border-right-width: 1px;
+    border-right-style: solid;
 }
 
 @media (min-width: 768px) {

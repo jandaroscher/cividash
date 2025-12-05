@@ -22,14 +22,12 @@ class ManageBranding extends SettingsPage
     protected static string $settings = BrandingSettings::class;
 
     /**
-     * Builds the form schema for the Theme (branding) settings page.
+     * Builds the branding settings form schema for the Theme page.
      *
-     * The returned form contains sections to configure colors, logo, typography (font family, custom font file, and font weights),
-     * font sizes, background colors, text colors, border/shadow colors, and slider colors, including visibility, defaults,
-     * and hydration/dehydration logic for typography font weights.
+     * Configures sections for colors, logo, typography, font sizes, background colors, text colors, border/shadow colors, and slider colors.
      *
      * @param Form $form The form instance to configure.
-     * @return Form The configured form instance with the Theme settings schema.
+     * @return Form The configured form instance containing the Theme branding settings schema.
      */
     public function form(Form $form): Form
     {
@@ -244,6 +242,28 @@ class ManageBranding extends SettingsPage
                             ->nullable(),
                     ])
                     ->columns(2),
+
+                Forms\Components\Section::make(__('filament.pages.manage_branding.navigation_colors_section'))
+                    ->schema([
+                        ColorPicker::make('nav_text_color')
+                            ->label(__('filament.pages.manage_branding.nav_text_color'))
+                            ->default('#374151')
+                            ->helperText(__('filament.pages.manage_branding.nav_text_color_helper'))
+                            ->nullable(),
+
+                        ColorPicker::make('nav_text_color_inactive')
+                            ->label(__('filament.pages.manage_branding.nav_text_color_inactive'))
+                            ->default('#9CA3AF')
+                            ->helperText(__('filament.pages.manage_branding.nav_text_color_inactive_helper'))
+                            ->nullable(),
+
+                        ColorPicker::make('nav_hover_color')
+                            ->label(__('filament.pages.manage_branding.nav_hover_color'))
+                            ->default('#FCA5A5')
+                            ->helperText(__('filament.pages.manage_branding.nav_hover_color_helper'))
+                            ->nullable(),
+                    ])
+                    ->columns(3),
 
                 Forms\Components\Section::make(__('filament.pages.manage_branding.border_shadow_colors_section'))
                     ->schema([

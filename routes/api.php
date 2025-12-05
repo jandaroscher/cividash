@@ -22,6 +22,7 @@ Route::get('/handlungsdimensionen', [HandlungsdimensionController::class, 'index
 Route::get('/sdg-ziele', [SDGZielController::class, 'index']);
 Route::get('/config/branding', [ConfigController::class, 'branding']);
 Route::get('/config/general', [ConfigController::class, 'general']);
+Route::get('/config/header', [ConfigController::class, 'header']);
 Route::get('/config/footer', [ConfigController::class, 'footer']);
 
 // List all pages

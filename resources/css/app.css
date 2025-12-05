@@ -202,3 +202,10 @@
         font-size: var(--font-size-h6, 1.125rem);
     }
 }
+
+/* Global button cursor pointer */
+@layer base {
+    button {
+        cursor: pointer;
+    }
+}

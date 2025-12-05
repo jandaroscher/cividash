@@ -56,7 +56,7 @@
         </Flicking>
 
         <span
-            class="flicking-arrow-prev flicking-arrow-prev-fields is-outside"
+            class="flicking-arrow-prev flicking-arrow-prev-fields is-outside cursor-pointer"
             role="button"
             tabindex="0"
             :aria-label="currentLocale === 'en' ? 'Previous fields' : 'Vorherige Felder'"
@@ -64,7 +64,7 @@
             @keydown.space.prevent="$refs.fieldsFlicking?.prev()"
         ></span>
         <span
-            class="flicking-arrow-next flicking-arrow-next-fields is-outside"
+            class="flicking-arrow-next flicking-arrow-next-fields is-outside cursor-pointer"
             role="button"
             tabindex="0"
             :aria-label="currentLocale === 'en' ? 'Next fields' : 'Nächste Felder'"
