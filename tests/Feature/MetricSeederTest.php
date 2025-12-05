@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\Metric;
+use App\Models\MetricDefinition;
+use App\Models\MetricValue;
 use App\Models\Tile;
 use App\Models\TileYear;
+use App\Services\DashboardJsonParser;
 use App\Services\ParsedMetric;
 use Database\Seeders\MetricSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,6 +23,8 @@ class MetricSeederTest extends TestCase
     {
         parent::setUp();
         $this->seeder = new MetricSeeder();
+        // Ensure ParsedMetric class is loaded by referencing DashboardJsonParser
+        class_exists(DashboardJsonParser::class);
     }
 
     public function test_seeder_creates_tile_years_and_metrics(): void
@@ -60,17 +64,25 @@ class MetricSeederTest extends TestCase
         $tileYears = TileYear::where('tile_id', $tile->id)->get();
         $this->assertCount(3, $tileYears);
 
-        // Check Metrics were created
-        $metrics = Metric::whereIn('tile_year_id', $tileYears->pluck('id'))->get();
-        $this->assertCount(3, $metrics);
+        // Check MetricDefinition was created
+        $metricDefinition = MetricDefinition::where('tile_id', $tile->id)
+            ->where('metric_key', 'test_metric')
+            ->first();
+        $this->assertNotNull($metricDefinition);
+        $this->assertEquals('Test Kennzahl', $metricDefinition->getTranslation('label', 'de'));
+        $this->assertEquals('Test Metric', $metricDefinition->getTranslation('label', 'en'));
+        $this->assertEquals('Stück', $metricDefinition->getTranslation('unit', 'de'));
+        $this->assertEquals('seeds/metrics/metric.png', $metricDefinition->icon);
 
-        // Check first metric
-        $firstMetric = $metrics->first();
-        $this->assertEquals('Test Kennzahl', $firstMetric->getTranslation('label', 'de'));
-        $this->assertEquals('Test Metric', $firstMetric->getTranslation('label', 'en'));
-        $this->assertEquals(100.0, $firstMetric->value);
-        $this->assertEquals('Stück', $firstMetric->getTranslation('unit', 'de'));
-        $this->assertEquals('seeds/metrics/metric.png', $firstMetric->icon);
+        // Check MetricValues were created
+        $metricValues = MetricValue::whereIn('tile_year_id', $tileYears->pluck('id'))
+            ->where('metric_definition_id', $metricDefinition->id)
+            ->get();
+        $this->assertCount(3, $metricValues);
+
+        // Check first metric value
+        $firstMetricValue = $metricValues->first();
+        $this->assertEquals(100.0, $firstMetricValue->value);
     }
 
     public function test_seeder_is_idempotent(): void
@@ -106,7 +118,8 @@ class MetricSeederTest extends TestCase
         );
 
         $firstRunTileYearCount = TileYear::where('tile_id', $tile->id)->count();
-        $firstRunMetricCount = Metric::count();
+        $firstRunMetricDefinitionCount = MetricDefinition::where('tile_id', $tile->id)->count();
+        $firstRunMetricValueCount = MetricValue::count();
 
         $this->seeder->run(
             Collection::make([$parsedMetric]),
@@ -116,7 +129,8 @@ class MetricSeederTest extends TestCase
 
         // Should not create duplicates
         $this->assertEquals($firstRunTileYearCount, TileYear::where('tile_id', $tile->id)->count());
-        $this->assertEquals($firstRunMetricCount, Metric::count());
+        $this->assertEquals($firstRunMetricDefinitionCount, MetricDefinition::where('tile_id', $tile->id)->count());
+        $this->assertEquals($firstRunMetricValueCount, MetricValue::count());
     }
 
     public function test_seeder_handles_multiple_metrics_per_tile(): void
@@ -166,9 +180,13 @@ class MetricSeederTest extends TestCase
         $tileYears = TileYear::where('tile_id', $tile->id)->get();
         $this->assertCount(1, $tileYears);
 
-        // Should create two Metrics (one per metric)
-        $metrics = Metric::whereIn('tile_year_id', $tileYears->pluck('id'))->get();
-        $this->assertCount(2, $metrics);
+        // Should create two MetricDefinitions (one per metric_key)
+        $metricDefinitions = MetricDefinition::where('tile_id', $tile->id)->get();
+        $this->assertCount(2, $metricDefinitions);
+
+        // Should create two MetricValues (one per metric definition)
+        $metricValues = MetricValue::whereIn('tile_year_id', $tileYears->pluck('id'))->get();
+        $this->assertCount(2, $metricValues);
     }
 
     public function test_seeder_handles_translatable_fields(): void
@@ -202,9 +220,10 @@ class MetricSeederTest extends TestCase
             $tileMetricMapping
         );
 
-        $metric = Metric::first();
-        $this->assertEquals('Test Kennzahl', $metric->getTranslation('label', 'de'));
-        $this->assertEquals('Test Metric', $metric->getTranslation('label', 'en'));
+        $metricDefinition = MetricDefinition::where('tile_id', $tile->id)->first();
+        $this->assertNotNull($metricDefinition);
+        $this->assertEquals('Test Kennzahl', $metricDefinition->getTranslation('label', 'de'));
+        $this->assertEquals('Test Metric', $metricDefinition->getTranslation('label', 'en'));
     }
 
     public function test_seeder_skips_metrics_without_years(): void
@@ -236,9 +255,10 @@ class MetricSeederTest extends TestCase
             $tileMetricMapping
         );
 
-        // Should not create any TileYears or Metrics
+        // Should not create any TileYears, MetricDefinitions or MetricValues
         $this->assertEquals(0, TileYear::where('tile_id', $tile->id)->count());
-        $this->assertEquals(0, Metric::count());
+        $this->assertEquals(0, MetricDefinition::where('tile_id', $tile->id)->count());
+        $this->assertEquals(0, MetricValue::count());
     }
 
     public function test_seeder_converts_values_to_decimal(): void
@@ -272,9 +292,13 @@ class MetricSeederTest extends TestCase
             $tileMetricMapping
         );
 
-        $metric = Metric::first();
-        $this->assertEquals(123.45, $metric->value);
-        $this->assertIsFloat($metric->value);
+        $metricValue = MetricValue::first();
+        $this->assertNotNull($metricValue);
+        // Laravel's decimal cast returns string, so we check numeric value
+        $this->assertEquals('123.45', $metricValue->value);
+        $this->assertIsNumeric($metricValue->value);
+        // Verify it can be converted to float
+        $this->assertEquals(123.45, (float) $metricValue->value);
     }
 }
 
