@@ -20,10 +20,15 @@ class HandlungsdimensionResource extends Resource
 
     protected static ?string $model = Handlungsdimension::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
+    protected static ?string $navigationGroup = 'Kategorien';
+    protected static ?int $navigationSort = 11;
 
-    protected static ?int $navigationSort = 2;
-
+    /**
+     * Get the navigation label shown for this resource.
+     *
+     * @return string The translated navigation label for the resource.
+     */
     public static function getNavigationLabel(): string
     {
         return __('filament.resources.handlungsdimension.navigation_label');

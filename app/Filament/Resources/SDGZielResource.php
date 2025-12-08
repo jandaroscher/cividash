@@ -20,10 +20,15 @@ class SDGZielResource extends Resource
 
     protected static ?string $model = SDGZiel::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-star';
+    protected static ?string $navigationGroup = 'Kategorien';
+    protected static ?int $navigationSort = 12;
 
-    protected static ?int $navigationSort = 3;
-
+    /**
+     * Get the navigation label for the resource.
+     *
+     * @return string The translated navigation label for the resource.
+     */
     public static function getNavigationLabel(): string
     {
         return __('filament.resources.sdg_ziel.navigation_label');

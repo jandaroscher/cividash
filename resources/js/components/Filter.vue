@@ -7,7 +7,7 @@
         </div>
 
         <!-- Search Input -->
-        <div class="mb-5 md:mb-10">
+        <div v-if="showSearch" class="mb-5 md:mb-10">
             <Tooltip
                 :text="getSearchTooltip()"
                 position="top"
@@ -33,6 +33,7 @@
         </div>
 
         <div 
+            v-if="showFilter"
             class="flex flex-wrap mb-5 md:mb-10" 
             role="tablist"
             aria-label="Filter navigation"
@@ -57,7 +58,7 @@
             </button>
         </div>
 
-        <div class="-mx-[30px] sm:mx-0">
+        <div v-if="showFilter" class="-mx-[30px] sm:mx-0">
             <div
                 v-if="filterStore.level1Filter === 'dimensions'"
                 id="dimensions-panel"
@@ -96,6 +97,17 @@ import Tooltip from './help/Tooltip.vue';
 import Dimensions from './filter/Dimensions.vue';
 import Fields from './filter/Fields.vue';
 import SDG from './filter/SDG.vue';
+
+const props = defineProps({
+    showSearch: {
+        type: Boolean,
+        default: true,
+    },
+    showFilter: {
+        type: Boolean,
+        default: true,
+    },
+});
 
 const filterStore = useFilterStore();
 const brandingStore = useBrandingStore();

@@ -11,11 +11,37 @@ use Filament\Resources\Concerns\Translatable;
 use Z3d0X\FilamentFabricator\Facades\FilamentFabricator;
 use Z3d0X\FilamentFabricator\Resources\PageResource as FabricatorPageResource;
 use Z3d0X\FilamentFabricator\Enums\ResourceSchemaSlot;
+use Z3d0X\FilamentFabricator\Forms\Components\PageBuilder;
 
 class PageResource extends FabricatorPageResource
 {
     use Translatable;
 
+    protected static ?string $navigationGroup = 'Inhalte';
+    protected static ?int $navigationSort = 1;
+
+    /**
+     * Provides the label displayed for this resource in the Filament navigation.
+     *
+     * @return string The navigation label "Seiten".
+     */
+    public static function getNavigationLabel(): string
+    {
+        return 'Seiten';
+    }
+
+    /**
+     * Customize the parent form to replace the sidebar's `page_url` placeholder with a locale-aware placeholder.
+     *
+     * Replaces any `Placeholder` named `page_url` inside sidebar sections with a `Placeholder` that:
+     * - is labeled with the translated URL label,
+     * - is visible only when Fabricator routing is enabled and a record exists,
+     * - displays `'-'` when no record is present,
+     * - otherwise returns the record URL for the active locale (from the Livewire component's `activeLocale` property or `app()->getLocale()`).
+     *
+     * @param \Filament\Forms\Form $form The base form to modify.
+     * @return \Filament\Forms\Form The modified form instance.
+     */
     public static function form(Form $form): Form
     {
         // Get the base form structure from parent
@@ -77,4 +103,3 @@ class PageResource extends FabricatorPageResource
         ];
     }
 }
-

@@ -24,25 +24,11 @@
     
     $branding = app(\App\Settings\BrandingSettings::class);
     $general = app(\App\Settings\GeneralSettings::class);
-    $footer = app(\App\Settings\FooterSettings::class);
-    $header = app(\App\Settings\HeaderSettings::class);
+    $footer = \App\Models\FooterNavigation::getInstance();
+    $header = \App\Models\Navigation::getInstance();
     $logoUrl = $branding->logo_url ? \Illuminate\Support\Facades\Storage::disk('public')->url($branding->logo_url) : null;
     
-    // Pre-load all referenced pages to avoid N+1 queries
-    $pageIds = collect($header->navigation_items ?? [])
-        ->pluck('page_id')
-        ->merge(collect($header->navigation_items ?? [])->pluck('children')->flatten(1)->pluck('page_id'))
-        ->merge(collect($footer->footer_navigation_items ?? [])->pluck('page_id'))
-        ->filter()
-        ->unique()
-        ->toArray();
-    
-    $pagesById = !empty($pageIds) 
-        ? \App\Models\Page::whereIn('id', $pageIds)->get()->keyBy('id')
-        : collect();
-    
-    // Get current locale and determine alternate locale
-    // Ensure locale is correctly detected from URL path
+    // Get current locale first - must be defined before using it
     $path = request()->path();
     $currentLocale = app()->getLocale();
     // Double-check: if path is 'en' or starts with 'en/', force locale to 'en'
@@ -55,6 +41,22 @@
         app()->setLocale('de');
     }
     $alternateLocale = $currentLocale === 'de' ? 'en' : 'de';
+    
+    // Pre-load all referenced pages to avoid N+1 queries
+    $headerNavigationItems = $header->getTranslatedNavigationItems($currentLocale);
+    $footerNavigationItems = $footer->getTranslatedFooterNavigationItems($currentLocale);
+    
+    $pageIds = collect($headerNavigationItems ?? [])
+        ->pluck('page_id')
+        ->merge(collect($headerNavigationItems ?? [])->pluck('children')->flatten(1)->pluck('page_id'))
+        ->merge(collect($footerNavigationItems ?? [])->pluck('page_id'))
+        ->filter()
+        ->unique()
+        ->toArray();
+    
+    $pagesById = !empty($pageIds) 
+        ? \App\Models\Page::whereIn('id', $pageIds)->get()->keyBy('id')
+        : collect();
     
     // Build alternate URL using helper function
     $currentPath = request()->path();
@@ -231,11 +233,23 @@
             
             <!-- Desktop Navigation -->
             <nav class="desktop-nav ml-auto mt-10 md:mt-0 md:mb-12 flex space-x-2 sm:space-x-6 md:space-x-8 items-end">
-                @if(!empty($header->navigation_items))
-                    @foreach($header->navigation_items as $item)
+                @if(!empty($headerNavigationItems))
+                    @foreach($headerNavigationItems as $item)
                         @php
+                            // Handle translatable arrays for label and url
                             $url = $item['url'] ?? '#';
                             $label = $item['label'] ?? '';
+                            
+                            // If url is an array (translatable), get the current locale value
+                            if (is_array($url)) {
+                                $url = $url[$currentLocale] ?? $url['de'] ?? '#';
+                            }
+                            
+                            // If label is an array (translatable), get the current locale value
+                            if (is_array($label)) {
+                                $label = $label[$currentLocale] ?? $label['de'] ?? '';
+                            }
+                            
                             // If type is 'page' and page_id exists, resolve URL from Page model
                             if (($item['type'] ?? 'manual') === 'page' && isset($item['page_id'])) {
                                 $navPage = $pagesById->get($item['page_id']);
@@ -260,8 +274,10 @@
                                 <div class="dropdown-menu absolute top-full left-0 mt-2 bg-white shadow-lg rounded-md py-2 min-w-[200px] hidden">
                                     @foreach($item['children'] as $child)
                                         @php
+                                            // getTranslatedNavigationItems() already returns translated strings for children
                                             $childUrl = $child['url'] ?? '#';
                                             $childLabel = $child['label'] ?? '';
+                                            
                                             if (($child['type'] ?? 'manual') === 'page' && isset($child['page_id'])) {
                                                 $childPage = $pagesById->get($child['page_id']);
                                                 if ($childPage) {
@@ -329,8 +345,20 @@
                     @if(!empty($header->navigation_items))
                         @foreach($header->navigation_items as $item)
                             @php
+                                // Handle translatable arrays for label and url
                                 $url = $item['url'] ?? '#';
                                 $label = $item['label'] ?? '';
+                                
+                                // If url is an array (translatable), get the current locale value
+                                if (is_array($url)) {
+                                    $url = $url[$currentLocale] ?? $url['de'] ?? '#';
+                                }
+                                
+                                // If label is an array (translatable), get the current locale value
+                                if (is_array($label)) {
+                                    $label = $label[$currentLocale] ?? $label['de'] ?? '';
+                                }
+                                
                                 if (($item['type'] ?? 'manual') === 'page' && isset($item['page_id'])) {
                                     $navPage = $pagesById->get($item['page_id']);
                                     if ($navPage) {
@@ -353,8 +381,20 @@
                                     <div class="pl-4 mt-2 space-y-2">
                                         @foreach($item['children'] as $child)
                                             @php
+                                                // Handle translatable arrays for child label and url
                                                 $childUrl = $child['url'] ?? '#';
                                                 $childLabel = $child['label'] ?? '';
+                                                
+                                                // If childUrl is an array (translatable), get the current locale value
+                                                if (is_array($childUrl)) {
+                                                    $childUrl = $childUrl[$currentLocale] ?? $childUrl['de'] ?? '#';
+                                                }
+                                                
+                                                // If childLabel is an array (translatable), get the current locale value
+                                                if (is_array($childLabel)) {
+                                                    $childLabel = $childLabel[$currentLocale] ?? $childLabel['de'] ?? '';
+                                                }
+                                                
                                                 if (($child['type'] ?? 'manual') === 'page' && isset($child['page_id'])) {
                                                     $childPage = $pagesById->get($child['page_id']);
                                                     if ($childPage) {
@@ -401,11 +441,10 @@
 
     <footer class="mt-12 pt-9 pb-8 md:pt-11 md:pb-10" style="background-color: var(--footer-background-color, #E5E7EB);">
         <div class="container text-center md:text-left">
-            @if(!empty($footer->footer_navigation_items))
+            @if(!empty($footerNavigationItems))
                 @php
                     $layoutType = $footer->layout_type ?? 'single-row';
                     $columns = $footer->columns ?? 3;
-                    $currentLocale = app()->getLocale();
                     $cols = min($columns, 12);
                 @endphp
                 @if($layoutType === 'multi-column' || $layoutType === 'grid')
@@ -426,10 +465,12 @@
                 <div class="mb-9">
                     @if($layoutType === 'single-row')
                         <div class="md:flex flex-wrap md:justify-center md:space-x-5 xl:space-x-0 xl:grid xl:grid-cols-6 space-y-5 md:space-y-0" style="color: var(--text-primary-color, #000000);">
-                            @foreach($footer->footer_navigation_items as $item)
+                            @foreach($footerNavigationItems as $item)
                                 @php
+                                    // getTranslatedFooterNavigationItems() already returns translated strings
                                     $url = $item['url'] ?? '#';
                                     $label = $item['label'] ?? '';
+                                    
                                     // If type is 'page' and page_id exists, resolve URL from Page model
                                     if (($item['type'] ?? 'manual') === 'page' && isset($item['page_id'])) {
                                         $navPage = $pagesById->get($item['page_id']);
@@ -448,8 +489,9 @@
                         </div>
                     @elseif($layoutType === 'multi-column')
                         <div class="grid grid-cols-1 footer-grid-multi-column gap-5" style="color: var(--text-primary-color, #000000);">
-                            @foreach($footer->footer_navigation_items as $item)
+                            @foreach($footerNavigationItems as $item)
                                 @php
+                                    // getTranslatedFooterNavigationItems() already returns translated strings
                                     $url = $item['url'] ?? '#';
                                     $label = $item['label'] ?? '';
                                     if (($item['type'] ?? 'manual') === 'page' && isset($item['page_id'])) {
@@ -471,10 +513,12 @@
                         </div>
                     @elseif($layoutType === 'grid')
                         <div class="grid grid-cols-1 sm:grid-cols-2 footer-grid-grid gap-5" style="color: var(--text-primary-color, #000000);">
-                            @foreach($footer->footer_navigation_items as $item)
+                            @foreach($footerNavigationItems as $item)
                                 @php
+                                    // getTranslatedFooterNavigationItems() already returns translated strings
                                     $url = $item['url'] ?? '#';
                                     $label = $item['label'] ?? '';
+                                    
                                     if (($item['type'] ?? 'manual') === 'page' && isset($item['page_id'])) {
                                         $navPage = $pagesById->get($item['page_id']);
                                         if ($navPage) {
@@ -495,27 +539,36 @@
                     @endif
                 </div>
             @endif
-            @if($footer->social_links_enabled && !empty($footer->social_links))
+            @php
+                $socialLinks = $footer->getTranslatedSocialLinks($currentLocale);
+            @endphp
+            @if($footer->social_links_enabled && !empty($socialLinks))
                 <div class="flex flex-wrap space-x-5 justify-center md:justify-start xl:justify-end mb-4">
-                    @foreach($footer->social_links as $social)
-                        @if(isset($social['url']) && isset($social['platform']))
-                            <a href="{{ $social['url'] }}" 
+                    @foreach($socialLinks as $social)
+                        @if(isset($social['link']) && isset($social['icon']))
+                            <a href="{{ $social['link'] }}" 
                                target="_blank" 
                                rel="noopener noreferrer" 
                                class="transition-colors duration-200"
                                style="color: var(--link-color, #E30613);"
                                onmouseover="this.style.color='var(--nav-hover-color)'"
                                onmouseout="this.style.color='var(--link-color, #E30613)'"
-                               aria-label="{{ $social['platform'] }}">
-                                {{ $social['platform'] }}
+                               aria-label="{{ $social['title'] ?? '' }}"
+                               title="{{ $social['title'] ?? '' }}">
+                                @if(isset($social['icon']))
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($social['icon']) }}" alt="{{ $social['title'] ?? '' }}" class="w-6 h-6">
+                                @endif
                             </a>
                         @endif
                     @endforeach
                 </div>
             @endif
             <div class="mt-4 text-sm text-center md:text-left" style="color: var(--text-secondary-color, #4B5563);">
-                @if($footer->copyright_text)
-                    {{ str_replace(['{year}', '{site_name}'], [date('Y'), e($general->site_name)], e($footer->copyright_text)) }}
+                @php
+                    $copyrightText = $footer->getTranslatedCopyrightText($currentLocale);
+                @endphp
+                @if($copyrightText)
+                    {{ str_replace(['{year}', '{site_name}'], [date('Y'), e($general->site_name)], e($copyrightText)) }}
                 @else
                     &copy; {{ date('Y') }} {{ e($general->site_name) }}
                 @endif

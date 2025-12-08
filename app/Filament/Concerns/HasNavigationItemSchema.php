@@ -9,9 +9,12 @@ use Filament\Forms\Components\TextInput;
 trait HasNavigationItemSchema
 {
     /**
-     * Returns the schema for a navigation item (used for both header and footer navigation items).
+     * Builds the form schema for a navigation item used by header and footer navigation.
      *
-     * @return array Array of form components for a navigation item (type selector, page selector, label, URL).
+     * The schema includes a type selector, a page selector (which resolves localized page titles and can auto-fill label and URL),
+     * a label input, and a URL input; visibility and requirement of fields depend on the chosen type.
+     *
+     * @return array Array of Filament form components for a navigation item: `type`, `page_id`, `label`, and `url`.
      */
     protected function navigationItemSchema(): array
     {
@@ -29,10 +32,12 @@ trait HasNavigationItemSchema
             Select::make('page_id')
                 ->label(__('filament.pages.manage_header.page'))
                 ->options(function () {
+                    $locale = property_exists($this, 'activeLocale') ? $this->activeLocale : app()->getLocale();
+                    
                     return Page::query()
                         ->get()
-                        ->mapWithKeys(function ($page) {
-                            $title = $page->getTranslation('title', app()->getLocale(), false) 
+                        ->mapWithKeys(function ($page) use ($locale) {
+                            $title = $page->getTranslation('title', $locale, false) 
                                 ?: $page->getTranslation('title', 'de', false) 
                                 ?: 'Untitled';
                             return [$page->id => $title];
@@ -47,11 +52,13 @@ trait HasNavigationItemSchema
                     if ($state && $get('type') === 'page') {
                         $page = Page::find($state);
                         if ($page) {
-                            $locale = app()->getLocale();
+                            $locale = property_exists($this, 'activeLocale') ? $this->activeLocale : app()->getLocale();
+                            
                             $title = $page->getTranslation('title', $locale, false) 
                                 ?: $page->getTranslation('title', 'de', false) 
                                 ?: 'Untitled';
                             $url = $page->getUrl(['locale' => $locale]);
+                            
                             $set('label', $title);
                             $set('url', $url);
                         }
@@ -73,4 +80,3 @@ trait HasNavigationItemSchema
         ];
     }
 }
-

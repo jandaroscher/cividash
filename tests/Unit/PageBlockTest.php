@@ -156,9 +156,8 @@ class PageBlockTest extends TestCase
 
         $fieldNames = array_map(fn($field) => $field->getName(), $fields);
 
-        $this->assertContains('mode', $fieldNames);
-        $this->assertContains('initial_category', $fieldNames);
-        $this->assertContains('use_mock_data', $fieldNames);
+        $this->assertContains('show_search', $fieldNames);
+        $this->assertContains('show_filter', $fieldNames);
     }
 }
 

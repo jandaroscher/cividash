@@ -16,6 +16,24 @@ class ManageContent extends SettingsPage
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
     protected static ?string $title = 'Inhaltsbereich';
 
+    /**
+     * Prevent the page from being added to the navigation menu.
+     *
+     * @return bool `false` to hide the page from navigation, `true` to register it.
+     */
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false; // Hide from navigation menu
+    }
+
+    /**
+     * Constructs the form schema for the content settings page, providing a
+     * `hero_content` builder with `heading`, `paragraph`, `image`, and `text_image`
+     * blocks for managing hero section content.
+     *
+     * @param \Filament\Forms\Form $form The base form instance to configure.
+     * @return \Filament\Forms\Form The configured form instance.
+     */
     public function form(\Filament\Forms\Form $form): \Filament\Forms\Form
     {
         return $form->schema([
@@ -76,4 +94,3 @@ class ManageContent extends SettingsPage
         ]);
     }
 }
-

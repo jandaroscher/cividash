@@ -1,7 +1,7 @@
 <template>
     <div class="app-wrapper">
         <main class="overflow-x-hidden pt-7 md:pt-12">
-            <Filter v-if="!tilesStore.loading && !tilesStore.error" />
+            <Filter v-if="!tilesStore.loading && !tilesStore.error && (props.showSearch || props.showFilter)" :show-search="props.showSearch" :show-filter="props.showFilter" />
             
             <div v-if="tilesStore.loading" class="container text-center py-10" role="status" aria-live="polite" aria-label="Loading tiles">
                 {{ effectiveLocale === 'en' ? 'Loading tiles…' : 'Lade Tiles…' }}
@@ -27,17 +27,13 @@ import { useFilterStore } from './stores/filter';
 
 // Define props to accept attributes passed from islands.js
 const props = defineProps({
-    mode: {
-        type: String,
-        default: 'explore',
-    },
-    initialCategory: {
-        type: String,
-        default: null,
-    },
-    useMockData: {
+    showSearch: {
         type: Boolean,
-        default: false,
+        default: true,
+    },
+    showFilter: {
+        type: Boolean,
+        default: true,
     },
     locale: {
         type: String,
@@ -112,6 +108,7 @@ onMounted(() => {
     };
     
     window.addEventListener('popstate', popStateHandler.value);
+
 });
 
 onBeforeUnmount(() => {

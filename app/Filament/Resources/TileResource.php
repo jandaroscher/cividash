@@ -28,7 +28,14 @@ class TileResource extends Resource
     protected static ?string $model = Tile::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Inhalte';
+    protected static ?int $navigationSort = 2;
 
+    /**
+     * Get the navigation label for the Tile resource (localized).
+     *
+     * @return string The localized navigation label.
+     */
     public static function getNavigationLabel(): string
     {
         return __('filament.resources.tile.navigation_label');

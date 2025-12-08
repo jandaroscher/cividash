@@ -6,7 +6,7 @@ use App\Models\Page;
 use App\Observers\PageObserver;
 use Illuminate\Support\ServiceProvider;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
-use Z3d0X\FilamentFabricator\Facades\FilamentFabricator;
+use Z3d0X\FilamentFabricator\Forms\Components\PageBuilder;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,7 +19,13 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Bootstrap application services and configure runtime integrations.
+     *
+     * Configures language switch locales and visibility, enables collapsible blocks for the PageBuilder,
+     * and registers the Page model observer for cache invalidation.
+     *
+     * Note: Filament Fabricator layouts are auto-discovered by the package when Layout classes extend
+     * Z3d0X\FilamentFabricator\Layouts\Layout with a protected static $name property in the configured layouts directory.
      */
     public function boot(): void
     {
@@ -29,27 +35,12 @@ class AppServiceProvider extends ServiceProvider
                 ->visible();
         });
 
+        // Configure PageBuilder to make blocks collapsible
+        PageBuilder::configureUsing(function (PageBuilder $builder) {
+            $builder->collapsible();
+        });
+
         // Register Page observer for cache invalidation
         Page::observe(PageObserver::class);
-
-        // Register Fabricator layouts for use outside admin panel
-        // This ensures layouts are available when PageController is called from web routes
-        // Blocks are auto-registered, but layouts need manual registration
-        $this->registerFabricatorLayouts();
-    }
-
-    /**
-     * Register Fabricator layouts from config.
-     */
-    protected function registerFabricatorLayouts(): void
-    {
-        $config = config('filament-fabricator.layouts', []);
-        $layoutsToRegister = $config['register'] ?? [];
-
-        foreach ($layoutsToRegister as $layoutClass) {
-            if (class_exists($layoutClass)) {
-                FilamentFabricator::registerLayout($layoutClass);
-            }
-        }
     }
 }

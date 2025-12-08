@@ -61,8 +61,6 @@ return [
             \App\Filament\Fabricator\PageBlocks\HeroBlock::class,
             \App\Filament\Fabricator\PageBlocks\IntroTextBlock::class,
             \App\Filament\Fabricator\PageBlocks\TextImageBlock::class,
-            \App\Filament\Fabricator\PageBlocks\CardGridBlock::class,
-            \App\Filament\Fabricator\PageBlocks\FilterBlock::class,
             \App\Filament\Fabricator\PageBlocks\SliderBlock::class,
             \App\Filament\Fabricator\PageBlocks\SectionBlock::class,
             \App\Filament\Fabricator\PageBlocks\ListBlock::class,

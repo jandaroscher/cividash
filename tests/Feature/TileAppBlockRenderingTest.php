@@ -26,9 +26,8 @@ class TileAppBlockRenderingTest extends TestCase
                     [
                         'type' => 'tile-app',
                         'data' => [
-                            'mode' => 'explore',
-                            'initial_category' => 'energy',
-                            'use_mock_data' => true,
+                            'show_search' => true,
+                            'show_filter' => false,
                         ],
                     ],
                 ],
@@ -43,10 +42,10 @@ class TileAppBlockRenderingTest extends TestCase
         // Mount element with data-vue-component
         $response->assertSee('data-vue-component="TileExplorer"', false);
 
-        // data-props JSON should contain at least the mode and initialCategory keys
+        // data-props JSON should contain at least the showSearch and showFilter keys
         $response->assertSee('data-props=', false);
-        $response->assertSee('mode', false);
-        $response->assertSee('initialCategory', false);
+        $response->assertSee('showSearch', false);
+        $response->assertSee('showFilter', false);
     }
 }
 

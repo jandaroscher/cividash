@@ -18,6 +18,8 @@ class ManageBranding extends SettingsPage
     protected static ?string $navigationIcon = 'heroicon-o-paint-brush';
     protected static ?string $title = 'Theme';
     protected static ?string $navigationLabel = 'Theme';
+    protected static ?string $navigationGroup = 'Einstellungen';
+    protected static ?int $navigationSort = 21;
 
     protected static string $settings = BrandingSettings::class;
 

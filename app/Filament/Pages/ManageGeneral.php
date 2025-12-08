@@ -2,7 +2,6 @@
 
 namespace App\Filament\Pages;
 
-use App\Settings\FooterSettings;
 use App\Settings\GeneralSettings;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
@@ -13,6 +12,8 @@ class ManageGeneral extends SettingsPage
 {
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
     protected static ?string $title = 'Seiteneinstellungen';
+    protected static ?string $navigationGroup = 'Einstellungen';
+    protected static ?int $navigationSort = 20;
 
     protected static string $settings = GeneralSettings::class;
 

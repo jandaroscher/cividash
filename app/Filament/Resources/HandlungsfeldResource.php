@@ -17,10 +17,15 @@ class HandlungsfeldResource extends Resource
 
     protected static ?string $model = Category::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-folder';
+    protected static ?string $navigationGroup = 'Kategorien';
+    protected static ?int $navigationSort = 10;
 
-    protected static ?int $navigationSort = 1;
-
+    /**
+     * Get the resource's navigation label in the current locale.
+     *
+     * @return string The navigation label translated for the current locale.
+     */
     public static function getNavigationLabel(): string
     {
         return __('filament.resources.handlungsfeld.navigation_label');
@@ -115,4 +120,3 @@ class HandlungsfeldResource extends Resource
         ];
     }
 }
-

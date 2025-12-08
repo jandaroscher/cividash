@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateBrandingRequest;
+use App\Models\FooterNavigation;
+use App\Models\Navigation;
 use App\Settings\BrandingSettings;
-use App\Settings\FooterSettings;
 use App\Settings\GeneralSettings;
-use App\Settings\HeaderSettings;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
@@ -89,35 +89,53 @@ class ConfigController extends Controller
     /**
      * Get header configuration settings.
      *
+     * @param \Illuminate\Http\Request $request The HTTP request (may contain locale parameter)
      * @return \Illuminate\Http\Resources\Json\JsonResource A JSON resource containing `navigation_items`, `show_language_switcher`, and `dropdown_enabled`.
      */
-    public function header(): JsonResource
+    public function header(\Illuminate\Http\Request $request): JsonResource
     {
-        $settings = app(HeaderSettings::class);
+        $navigation = Navigation::getInstance();
+        
+        // Get locale from request parameter or use app locale
+        $locale = $request->query('locale', app()->getLocale());
+        
+        // Validate locale
+        if (!in_array($locale, ['de', 'en'])) {
+            $locale = app()->getLocale();
+        }
 
         return new JsonResource([
-            'navigation_items' => $settings->navigation_items,
-            'show_language_switcher' => $settings->show_language_switcher,
-            'dropdown_enabled' => $settings->dropdown_enabled,
+            'navigation_items' => $navigation->getTranslatedNavigationItems($locale),
+            'show_language_switcher' => $navigation->show_language_switcher,
+            'dropdown_enabled' => $navigation->dropdown_enabled,
         ]);
     }
 
     /**
      * Retrieve footer configuration settings as a JSON resource.
      *
+     * @param \Illuminate\Http\Request $request The HTTP request (may contain locale parameter)
      * @return \Illuminate\Http\Resources\Json\JsonResource JsonResource containing `footer_navigation_items`, `social_links`, `layout_type`, `columns`, `social_links_enabled`, and `copyright_text`.
      */
-    public function footer(): JsonResource
+    public function footer(\Illuminate\Http\Request $request): JsonResource
     {
-        $settings = app(FooterSettings::class);
+        $footer = FooterNavigation::getInstance();
+        
+        // Get locale from request parameter or use app locale
+        $locale = $request->query('locale', app()->getLocale());
+        
+        // Validate locale
+        if (!in_array($locale, ['de', 'en'])) {
+            $locale = app()->getLocale();
+        }
 
         return new JsonResource([
-            'footer_navigation_items' => $settings->footer_navigation_items,
-            'social_links' => $settings->social_links,
-            'layout_type' => $settings->layout_type,
-            'columns' => $settings->columns,
-            'social_links_enabled' => $settings->social_links_enabled,
-            'copyright_text' => $settings->copyright_text,
+            'footer_navigation_items' => $footer->getTranslatedFooterNavigationItems($locale),
+            'social_links' => $footer->getTranslatedSocialLinks($locale),
+            'layout_type' => $footer->layout_type,
+            'columns' => $footer->columns,
+            'social_links_enabled' => $footer->social_links_enabled,
+            'copyright_text' => $footer->getTranslatedCopyrightText($locale),
         ]);
     }
 

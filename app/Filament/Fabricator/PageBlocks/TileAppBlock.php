@@ -3,37 +3,63 @@
 namespace App\Filament\Fabricator\PageBlocks;
 
 use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
 class TileAppBlock extends PageBlock
 {
+    /**
+     * Builds the Block schema for the "tile-app" page block.
+     *
+     * The returned Block is named 'tile-app', labeled 'Kacheln', uses the
+     * 'heroicon-o-squares-2x2' icon, and contains two toggles in its schema:
+     * - `show_search`: label "Suche anzeigen", default `true`
+     * - `show_filter`: label "Filter anzeigen", default `true`
+     *
+     * @return Block The configured Block instance for the tile-app page block.
+     */
     public static function getBlockSchema(): Block
     {
         return Block::make('tile-app')
-            ->label('Tile App')
+            ->label('Kacheln')
             ->icon('heroicon-o-squares-2x2')
             ->schema([
-                Select::make('mode')
-                    ->label('Modus')
-                    ->options([
-                        'explore' => 'Explore',
-                        'compare' => 'Compare',
-                    ])
-                    ->default('explore')
-                    ->required(),
-                TextInput::make('initial_category')
-                    ->label('Initiale Kategorie')
-                    ->maxLength(255),
-                Toggle::make('use_mock_data')
-                    ->label('Mock-Daten im Preview verwenden')
-                    ->default(false),
+                Toggle::make('show_search')
+                    ->label('Suche anzeigen')
+                    ->default(true),
+                Toggle::make('show_filter')
+                    ->label('Filter anzeigen')
+                    ->default(true),
             ]);
     }
-}
 
+    /**
+     * Normalize and ensure boolean values for the 'show_search' and 'show_filter' keys in the given data array.
+     *
+     * Existing values for these keys are cast to `bool`; if a key is missing it is added with a value of `true`.
+     *
+     * @param array $data Input data array that may contain 'show_search' and/or 'show_filter'.
+     * @return array The modified data array with 'show_search' and 'show_filter' guaranteed to be booleans.
+     */
+    public static function mutateData(array $data): array
+    {
+        // Ensure boolean values are properly set, defaulting to true if not present
+        // Use array_key_exists to check if key exists, even if value is false
+        if (array_key_exists('show_search', $data)) {
+            $data['show_search'] = (bool) $data['show_search'];
+        } else {
+            $data['show_search'] = true;
+        }
+        
+        if (array_key_exists('show_filter', $data)) {
+            $data['show_filter'] = (bool) $data['show_filter'];
+        } else {
+            $data['show_filter'] = true;
+        }
+
+        return $data;
+    }
+}
 
 
 

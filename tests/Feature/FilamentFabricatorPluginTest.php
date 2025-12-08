@@ -24,10 +24,9 @@ class FilamentFabricatorPluginTest extends TestCase
         // Assert admin panel is accessible
         $response->assertStatus(200);
 
-        // Assert that the response contains "Pages" (Fabricator resource)
-        // This is a basic check - in a real scenario, you might want to check
-        // the actual sidebar HTML or use a more sophisticated DOM assertion
-        $response->assertSee('Pages', false);
+        // Assert that the response contains "Seiten" (German navigation label for Fabricator Pages resource)
+        // The PageResource uses getNavigationLabel() which returns "Seiten"
+        $response->assertSee('Seiten', false);
     }
 
     /**
