@@ -117,7 +117,7 @@ export const useFilterStore = defineStore('filter', {
             this.sdgZiele = sdgZiele;
         },
         setLoading(filterType, loading) {
-            if (this.loading.hasOwnProperty(filterType)) {
+            if (Object.prototype.hasOwnProperty.call(this.loading, filterType)) {
                 this.loading[filterType] = loading;
             }
         },
