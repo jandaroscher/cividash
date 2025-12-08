@@ -216,7 +216,7 @@
         <div class="container h-full flex items-center space-x-2">
             @if($logoUrl)
                 <a href="/" class="flex-1">
-                    <img src="{{ $logoUrl }}" alt="{{ $general->site_name }}" class="logo md:w-[190px]" style="max-height: 68px;">
+                    <img src="{{ $logoUrl }}" alt="{{ $general->site_name }}" class="logo" style="max-height: 68px;">
                 </a>
             @else
                 <a href="/" class="flex-1 text-2xl md:text-3xl font-bold" style="color: var(--primary-color, #1976d2);">
