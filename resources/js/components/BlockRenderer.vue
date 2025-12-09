@@ -18,6 +18,7 @@ import ListBlock from './blocks/ListBlock.vue';
 import FAQBlock from './blocks/FAQBlock.vue';
 import LinkBlock from './blocks/LinkBlock.vue';
 import SliderBlock from './blocks/SliderBlock.vue';
+import TileAppBlock from './blocks/TileAppBlock.vue';
 
 const props = defineProps({
     blocks: {
@@ -35,6 +36,7 @@ const blockComponentMap = {
     faq: FAQBlock,
     link: LinkBlock,
     slider: SliderBlock,
+    'tile-app': TileAppBlock,
 };
 
 function getBlockComponent(blockType) {

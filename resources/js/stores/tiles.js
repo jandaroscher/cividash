@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { getApiBaseUrl } from '../utils/api';
 
 export const useTilesStore = defineStore('tiles', {
     state: () => ({
@@ -18,7 +19,7 @@ export const useTilesStore = defineStore('tiles', {
             this.loading = true;
             this.error = null;
             try {
-                const apiUrl = window.APP_URL || '';
+                const apiUrl = getApiBaseUrl();
                 // Use provided locale, store locale, or default to 'de'
                 const requestLocale = locale || this.locale || 'de';
                 const res = await fetch(`${apiUrl}/api/tiles?locale=${requestLocale}`);

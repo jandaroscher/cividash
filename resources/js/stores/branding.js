@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { getApiBaseUrl } from '../utils/api';
 
 export const useBrandingStore = defineStore('branding', {
     state: () => ({
@@ -40,11 +41,14 @@ export const useBrandingStore = defineStore('branding', {
         borderColor: null,
         dividerColor: null,
         shadowColor: '#000000',
+        navTextColor: '#374151',
+        navTextColorInactive: '#9CA3AF',
+        navHoverColor: '#FCA5A5',
     }),
     actions: {
         async fetch() {
             try {
-                const apiUrl = window.APP_URL || '';
+                const apiUrl = getApiBaseUrl();
                 const res = await fetch(
                     apiUrl + '/api/config/branding',
                     { credentials: 'include' },
@@ -76,6 +80,9 @@ export const useBrandingStore = defineStore('branding', {
                     border_color,
                     divider_color,
                     shadow_color,
+                    nav_text_color,
+                    nav_text_color_inactive,
+                    nav_hover_color,
                 } = json.data;
 
                 this.primaryColor = primary_color || this.primaryColor;
@@ -116,6 +123,9 @@ export const useBrandingStore = defineStore('branding', {
                 this.borderColor = border_color !== undefined ? border_color : this.borderColor;
                 this.dividerColor = divider_color !== undefined ? divider_color : this.dividerColor;
                 this.shadowColor = shadow_color || this.shadowColor;
+                this.navTextColor = nav_text_color !== undefined ? nav_text_color : this.navTextColor;
+                this.navTextColorInactive = nav_text_color_inactive !== undefined ? nav_text_color_inactive : this.navTextColorInactive;
+                this.navHoverColor = nav_hover_color !== undefined ? nav_hover_color : this.navHoverColor;
 
                 // Load font (Google Font or Custom Font)
                 if (this.customFontFile && this.customFontName) {
@@ -185,6 +195,11 @@ export const useBrandingStore = defineStore('branding', {
                     document.documentElement.style.setProperty('--divider-color', this.dividerColor);
                 }
                 document.documentElement.style.setProperty('--shadow-color', this.shadowColor || '#000000');
+                
+                // Set navigation colors as CSS variables
+                document.documentElement.style.setProperty('--nav-text-color', this.navTextColor || '#374151');
+                document.documentElement.style.setProperty('--nav-text-color-inactive', this.navTextColorInactive || '#9CA3AF');
+                document.documentElement.style.setProperty('--nav-hover-color', this.navHoverColor || '#FCA5A5');
             } catch (error) {
                 logError('Failed to fetch branding settings:', error);
             }

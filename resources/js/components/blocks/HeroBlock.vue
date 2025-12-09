@@ -1,21 +1,21 @@
 <template>
     <section 
-        class="relative text-white py-20"
+        class="relative bg-gray-900 text-white py-20"
         :style="{ backgroundColor: 'var(--hero-background-color, #111827)' }"
         :aria-label="block.props.title || 'Hero section'"
     >
-        <div v-if="imageUrl" class="absolute inset-0 z-10">
+        <div v-if="imageUrl" class="absolute inset-0" style="z-index: var(--z-base);">
             <img
                 :src="imageUrl"
                 :alt="block.props.image_alt || ''"
                 class="w-full h-full object-cover opacity-50"
             />
         </div>
-        <div class="relative z-20">
+        <div class="container relative" style="z-index: var(--z-dropdown);">
             <div>
                 <h1
                     v-if="block.props.title"
-                    class="text-4xl lg:text-5xl text-theme-inverse font-bold mb-6 hyphens-auto"
+                    class="text-4xl lg:text-5xl text-white font-bold mb-6 hyphens-auto"
                 >
                     {{ block.props.title }}
                 </h1>
@@ -39,7 +39,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { toRef } from 'vue';
+import { useImageUrl } from '../../composables/useImageUrl';
 
 interface HeroBlockProps {
     type: string;
@@ -57,14 +58,7 @@ const props = defineProps<{
     block: HeroBlockProps;
 }>();
 
-const imageUrl = computed(() => {
-    if (!props.block.props.image) return null;
-    // If image is already a full URL, return it; otherwise prepend storage URL
-    if (props.block.props.image.startsWith('http://') || props.block.props.image.startsWith('https://')) {
-        return props.block.props.image;
-    }
-    return `/storage/${props.block.props.image}`;
-});
+const imageUrl = useImageUrl(toRef(() => props.block.props.image));
 
 const ctaUrl = computed(() => {
     const url = props.block.props.cta_url;

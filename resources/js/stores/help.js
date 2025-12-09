@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { getApiBaseUrl } from '../utils/api';
 
 /**
  * Deep merge utility function for help content
@@ -167,7 +168,7 @@ export const useHelpStore = defineStore('help', {
         async loadHelpContent() {
             this.loading = true;
             try {
-                const apiUrl = window.APP_URL || '';
+                const apiUrl = getApiBaseUrl();
                 // Try to load from branding API first
                 const res = await fetch(
                     apiUrl + '/api/config/branding',
