@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Artisan;
 
 class TenantSeeder extends Seeder
 {
+    /**
+     * Ensures a demo admin user and a specific tenant exist, associates them, and backfills tenancy associations.
+     *
+     * Creates or reuses a "Demo Admin" user (email demo@example.com) and a tenant with slug "stadt-regensburg" and name "Stadt Regensburg", attaches the user to the tenant without detaching other associations, sets the user's default_tenant_id to the tenant if it is null, and invokes the tenancy backfill command to assign existing records to a tenant.
+     */
     public function run(): void
     {
         $user = User::where('email', 'demo@example.com')->first() ?? User::factory()->create([
@@ -34,5 +39,4 @@ class TenantSeeder extends Seeder
         Artisan::call('tenancy:backfill');
     }
 }
-
 

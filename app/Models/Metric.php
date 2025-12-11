@@ -27,14 +27,23 @@ class Metric extends Model
         'tenant_id',
     ];
 
+    /**
+     * Get the TileYear that this Metric belongs to.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The belongs-to relationship to the TileYear model.
+     */
     public function tileYear()
     {
         return $this->belongsTo(TileYear::class);
     }
 
+    /**
+     * Get the tenant that owns the metric.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The belongs-to relationship for the Tenant model.
+     */
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
     }
 }
-

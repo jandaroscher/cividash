@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Add tenant-scoped foreign key columns to multiple domain tables and a default tenant reference on users.
+     *
+     * Adds a nullable `default_tenant_id` column to the `users` table that references `tenants.id` and is set to null on tenant deletion; adds nullable `tenant_id` columns referencing `tenants.id` with cascade-on-delete to the following tables: `categories`, `tiles`, `tile_years`, `sdg_ziele`, `handlungsdimensionen`, `navigations`, `footer_navigations`, `metric_definitions`, `metric_values`, `background_pages`, and the pages table resolved via `config('filament-fabricator.table_name', 'pages')`. Also adds `tenant_id` to `metrics` only if the `metrics` table exists.
+     */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
@@ -63,6 +68,17 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Drop tenant-related foreign key columns from application tables.
+     *
+     * Removes the constrained foreign id columns used for tenant scoping:
+     * - `tenant_id` from the configured pages table, `background_pages`, `metric_values`,
+     *   `metric_definitions`, `footer_navigations`, `navigations`, `handlungsdimensionen`,
+     *   `sdg_ziele`, `tile_years`, `tiles`, and `categories`.
+     * - `default_tenant_id` from `users`.
+     *
+     * The `metrics` table is handled conditionally and its `tenant_id` column is dropped only if the table exists.
+     */
     public function down(): void
     {
         Schema::table(config('filament-fabricator.table_name', 'pages'), function (Blueprint $table) {
@@ -120,5 +136,4 @@ return new class extends Migration
         });
     }
 };
-
 

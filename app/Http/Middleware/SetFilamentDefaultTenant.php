@@ -10,6 +10,18 @@ use Illuminate\Support\Facades\Schema;
 
 class SetFilamentDefaultTenant
 {
+    /**
+     * Ensure a default Filament tenant is set when tenancy is enabled and no tenant is currently active.
+     *
+     * If tenancy is active, no tenant is set, and the database has a `tenants` table, this middleware:
+     * - Uses the authenticated Filament user's `getDefaultTenant($panel)` when the user implements HasDefaultTenantContract.
+     * - When running unit tests and no user-provided default exists, creates or retrieves a tenant with slug `default`.
+     * When a tenant is selected, it sets the Filament tenant and, if the request has a session, stores the tenant key under `filament.tenant`.
+     *
+     * @param \Illuminate\Http\Request $request The incoming HTTP request.
+     * @param \Closure $next The next middleware callback.
+     * @return mixed The response from the next middleware or request handler.
+     */
     public function handle(Request $request, Closure $next)
     {
         if (Filament::hasTenancy() && Filament::getTenant() === null && Schema::hasTable('tenants')) {

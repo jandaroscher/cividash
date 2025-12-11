@@ -142,6 +142,11 @@ class Navigation extends Model
         }, $items);
     }
 
+    /**
+     * Get the tenant that owns this navigation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The tenant relation.
+     */
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);

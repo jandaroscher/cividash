@@ -11,6 +11,14 @@ use Illuminate\Support\Facades\Request;
 
 trait BelongsToTenant
 {
+    /**
+     * Boots the BelongsToTenant trait for the model by registering creation behavior and a global tenant query scope.
+     *
+     * On model creation, associates the new model with a resolved tenant or a fallback tenant when no tenant_id is set.
+     * Adds a global scope that restricts queries to the current tenant; when no tenant context is available the scope
+     * will apply a default tenant if present or constrain results to an empty set. The global scope is skipped in
+     * console contexts (except when running unit tests).
+     */
     protected static function bootBelongsToTenant(): void
     {
         static::creating(function ($model) {

@@ -164,11 +164,13 @@ class FooterNavigation extends Model
     }
 
     /**
-     * Return the copyright text translated for the specified locale (or the app locale).
-     *
-     * @param string|null $locale Locale to use for translation; when null, the application's current locale is used.
-     * @return string|null The copyright text for the resolved locale, or null if no translation is available.
-     */
+         * Resolve the copyright text for the given locale, falling back to German ('de') when a translation is not available.
+         *
+         * If the stored value is a translatable structure (array), the function returns the entry for the requested locale or the 'de' entry as a fallback. If the stored value is a non-empty string for the requested locale, that string is returned. When no translation can be resolved, `null` is returned.
+         *
+         * @param string|null $locale Locale to use for translation; when null, the application's current locale is used.
+         * @return string|null The resolved copyright text for the locale, or null if no translation is available.
+         */
     public function getTranslatedCopyrightText(?string $locale = null): ?string
     {
         $locale = $locale ?? app()->getLocale();
@@ -207,6 +209,11 @@ class FooterNavigation extends Model
         return $copyright;
     }
 
+    /**
+     * Define the owning tenant relationship for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The belongs-to relation linking this record to a Tenant.
+     */
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);

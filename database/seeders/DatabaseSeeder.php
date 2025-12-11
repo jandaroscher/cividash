@@ -10,6 +10,9 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
+     *
+     * Creates a single test User with name "Test User" and email "test@example.com",
+     * then runs the TenantSeeder to seed tenant-related data.
      */
     public function run(): void
     {

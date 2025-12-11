@@ -56,6 +56,15 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
         ];
     }
 
+    /**
+     * Bootstraps the default tenant and user-tenant association on user creation.
+     *
+     * On creation of a User, ensures a tenant with slug "default" exists, attaches that tenant
+     * to the new user without detaching existing tenant relations, and sets the user's
+     * `default_tenant_id` to that tenant if it is not already set.
+     *
+     * @return void
+     */
     protected static function booted(): void
     {
         static::created(function (User $user) {
@@ -72,16 +81,36 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
         });
     }
 
+    /**
+     * Determine whether the user may access the given Filament panel.
+     *
+     * This implementation permits access for all authenticated users.
+     *
+     * @param Panel $panel The Filament panel to check access for.
+     * @return bool `true` if the user may access the panel, `false` otherwise.
+     */
     public function canAccessPanel(Panel $panel): bool
     {
         return true; // Allow all authenticated users to access the admin panel
     }
 
+    /**
+     * Provide the user's tenants ordered by name for the given Filament panel.
+     *
+     * @param Panel $panel The Filament panel requesting the tenant list.
+     * @return Collection|array A collection or array of Tenant models belonging to the user, ordered by the tenants' `name`.
+     */
     public function getTenants(Panel $panel): Collection|array
     {
         return $this->tenants()->orderBy('name')->get();
     }
 
+    /**
+     * Resolve the user's default tenant for the given Filament panel, falling back to the first tenant the user can access.
+     *
+     * @param Panel $panel The Filament panel context used for tenant resolution.
+     * @return Tenant|null The user's configured default Tenant if the user has access to it; otherwise the first accessible Tenant ordered by name, or `null` if the user has no tenants.
+     */
     public function getDefaultTenant(Panel $panel): ?Tenant
     {
         // First, try to get the configured default tenant
@@ -103,6 +132,12 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
         return $this->tenants()->orderBy('name')->first();
     }
 
+    /**
+     * Determine whether the user can access the given tenant.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $tenant The tenant model to check access for.
+     * @return bool `true` if the user has access to the tenant, `false` otherwise.
+     */
     public function canAccessTenant(Model $tenant): bool
     {
         if (! $this->relationLoaded('tenants')) {
@@ -112,11 +147,23 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
         return $this->tenants->contains(fn ($t) => $t->getKey() === $tenant->getKey());
     }
 
+    /**
+     * Get the many-to-many relationship for tenants associated with the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Tenant>
+     */
     public function tenants(): BelongsToMany
     {
         return $this->belongsToMany(Tenant::class)->withTimestamps();
     }
 
+    /**
+     * Get the belongs-to relationship for the user's default tenant.
+     *
+     * The relation uses the `default_tenant_id` foreign key on the users table.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The user's default Tenant relation.
+     */
     public function defaultTenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class, 'default_tenant_id');

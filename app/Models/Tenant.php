@@ -20,10 +20,14 @@ class Tenant extends Model
         'theme_config' => 'array',
     ];
 
+    /**
+     * Get the users associated with the tenant.
+     *
+     * @return BelongsToMany The many-to-many relationship for User models; pivot records include `created_at` and `updated_at`.
+     */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withTimestamps();
     }
 }
-
 

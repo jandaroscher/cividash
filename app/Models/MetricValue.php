@@ -25,11 +25,21 @@ class MetricValue extends Model
         return $this->belongsTo(MetricDefinition::class);
     }
 
+    /**
+     * Get the TileYear associated with this metric value.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\TileYear> The belongs-to relationship for the TileYear.
+     */
     public function tileYear()
     {
         return $this->belongsTo(TileYear::class);
     }
 
+    /**
+     * Get the tenant that owns this metric value.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The tenant relationship.
+     */
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);

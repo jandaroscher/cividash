@@ -73,11 +73,21 @@ class Tile extends Model
         return $this->hasMany(TileYear::class)->orderBy('year');
     }
 
+    /**
+     * Get the has-many relationship for metric definitions belonging to this tile.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany A has-many relationship to MetricDefinition models.
+     */
     public function metricDefinitions()
     {
         return $this->hasMany(MetricDefinition::class);
     }
 
+    /**
+     * Get the tenant that owns the tile.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The tenant that owns the tile.
+     */
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);

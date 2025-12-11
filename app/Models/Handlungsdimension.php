@@ -39,12 +39,19 @@ class Handlungsdimension extends Model
 
     /**
      * Get the tiles that belong to this dimension.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany The tiles related to this dimension.
      */
     public function tiles()
     {
         return $this->hasMany(Tile::class);
     }
 
+    /**
+     * Get the tenant that owns this Handlungsdimension.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The tenant relation instance.
+     */
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);

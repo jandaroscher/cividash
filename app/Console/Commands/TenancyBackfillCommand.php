@@ -25,6 +25,13 @@ class TenancyBackfillCommand extends Command
 
     protected $description = 'Create a default tenant and backfill existing records with tenant ownership.';
 
+    /**
+     * Create or reuse a default tenant (based on the `--default-tenant` option) and backfill existing records to associate them with that tenant inside a single database transaction.
+     *
+     * This command ensures a tenant with the requested slug exists, attaches that tenant to existing users (and sets users' default tenant when missing), and updates existing model records with a null `tenant_id` to point to the default tenant. The operation is atomic: changes are committed only if all backfill steps succeed.
+     *
+     * @return int Command exit status code: `SUCCESS` (0) on success.
+     */
     public function handle(): int
     {
         $slug = $this->option('default-tenant') ?: 'default';
@@ -44,6 +51,13 @@ class TenancyBackfillCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * Associate every existing user with the given tenant and set that tenant as the user's default when none is set.
+     *
+     * Existing tenant associations for users are preserved; only users without a default tenant will have their `default_tenant_id` set.
+     *
+     * @param Tenant $tenant The tenant to attach to users and to use when populating missing default tenant assignments.
+     */
     protected function backfillUsers(Tenant $tenant): void
     {
         User::query()->each(function (User $user) use ($tenant) {
@@ -55,6 +69,15 @@ class TenancyBackfillCommand extends Command
         });
     }
 
+    /**
+     * Assign the given tenant's id to all existing records with a null `tenant_id` for a predefined set of models.
+     *
+     * For each model in the predefined list this updates records where `tenant_id` is null to use the provided tenant's id.
+     * Tables that do not exist are skipped. The operation ignores the tenant global scope so records are found regardless
+     * of any active tenant context.
+     *
+     * @param Tenant $tenant The tenant whose `id` will be assigned to records with a null `tenant_id`.
+     */
     protected function backfillModels(Tenant $tenant): void
     {
         $models = [

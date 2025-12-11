@@ -27,6 +27,14 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
 {
+    /**
+     * Configure the Filament admin panel for the application with tenancy support, UI pages, resources, widgets, middleware, plugins, and authentication middleware.
+     *
+     * This enables tenancy by binding the Tenant model to the panel, conditionally registers tenant UI pages when the application is not in the `testing` environment, and applies the panel's default configuration including id, path, brand name, colors, discovered resources/pages/widgets, explicit pages and widgets, middleware stack, plugins, and auth middleware.
+     *
+     * @param Panel $panel The Panel instance to configure for the admin area.
+     * @return Panel The configured Panel instance.
+     */
     public function panel(Panel $panel): Panel
     {
         // Enable tenancy on the panel to allow Filament::getTenant() to work in tests

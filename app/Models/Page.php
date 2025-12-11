@@ -143,10 +143,11 @@ class Page extends FabricatorPage implements PageContract
     }
 
     /**
-     * Get all the available argument sets for the available cache keys.
-     * Returns both locales (de and en) to cache URLs for all languages.
+     * Provide argument sets used to build cache keys for all supported page URL locales.
      *
-     * @return array<string, mixed>[]
+     * Each entry is an associative array with a 'locale' key; this method returns entries for 'de' and 'en'.
+     *
+     * @return array<string, mixed>[] Array of argument arrays for cache key generation, each containing ['locale' => string] (contains 'de' and 'en').
      */
     public function getAllUrlCacheKeysArgs(): array
     {
@@ -156,9 +157,13 @@ class Page extends FabricatorPage implements PageContract
         ];
     }
 
+    /**
+     * Get the tenant that owns the page.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The belongs-to relationship for the Tenant model.
+     */
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
     }
 }
-
