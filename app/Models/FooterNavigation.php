@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
 
 class FooterNavigation extends Model
 {
     use HasTranslations;
+    use BelongsToTenant;
 
     /**
      * List of translatable fields.
@@ -28,6 +30,7 @@ class FooterNavigation extends Model
         'columns',
         'social_links_enabled',
         'copyright_text',
+        'tenant_id',
     ];
 
     /**
@@ -202,5 +205,10 @@ class FooterNavigation extends Model
         }
         
         return $copyright;
+    }
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
     }
 }

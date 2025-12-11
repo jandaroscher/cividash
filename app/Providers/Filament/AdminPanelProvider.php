@@ -2,6 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Tenancy\EditTenantProfile;
+use App\Filament\Pages\Tenancy\RegisterTenant;
+use App\Models\Tenant;
+use App\Http\Middleware\SetFilamentDefaultTenant;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -25,6 +29,18 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        // Enable tenancy on the panel to allow Filament::getTenant() to work in tests
+        // This ensures that setTenant()/getTenant() work reliably even in test contexts
+        $panel->tenant(Tenant::class);
+
+        // Only register tenant UI pages in non-testing environments
+        // This allows tenancy to work in tests while avoiding UI complexity
+        if (! app()->environment('testing')) {
+            $panel
+                ->tenantRegistration(RegisterTenant::class)
+                ->tenantProfile(EditTenantProfile::class);
+        }
+
         return $panel
             ->default()
             ->id('admin')
@@ -63,6 +79,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                SetFilamentDefaultTenant::class,
             ]);
     }
 }

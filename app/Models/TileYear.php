@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class TileYear extends Model
 {
-    protected $fillable = ['tile_id', 'year'];
+    use BelongsToTenant;
+
+    protected $fillable = ['tile_id', 'year', 'tenant_id'];
 
     public function tile()
     {
@@ -21,5 +24,10 @@ class TileYear extends Model
     public function metricValues()
     {
         return $this->hasMany(MetricValue::class);
+    }
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
     }
 }

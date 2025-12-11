@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
 
 class Tile extends Model
 {
     use HasTranslations;
+    use BelongsToTenant;
 
     // List of JSON columns to translate:
     public array $translatable = [
@@ -15,7 +17,7 @@ class Tile extends Model
         'description',
     ];
 
-    protected $fillable = ['title', 'description', 'icon', 'position', 'background_blocks', 'last_synced_at', 'source_hash', 'handlungsdimension_id'];
+    protected $fillable = ['title', 'description', 'icon', 'position', 'background_blocks', 'last_synced_at', 'source_hash', 'handlungsdimension_id', 'tenant_id'];
 
     protected $casts = [
         'title' => 'array',
@@ -74,5 +76,10 @@ class Tile extends Model
     public function metricDefinitions()
     {
         return $this->hasMany(MetricDefinition::class);
+    }
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
     }
 }

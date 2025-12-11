@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
 
 class MetricDefinition extends Model
 {
     use HasTranslations;
+    use BelongsToTenant;
 
     public array $translatable = [
         'label',
@@ -21,6 +23,7 @@ class MetricDefinition extends Model
         'unit',
         'icon',
         'indicator_type',
+        'tenant_id',
     ];
 
     protected $casts = [
@@ -37,5 +40,9 @@ class MetricDefinition extends Model
     {
         return $this->hasMany(MetricValue::class);
     }
-}
 
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
+    }
+}

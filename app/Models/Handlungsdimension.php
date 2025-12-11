@@ -2,18 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
 
 class Handlungsdimension extends Model
 {
     use HasTranslations;
+    use BelongsToTenant;
 
     public array $translatable = [
         'title',
     ];
 
-    protected $fillable = ['key', 'title', 'icon', 'position', 'color'];
+    protected $fillable = ['key', 'title', 'icon', 'position', 'color', 'tenant_id'];
 
     protected $casts = [
         'title' => 'array',
@@ -41,5 +43,10 @@ class Handlungsdimension extends Model
     public function tiles()
     {
         return $this->hasMany(Tile::class);
+    }
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
     }
 }

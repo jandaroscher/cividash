@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
@@ -12,6 +13,7 @@ use Z3d0X\FilamentFabricator\Models\Contracts\Page as PageContract;
 class Page extends FabricatorPage implements PageContract
 {
     use HasTranslations;
+    use BelongsToTenant;
 
     /**
      * List of translatable fields.
@@ -21,6 +23,16 @@ class Page extends FabricatorPage implements PageContract
         'slug',
         'blocks',
         'meta_description',
+    ];
+
+    protected $fillable = [
+        'title',
+        'slug',
+        'blocks',
+        'meta_description',
+        'layout',
+        'parent_id',
+        'tenant_id',
     ];
 
     /**
@@ -142,6 +154,11 @@ class Page extends FabricatorPage implements PageContract
             ['locale' => 'de'],
             ['locale' => 'en'],
         ];
+    }
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
     }
 }
 

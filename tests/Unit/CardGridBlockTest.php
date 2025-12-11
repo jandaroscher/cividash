@@ -3,7 +3,9 @@
 namespace Tests\Unit;
 
 use App\Filament\Fabricator\PageBlocks\CardGridBlock;
+use App\Models\Tenant;
 use App\Models\Tile;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -11,9 +13,22 @@ class CardGridBlockTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function tearDown(): void
+    {
+        Filament::setTenant(null);
+        parent::tearDown();
+    }
+
     public function test_mutate_data_loads_all_tiles_when_empty(): void
     {
-        // Create test tiles
+        // Set up tenant context for the test
+        $user = \App\Models\User::factory()->create();
+        $tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
+        $user->tenants()->sync([$tenant->id]);
+        Filament::auth()->login($user);
+        Filament::setTenant($tenant);
+
+        // Create test tiles (will be automatically assigned to the current tenant)
         $tile1 = Tile::create([
             'title' => ['de' => 'Tile 1', 'en' => 'Tile 1'],
             'description' => ['de' => 'Description 1', 'en' => 'Description 1'],
@@ -44,7 +59,14 @@ class CardGridBlockTest extends TestCase
 
     public function test_mutate_data_loads_selected_tiles(): void
     {
-        // Create test tiles
+        // Set up tenant context for the test
+        $user = \App\Models\User::factory()->create();
+        $tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
+        $user->tenants()->sync([$tenant->id]);
+        Filament::auth()->login($user);
+        Filament::setTenant($tenant);
+
+        // Create test tiles (will be automatically assigned to the current tenant)
         $tile1 = Tile::create([
             'title' => ['de' => 'Tile 1', 'en' => 'Tile 1'],
             'position' => 1,

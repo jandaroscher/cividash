@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
 
 class Navigation extends Model
 {
     use HasTranslations;
+    use BelongsToTenant;
 
     /**
      * List of translatable fields.
@@ -23,6 +25,7 @@ class Navigation extends Model
         'navigation_items',
         'show_language_switcher',
         'dropdown_enabled',
+        'tenant_id',
     ];
 
     /**
@@ -137,5 +140,10 @@ class Navigation extends Model
 
             return $translatedItem;
         }, $items);
+    }
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
     }
 }
