@@ -87,8 +87,8 @@ class TenantIsolationTest extends TestCase
         $method->setAccessible(true);
         
         // Create a mock request with tenant parameter
-        $request = \Illuminate\Http\Request::create('/api/tiles?tenant=tenant-a', 'GET');
-        $this->app->instance('request', $request);
+        // Use get() to simulate HTTP request (not console)
+        $response = $this->get('/api/tiles?tenant=tenant-a');
         
         // Invoke resolveTenant via reflection
         $resolvedTenant = $method->invoke(null);
@@ -118,10 +118,10 @@ class TenantIsolationTest extends TestCase
         $method = $reflection->getMethod('resolveTenant');
         $method->setAccessible(true);
         
-        // Create a mock request with tenant header
-        $request = \Illuminate\Http\Request::create('/api/tiles', 'GET');
-        $request->headers->set('X-Tenant', 'tenant-b');
-        $this->app->instance('request', $request);
+        // Use get() with header to simulate HTTP request (not console)
+        $response = $this->get('/api/tiles', [
+            'X-Tenant' => 'tenant-b',
+        ]);
         
         // Invoke resolveTenant via reflection
         $resolvedTenant = $method->invoke(null);

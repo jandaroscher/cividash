@@ -63,14 +63,17 @@ class TenantSetupTest extends TestCase
 
     public function test_tenant_seeder_creates_demo_tenant_and_links_user(): void
     {
-        $user = User::factory()->create();
+        // Create user with demo email so seeder can find it
+        $user = User::factory()->create([
+            'email' => 'demo@example.com',
+        ]);
 
         $this->seed(TenantSeeder::class);
 
         $tenant = Tenant::where('slug', 'stadt-regensburg')->first();
 
         $this->assertNotNull($tenant);
-        $this->assertTrue($user->tenants()->whereKey($tenant->id)->exists());
+        $this->assertTrue($user->fresh()->tenants()->whereKey($tenant->id)->exists());
     }
 }
 
