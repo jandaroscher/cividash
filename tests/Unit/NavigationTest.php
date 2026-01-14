@@ -3,6 +3,8 @@
 namespace Tests\Unit;
 
 use App\Models\Navigation;
+use App\Models\Tenant;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,12 +12,27 @@ class NavigationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Create user and authenticate for Filament tenant context
+        $user = \App\Models\User::factory()->create();
+        $tenant = Tenant::where('slug', 'default')->first();
+        if ($tenant) {
+            $user->tenants()->sync([$tenant->id]);
+            Filament::auth()->login($user);
+            Filament::setTenant($tenant);
+        }
+    }
+
     public function test_singleton_get_instance_creates_record_if_not_exists(): void
     {
         $navigation = Navigation::getOrCreateInstance();
 
         $this->assertNotNull($navigation);
-        $this->assertEquals(1, $navigation->id);
+        $this->assertGreaterThan(0, $navigation->id, 'Navigation should have a valid id');
+        $this->assertNotNull($navigation->tenant_id, 'Navigation should be associated with a tenant');
         $this->assertTrue($navigation->show_language_switcher);
         $this->assertFalse($navigation->dropdown_enabled);
     }
@@ -24,6 +41,7 @@ class NavigationTest extends TestCase
     {
         // Get or create instance first
         $navigation = Navigation::getOrCreateInstance();
+        $navigationId = $navigation->id; // Store the id for comparison
         
         // Update the record
         $navigation->show_language_switcher = false;
@@ -34,7 +52,7 @@ class NavigationTest extends TestCase
         $retrieved = Navigation::getInstance();
 
         $this->assertNotNull($retrieved);
-        $this->assertEquals(1, $retrieved->id);
+        $this->assertEquals($navigationId, $retrieved->id, 'Should return the same instance');
         $this->assertFalse($retrieved->show_language_switcher, 'show_language_switcher should be false');
         $this->assertTrue($retrieved->dropdown_enabled, 'dropdown_enabled should be true');
     }

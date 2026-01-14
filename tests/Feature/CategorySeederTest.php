@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Tenant;
 use App\Services\DashboardJsonParser;
 use App\Services\MediaDownloadService;
 use App\Services\ParsedCategory;
 use Database\Seeders\CategorySeeder;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
@@ -20,6 +22,16 @@ class CategorySeederTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        
+        // Create user and authenticate for Filament tenant context
+        $user = \App\Models\User::factory()->create();
+        $tenant = Tenant::where('slug', 'default')->first();
+        if ($tenant) {
+            $user->tenants()->sync([$tenant->id]);
+            Filament::auth()->login($user);
+            Filament::setTenant($tenant);
+        }
+        
         $this->seeder = new CategorySeeder(new MediaDownloadService());
     }
 

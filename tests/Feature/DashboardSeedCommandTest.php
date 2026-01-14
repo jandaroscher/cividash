@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Tenant;
 use App\Models\Tile;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
@@ -16,6 +18,16 @@ class DashboardSeedCommandTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        
+        // Create user and authenticate for Filament tenant context
+        $user = \App\Models\User::factory()->create();
+        $tenant = Tenant::where('slug', 'default')->first();
+        if ($tenant) {
+            $user->tenants()->sync([$tenant->id]);
+            Filament::auth()->login($user);
+            Filament::setTenant($tenant);
+        }
+        
         // Ensure fixtures directory exists
         if (! File::exists(base_path('tests/Fixtures'))) {
             File::makeDirectory(base_path('tests/Fixtures'), 0755, true);

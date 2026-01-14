@@ -4,11 +4,13 @@ namespace Tests\Feature;
 
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
+use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TileYear;
 use App\Services\DashboardJsonParser;
 use App\Services\ParsedMetric;
 use Database\Seeders\MetricSeeder;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
@@ -22,6 +24,16 @@ class MetricSeederTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        
+        // Create user and authenticate for Filament tenant context
+        $user = \App\Models\User::factory()->create();
+        $tenant = Tenant::where('slug', 'default')->first();
+        if ($tenant) {
+            $user->tenants()->sync([$tenant->id]);
+            Filament::auth()->login($user);
+            Filament::setTenant($tenant);
+        }
+        
         $this->seeder = new MetricSeeder();
         // Ensure ParsedMetric class is loaded by referencing DashboardJsonParser
         class_exists(DashboardJsonParser::class);

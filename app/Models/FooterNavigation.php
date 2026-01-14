@@ -45,31 +45,207 @@ class FooterNavigation extends Model
     ];
 
     /**
-     * Retrieve the FooterNavigation record with id 1.
+     * Return the tenant-scoped singleton FooterNavigation for the current tenant.
      *
-     * @return FooterNavigation The FooterNavigation model with id 1.
+     * Resolves the current tenant (falling back to the tenant with slug `default`) and returns the
+     * FooterNavigation record associated with that tenant. For the `default` tenant, prefers an
+     * existing record with `id = 1` and will migrate or relocate records as needed so the default
+     * tenant is represented by `id = 1`. If no tenant context can be resolved, an exception is thrown.
+     *
+     * @return FooterNavigation The FooterNavigation instance for the resolved tenant.
+     * @throws \App\Exceptions\InvalidTenantContextException If no tenant context is available.
      */
     public static function getInstance(): FooterNavigation
     {
-        return static::findOrFail(1);
+        $tenant = static::resolveTenant();
+        
+        if (!$tenant) {
+            // Fallback: use default tenant
+            $tenant = \App\Models\Tenant::where('slug', 'default')->first();
+        }
+        
+        if (!$tenant) {
+            throw new \App\Exceptions\InvalidTenantContextException('No tenant context available');
+        }
+        
+        // For the default tenant, ensure id=1 in a transaction to avoid races
+        if ($tenant->slug === 'default') {
+            $result = \DB::transaction(function () use ($tenant) {
+                $tableName = (new static)->getTable();
+
+                // Lock any existing id=1 row
+                $existingId1 = static::withoutGlobalScope('tenant')
+                    ->where('id', 1)
+                    ->lockForUpdate()
+                    ->first();
+
+                // If id=1 already belongs to default tenant, return it
+                if ($existingId1 && $existingId1->tenant_id === $tenant->id) {
+                    return $existingId1;
+                }
+
+                // Lock any default-tenant row
+                $anyDefault = static::withoutGlobalScope('tenant')
+                    ->where('tenant_id', $tenant->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                // If no default row exists, fall through to create later
+                if (! $anyDefault && ! $existingId1) {
+                    return null;
+                }
+
+                // If id=1 belongs to another tenant, move it away
+                if ($existingId1 && $existingId1->tenant_id !== $tenant->id) {
+                    $maxId = static::withoutGlobalScope('tenant')->lockForUpdate()->max('id') ?? 0;
+                    $newId = $maxId + 1;
+                    \DB::table($tableName)
+                        ->where('id', 1)
+                        ->update(['id' => $newId]);
+                }
+
+                // If a default row exists but not id=1, migrate it
+                if ($anyDefault && $anyDefault->id !== 1) {
+                    \DB::table($tableName)
+                        ->where('id', $anyDefault->id)
+                        ->update(['id' => 1]);
+
+                    return static::withoutGlobalScope('tenant')
+                        ->where('id', 1)
+                        ->where('tenant_id', $tenant->id)
+                        ->first();
+                }
+
+                // If default row is already id=1, return it
+                if ($anyDefault && $anyDefault->id === 1) {
+                    return $anyDefault;
+                }
+
+                return null; // fall through to normal creation
+            });
+
+            if ($result) {
+                return $result;
+            }
+        }
+        
+        // Find singleton for this tenant (not by id=1, but by tenant_id)
+        // Since there's only one singleton per tenant, we can use first()
+        $instance = static::where('tenant_id', $tenant->id)->first();
+        
+        if ($instance) {
+            return $instance;
+        }
+        
+        // If not found, create it via getOrCreateInstance()
+        return static::getOrCreateInstance();
     }
 
     /**
-     * Get or create the singleton instance (id=1).
-     * 
-     * @return FooterNavigation
+     * Ensure a FooterNavigation exists for the resolved tenant; for the 'default' tenant, ensure the record uses id = 1, migrating any conflicting record if necessary.
+     *
+     * @throws \App\Exceptions\InvalidTenantContextException If no tenant context can be resolved.
+     * @return FooterNavigation The FooterNavigation instance for the resolved tenant.
      */
     public static function getOrCreateInstance(): FooterNavigation
     {
+        $tenant = static::resolveTenant();
+        
+        if (!$tenant) {
+            // Fallback: use default tenant
+            $tenant = \App\Models\Tenant::where('slug', 'default')->first();
+        }
+        
+        if (!$tenant) {
+            throw new \App\Exceptions\InvalidTenantContextException('No tenant context available');
+        }
+        
+        // Default tenant: enforce id=1 with transactional migration
+        if ($tenant->slug === 'default') {
+            return \DB::transaction(function () use ($tenant) {
+                $tableName = (new static)->getTable();
+
+                // Lock any id=1 row and any row for this tenant
+                $existingId1 = static::withoutGlobalScope('tenant')
+                    ->where('id', 1)
+                    ->lockForUpdate()
+                    ->first();
+
+                $tenantRow = static::withoutGlobalScope('tenant')
+                    ->where('tenant_id', $tenant->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                // If tenant already has id=1, return it
+                if ($tenantRow && $tenantRow->id === 1) {
+                    return $tenantRow;
+                }
+
+                // If id=1 belongs to another tenant, move it away
+                if ($existingId1 && (! $tenantRow || $existingId1->tenant_id !== $tenant->id)) {
+                    $maxId = static::withoutGlobalScope('tenant')->lockForUpdate()->max('id') ?? 0;
+                    $newId = $maxId + 1;
+                    \DB::table($tableName)
+                        ->where('id', 1)
+                        ->update(['id' => $newId]);
+                }
+
+                // If tenant has a row but not id=1, migrate it
+                if ($tenantRow && $tenantRow->id !== 1) {
+                    \DB::table($tableName)
+                        ->where('id', $tenantRow->id)
+                        ->update(['id' => 1]);
+
+                    return static::withoutGlobalScope('tenant')
+                        ->where('id', 1)
+                        ->where('tenant_id', $tenant->id)
+                        ->first();
+                }
+
+                // Otherwise, create id=1 for this tenant
+                return static::unguarded(function () use ($tenant) {
+                    return static::withoutGlobalScope('tenant')->create([
+                        'id' => 1,
+                        'tenant_id' => $tenant->id,
+                        'footer_navigation_items' => [
+                            'de' => [],
+                            'en' => [],
+                        ],
+                        'social_links' => [
+                            'de' => [],
+                            'en' => [],
+                        ],
+                        'layout_type' => 'single-row',
+                        'columns' => 3,
+                        'social_links_enabled' => true,
+                        'copyright_text' => [
+                            'de' => '',
+                            'en' => '',
+                        ],
+                    ]);
+                });
+            });
+        }
+
+        // Non-default tenants: create/return tenant-scoped record without id=1 migration
         return static::firstOrCreate(
-            ['id' => 1],
+            ['tenant_id' => $tenant->id],
             [
-                'footer_navigation_items' => [],
-                'social_links' => [],
+                'footer_navigation_items' => [
+                    'de' => [],
+                    'en' => [],
+                ],
+                'social_links' => [
+                    'de' => [],
+                    'en' => [],
+                ],
                 'layout_type' => 'single-row',
                 'columns' => 3,
                 'social_links_enabled' => true,
-                'copyright_text' => null,
+                'copyright_text' => [
+                    'de' => '',
+                    'en' => '',
+                ],
             ]
         );
     }
@@ -103,8 +279,8 @@ class FooterNavigation extends Model
             // Otherwise, items is already the array of footer navigation items for the requested locale
         }
         
-        // If null or empty array and locale is not 'de', try to get 'de' translation
-        if (($items === null || (is_array($items) && empty($items))) && $locale !== 'de') {
+        // If null/empty (including empty string) and locale is not 'de', try to get 'de' translation
+        if ((($items === null) || ($items === '') || (is_array($items) && empty($items))) && $locale !== 'de') {
             $itemsDe = $this->getTranslation('footer_navigation_items', 'de', false);
             if (is_array($itemsDe)) {
                 // Check if this is a translatable structure
@@ -119,6 +295,11 @@ class FooterNavigation extends Model
         }
 
         $items = $items ?? [];
+        
+        // Ensure $items is an array before using array_map
+        if (!is_array($items)) {
+            $items = [];
+        }
 
         return array_map(function ($item) use ($locale) {
             $translatedItem = $item;
@@ -146,7 +327,40 @@ class FooterNavigation extends Model
     public function getTranslatedSocialLinks(?string $locale = null): array
     {
         $locale = $locale ?? app()->getLocale();
-        $links = $this->getTranslation('social_links', $locale, false) ?? [];
+        $links = $this->getTranslation('social_links', $locale, false);
+
+        // Support both translation-structure and direct array storage
+        if (is_array($links)) {
+            if (isset($links[$locale]) || isset($links['de']) || isset($links['en'])) {
+                // Translation structure
+                if (isset($links[$locale]) && !empty($links[$locale])) {
+                    $links = $links[$locale];
+                } else {
+                    $links = $links['de'] ?? [];
+                }
+            }
+        }
+
+        // Fallback to 'de' when requested locale has nothing
+        if ((($links === null) || ($links === '') || (is_array($links) && empty($links))) && $locale !== 'de') {
+            $linksDe = $this->getTranslation('social_links', 'de', false);
+            if (is_array($linksDe)) {
+                if (isset($linksDe['de']) || isset($linksDe['en'])) {
+                    $links = $linksDe['de'] ?? [];
+                } else {
+                    $links = $linksDe;
+                }
+            } else {
+                $links = $linksDe ?? [];
+            }
+        }
+
+        $links = $links ?? [];
+
+        // Ensure $links is an array before using array_map
+        if (!is_array($links)) {
+            $links = [];
+        }
 
         return array_map(function ($link) use ($locale) {
             $translatedLink = $link;

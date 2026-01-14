@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Tenant;
 use App\Models\Tile;
 use App\Services\ParsedTile;
 use Database\Seeders\TileSeeder;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
@@ -19,6 +21,16 @@ class TileSeederTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        
+        // Create user and authenticate for Filament tenant context
+        $user = \App\Models\User::factory()->create();
+        $tenant = Tenant::where('slug', 'default')->first();
+        if ($tenant) {
+            $user->tenants()->sync([$tenant->id]);
+            Filament::auth()->login($user);
+            Filament::setTenant($tenant);
+        }
+        
         $this->seeder = new TileSeeder();
     }
 

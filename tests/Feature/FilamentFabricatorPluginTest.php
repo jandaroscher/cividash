@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Tenant;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,18 +12,38 @@ class FilamentFabricatorPluginTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected ?User $user = null;
+    protected ?Tenant $tenant = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Create user and authenticate for Filament tenant context
+        $this->user = User::factory()->create();
+        $this->tenant = Tenant::where('slug', 'default')->first();
+        $this->assertNotNull($this->tenant, 'Default tenant not found; ensure test seeding or RefreshDatabase created it');
+        $this->user->tenants()->sync([$this->tenant->id]);
+        Filament::auth()->login($this->user);
+        Filament::setTenant($this->tenant);
+    }
+
     /**
      * Test that the admin panel is accessible and contains Fabricator Pages resource.
      */
     public function test_admin_panel_contains_fabricator_pages_resource(): void
     {
-        // Create a test user
-        $user = User::factory()->create();
+        $user = $this->user;
+        $tenant = $this->tenant;
 
-        // Authenticate and access admin panel
-        $response = $this->actingAs($user)->get('/admin');
+        // Ensure tenant relation exists before authentication
+        $this->actingAs($user);
+        Filament::auth()->login($user);
+        Filament::setTenant($tenant);
 
-        // Assert admin panel is accessible
+        // Access admin panel (follow redirects automatically)
+        $response = $this->followingRedirects()->get('/admin');
+        
         $response->assertStatus(200);
 
         // Assert that the response contains "Seiten" (German navigation label for Fabricator Pages resource)

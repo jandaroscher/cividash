@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Page; // Use custom Page model with HasTranslations
+use App\Models\Tenant;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
@@ -10,6 +12,20 @@ use Tests\TestCase;
 class PagesTranslatableMigrationTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Create user and authenticate for Filament tenant context
+        $user = \App\Models\User::factory()->create();
+        $tenant = Tenant::where('slug', 'default')->first();
+        if ($tenant) {
+            $user->tenants()->sync([$tenant->id]);
+            Filament::auth()->login($user);
+            Filament::setTenant($tenant);
+        }
+    }
 
     /**
      * Test that translatable migration converts title and slug to JSON columns.
@@ -78,7 +94,9 @@ class PagesTranslatableMigrationTest extends TestCase
         $this->assertArrayHasKey('en', $blocksData);
         
         // Now test via model
-        $page = Page::first();
+        // Use withoutGlobalScope because migration tests insert data directly via DB::table()
+        // and don't set tenant_id, so we need to bypass the tenant scope for this test
+        $page = Page::withoutGlobalScope('tenant')->first();
         $this->assertNotNull($page, 'Page should exist in database');
         
         // Spatie Translatable returns the value for the current locale, not the whole JSON array

@@ -3,6 +3,8 @@
 namespace Tests\Unit;
 
 use App\Models\FooterNavigation;
+use App\Models\Tenant;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,12 +12,27 @@ class FooterNavigationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Create user and authenticate for Filament tenant context
+        $user = \App\Models\User::factory()->create();
+        $tenant = Tenant::where('slug', 'default')->first();
+        if ($tenant) {
+            $user->tenants()->sync([$tenant->id]);
+            Filament::auth()->login($user);
+            Filament::setTenant($tenant);
+        }
+    }
+
     public function test_singleton_get_instance_creates_record_if_not_exists(): void
     {
         $footer = FooterNavigation::getOrCreateInstance();
 
         $this->assertNotNull($footer);
-        $this->assertEquals(1, $footer->id);
+        $this->assertGreaterThan(0, $footer->id, 'Footer should have a valid id');
+        $this->assertNotNull($footer->tenant_id, 'Footer should be associated with a tenant');
         $this->assertEquals('single-row', $footer->layout_type);
         $this->assertEquals(3, $footer->columns);
         $this->assertTrue($footer->social_links_enabled);
@@ -25,6 +42,7 @@ class FooterNavigationTest extends TestCase
     {
         // Get or create instance first
         $footer = FooterNavigation::getOrCreateInstance();
+        $footerId = $footer->id; // Store the id for comparison
         
         // Update the record
         $footer->layout_type = 'grid';
@@ -36,7 +54,7 @@ class FooterNavigationTest extends TestCase
         $retrieved = FooterNavigation::getInstance();
 
         $this->assertNotNull($retrieved);
-        $this->assertEquals(1, $retrieved->id);
+        $this->assertEquals($footerId, $retrieved->id, 'Should return the same instance');
         $this->assertEquals('grid', $retrieved->layout_type, 'layout_type should be grid');
         $this->assertEquals(4, $retrieved->columns, 'columns should be 4');
         $this->assertFalse($retrieved->social_links_enabled, 'social_links_enabled should be false');

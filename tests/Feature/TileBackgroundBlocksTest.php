@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Filament\Resources\TileResource;
+use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Filament\Forms\Form;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -21,17 +23,29 @@ class TileBackgroundBlocksTest extends TestCase
         $this->user = User::factory()->create([
             'email' => 'test@example.com',
         ]);
+
+        // Set tenant context for tests
+        $this->tenant = Tenant::where('slug', 'default')->first();
+        if ($this->tenant) {
+            $this->user->tenants()->sync([$this->tenant->id]);
+            Filament::auth()->login($this->user);
+            Filament::setTenant($this->tenant);
+        }
     }
 
     public function test_admin_can_access_tile_edit_page_with_background_blocks_field(): void
     {
+        $tenant = $this->tenant;
+        $this->assertNotNull($tenant, 'Default tenant must exist for this test');
+        
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
             'background_blocks' => null,
+            'tenant_id' => $tenant?->id,
         ]);
 
         $response = $this->actingAs($this->user)
-            ->get("/admin/tiles/{$tile->id}/edit");
+            ->get("/admin/{$tenant->getRouteKey()}/tiles/{$tile->id}/edit");
 
         $response->assertSuccessful();
         // Check that the form contains the background_blocks field
@@ -43,6 +57,7 @@ class TileBackgroundBlocksTest extends TestCase
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
             'background_blocks' => null,
+            'tenant_id' => $this->tenant?->id,
         ]);
 
         $blocks = [

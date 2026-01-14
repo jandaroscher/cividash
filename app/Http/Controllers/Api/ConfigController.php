@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateBrandingRequest;
 use App\Models\FooterNavigation;
 use App\Models\Navigation;
+use App\Models\Tenant;
 use App\Settings\BrandingSettings;
 use App\Settings\GeneralSettings;
+use Filament\Facades\Filament;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
@@ -87,14 +89,32 @@ class ConfigController extends Controller
     }
 
     /**
-     * Get header configuration settings.
+     * Provide header configuration including translated navigation items and UI toggles.
      *
-     * @param \Illuminate\Http\Request $request The HTTP request (may contain locale parameter)
-     * @return \Illuminate\Http\Resources\Json\JsonResource A JSON resource containing `navigation_items`, `show_language_switcher`, and `dropdown_enabled`.
+     * @param \Illuminate\Http\Request $request The HTTP request; may include a `locale` query parameter and tenant identifiers (query `tenant` or `X-Tenant` header) used to resolve context.
+     * @return \Illuminate\Http\Resources\Json\JsonResource An object with:
+     *  - `navigation_items`: array of navigation items translated to the resolved locale,
+     *  - `show_language_switcher`: `true` if the language switcher should be shown, `false` otherwise,
+     *  - `dropdown_enabled`: `true` if dropdown navigation is enabled, `false` otherwise.
      */
     public function header(\Illuminate\Http\Request $request): JsonResource
     {
-        $navigation = Navigation::getInstance();
+        // Set tenant context from request if available
+        $tenant = $this->resolveTenantFromRequest($request);
+        if ($tenant) {
+            try {
+                Filament::setTenant($tenant);
+            } catch (\Throwable $e) {
+                // Filament might not be initialized, continue anyway
+            }
+        }
+        
+        // Try to get existing instance first, create if it doesn't exist
+        try {
+            $navigation = Navigation::getInstance();
+        } catch (\Throwable $e) {
+            $navigation = Navigation::getOrCreateInstance();
+        }
         
         // Get locale from request parameter or use app locale
         $locale = $request->query('locale', app()->getLocale());
@@ -119,7 +139,22 @@ class ConfigController extends Controller
      */
     public function footer(\Illuminate\Http\Request $request): JsonResource
     {
-        $footer = FooterNavigation::getInstance();
+        // Set tenant context from request if available
+        $tenant = $this->resolveTenantFromRequest($request);
+        if ($tenant) {
+            try {
+                Filament::setTenant($tenant);
+            } catch (\Throwable $e) {
+                // Filament might not be initialized, continue anyway
+            }
+        }
+        
+        // Try to get existing instance first, create if it doesn't exist
+        try {
+            $footer = FooterNavigation::getInstance();
+        } catch (\Throwable $e) {
+            $footer = FooterNavigation::getOrCreateInstance();
+        }
         
         // Get locale from request parameter or use app locale
         $locale = $request->query('locale', app()->getLocale());
@@ -137,6 +172,53 @@ class ConfigController extends Controller
             'social_links_enabled' => $footer->social_links_enabled,
             'copyright_text' => $footer->getTranslatedCopyrightText($locale),
         ]);
+    }
+    
+    /**
+     * Determine the Tenant context from the incoming request.
+     *
+     * Checks the `tenant` query parameter first, then the `X-Tenant` header; accepts either a numeric id or a slug.
+     * If no tenant is found, returns the tenant with slug "default" when present.
+     *
+     * @param \Illuminate\Http\Request $request The current HTTP request.
+     * @return \App\Models\Tenant|null The resolved Tenant model, the tenant with slug "default" if none was specified, or `null` if no default tenant exists.
+     */
+    protected function resolveTenantFromRequest(\Illuminate\Http\Request $request): ?Tenant
+    {
+        // Try query parameter first
+        if ($request->has('tenant')) {
+            $tenantIdentifier = $request->input('tenant');
+            $tenant = null;
+            
+            if (is_numeric($tenantIdentifier)) {
+                $tenant = Tenant::find($tenantIdentifier);
+            } else {
+                $tenant = Tenant::where('slug', $tenantIdentifier)->first();
+            }
+            
+            if ($tenant) {
+                return $tenant;
+            }
+        }
+        
+        // Try header
+        if ($request->hasHeader('X-Tenant')) {
+            $tenantIdentifier = $request->header('X-Tenant');
+            $tenant = null;
+            
+            if (is_numeric($tenantIdentifier)) {
+                $tenant = Tenant::find($tenantIdentifier);
+            } else {
+                $tenant = Tenant::where('slug', $tenantIdentifier)->first();
+            }
+            
+            if ($tenant) {
+                return $tenant;
+            }
+        }
+        
+        // Fallback to default tenant
+        return Tenant::where('slug', 'default')->first();
     }
 
     /**
