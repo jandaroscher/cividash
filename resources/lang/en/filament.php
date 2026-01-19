@@ -1,0 +1,80 @@
+<?php
+
+return [
+    'pages' => [
+        'manage_api_keys' => [
+            'title' => 'API Keys',
+            'navigation_label' => 'API Keys',
+            'create_token' => 'Create Token',
+            'no_tokens' => 'No API tokens',
+            'no_tokens_description' => 'Create your first API token to get started.',
+            'token_name' => 'Token Name',
+            'token_name_placeholder' => 'e.g., Production API, CI/CD Pipeline',
+            'token_name_helper' => 'A descriptive name to help you identify this token later.',
+            'abilities' => 'Abilities',
+            'abilities_helper' => 'Select the permissions this token should have.',
+            'abilities_helper_no_admin' => 'Select the permissions this token should have. Admin API access requires the admin_api_enabled flag on your user account.',
+            'ability_public_read' => 'Public Read (read-only access to public API endpoints)',
+            'ability_admin_api' => 'Admin API (full CRUD access to admin endpoints)',
+            'token_warning' => 'Important: The token will only be shown once after creation. Make sure to copy it and store it securely.',
+            'create_modal_title' => 'Create API Token',
+            'create_modal_submit' => 'Create Token',
+            'token_created_title' => 'Token created',
+            'token_created_body' => 'Your new API token has been created. Copy it now - you won\'t be able to see it again!',
+            'your_api_token' => 'Your API Token',
+            'your_token_intro' => 'Your new API token',
+            'token_created_for' => 'has been created.',
+            'copy' => 'Copy',
+            'copied' => 'Copied!',
+            'token_warning_box' => 'This token will only be shown once. Please copy it now and store it securely. You will not be able to view it again.',
+            'token_copied_button' => 'I\'ve copied my token',
+            'revoke' => 'Revoke',
+            'revoke_modal_title' => 'Revoke API Token',
+            'revoke_modal_description' => 'Are you sure you want to revoke this token? This action cannot be undone. Any applications using this token will no longer have access.',
+            'revoke_modal_submit' => 'Revoke Token',
+            'token_revoked_title' => 'Token revoked',
+            'token_revoked_body' => 'The API token has been revoked successfully.',
+            'error' => 'Error',
+            'validation_error' => 'Validation Error',
+            'column_name' => 'Name',
+            'column_owner' => 'Owner',
+            'column_abilities' => 'Abilities',
+            'column_created' => 'Created',
+            'column_last_used' => 'Last Used',
+            'never' => 'Never',
+        ],
+        'edit_tenant_profile' => [
+            'title' => 'Tenant profile',
+            'form' => [
+                'sections' => [
+                    'basic_information' => 'Basic Information',
+                    'domain_frontend' => 'Domain & Frontend',
+                    'domain_frontend_description' => 'Configure how this tenant is resolved for API requests.',
+                ],
+                'fields' => [
+                    'name' => [
+                        'label' => 'Tenant name',
+                    ],
+                    'slug' => [
+                        'label' => 'Slug',
+                        'helper' => 'The slug is used for API tenant identification (e.g., ?tenant=slug, X-Tenant header). The default tenant has the slug "default". Changes could break existing integrations.',
+                    ],
+                    'domain' => [
+                        'label' => 'Domain',
+                        'placeholder' => 'my-tenant.example.com',
+                        'helper' => 'Host/domain for tenant resolution (e.g., "my-tenant.example.com"). Resolution priority: Token > Domain > Default. The domain is normalized: lowercase, "www." prefix is stripped.',
+                        'validation' => [
+                            'invalid_format' => 'The domain must be a valid hostname without scheme or path (e.g., "example.com" or "sub.example.com").',
+                            'not_unique' => 'This domain is already in use by another tenant.',
+                        ],
+                    ],
+                    'frontend_base_url' => [
+                        'label' => 'Frontend Base URL',
+                        'placeholder' => 'https://my-tenant.example.com',
+                        'helper' => 'Full URL to the frontend application (e.g., "https://my-tenant.example.com"). Used for CORS and API responses. HTTPS is recommended for production.',
+                    ],
+                ],
+            ],
+        ],
+    ],
+];

@@ -1,10 +1,10 @@
-## Multi-Tenancy (Single-DB) –
+## Multi-Tenancy (Single-DB) – /
 
-- **Tenant-Modell**: `App\Models\Tenant` mit `name`, `slug` (unique), optional `theme_config` (JSON) und Pivot `tenant_user`. Nutzer kann einen `default_tenant_id` haben.
+- **Tenant-Modell**: `App\Models\Tenant` mit `name`, `slug` (unique, read-only nach Erstellung), `domain` (unique, nullable), `frontend_base_url` (nullable) und Pivot `tenant_user`. Nutzer kann einen `default_tenant_id` haben.
 - **Filament Tenancy**: Admin-Panel ist tenant-fähig (`AdminPanelProvider` mit `->tenant(Tenant::class)`), inkl. Seiten `RegisterTenant` und `EditTenantProfile`.
 - **Tenant-Seiten**:
   - `RegisterTenant`: legt Mandant an, verknüpft aktuellen User, setzt default_tenant falls leer.
-  - `EditTenantProfile`: Bearbeiten von Name/Slug/Theme-Config des aktiven Tenants.
+  - `EditTenantProfile`: Bearbeiten von Name, Domain und Frontend-URL des aktiven Tenants. Der Slug ist read-only.
 - **Scoping**: Tenant-gebundene Modelle nutzen das Trait `App\Models\Concerns\BelongsToTenant` (setzt `tenant_id` bei Create und scoped Abfragen, wenn Filament einen Tenant liefert).
 - **Backfill**: Artisan-Command `ddev exec php artisan tenancy:backfill` erstellt Default-Tenant (Slug `default`) und weist alle Bestandsdaten sowie User (inkl. default_tenant) zu.
 - **Seeder**: `TenantSeeder` erzeugt Demo-Tenant „Stadt Regensburg“, verknüpft ersten User und ruft Backfill auf.
@@ -29,9 +29,34 @@
 - Bei Seeds/Migrationen ohne Filament-Tenant-Kontext greift kein Scope (Backfill nutzt das).
 - **Tenant-Isolation**: Der Global Scope filtert immer nach Tenant:
   - **Filament-Kontext**: Verwendet `Filament::getTenant()`
-  - **API-Requests**: Kann Tenant aus Query-Parameter (`?tenant=slug`) oder Header (`X-Tenant: slug`) lesen
+  - **API mit Token**: Verwendet `tenant_id` aus `personal_access_tokens` (neu in)
+  - **API via Domain**: Verwendet `tenants.domain` Mapping (neu in)
   - **Ohne Tenant-Kontext**: Verwendet Default-Tenant (Slug `default`) mit Warnung im Log
   - **Console-Commands**: Scope wird übersprungen (Commands sollten `withoutGlobalScope('tenant')` verwenden, wenn nötig)
-- **API-Nutzung**: API-Requests sollten explizit einen Tenant angeben für korrekte Isolation:
+- **API-Nutzung (veraltet)**: Die alten Methoden funktionieren weiterhin:
   - Query-Parameter: `/api/tiles?tenant=stadt-regensburg`
-  - Header: `X-Tenant: stadt-regensburg` 
+  - Header: `X-Tenant: stadt-regensburg`
+- **API-Nutzung (empfohlen)**: Neue Methoden (siehe [Tenant Resolution](../api/tenant-resolution.md)):
+  - **Token-basiert**: Bearer Token mit `tenant_id` (für API-Clients)
+  - **Domain-basiert**: Request-Host wird gegen `tenants.domain` geprüft (für SPAs)
+
+### Domain-Konfiguration (neu)
+
+Tenants können mit einer Domain verknüpft werden:
+
+```php
+$tenant->update([
+    'domain' => 'regensburg.example.org',
+    'frontend_base_url' => 'https://regensburg.example.org'
+]);
+```
+
+### Tenant-scoped API Tokens (neu)
+
+API-Tokens können an einen Tenant gebunden werden:
+
+```php
+$token = $user->createToken('API Token', ['public-read']);
+$token->accessToken->tenant_id = $tenant->id;
+$token->accessToken->save();
+```

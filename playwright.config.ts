@@ -1,0 +1,58 @@
+import { defineConfig } from '@playwright/test';
+
+/**
+ * Playwright configuration for E2E API tests.
+ *
+ * These tests verify domain-based tenant resolution by making HTTP requests
+ * to a running ddev environment. No browser UI is used - only API calls.
+ *
+ * Prerequisites:
+ * - ddev must be running: `ddev start`
+ * - Test data must be seeded: `npm run test:e2e:seed` or `ddev php artisan e2e:seed-tenant-resolution`
+ * - ddev hostnames configured: a.open-source-dashboard.ddev.site, b.open-source-dashboard.ddev.site
+ */
+export default defineConfig({
+  testDir: './tests/e2e',
+  
+  // Run tests sequentially for deterministic results
+  fullyParallel: false,
+  
+  // Fail the build on CI if you accidentally left test.only in the source code
+  forbidOnly: !!process.env.CI,
+  
+  // Retry on CI only
+  retries: process.env.CI ? 2 : 0,
+  
+  // Single worker for API tests (no browser parallelization needed)
+  workers: 1,
+  
+  // Reporter configuration
+  reporter: [
+    ['list'],
+    ['html', { open: 'never' }],
+  ],
+  
+  // Global test timeout
+  timeout: 30000,
+  
+  // Use projects to organize different test scenarios
+  use: {
+    // Base URL for the default ddev site (HTTP to avoid SSL issues)
+    baseURL: 'http://open-source-dashboard.ddev.site',
+    
+    // Ignore HTTPS errors (in case any test uses https)
+    ignoreHTTPSErrors: true,
+    
+    // Extra HTTP headers (if needed)
+    extraHTTPHeaders: {
+      'Accept': 'application/json',
+    },
+  },
+  
+  projects: [
+    {
+      name: 'tenant-resolution',
+      testMatch: /tenant-resolution\.spec\.ts/,
+    },
+  ],
+});

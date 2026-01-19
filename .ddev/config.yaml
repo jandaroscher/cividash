@@ -4,7 +4,9 @@ docroot: public
 php_version: "8.2"
 webserver_type: nginx-fpm
 xdebug_enabled: false
-additional_hostnames: []
+additional_hostnames:
+  - a.open-source-dashboard
+  - b.open-source-dashboard
 additional_fqdns: []
 database:
     type: mariadb

@@ -14,12 +14,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Laravel\Sanctum\HasApiTokens;
 use App\Models\Tenant;
 
 class User extends Authenticatable implements FilamentUser, HasTenants, HasDefaultTenant
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -44,15 +45,16 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+         * Define attribute casting rules for the model.
+         *
+         * @return array<string, string> Mapping of attribute names to their cast types (e.g., 'datetime', 'boolean', 'hashed').
+         */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'admin_api_enabled' => 'boolean',
         ];
     }
 

@@ -175,6 +175,34 @@ class ConfigController extends Controller
     }
     
     /**
+     * Provide the current tenant's public configuration.
+     *
+     * If a tenant was attached to the request by middleware it is used; otherwise the tenant with slug "default" is returned.
+     *
+     * @param \Illuminate\Http\Request $request Request that may contain `resolved_tenant` and `resolved_tenant_by` attributes.
+     * @return \Illuminate\Http\Resources\Json\JsonResource JSON resource with keys: `slug`, `name`, `domain`, `frontend_base_url`, and `resolved_by`.
+     */
+    public function tenant(\Illuminate\Http\Request $request): JsonResource
+    {
+        $tenant = $request->attributes->get('resolved_tenant');
+        $resolvedBy = $request->attributes->get('resolved_tenant_by', 'default');
+        
+        if (!$tenant) {
+            // Fallback to default tenant
+            $tenant = Tenant::where('slug', 'default')->first();
+            $resolvedBy = 'default';
+        }
+
+        return new JsonResource([
+            'slug' => $tenant?->slug,
+            'name' => $tenant?->name,
+            'domain' => $tenant?->domain,
+            'frontend_base_url' => $tenant?->frontend_base_url,
+            'resolved_by' => $resolvedBy,
+        ]);
+    }
+
+    /**
      * Determine the Tenant context from the incoming request.
      *
      * Checks the `tenant` query parameter first, then the `X-Tenant` header; accepts either a numeric id or a slug.

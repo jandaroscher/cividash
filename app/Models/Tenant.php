@@ -13,11 +13,8 @@ class Tenant extends Model
     protected $fillable = [
         'name',
         'slug',
-        'theme_config',
-    ];
-
-    protected $casts = [
-        'theme_config' => 'array',
+        'domain',
+        'frontend_base_url',
     ];
 
     /**

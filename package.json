@@ -5,7 +5,9 @@
         "build": "vite build",
         "dev": "vite",
         "lint": "eslint resources/js/**/*.js",
-        "lint:fix": "eslint resources/js/**/*.js --fix"
+        "lint:fix": "eslint resources/js/**/*.js --fix",
+        "test:e2e": "playwright test",
+        "test:e2e:seed": "ddev exec php artisan e2e:seed-tenant-resolution --json"
     },
     "dependencies": {
         "@egjs/flicking-plugins": "^4.7.1",
@@ -20,6 +22,7 @@
         "vue-slider-component": "^4.1.0-beta.7"
     },
     "devDependencies": {
+        "@playwright/test": "^1.49.1",
         "@eslint/js": "^9.17.0",
         "@tailwindcss/vite": "^4.0.0",
         "@types/dompurify": "^3.2.0",

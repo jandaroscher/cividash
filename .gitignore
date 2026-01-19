@@ -31,19 +31,8 @@ dev-debug.log
 # OS specific
 .DS_Store
 
-# Task files
-# tasks.json
-# tasks/
-
-# Cursor MCP configuration (contains sensitive API keys)
-.cursor/mcp.json
-.cursor/plans/
-# Password files
-.htpasswd
-
-# Debug scripts (should not be committed)
-/check_*.php
-/debug_*.php
-/test_*_model.php 
-/test_*.php
-/stadt-regensburg-dashboard/
+# Generated (CI / build output)
+logs
+*.log
+playwright-report/
+test-results/

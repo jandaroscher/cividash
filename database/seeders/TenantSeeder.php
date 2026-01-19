@@ -25,7 +25,6 @@ class TenantSeeder extends Seeder
             ['slug' => 'stadt-regensburg'],
             [
                 'name' => 'Stadt Regensburg',
-                'theme_config' => null,
             ]
         );
 

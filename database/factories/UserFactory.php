@@ -17,9 +17,17 @@ class UserFactory extends Factory
     protected static ?string $password;
 
     /**
-     * Define the model's default state.
+     * Provide default attribute values for creating a User model.
      *
-     * @return array<string, mixed>
+     * Attributes:
+     * - name: a generated full name.
+     * - email: a unique, safe email address.
+     * - email_verified_at: the current timestamp.
+     * - password: a hashed default password (caches the hashed value in the factory).
+     * - remember_token: a random 10-character string.
+     * - admin_api_enabled: `false` by default.
+     *
+     * @return array<string, mixed> An associative array of model attributes and their default values.
      */
     public function definition(): array
     {
@@ -29,16 +37,33 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'admin_api_enabled' => false,
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
-     */
+         * Indicate that the model's email address should be unverified.
+         *
+         * Sets the `email_verified_at` attribute to null.
+         *
+         * @return static The factory instance with the unverified state applied.
+         */
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Configure the factory to create users with admin API access.
+     *
+     * @return static A factory state that sets `admin_api_enabled` to `true`.
+     */
+    public function withAdminApiAccess(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'admin_api_enabled' => true,
         ]);
     }
 }

@@ -25,7 +25,6 @@ class TenantSetupTest extends TestCase
             'id',
             'name',
             'slug',
-            'theme_config',
             'created_at',
             'updated_at',
         ]));

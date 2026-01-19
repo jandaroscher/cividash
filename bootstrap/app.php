@@ -23,6 +23,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\LocaleDetector::class,
         ]);
+        
+        $middleware->alias([
+            'admin.api' => \App\Http\Middleware\EnsureAdminApiAccess::class,
+            'admin.tenant' => \App\Http\Middleware\EnsureAdminTenantResolved::class,
+            'resolve.tenant' => \App\Http\Middleware\ResolveTenantFromRequest::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

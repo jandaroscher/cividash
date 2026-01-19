@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Tenant;
 use App\Models\User;
 use App\Settings\BrandingSettings;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -12,11 +14,39 @@ class BrandingConfigApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected Tenant $tenant;
+    protected User $user;
+
     protected function setUp(): void
     {
         parent::setUp();
         Storage::fake('public');
+
+        // Create tenant and user for Admin API tests
+        $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
+        $this->user = User::factory()->withAdminApiAccess()->create();
+        $this->user->tenants()->attach($this->tenant->id);
     }
+
+    protected function tearDown(): void
+    {
+        Filament::setTenant(null);
+        parent::tearDown();
+    }
+
+    /**
+     * Create a Sanctum token with tenant_id for API requests.
+     */
+    protected function createTokenForTenant(Tenant $tenant, array $abilities = ['admin-api']): string
+    {
+        $token = $this->user->createToken('test-token', $abilities);
+        $token->accessToken->tenant_id = $tenant->id;
+        $token->accessToken->save();
+        
+        return $token->plainTextToken;
+    }
+
+    // ========== Public GET Tests (no auth required) ==========
 
     public function test_get_branding_config_returns_all_fields(): void
     {
@@ -64,6 +94,8 @@ class BrandingConfigApiTest extends TestCase
         $this->assertEquals('#E5E7EB', $data['footer_background_color']);
     }
 
+    // ========== Auth Tests ==========
+
     public function test_post_branding_config_requires_authentication(): void
     {
         $response = $this->postJson('/api/admin/config/branding', [
@@ -73,11 +105,13 @@ class BrandingConfigApiTest extends TestCase
         $response->assertStatus(401);
     }
 
+    // ========== POST/PATCH Tests with Token-Tenant Auth ==========
+
     public function test_post_branding_config_updates_settings(): void
     {
-        $user = User::factory()->create();
+        $token = $this->createTokenForTenant($this->tenant);
         
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'primary_color' => '#FF0000',
                 'secondary_color' => '#00FF00',
@@ -108,7 +142,7 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_patch_branding_config_partially_updates_settings(): void
     {
-        $user = User::factory()->create();
+        $token = $this->createTokenForTenant($this->tenant);
         
         // Set initial values
         $settings = app(BrandingSettings::class);
@@ -117,7 +151,7 @@ class BrandingConfigApiTest extends TestCase
         $settings->save();
 
         // Update only primary_color
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->patchJson('/api/admin/config/branding', [
                 'primary_color' => '#FF0000',
             ]);
@@ -137,9 +171,9 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_post_branding_config_validates_color_format(): void
     {
-        $user = User::factory()->create();
+        $token = $this->createTokenForTenant($this->tenant);
         
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'primary_color' => 'invalid-color',
             ]);
@@ -150,9 +184,9 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_post_branding_config_validates_hex_color_format(): void
     {
-        $user = User::factory()->create();
+        $token = $this->createTokenForTenant($this->tenant);
         
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'primary_color' => '#GGG',
             ]);
@@ -163,9 +197,9 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_post_branding_config_accepts_valid_hex_colors(): void
     {
-        $user = User::factory()->create();
+        $token = $this->createTokenForTenant($this->tenant);
         
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'primary_color' => '#ABC',
                 'secondary_color' => '#ABCDEF',
@@ -176,9 +210,9 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_post_branding_config_validates_font_weights(): void
     {
-        $user = User::factory()->create();
+        $token = $this->createTokenForTenant($this->tenant);
         
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'typography_font_weights' => [50, 1500], // Invalid weights
             ]);
@@ -189,7 +223,7 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_post_branding_config_updates_slider_colors(): void
     {
-        $user = User::factory()->create();
+        $token = $this->createTokenForTenant($this->tenant);
         
         $sliderColors = [
             'rail' => '#000000',
@@ -197,7 +231,7 @@ class BrandingConfigApiTest extends TestCase
             'handleBorder' => '#CCCCCC',
         ];
 
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'slider_colors' => $sliderColors,
             ]);
@@ -215,9 +249,9 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_post_branding_config_validates_slider_color_format(): void
     {
-        $user = User::factory()->create();
+        $token = $this->createTokenForTenant($this->tenant);
         
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'slider_colors' => [
                     'rail' => 'invalid-color',
@@ -230,16 +264,16 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_get_branding_config_after_update_returns_updated_values(): void
     {
-        $user = User::factory()->create();
+        $token = $this->createTokenForTenant($this->tenant);
         
         // Update settings
-        $this->actingAs($user, 'sanctum')
+        $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'primary_color' => '#123456',
                 'typography_font_family' => 'Inter',
             ]);
 
-        // Get settings
+        // Get settings (public endpoint, no auth required)
         $response = $this->getJson('/api/config/branding');
 
         $response->assertStatus(200);
@@ -251,9 +285,9 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_post_branding_config_updates_header_footer_colors(): void
     {
-        $user = User::factory()->create();
+        $token = $this->createTokenForTenant($this->tenant);
         
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'header_background_color' => '#F0F0F0',
                 'footer_background_color' => '#CCCCCC',
@@ -272,9 +306,9 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_post_branding_config_validates_header_footer_color_format(): void
     {
-        $user = User::factory()->create();
+        $token = $this->createTokenForTenant($this->tenant);
         
-        $response = $this->actingAs($user, 'sanctum')
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'header_background_color' => 'invalid-color',
             ]);
@@ -283,4 +317,3 @@ class BrandingConfigApiTest extends TestCase
             ->assertJsonValidationErrors(['header_background_color']);
     }
 }
-

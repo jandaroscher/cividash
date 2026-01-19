@@ -119,14 +119,14 @@ trait BelongsToTenant
     }
 
     /**
-     * Resolve the current tenant from various contexts.
-     * 
-     * Priority order:
-     * 1. Filament tenant context (for admin panel)
-     * 2. Request parameter/header (for API requests)
-     * 3. Session (for web requests)
-     * 
-     * @return Tenant|null
+     * Resolve the current tenant from configured contexts in priority order.
+     *
+     * Checks, in order: Filament tenant context, ResolveTenantFromRequest middleware (public API),
+     * request parameter or `X-Tenant` header (API requests), and session (web requests).
+     * When a tenant is derived from request or session data, the authenticated user's access
+     * to that tenant is validated; unauthorized attempts result in logging and a `null` result.
+     *
+     * @return Tenant|null The resolved Tenant instance, or `null` if no tenant context is available.
      */
     protected static function resolveTenant(): ?Tenant
     {
@@ -141,9 +141,23 @@ trait BelongsToTenant
             // Filament might not be initialized in all contexts, continue to next method
         }
 
-        // 2. Try to get tenant from HTTP request (for API requests)
+        // 2. Try tenant from ResolveTenantFromRequest middleware
+        // This is set for public API requests using Token > Domain > Default priority
+        // Note: Also check during unit tests since they simulate HTTP requests
+        if (app()->runningInConsole() === false || app()->runningUnitTests()) {
+            try {
+                $request = app('request');
+                if ($request && $request->attributes->has('resolved_tenant')) {
+                    return $request->attributes->get('resolved_tenant');
+                }
+            } catch (\Throwable $e) {
+                // Continue to next method
+            }
+        }
+
+        // 3. Try to get tenant from HTTP request (for API requests)
         // SECURITY: Only allow tenant override if user is authenticated and has access
-        if (app()->runningInConsole() === false) {
+        if (app()->runningInConsole() === false || app()->runningUnitTests()) {
             try {
                 $request = app('request');
                 // Try to get user from request, fallback to auth() for compatibility
@@ -219,7 +233,7 @@ trait BelongsToTenant
 
         // 4. Try to get tenant from session (for web requests)
         // SECURITY: Validate that user has access to tenant stored in session
-        if (app()->runningInConsole() === false) {
+        if (app()->runningInConsole() === false || app()->runningUnitTests()) {
             try {
                 $request = app('request');
                 if ($request && $request->hasSession()) {

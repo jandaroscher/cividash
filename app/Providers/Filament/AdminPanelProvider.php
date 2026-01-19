@@ -6,10 +6,12 @@ use App\Filament\Pages\Tenancy\EditTenantProfile;
 use App\Filament\Pages\Tenancy\RegisterTenant;
 use App\Models\Tenant;
 use App\Http\Middleware\SetFilamentDefaultTenant;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -28,11 +30,11 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 class AdminPanelProvider extends PanelProvider
 {
     /**
-     * Configure the Filament admin panel for the application with tenancy support, UI pages, resources, widgets, middleware, plugins, and authentication middleware.
+     * Configure and return the Filament admin Panel with tenancy, UI pages, resources, widgets, middleware, plugins, and authentication.
      *
-     * This enables tenancy by binding the Tenant model to the panel, conditionally registers tenant UI pages when the application is not in the `testing` environment, and applies the panel's default configuration including id, path, brand name, colors, discovered resources/pages/widgets, explicit pages and widgets, middleware stack, plugins, and auth middleware.
+     * Binds the Tenant model for tenancy support and registers tenant UI pages in all environments.
      *
-     * @param Panel $panel The Panel instance to configure for the admin area.
+     * @param Panel $panel The Panel instance to configure.
      * @return Panel The configured Panel instance.
      */
     public function panel(Panel $panel): Panel
@@ -41,13 +43,11 @@ class AdminPanelProvider extends PanelProvider
         // This ensures that setTenant()/getTenant() work reliably even in test contexts
         $panel->tenant(Tenant::class);
 
-        // Only register tenant UI pages in non-testing environments
-        // This allows tenancy to work in tests while avoiding UI complexity
-        if (! app()->environment('testing')) {
-            $panel
-                ->tenantRegistration(RegisterTenant::class)
-                ->tenantProfile(EditTenantProfile::class);
-        }
+        // Register tenant UI pages so route-based navigation works in all environments,
+        // including tests that render the panel navigation.
+        $panel
+            ->tenantRegistration(RegisterTenant::class)
+            ->tenantProfile(EditTenantProfile::class);
 
         return $panel
             ->default()
@@ -62,6 +62,18 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+            ])
+            ->navigationItems([
+                NavigationItem::make('tenant-profile')
+                    ->label(fn (): string => __('filament.pages.edit_tenant_profile.title'))
+                    ->group('Einstellungen')
+                    ->icon('heroicon-o-building-office-2')
+                    ->sort(24)
+                    ->url(fn (): string => Filament::getTenant()
+                        ? route('filament.admin.tenant.profile', ['tenant' => Filament::getTenant()])
+                        : '#'
+                    )
+                    ->visible(fn (): bool => Filament::getTenant() !== null),
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([

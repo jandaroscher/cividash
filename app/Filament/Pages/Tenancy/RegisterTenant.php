@@ -32,15 +32,14 @@ class RegisterTenant extends BaseRegisterTenant
     }
 
     /**
-     * Builds and returns the tenant registration form schema.
+     * Builds the tenant registration form schema.
      *
-     * Configures three fields:
-     * - `name`: text input labeled "Tenant name", required, max length 255, live validation on blur, and updates the `slug` field with a slugified version when changed.
-     * - `slug`: text input labeled "Slug", required, unique against the Tenant model (ignores current record), max length 255.
-     * - `theme_config`: optional key-value input labeled "Theme configuration (optional)" with custom key/value labels and an "Add setting" button.
+     * Configures two fields:
+     * - `name`: text input labeled "Tenant name", required, maximum length 255, validates on blur, and updates the `slug` field with a slugified value when changed.
+     * - `slug`: text input labeled "Slug", required, maximum length 255, unique against the Tenant model (ignores the current record).
      *
      * @param Form $form The form instance to configure.
-     * @return Form The form instance populated with the tenant registration schema.
+     * @return Form The configured form instance.
      */
     public function form(Form $form): Form
     {
@@ -61,24 +60,17 @@ class RegisterTenant extends BaseRegisterTenant
                 ->required()
                 ->unique(Tenant::class, ignoreRecord: true)
                 ->maxLength(255),
-            Forms\Components\KeyValue::make('theme_config')
-                ->label(__('Theme configuration (optional)'))
-                ->keyLabel(__('Key'))
-                ->valueLabel(__('Value'))
-                ->addButtonLabel(__('Add setting'))
-                ->nullable(),
         ]);
     }
 
     /**
      * Create a new tenant from submitted data, attach it to the current user, and set the user's default tenant when absent.
      *
-     * Expects $data to contain 'name' and 'slug'; 'theme_config' is optional and will be stored or set to null.
+     * Expects $data to contain 'name' and 'slug'.
      *
      * @param array $data Associative array with keys:
      *                    - 'name' (string): Tenant display name.
      *                    - 'slug' (string): Unique tenant slug.
-     *                    - 'theme_config' (array|null) Optional theme configuration.
      * @return \App\Models\Tenant The created Tenant model instance.
      */
     protected function handleRegistration(array $data): Tenant
@@ -87,7 +79,6 @@ class RegisterTenant extends BaseRegisterTenant
             $tenant = Tenant::create([
                 'name' => $data['name'],
                 'slug' => $data['slug'],
-                'theme_config' => $data['theme_config'] ?? null,
             ]);
 
             $user = Filament::auth()->user();
