@@ -1,6 +1,7 @@
 <?php
 
 use App\Settings\BrandingSettings;
+use App\Settings\DashboardSettings;
 use App\Settings\GeneralSettings;
 
 return [
@@ -12,6 +13,7 @@ return [
     'settings' => [
         GeneralSettings::class,
         BrandingSettings::class,
+        DashboardSettings::class,
     ],
 
     /*

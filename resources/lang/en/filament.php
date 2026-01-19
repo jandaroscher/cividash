@@ -2,6 +2,38 @@
 
 return [
     'pages' => [
+        'manage_dashboard' => [
+            'title' => 'Dashboard',
+            'navigation_label' => 'Dashboard',
+            'content_links_section' => 'Content links',
+            'open_source_docs_url' => 'Open-source documentation',
+            'user_manual_url' => 'User manual',
+            'contact_section' => 'Contact',
+            'contact_name' => 'Name',
+            'contact_email' => 'Email',
+            'contact_url' => 'Contact link',
+            'server_section' => 'Server data',
+            'show_server_time' => 'Show server time',
+            'stats_section' => 'Statistics',
+            'made_with_text' => 'Made with text',
+        ],
+        'dashboard_overview' => [
+            'content_links' => 'Documentation',
+            'open_source_docs' => 'Open-source documentation',
+            'user_manual' => 'User manual',
+            'no_content_links' => 'No links configured.',
+            'contact_heading' => 'Contact',
+            'server_time_heading' => 'Server',
+            'server_time_label' => 'Server time',
+            'server_php_version' => 'PHP version',
+            'server_laravel_version' => 'Laravel version',
+            'server_db_info' => 'Database',
+            'server_app_env' => 'Environment',
+            'server_timezone' => 'Timezone',
+            'stats_heading' => 'Statistics',
+            'active_tiles' => ':count active tiles',
+            'year_data' => ':count yearly data',
+        ],
         'manage_api_keys' => [
             'title' => 'API Keys',
             'navigation_label' => 'API Keys',

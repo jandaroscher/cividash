@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Tenancy\EditTenantProfile;
 use App\Filament\Pages\Tenancy\RegisterTenant;
 use App\Models\Tenant;
@@ -12,7 +13,6 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationItem;
-use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -30,9 +30,9 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 class AdminPanelProvider extends PanelProvider
 {
     /**
-     * Configure and return the Filament admin Panel with tenancy, UI pages, resources, widgets, middleware, plugins, and authentication.
+     * Configure the Filament admin Panel with tenancy, UI pages, resources, widgets, middleware, plugins, and authentication.
      *
-     * Binds the Tenant model for tenancy support and registers tenant UI pages in all environments.
+     * Also binds the Tenant model and registers tenant-specific pages so tenant-aware navigation and route resolution work across environments (including tests).
      *
      * @param Panel $panel The Panel instance to configure.
      * @return Panel The configured Panel instance.
@@ -54,6 +54,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName('Nachhaltigkeits-Dashboard')
+            ->sidebarCollapsibleOnDesktop()
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -61,7 +62,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                Dashboard::class,
             ])
             ->navigationItems([
                 NavigationItem::make('tenant-profile')
