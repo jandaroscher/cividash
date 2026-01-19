@@ -16,9 +16,14 @@ class CreatePage extends FabricatorCreatePage
 
     protected function getHeaderActions(): array
     {
+        $actions = array_values(array_filter(
+            parent::getHeaderActions(),
+            fn ($action) => ! method_exists($action, 'getName') || $action->getName() !== 'preview'
+        ));
+
         return [
             Actions\LocaleSwitcher::make(),
-            ...parent::getHeaderActions(), // Include Preview action from Fabricator
+            ...$actions,
         ];
     }
 }

@@ -68,7 +68,7 @@ async function loadPage() {
     pageData.value = null;
     
     try {
-        const data = await pagesStore.fetchPageBySlug(slug.value, locale.value);
+        const data = await pagesStore.fetchPageBySlug(slug.value, locale.value, true);
         if (data) {
             pageData.value = data;
         } else {

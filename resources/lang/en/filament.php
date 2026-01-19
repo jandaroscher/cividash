@@ -109,4 +109,27 @@ return [
             ],
         ],
     ],
+    'resources' => [
+        'page' => [
+            'navigation_label' => 'Pages',
+            'model_label' => 'Page',
+            'plural_model_label' => 'Pages',
+            'title' => 'Title',
+            'slug' => 'Slug',
+            'layout' => 'Layout',
+            'parent' => 'Parent',
+            'url_preview' => 'URL preview',
+            'is_public' => 'Active',
+            'meta_title' => 'SEO title',
+            'meta_description' => 'SEO description',
+            'meta_image' => 'SEO image',
+            'created_at' => 'Created at',
+            'updated_at' => 'Updated at',
+            'actions' => [
+                'activate' => 'Activate',
+                'deactivate' => 'Deactivate',
+                'view_frontend' => 'View',
+            ],
+        ],
+    ],
 ];

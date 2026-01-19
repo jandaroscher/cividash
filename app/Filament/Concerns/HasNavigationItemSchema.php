@@ -35,6 +35,7 @@ trait HasNavigationItemSchema
                     $locale = property_exists($this, 'activeLocale') ? $this->activeLocale : app()->getLocale();
                     
                     return Page::query()
+                        ->where('is_public', true)
                         ->get()
                         ->mapWithKeys(function ($page) use ($locale) {
                             $title = $page->getTranslation('title', $locale, false) 

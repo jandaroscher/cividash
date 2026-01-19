@@ -18,8 +18,8 @@
         <!-- Page content -->
         <div v-else-if="pageData" class="page-content">
             <!-- Page title (if not in blocks) -->
-            <h1 v-if="pageData.title && !hasTitleBlock" class="page-title container py-6">
-                {{ pageData.title }}
+            <h1 v-if="effectiveTitle && !hasTitleBlock" class="page-title container py-6">
+                {{ effectiveTitle }}
             </h1>
             
             <!-- Render blocks via BlockRenderer -->
@@ -86,6 +86,10 @@ const hasTitleBlock = computed(() => {
     );
 });
 
+const effectiveTitle = computed(() => {
+    return props.pageData?.meta?.title || props.pageData?.title || '';
+});
+
 // Update meta tags when page data changes
 watch(
     () => props.pageData,
@@ -110,21 +114,24 @@ function updateMetaTags(pageData) {
             : `${apiUrl}${pageData.meta.image}`)
         : null;
     
+    const metaTitle = pageData.meta?.title || pageData.title;
+    const metaDescription = pageData.meta?.description;
+
     setMetaTags({
-        title: pageData.title,
-        description: pageData.meta?.description,
+        title: metaTitle,
+        description: metaDescription,
         image: imageUrl,
         url: currentUrl,
         og: {
-            title: pageData.title,
-            description: pageData.meta?.description,
+            title: metaTitle,
+            description: metaDescription,
             image: imageUrl,
             type: 'website',
         },
         twitter: {
             card: 'summary_large_image',
-            title: pageData.title,
-            description: pageData.meta?.description,
+            title: metaTitle,
+            description: metaDescription,
             image: imageUrl,
         },
     });

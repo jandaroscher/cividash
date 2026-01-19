@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\FooterNavigation;
 use App\Models\Navigation;
+use App\Models\Page;
 use App\Models\Tenant;
+use App\Filament\Fabricator\Layouts\LandingpageLayout;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -242,5 +244,115 @@ class HeaderFooterApiTranslatableTest extends TestCase
         $data = $response->json();
         $this->assertEquals('Main Menu', $data['data']['navigation_items'][0]['label']);
         $this->assertEquals('Submenu', $data['data']['navigation_items'][0]['children'][0]['label']);
+    }
+
+    public function test_header_api_filters_inactive_page_items(): void
+    {
+        $inactivePage = Page::create([
+            'title' => ['de' => 'Inaktiv', 'en' => 'Inactive'],
+            'slug' => ['de' => 'inaktiv', 'en' => 'inactive'],
+            'layout' => LandingpageLayout::getName(),
+            'blocks' => ['de' => [], 'en' => []],
+            'is_public' => false,
+        ]);
+
+        $navigation = Navigation::getOrCreateInstance();
+        $navigation->setTranslation('navigation_items', 'de', [
+            [
+                'type' => 'manual',
+                'label' => ['de' => 'Kontakt', 'en' => 'Contact'],
+                'url' => ['de' => '/kontakt', 'en' => '/en/contact'],
+            ],
+            [
+                'type' => 'page',
+                'page_id' => $inactivePage->id,
+                'label' => ['de' => 'Inaktiv', 'en' => 'Inactive'],
+                'url' => ['de' => '/inaktiv', 'en' => '/en/inactive'],
+            ],
+        ]);
+        $navigation->setTranslation('navigation_items', 'en', [
+            [
+                'type' => 'manual',
+                'label' => ['de' => 'Kontakt', 'en' => 'Contact'],
+                'url' => ['de' => '/kontakt', 'en' => '/en/contact'],
+            ],
+            [
+                'type' => 'page',
+                'page_id' => $inactivePage->id,
+                'label' => ['de' => 'Inaktiv', 'en' => 'Inactive'],
+                'url' => ['de' => '/inaktiv', 'en' => '/en/inactive'],
+            ],
+        ]);
+        $navigation->save();
+
+        $response = $this->getJson('/api/config/header?locale=de');
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'navigation_items' => [
+                    [
+                        'type' => 'manual',
+                        'label' => 'Kontakt',
+                        'url' => '/kontakt',
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_footer_api_filters_inactive_page_items(): void
+    {
+        $inactivePage = Page::create([
+            'title' => ['de' => 'Inaktiv', 'en' => 'Inactive'],
+            'slug' => ['de' => 'inaktiv', 'en' => 'inactive'],
+            'layout' => LandingpageLayout::getName(),
+            'blocks' => ['de' => [], 'en' => []],
+            'is_public' => false,
+        ]);
+
+        $footer = FooterNavigation::getOrCreateInstance();
+        $footer->setTranslation('footer_navigation_items', 'de', [
+            [
+                'type' => 'manual',
+                'label' => ['de' => 'Impressum', 'en' => 'Imprint'],
+                'url' => ['de' => '/impressum', 'en' => '/en/imprint'],
+            ],
+            [
+                'type' => 'page',
+                'page_id' => $inactivePage->id,
+                'label' => ['de' => 'Inaktiv', 'en' => 'Inactive'],
+                'url' => ['de' => '/inaktiv', 'en' => '/en/inactive'],
+            ],
+        ]);
+        $footer->setTranslation('footer_navigation_items', 'en', [
+            [
+                'type' => 'manual',
+                'label' => ['de' => 'Impressum', 'en' => 'Imprint'],
+                'url' => ['de' => '/impressum', 'en' => '/en/imprint'],
+            ],
+            [
+                'type' => 'page',
+                'page_id' => $inactivePage->id,
+                'label' => ['de' => 'Inaktiv', 'en' => 'Inactive'],
+                'url' => ['de' => '/inaktiv', 'en' => '/en/inactive'],
+            ],
+        ]);
+        $footer->save();
+
+        $response = $this->getJson('/api/config/footer?locale=de');
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'footer_navigation_items' => [
+                    [
+                        'type' => 'manual',
+                        'label' => 'Impressum',
+                        'url' => '/impressum',
+                    ],
+                ],
+            ],
+        ]);
     }
 }

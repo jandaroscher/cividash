@@ -20,8 +20,9 @@ class LocaleDetector
     {
         $path = $request->path();
         
-        // Skip locale detection for admin routes to avoid interfering with Filament's locale handling
+        // Ensure admin uses German UI labels by default
         if (str_starts_with($path, 'admin')) {
+            App::setLocale('de');
             return $next($request);
         }
         

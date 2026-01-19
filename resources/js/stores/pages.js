@@ -15,9 +15,17 @@ export const usePagesStore = defineStore('pages', {
          * Fetch a page by ID
          * @param {number|string} id - Page ID
          * @param {string} locale - Locale ('de' or 'en')
+         * @param {boolean} force - Bypass local cache
          * @returns {Promise<Object>} Page data
          */
-        async fetchPage(id, locale = 'de') {
+        async fetchPage(id, locale = 'de', force = false) {
+            const cacheKey = `${locale}:${id}`;
+            if (!force && this.cache.has(cacheKey)) {
+                const cachedPage = this.cache.get(cacheKey);
+                this.currentPage = cachedPage;
+                return cachedPage;
+            }
+
             this.loading = true;
             this.error = null;
             
@@ -25,7 +33,7 @@ export const usePagesStore = defineStore('pages', {
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
                     `${apiUrl}/api/content/pages/${id}?locale=${locale}`,
-                    { credentials: 'include' }
+                    { credentials: 'include', cache: 'no-store' }
                 );
                 
                 if (!res.ok) {
@@ -40,7 +48,6 @@ export const usePagesStore = defineStore('pages', {
                 const pageData = json.data || json;
                 
                 // Cache the page
-                const cacheKey = `${locale}:${pageData.id}`;
                 this.cache.set(cacheKey, pageData);
                 
                 this.currentPage = pageData;
@@ -57,9 +64,17 @@ export const usePagesStore = defineStore('pages', {
         /**
          * Fetch the root/home page
          * @param {string} locale - Locale ('de' or 'en')
+         * @param {boolean} force - Bypass local cache
          * @returns {Promise<Object>} Root page data
          */
-        async fetchRootPage(locale = 'de') {
+        async fetchRootPage(locale = 'de', force = false) {
+            const cacheKey = `${locale}:root`;
+            if (!force && this.cache.has(cacheKey)) {
+                const cachedPage = this.cache.get(cacheKey);
+                this.currentPage = cachedPage;
+                return cachedPage;
+            }
+
             this.loading = true;
             this.error = null;
             
@@ -67,7 +82,7 @@ export const usePagesStore = defineStore('pages', {
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
                     `${apiUrl}/api/content/pages/root?locale=${locale}`,
-                    { credentials: 'include' }
+                    { credentials: 'include', cache: 'no-store' }
                 );
                 
                 if (!res.ok) {
@@ -82,7 +97,6 @@ export const usePagesStore = defineStore('pages', {
                 const pageData = json.data || json;
                 
                 // Cache the page
-                const cacheKey = `${locale}:root`;
                 this.cache.set(cacheKey, pageData);
                 
                 this.currentPage = pageData;
@@ -115,7 +129,7 @@ export const usePagesStore = defineStore('pages', {
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
                     `${apiUrl}/api/content/pages?locale=${locale}`,
-                    { credentials: 'include' }
+                    { credentials: 'include', cache: 'no-store' }
                 );
                 
                 if (!res.ok) {
@@ -143,12 +157,13 @@ export const usePagesStore = defineStore('pages', {
          * First fetches the page list, finds the page by slug, then fetches full page data
          * @param {string} slug - Page slug
          * @param {string} locale - Locale ('de' or 'en')
+         * @param {boolean} force - Bypass local cache
          * @returns {Promise<Object>} Page data
          */
-        async fetchPageBySlug(slug, locale = 'de') {
+        async fetchPageBySlug(slug, locale = 'de', force = false) {
             // Check cache first
             const cacheKey = `${locale}:${slug}`;
-            if (this.cache.has(cacheKey)) {
+            if (!force && this.cache.has(cacheKey)) {
                 const cachedPage = this.cache.get(cacheKey);
                 this.currentPage = cachedPage;
                 return cachedPage;
@@ -162,7 +177,7 @@ export const usePagesStore = defineStore('pages', {
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
                     `${apiUrl}/api/content/pages?locale=${locale}`,
-                    { credentials: 'include' }
+                    { credentials: 'include', cache: 'no-store' }
                 );
                 
                 if (!res.ok) {
@@ -186,7 +201,7 @@ export const usePagesStore = defineStore('pages', {
                 // Inline fetch full page data by ID to avoid loading state conflicts
                 const pageRes = await fetch(
                     `${apiUrl}/api/content/pages/${pageMeta.id}?locale=${locale}`,
-                    { credentials: 'include' }
+                    { credentials: 'include', cache: 'no-store' }
                 );
                 
                 if (!pageRes.ok) {

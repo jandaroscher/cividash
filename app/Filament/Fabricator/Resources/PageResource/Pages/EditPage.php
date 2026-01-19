@@ -4,6 +4,7 @@ namespace App\Filament\Fabricator\Resources\PageResource\Pages;
 
 use App\Filament\Fabricator\Resources\PageResource;
 use Filament\Actions;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Resources\Pages\EditRecord\Concerns\Translatable;
 use Illuminate\Support\Arr;
@@ -17,9 +18,26 @@ class EditPage extends FabricatorEditPage
 
     protected function getHeaderActions(): array
     {
+        $actions = array_values(array_filter(
+            parent::getHeaderActions(),
+            fn ($action) => ! method_exists($action, 'getName') || $action->getName() !== 'preview'
+        ));
+
+        foreach ($actions as $action) {
+            if (! method_exists($action, 'getName')) {
+                continue;
+            }
+
+            $name = $action->getName();
+
+            if (in_array($name, ['visit', 'view'], true)) {
+                $action->label(__('filament.resources.page.actions.view_frontend'));
+            }
+        }
+
         return [
             Actions\LocaleSwitcher::make(),
-            ...parent::getHeaderActions(), // Include Preview, Delete, Visit actions from Fabricator
+            ...$actions,
         ];
     }
 
@@ -43,6 +61,22 @@ class EditPage extends FabricatorEditPage
         // Fix repeater does not work with translations - End
 
         unset($this->otherLocaleData[$this->activeLocale]);
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getSaveFormAction(),
+            $this->getCancelFormAction(),
+        ];
+    }
+
+    protected function getSaveFormAction(): Action
+    {
+        return Action::make('save')
+            ->label(__('filament-fabricator::page-resource.actions.save'))
+            ->action('save')
+            ->keyBindings(['mod+s']);
     }
 }
 

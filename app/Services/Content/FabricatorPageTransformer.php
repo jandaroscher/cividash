@@ -31,6 +31,7 @@ class FabricatorPageTransformer
         // Use translatable fields
         $title = $page->getTranslation('title', $locale, false);
         $slug = $page->getTranslation('slug', $locale, false);
+        $metaTitle = $page->getTranslation('meta_title', $locale, false);
         $metaDescription = $page->getTranslation('meta_description', $locale, false);
         $blocks = $page->getTranslation('blocks', $locale, false) ?? [];
 
@@ -66,6 +67,7 @@ class FabricatorPageTransformer
                 'slug' => $tenantSlug,
             ],
             'meta' => [
+                'title' => $metaTitle,
                 'description' => $metaDescription,
                 'image' => $page->og_image_url ?? null,
             ],
@@ -109,6 +111,7 @@ class FabricatorPageTransformer
         foreach (['de', 'en'] as $locale) {
             $title = $page->getTranslation('title', $locale, false);
             $slug = $page->getTranslation('slug', $locale, false);
+            $metaTitle = $page->getTranslation('meta_title', $locale, false);
             $metaDescription = $page->getTranslation('meta_description', $locale, false);
             $blocks = $page->getTranslation('blocks', $locale, false) ?? [];
 
@@ -132,6 +135,7 @@ class FabricatorPageTransformer
                 'slug' => $slug,
                 'title' => $title,
                 'meta' => [
+                    'title' => $metaTitle,
                     'description' => $metaDescription,
                     'image' => $page->og_image_url ?? null,
                 ],

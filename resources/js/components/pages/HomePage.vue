@@ -43,7 +43,7 @@ async function loadPage() {
     error.value = null;
     
     try {
-        const data = await pagesStore.fetchRootPage(locale.value);
+        const data = await pagesStore.fetchRootPage(locale.value, true);
         if (data) {
             pageData.value = data;
         } else if (pagesStore.error) {

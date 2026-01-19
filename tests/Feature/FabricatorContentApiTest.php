@@ -20,6 +20,8 @@ class FabricatorContentApiTest extends TestCase
             'title' => ['de' => 'API Test Page', 'en' => ''],
             'slug' => ['de' => 'api-test-page', 'en' => ''],
             'layout' => LandingpageLayout::getName(),
+            'meta_title' => ['de' => 'SEO Titel', 'en' => ''],
+            'meta_description' => ['de' => 'SEO Beschreibung', 'en' => ''],
             'blocks' => [
                 'de' => [
                     [
@@ -50,6 +52,9 @@ class FabricatorContentApiTest extends TestCase
             'slug' => 'api-test-page',
             'title' => 'API Test Page',
         ]);
+
+        $response->assertJsonPath('meta.title', 'SEO Titel');
+        $response->assertJsonPath('meta.description', 'SEO Beschreibung');
 
         $response->assertJsonStructure([
             'id',
@@ -157,6 +162,14 @@ class FabricatorContentApiTest extends TestCase
             'blocks' => ['de' => [], 'en' => []],
         ]);
 
+        Page::create([
+            'title' => ['de' => 'Hidden Page', 'en' => ''],
+            'slug' => ['de' => 'hidden-page', 'en' => ''],
+            'layout' => LandingpageLayout::getName(),
+            'blocks' => ['de' => [], 'en' => []],
+            'is_public' => false,
+        ]);
+
         $rootPage = Page::create([
             'title' => ['de' => 'Root Page', 'en' => ''],
             'slug' => ['de' => '/', 'en' => ''],
@@ -184,6 +197,7 @@ class FabricatorContentApiTest extends TestCase
         $this->assertContains('page-one', $slugs);
         $this->assertContains('page-two', $slugs);
         $this->assertContains('/', $slugs);
+        $this->assertNotContains('hidden-page', $slugs);
     }
 
     public function test_content_api_index_returns_empty_array_when_no_pages(): void
@@ -202,6 +216,21 @@ class FabricatorContentApiTest extends TestCase
                 'locale' => 'en',
             ],
         ]);
+    }
+
+    public function test_content_api_returns_404_for_inactive_page(): void
+    {
+        $page = Page::create([
+            'title' => ['de' => 'Inactive Page', 'en' => ''],
+            'slug' => ['de' => 'inactive-page', 'en' => ''],
+            'layout' => LandingpageLayout::getName(),
+            'blocks' => ['de' => [], 'en' => []],
+            'is_public' => false,
+        ]);
+
+        $response = $this->getJson("/api/content/pages/{$page->id}?locale=de");
+
+        $response->assertStatus(404);
     }
 }
 

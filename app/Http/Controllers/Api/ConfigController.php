@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ConfigController extends Controller
 {
+    protected static ?bool $pageHasIsPublic = null;
+
     /**
      * Return the application's branding and styling configuration.
      *
@@ -124,8 +126,12 @@ class ConfigController extends Controller
             $locale = app()->getLocale();
         }
 
+        $navigationItems = $navigation->getTranslatedNavigationItems($locale);
+        $activePageIds = $this->getActivePageIds($navigationItems);
+        $filteredItems = $this->filterItemsByActivePages($navigationItems, $activePageIds);
+
         return new JsonResource([
-            'navigation_items' => $navigation->getTranslatedNavigationItems($locale),
+            'navigation_items' => $filteredItems,
             'show_language_switcher' => $navigation->show_language_switcher,
             'dropdown_enabled' => $navigation->dropdown_enabled,
         ]);
@@ -164,14 +170,109 @@ class ConfigController extends Controller
             $locale = app()->getLocale();
         }
 
+        $footerItems = $footer->getTranslatedFooterNavigationItems($locale);
+        $activePageIds = $this->getActivePageIds($footerItems);
+        $filteredFooterItems = $this->filterItemsByActivePages($footerItems, $activePageIds);
+
         return new JsonResource([
-            'footer_navigation_items' => $footer->getTranslatedFooterNavigationItems($locale),
+            'footer_navigation_items' => $filteredFooterItems,
             'social_links' => $footer->getTranslatedSocialLinks($locale),
             'layout_type' => $footer->layout_type,
             'columns' => $footer->columns,
             'social_links_enabled' => $footer->social_links_enabled,
             'copyright_text' => $footer->getTranslatedCopyrightText($locale),
         ]);
+    }
+
+    /**
+     * Collect all page IDs referenced by navigation items (recursive).
+     *
+     * @param array $items
+     * @return array<int>
+     */
+    protected function collectPageIds(array $items): array
+    {
+        $ids = [];
+
+        foreach ($items as $item) {
+            if (($item['type'] ?? null) === 'page' && isset($item['page_id'])) {
+                $ids[] = (int) $item['page_id'];
+            }
+
+            if (isset($item['children']) && is_array($item['children'])) {
+                $ids = array_merge($ids, $this->collectPageIds($item['children']));
+            }
+        }
+
+        return array_values(array_unique(array_filter($ids)));
+    }
+
+    /**
+     * Get active page IDs for the provided navigation items.
+     *
+     * @param array $items
+     * @return array<int>
+     */
+    protected function getActivePageIds(array $items): array
+    {
+        $pageIds = $this->collectPageIds($items);
+
+        if (empty($pageIds)) {
+            return [];
+        }
+
+        if (! static::pageHasIsPublicColumn()) {
+            return $pageIds;
+        }
+
+        return \App\Models\Page::query()
+            ->whereIn('id', $pageIds)
+            ->where('is_public', true)
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    protected static function pageHasIsPublicColumn(): bool
+    {
+        if (static::$pageHasIsPublic !== null) {
+            return static::$pageHasIsPublic;
+        }
+
+        $pageTable = (new \App\Models\Page())->getTable();
+        static::$pageHasIsPublic = \Illuminate\Support\Facades\Schema::hasColumn($pageTable, 'is_public');
+
+        return static::$pageHasIsPublic;
+    }
+
+    /**
+     * Filter out navigation items that reference inactive pages.
+     * Children are filtered recursively; parents remain even if children become empty.
+     *
+     * @param array $items
+     * @param array<int> $activePageIds
+     * @return array
+     */
+    protected function filterItemsByActivePages(array $items, array $activePageIds): array
+    {
+        $filtered = [];
+
+        foreach ($items as $item) {
+            $type = $item['type'] ?? null;
+            $pageId = isset($item['page_id']) ? (int) $item['page_id'] : null;
+
+            if ($type === 'page' && (!$pageId || !in_array($pageId, $activePageIds, true))) {
+                continue;
+            }
+
+            if (isset($item['children']) && is_array($item['children'])) {
+                $item['children'] = $this->filterItemsByActivePages($item['children'], $activePageIds);
+            }
+
+            $filtered[] = $item;
+        }
+
+        return $filtered;
     }
     
     /**

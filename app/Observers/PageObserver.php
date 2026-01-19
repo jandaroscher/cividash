@@ -3,12 +3,10 @@
 namespace App\Observers;
 
 use App\Models\Page;
-use App\Traits\GetsTenantCacheKeySegment;
 use Illuminate\Support\Facades\Cache;
 
 class PageObserver
 {
-    use GetsTenantCacheKeySegment;
     /**
      * Handle the Page "created" event.
      */
@@ -93,25 +91,7 @@ class PageObserver
      */
     protected function invalidateApiCache(Page $page): void
     {
-        $tenantKey = $this->getTenantCacheKeySegment();
-        $locales = ['de', 'en'];
-        $pageId = $page->id;
-
-        // Invalidate individual page cache for each locale
-        foreach ($locales as $locale) {
-            Cache::forget("content_page:{$tenantKey}:{$locale}:{$pageId}");
-        }
-
-        // Invalidate all-locales page cache
-        Cache::forget("content_page:{$tenantKey}:all:{$pageId}");
-
-        // Invalidate page list cache for each locale
-        foreach ($locales as $locale) {
-            Cache::forget("content_pages_list:{$tenantKey}:{$locale}");
-        }
-
-        // Invalidate all-locales page list cache
-        Cache::forget("content_pages_list:{$tenantKey}:all");
+        $page->flushContentCache();
     }
 }
 

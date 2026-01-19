@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 use Z3d0X\FilamentFabricator\Facades\FilamentFabricator;
@@ -15,6 +16,13 @@ class Page extends FabricatorPage implements PageContract
     use HasTranslations;
     use BelongsToTenant;
 
+    protected static function booted(): void
+    {
+        static::saved(function (self $page) {
+            $page->flushContentCache();
+        });
+    }
+
     /**
      * List of translatable fields.
      */
@@ -23,6 +31,7 @@ class Page extends FabricatorPage implements PageContract
         'slug',
         'blocks',
         'meta_description',
+        'meta_title',
     ];
 
     protected $fillable = [
@@ -30,8 +39,11 @@ class Page extends FabricatorPage implements PageContract
         'slug',
         'blocks',
         'meta_description',
+        'meta_title',
+        'meta_image',
         'layout',
         'parent_id',
+        'is_public',
         'tenant_id',
     ];
 
@@ -43,7 +55,9 @@ class Page extends FabricatorPage implements PageContract
         'slug' => 'array',
         'blocks' => 'array',
         'meta_description' => 'array',
+        'meta_title' => 'array',
         'parent_id' => 'integer',
+        'is_public' => 'boolean',
     ];
 
     /**
@@ -155,6 +169,58 @@ class Page extends FabricatorPage implements PageContract
             ['locale' => 'de'],
             ['locale' => 'en'],
         ];
+    }
+
+    /**
+     * Get the public URL for the SEO image if present.
+     */
+    public function getOgImageUrlAttribute(): ?string
+    {
+        if (empty($this->meta_image)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->meta_image);
+    }
+
+    /**
+     * Clear cached API payloads and URL caches for this page.
+     */
+    public function flushContentCache(): void
+    {
+        $tenantKey = $this->getTenantCacheKey();
+        $originalTenantKey = $this->getTenantCacheKey($this->getOriginal('tenant_id'));
+        $tenantKeys = array_values(array_unique([
+            $tenantKey,
+            $originalTenantKey,
+            'public',
+        ]));
+
+        $locales = config('app.available_locales', ['de', 'en']);
+        $locales = array_values(array_filter($locales));
+
+        foreach ($tenantKeys as $key) {
+            foreach ($locales as $locale) {
+                Cache::forget("content_page:{$key}:{$locale}:{$this->id}");
+                Cache::forget("content_pages_list:{$key}:{$locale}");
+            }
+
+            Cache::forget("content_page:{$key}:all:{$this->id}");
+            Cache::forget("content_pages_list:{$key}:all");
+        }
+
+        foreach ($locales as $locale) {
+            Cache::forget("filament-fabricator::page-url--{$this->id}--{$locale}");
+        }
+
+        Cache::forget("filament-fabricator::page-url--{$this->id}--all");
+    }
+
+    protected function getTenantCacheKey(?int $tenantId = null): string
+    {
+        $tenantId = $tenantId ?? $this->tenant_id;
+
+        return $tenantId ? (string) $tenantId : 'public';
     }
 
     /**

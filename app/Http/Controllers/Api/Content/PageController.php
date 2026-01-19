@@ -76,7 +76,7 @@ class PageController extends Controller
             $etag = md5(json_encode($data));
             $response->setEtag($etag)
                 ->setPublic()
-                ->setMaxAge(600);
+                ->setMaxAge(0);
 
             if ($response->isNotModified($request)) {
                 return $response;
@@ -139,7 +139,7 @@ class PageController extends Controller
         $etag = md5(json_encode($data));
         $response->setEtag($etag)
             ->setPublic()
-            ->setMaxAge(600);
+            ->setMaxAge(0);
 
         if ($response->isNotModified($request)) {
             return $response;
@@ -158,6 +158,7 @@ class PageController extends Controller
     public function showRoot(Request $request): Response
     {
         $requestedLocale = $request->query('locale');
+        $tableName = (new Page)->getTable();
         
         // Validate locale against whitelist to prevent SQL injection
         $allowedLocales = ['de', 'en'];
@@ -165,7 +166,13 @@ class PageController extends Controller
         // If locale is specified, validate and try to find root page for that locale
         if ($requestedLocale && in_array($requestedLocale, $allowedLocales)) {
             // Locale is validated, safe to use in JSON_EXTRACT
-            $page = Page::query()
+            $query = Page::query();
+
+            if (Schema::hasColumn($tableName, 'is_public')) {
+                $query->where('is_public', true);
+            }
+
+            $page = $query
                 ->where(function ($q) use ($requestedLocale) {
                     $q->whereRaw("JSON_EXTRACT(slug, '$.{$requestedLocale}') = ?", ['/'])
                       ->orWhereRaw("JSON_EXTRACT(slug, '$.{$requestedLocale}') = ?", ['home']);
@@ -175,7 +182,13 @@ class PageController extends Controller
             
             // If not found for requested locale, try default locale (de)
             if (!$page && $requestedLocale !== 'de') {
-                $page = Page::query()
+                $query = Page::query();
+
+                if (Schema::hasColumn($tableName, 'is_public')) {
+                    $query->where('is_public', true);
+                }
+
+                $page = $query
                     ->where(function ($q) {
                         $q->whereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['/'])
                           ->orWhereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['home']);
@@ -186,7 +199,13 @@ class PageController extends Controller
         } else {
             // No locale specified or invalid: try to find any root page (prefer DE, then EN)
             // Using hardcoded locale values for safety
-            $page = Page::query()
+            $query = Page::query();
+
+            if (Schema::hasColumn($tableName, 'is_public')) {
+                $query->where('is_public', true);
+            }
+
+            $page = $query
                 ->where(function ($q) {
                     $q->where(function ($q2) {
                         $q2->whereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['/'])
@@ -257,7 +276,7 @@ class PageController extends Controller
 
             $response->setEtag($etag)
                 ->setPublic()
-                ->setMaxAge(600);
+                ->setMaxAge(0);
 
             if ($response->isNotModified($request)) {
                 return $response;
@@ -291,7 +310,7 @@ class PageController extends Controller
 
         $response->setEtag($etag)
             ->setPublic()
-            ->setMaxAge(600);
+            ->setMaxAge(0);
 
         if ($response->isNotModified($request)) {
             return $response;

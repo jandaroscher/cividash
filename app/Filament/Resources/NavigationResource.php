@@ -134,6 +134,7 @@ class NavigationResource extends Resource
                     $locale = $livewire->activeLocale ?? app()->getLocale();
                     
                     return \App\Models\Page::query()
+                        ->where('is_public', true)
                         ->get()
                         ->mapWithKeys(function ($page) use ($locale) {
                             $title = $page->getTranslation('title', $locale, false) 
