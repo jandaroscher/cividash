@@ -9,6 +9,8 @@ use App\Filament\Fabricator\PageBlocks\FAQBlock;
 use App\Filament\Fabricator\PageBlocks\IntroTextBlock;
 use App\Filament\Fabricator\PageBlocks\SliderBlock;
 use App\Filament\Fabricator\PageBlocks\TextImageBlock;
+use App\Models\MetricDefinition;
+use App\Models\MetricValue;
 use App\Models\Tile;
 use App\Models\TileYear;
 use Filament\Forms\Components\Builder;
@@ -29,6 +31,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
 use Z3d0X\FilamentFabricator\Facades\FilamentFabricator;
 
 use Filament\Resources\Concerns\Translatable;
@@ -188,6 +191,14 @@ class TileResource extends Resource
                                                     ->extraItemActions([
                                                         static::getBlockActiveToggleAction(),
                                                     ])
+                                                    ->mutateRelationshipDataBeforeCreateUsing(function (array $data, $record, $livewire): array {
+                                                        $tile = static::resolveTileForMetricValue($record, $livewire);
+                                                        return static::resolveMetricValueTileYearId($data, $tile);
+                                                    })
+                                                    ->mutateRelationshipDataBeforeSaveUsing(function (array $data, $record, $livewire): array {
+                                                        $tile = static::resolveTileForMetricValue($record, $livewire);
+                                                        return static::resolveMetricValueTileYearId($data, $tile);
+                                                    })
                                                     ->schema([
                                                         Hidden::make('is_active')
                                                             ->default(true)
@@ -213,35 +224,9 @@ class TileResource extends Resource
                                                                     }
                                                                 }
                                                             })
-                                                            ->dehydrateStateUsing(function ($state, $record, TextInput $component) {
+                                                            ->dehydrateStateUsing(function ($state) {
                                                                 $year = is_numeric($state) ? (int) $state : null;
-                                                                if ($year === null) {
-                                                                    return null;
-                                                                }
-
-                                                                $tileId = null;
-
-                                                                if ($record && $record->tileYear) {
-                                                                    $tileId = $record->tileYear->tile_id;
-                                                                }
-
-                                                                if (! $tileId && method_exists($component, 'getLivewire')) {
-                                                                    $livewire = $component->getLivewire();
-                                                                    if ($livewire && method_exists($livewire, 'getRecord')) {
-                                                                        $tileId = $livewire->getRecord()?->id;
-                                                                    }
-                                                                }
-
-                                                                if (! $tileId) {
-                                                                    return $record?->tile_year_id;
-                                                                }
-
-                                                                $tileYear = TileYear::firstOrCreate([
-                                                                    'tile_id' => $tileId,
-                                                                    'year' => $year,
-                                                                ]);
-
-                                                                return $tileYear->id;
+                                                                return $year;
                                                             })
                                                             ->required(),
                                                         TextInput::make('value')
@@ -277,7 +262,49 @@ class TileResource extends Resource
                                     ->maxLength(255),
                                 TextInput::make('slug')
                                     ->label(__('filament.resources.tile.slug'))
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->rule(function (TextInput $component) {
+                                        return function (string $attribute, $value, \Closure $fail) use ($component): void {
+                                            if (blank($value)) {
+                                                return;
+                                            }
+
+                                            $livewire = $component->getLivewire();
+                                            $activeLocale = property_exists($livewire, 'activeLocale')
+                                                ? $livewire->activeLocale
+                                                : app()->getLocale();
+                                            $locale = static::normalizeSortLocale($activeLocale);
+                                            $tenantId = auth()->user()?->tenant_id;
+
+                                            $record = $component->getRecord();
+                                            if (! $record && $livewire && method_exists($livewire, 'getRecord')) {
+                                                $record = $livewire->getRecord();
+                                            }
+
+                                            $query = Tile::query();
+                                            if ($tenantId) {
+                                                $query->where('tenant_id', $tenantId);
+                                            }
+                                            if ($record) {
+                                                $query->whereKeyNot($record->getKey());
+                                            }
+
+                                            $driver = $query->getConnection()->getDriverName();
+                                            $localePath = '$."' . $locale . '"';
+
+                                            if ($driver === 'sqlite') {
+                                                $query->whereRaw('json_extract(slug, ?) = ?', [$localePath, $value]);
+                                            } elseif (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+                                                $query->whereRaw('slug->> ? = ?', [$locale, $value]);
+                                            } else {
+                                                $query->whereRaw('JSON_UNQUOTE(JSON_EXTRACT(slug, ?)) = ?', [$localePath, $value]);
+                                            }
+
+                                            if ($query->exists()) {
+                                                $fail(__('validation.unique', ['attribute' => $attribute]));
+                                            }
+                                        };
+                                    }),
                                 Toggle::make('is_public')
                                     ->label(__('filament.resources.tile.is_public'))
                                     ->default(true),
@@ -488,5 +515,55 @@ class TileResource extends Resource
         $locale = $locale ?: 'de';
 
         return in_array($locale, $allowedLocales, true) ? $locale : 'de';
+    }
+
+    protected static function resolveTileForMetricValue(?Model $record, $livewire): ?Tile
+    {
+        if ($record instanceof Tile) {
+            return $record;
+        }
+
+        if ($record instanceof MetricDefinition) {
+            return $record->tile;
+        }
+
+        if ($record instanceof MetricValue) {
+            $definition = $record->relationLoaded('metricDefinition')
+                ? $record->metricDefinition
+                : $record->metricDefinition()->first();
+
+            return $definition?->tile;
+        }
+
+        if ($livewire && method_exists($livewire, 'getRecord')) {
+            $livewireRecord = $livewire->getRecord();
+            if ($livewireRecord instanceof Tile) {
+                return $livewireRecord;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected static function resolveMetricValueTileYearId(array $data, ?Tile $tile): array
+    {
+        $year = is_numeric($data['tile_year_id'] ?? null) ? (int) $data['tile_year_id'] : null;
+
+        if ($year === null || ! $tile) {
+            return $data;
+        }
+
+        $tileYear = TileYear::firstOrCreate([
+            'tile_id' => $tile->id,
+            'year' => $year,
+        ]);
+
+        $data['tile_year_id'] = $tileYear->id;
+
+        return $data;
     }
 }
