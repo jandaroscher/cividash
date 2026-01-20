@@ -4,6 +4,7 @@ namespace App\Filament\Fabricator\PageBlocks;
 
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
@@ -44,6 +45,13 @@ class HeroBlock extends PageBlock
                     ->label('CTA Button URL')
                     ->url()
                     ->maxLength(255),
+                Hidden::make('is_active')
+                    ->default(true)
+                    ->afterStateHydrated(function (Hidden $component, $state): void {
+                        if ($state === null) {
+                            $component->state(true);
+                        }
+                    }),
             ]);
     }
 }

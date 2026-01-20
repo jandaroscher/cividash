@@ -241,6 +241,7 @@ return [
             'navigation_label' => 'Kacheln',
             'model_label' => 'Kachel',
             'plural_model_label' => 'Kacheln',
+            'sidebar_title' => 'Kacheleigenschaften',
             'title' => 'Titel',
             'description' => 'Beschreibung',
             'icon' => 'Icon',
@@ -252,7 +253,13 @@ return [
             'background_page' => 'Hintergrundseite',
             'background' => 'Hintergrund',
             'background_blocks' => 'Hintergrund-Blöcke',
-            'slug' => 'Titel',
+            'background_blocks_add' => 'Zu Hintergrund-Blöcke hinzufügen',
+            'url_preview' => 'URL-Vorschau',
+            'slug' => 'URL-Slug',
+            'is_public' => 'Aktiv',
+            'meta_title' => 'SEO-Titel',
+            'meta_description' => 'SEO-Beschreibung',
+            'meta_image' => 'SEO-Bild',
             'content' => 'Inhalt',
             'metrics' => 'Kennzahlen',
             'year_groups' => 'Jahresgruppen',
@@ -269,6 +276,9 @@ return [
             'metric_values' => 'Jahreswerte',
             'created_at' => 'Erstellt am',
             'updated_at' => 'Aktualisiert am',
+            'actions' => [
+                'view_frontend' => 'Anzeigen',
+            ],
         ],
         'page' => [
             'navigation_label' => 'Seiten',
@@ -323,6 +333,11 @@ return [
     ],
     'sections' => [
         'background' => 'Hintergrund',
+    ],
+    'blocks' => [
+        'is_active' => 'Aktiv',
+        'activate' => 'Block aktivieren',
+        'deactivate' => 'Block deaktivieren',
     ],
     'actions' => [
         'edit' => 'Bearbeiten',

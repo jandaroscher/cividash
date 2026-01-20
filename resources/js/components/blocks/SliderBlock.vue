@@ -120,6 +120,7 @@ const slides = computed(() => {
     }
 
     return props.block.props.items
+        .filter((item) => item?.is_active !== false)
         .map((item) => {
             // Handle translations - data comes as title/description (DE) and title_en/description_en (EN)
             let title = '';

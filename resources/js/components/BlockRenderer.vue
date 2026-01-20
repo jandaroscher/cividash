@@ -1,7 +1,7 @@
 <template>
     <div>
         <component
-            v-for="(block, index) in blocks"
+            v-for="(block, index) in visibleBlocks"
             :key="block.id || `${block.type}-${index}`"
             :is="getBlockComponent(block.type)"
             :block="block"
@@ -10,6 +10,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import HeroBlock from './blocks/HeroBlock.vue';
 import TextImageBlock from './blocks/TextImageBlock.vue';
 import IntroTextBlock from './blocks/IntroTextBlock.vue';
@@ -26,6 +27,10 @@ const props = defineProps({
         required: true,
     },
 });
+
+const visibleBlocks = computed(() =>
+    props.blocks.filter((block) => block?.props?.is_active !== false)
+);
 
 const blockComponentMap = {
     hero: HeroBlock,

@@ -4,6 +4,7 @@ namespace App\Filament\Fabricator\PageBlocks;
 
 use App\Models\Tile;
 use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
@@ -29,6 +30,13 @@ class CardGridBlock extends PageBlock
                     ->searchable()
                     ->preload()
                     ->helperText('Leer lassen, um alle Tiles anzuzeigen. Auswählen, um nur bestimmte Tiles anzuzeigen.'),
+                Hidden::make('is_active')
+                    ->default(true)
+                    ->afterStateHydrated(function (Hidden $component, $state): void {
+                        if ($state === null) {
+                            $component->state(true);
+                        }
+                    }),
             ]);
     }
 

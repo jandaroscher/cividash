@@ -2,6 +2,16 @@
 
 @php
     $items = $items ?? [];
+
+    if (is_array($items)) {
+        $items = array_values(array_filter($items, function ($item) {
+            if (! is_array($item)) {
+                return false;
+            }
+
+            return ! array_key_exists('is_active', $item) || $item['is_active'];
+        }));
+    }
 @endphp
 
 <section class="py-12 md:py-16">

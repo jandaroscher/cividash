@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
 class Tile extends Model
@@ -11,18 +13,51 @@ class Tile extends Model
     use HasTranslations;
     use BelongsToTenant;
 
+    protected static function booted(): void
+    {
+        static::saving(function (self $tile) {
+            if (! Schema::hasColumn($tile->getTable(), 'slug')) {
+                return;
+            }
+
+            $tile->slug = static::buildSlugs($tile);
+        });
+    }
+
     // List of JSON columns to translate:
     public array $translatable = [
         'title',
         'description',
+        'slug',
+        'meta_title',
+        'meta_description',
     ];
 
-    protected $fillable = ['title', 'description', 'icon', 'position', 'background_blocks', 'last_synced_at', 'source_hash', 'handlungsdimension_id', 'tenant_id'];
+    protected $fillable = [
+        'title',
+        'description',
+        'slug',
+        'icon',
+        'position',
+        'background_blocks',
+        'is_public',
+        'meta_title',
+        'meta_description',
+        'meta_image',
+        'last_synced_at',
+        'source_hash',
+        'handlungsdimension_id',
+        'tenant_id',
+    ];
 
     protected $casts = [
         'title' => 'array',
         'description' => 'array',
+        'slug' => 'array',
         'background_blocks' => 'array',
+        'is_public' => 'boolean',
+        'meta_title' => 'array',
+        'meta_description' => 'array',
         'last_synced_at' => 'datetime',
     ];
 
@@ -91,5 +126,57 @@ class Tile extends Model
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    /**
+     * Build the frontend URL for this tile.
+     *
+     * @param array<string, mixed> $args
+     */
+    public function getUrl(array $args = []): string
+    {
+        $locale = $args['locale'] ?? app()->getLocale();
+        $slug = $this->getTranslation('slug', $locale, false)
+            ?: $this->getTranslation('slug', 'de', false);
+
+        $slug = trim((string) $slug, '/');
+        $suffix = $slug === '' ? '' : '/' . $slug;
+
+        if ($locale === 'en') {
+            return '/en/tiles' . $suffix;
+        }
+
+        return '/tiles' . $suffix;
+    }
+
+    protected static function buildSlugs(self $tile): array
+    {
+        $slugs = $tile->getTranslations('slug');
+
+        if (! is_array($slugs)) {
+            $slugs = [];
+        }
+        $locales = config('app.available_locales', ['de', 'en']);
+
+        if (! is_array($locales) || $locales === []) {
+            $locales = ['de', 'en'];
+        }
+
+        foreach ($locales as $locale) {
+            $current = isset($slugs[$locale]) ? trim((string) $slugs[$locale]) : '';
+
+            if ($current !== '') {
+                continue;
+            }
+
+            $title = $tile->getTranslation('title', $locale, false)
+                ?: $tile->getTranslation('title', 'de', false);
+
+            if ($title) {
+                $slugs[$locale] = Str::slug($title);
+            }
+        }
+
+        return $slugs;
     }
 }

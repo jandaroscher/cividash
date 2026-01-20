@@ -41,6 +41,7 @@ class StoreMetricDefinitionRequest extends FormRequest
             'unit.en' => ['nullable', 'string', 'max:50'],
             'icon' => ['nullable', 'string', 'max:255'],
             'indicator_type' => ['nullable', 'string', 'max:50'],
+            'is_active' => ['sometimes', 'boolean'],
             // tenant_id is explicitly NOT allowed - it comes from context
         ];
     }

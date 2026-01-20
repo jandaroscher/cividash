@@ -51,18 +51,21 @@ class TenantResolutionApiTest extends TestCase
         Filament::setTenant($this->tenantA);
         Tile::create([
             'title' => ['de' => 'Tile A', 'en' => 'Tile A'],
+            'slug' => ['de' => 'tile-a', 'en' => 'tile-a'],
             'description' => ['de' => 'Tenant A', 'en' => 'Tenant A'],
         ]);
 
         Filament::setTenant($this->tenantB);
         Tile::create([
             'title' => ['de' => 'Tile B', 'en' => 'Tile B'],
+            'slug' => ['de' => 'tile-b', 'en' => 'tile-b'],
             'description' => ['de' => 'Tenant B', 'en' => 'Tenant B'],
         ]);
 
         Filament::setTenant($this->defaultTenant);
         Tile::create([
             'title' => ['de' => 'Tile Default', 'en' => 'Tile Default'],
+            'slug' => ['de' => 'tile-default', 'en' => 'tile-default'],
             'description' => ['de' => 'Default', 'en' => 'Default'],
         ]);
 
@@ -141,6 +144,30 @@ class TenantResolutionApiTest extends TestCase
         $response->assertStatus(200);
         
         // Should only contain default tenant tiles
+        $tiles = $response->json('data');
+        $this->assertCount(1, $tiles);
+        $this->assertEquals('Tile Default', $tiles[0]['title']['de']);
+    }
+
+    public function test_tiles_index_filters_inactive_tiles(): void
+    {
+        Filament::auth()->login($this->user);
+        Filament::setTenant($this->defaultTenant);
+
+        Tile::create([
+            'title' => ['de' => 'Inactive Tile', 'en' => 'Inactive Tile'],
+            'slug' => ['de' => 'inactive-tile', 'en' => 'inactive-tile'],
+            'is_public' => false,
+        ]);
+
+        Filament::setTenant(null);
+
+        $response = $this->call('GET', '/api/tiles', [], [], [], [
+            'HTTP_HOST' => 'unknown.example.com',
+        ]);
+
+        $response->assertStatus(200);
+
         $tiles = $response->json('data');
         $this->assertCount(1, $tiles);
         $this->assertEquals('Tile Default', $tiles[0]['title']['de']);

@@ -3,6 +3,7 @@
 namespace App\Filament\Fabricator\PageBlocks;
 
 use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
@@ -40,6 +41,13 @@ class LinkBlock extends PageBlock
                     ])
                     ->default('primary')
                     ->required(),
+                Hidden::make('is_active')
+                    ->default(true)
+                    ->afterStateHydrated(function (Hidden $component, $state): void {
+                        if ($state === null) {
+                            $component->state(true);
+                        }
+                    }),
             ]);
     }
 }

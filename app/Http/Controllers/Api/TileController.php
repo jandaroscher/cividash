@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TileResource;
 use App\Models\Tile;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Facades\Schema;
 
 class TileController extends Controller
 {
@@ -22,11 +24,25 @@ class TileController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $tiles = Tile::with([
+        $query = Tile::query();
+
+        if (Schema::hasColumn((new Tile)->getTable(), 'is_public')) {
+            $query->where('is_public', true);
+        }
+
+        $tiles = $query->with([
             'categories',
             'handlungsdimension',
             'sdgZiele',
-            'metricDefinitions.metricValues.tileYear', // New structure
+            'metricDefinitions' => function ($metricQuery) {
+                $metricQuery->where('is_active', true)
+                    ->with([
+                        'metricValues' => function ($valueQuery) {
+                            $valueQuery->where('is_active', true)
+                                ->with('tileYear');
+                        },
+                    ]);
+            }, // New structure (filtered)
             'tileYears', // For years array
         ])
             ->orderBy('position')
@@ -42,17 +58,92 @@ class TileController extends Controller
      * @param \App\Models\Tile $tile The Tile model to wrap.
      * @return \App\Http\Resources\TileResource A resource representing the tile including its categories and tile years' metrics.
      */
-    public function show(Tile $tile): TileResource
+    public function show(Request $request, string $slug): TileResource
     {
+        $locale = $request->query('locale');
+        $allowedLocales = ['de', 'en'];
+        $tableName = (new Tile)->getTable();
+
+        $baseQuery = Tile::query();
+
+        if (Schema::hasColumn($tableName, 'is_public')) {
+            $baseQuery->where('is_public', true);
+        }
+
+        $tile = null;
+
+        if ($locale && in_array($locale, $allowedLocales, true)) {
+            $localesToTry = array_values(array_unique(array_filter([
+                $locale,
+                'de',
+                'en',
+            ])));
+
+            foreach ($localesToTry as $lookupLocale) {
+                $tile = $this->findTileBySlug($baseQuery, $slug, $lookupLocale);
+
+                if ($tile) {
+                    break;
+                }
+            }
+        } else {
+            $tile = $this->findTileBySlug($baseQuery, $slug, 'de')
+                ?? $this->findTileBySlug($baseQuery, $slug, 'en');
+        }
+
+        if (! $tile && is_numeric($slug)) {
+            $tile = (clone $baseQuery)->whereKey((int) $slug)->first();
+        }
+
+        if (! $tile) {
+            abort(404);
+        }
+
         $tile->load([
             'categories',
             'handlungsdimension',
             'sdgZiele',
-            'metricDefinitions.metricValues.tileYear', // New structure
+            'metricDefinitions' => function ($metricQuery) {
+                $metricQuery->where('is_active', true)
+                    ->with([
+                        'metricValues' => function ($valueQuery) {
+                            $valueQuery->where('is_active', true)
+                                ->with('tileYear');
+                        },
+                    ]);
+            }, // New structure (filtered)
             'tileYears', // For years array
         ]);
 
         return new TileResource($tile);
+    }
+
+    protected function findTileBySlug(EloquentBuilder $baseQuery, string $slug, string $locale): ?Tile
+    {
+        $tile = (clone $baseQuery)
+            ->where('slug->' . $locale, $slug)
+            ->first();
+
+        if ($tile || $baseQuery->getConnection()->getDriverName() !== 'sqlite') {
+            return $tile;
+        }
+
+        $path = '$."' . $locale . '"';
+
+        $tile = (clone $baseQuery)
+            ->whereRaw('json_extract(slug, ?) = ?', [$path, $slug])
+            ->first();
+
+        if ($tile) {
+            return $tile;
+        }
+
+        return (clone $baseQuery)
+            ->get()
+            ->first(function (Tile $candidate) use ($slug, $locale): bool {
+                $translations = $candidate->getTranslations('slug');
+                return ($translations[$locale] ?? null) === $slug;
+            });
     }
     /**
      * Store a newly created resource in storage.

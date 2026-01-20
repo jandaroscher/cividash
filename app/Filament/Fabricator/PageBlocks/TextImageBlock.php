@@ -4,6 +4,7 @@ namespace App\Filament\Fabricator\PageBlocks;
 
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
@@ -50,6 +51,13 @@ class TextImageBlock extends PageBlock
                     ])
                     ->default('left')
                     ->required(),
+                Hidden::make('is_active')
+                    ->default(true)
+                    ->afterStateHydrated(function (Hidden $component, $state): void {
+                        if ($state === null) {
+                            $component->state(true);
+                        }
+                    }),
             ]);
     }
 }

@@ -42,6 +42,7 @@ class UpdateMetricDefinitionRequest extends FormRequest
             'unit.en' => ['nullable', 'string', 'max:50'],
             'icon' => ['sometimes', 'nullable', 'string', 'max:255'],
             'indicator_type' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'is_active' => ['sometimes', 'boolean'],
             // tenant_id is explicitly NOT allowed - it comes from context and cannot be changed
         ];
     }

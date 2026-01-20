@@ -23,12 +23,14 @@ class MetricDefinition extends Model
         'unit',
         'icon',
         'indicator_type',
+        'is_active',
         'tenant_id',
     ];
 
     protected $casts = [
         'label' => 'array',
         'unit' => 'array',
+        'is_active' => 'boolean',
     ];
 
     public function tile()

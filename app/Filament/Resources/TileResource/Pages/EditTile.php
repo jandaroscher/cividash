@@ -4,6 +4,7 @@ namespace App\Filament\Resources\TileResource\Pages;
 
 use App\Filament\Resources\TileResource;
 use Filament\Actions;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Arr;
@@ -18,6 +19,19 @@ class EditTile extends EditRecord
     {
         return [
             Actions\LocaleSwitcher::make(),
+            Action::make('save_header')
+                ->label(__('filament.actions.save'))
+                ->action('save')
+                ->keyBindings(['mod+s']),
+            Actions\Action::make('view_frontend')
+                ->label(__('filament.resources.tile.actions.view_frontend'))
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->color('success')
+                ->url(function () {
+                    $locale = $this->activeLocale ?? app()->getLocale();
+                    return $this->record->getUrl(['locale' => $locale]);
+                })
+                ->openUrlInNewTab(),
             Actions\DeleteAction::make(),
         ];
     }
@@ -42,5 +56,21 @@ class EditTile extends EditRecord
         // Fix repeater does not work with translations - End
 
         unset($this->otherLocaleData[$this->activeLocale]);
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getSaveFormAction(),
+            $this->getCancelFormAction(),
+        ];
+    }
+
+    protected function getSaveFormAction(): Action
+    {
+        return Action::make('save')
+            ->label(__('filament.actions.save'))
+            ->action('save')
+            ->keyBindings(['mod+s']);
     }
 }

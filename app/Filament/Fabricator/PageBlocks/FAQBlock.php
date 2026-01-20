@@ -4,6 +4,7 @@ namespace App\Filament\Fabricator\PageBlocks;
 
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
@@ -36,6 +37,13 @@ class FAQBlock extends PageBlock
                     ])
                     ->defaultItems(1)
                     ->collapsible(),
+                Hidden::make('is_active')
+                    ->default(true)
+                    ->afterStateHydrated(function (Hidden $component, $state): void {
+                        if ($state === null) {
+                            $component->state(true);
+                        }
+                    }),
             ]);
     }
 }

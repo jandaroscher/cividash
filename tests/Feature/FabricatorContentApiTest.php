@@ -81,6 +81,44 @@ class FabricatorContentApiTest extends TestCase
         $this->assertSame('explore', $json['blocks'][1]['props']['mode'] ?? null);
     }
 
+    public function test_content_api_filters_inactive_blocks(): void
+    {
+        app()->setLocale('de');
+
+        $page = Page::create([
+            'title' => ['de' => 'API Filter Page', 'en' => ''],
+            'slug' => ['de' => 'api-filter-page', 'en' => ''],
+            'layout' => LandingpageLayout::getName(),
+            'blocks' => [
+                'de' => [
+                    [
+                        'type' => 'hero',
+                        'data' => [
+                            'title' => 'Visible Hero',
+                            'is_active' => true,
+                        ],
+                    ],
+                    [
+                        'type' => 'text-image',
+                        'data' => [
+                            'text' => 'Hidden text',
+                            'is_active' => false,
+                        ],
+                    ],
+                ],
+                'en' => [],
+            ],
+        ]);
+
+        $response = $this->getJson("/api/content/pages/{$page->id}?locale=de");
+
+        $response->assertStatus(200);
+        $json = $response->json();
+        $this->assertCount(1, $json['blocks']);
+        $this->assertSame('hero', $json['blocks'][0]['type']);
+        $this->assertArrayNotHasKey('is_active', $json['blocks'][0]['props']);
+    }
+
     public function test_content_api_returns_404_for_unknown_page(): void
     {
         $response = $this->getJson('/api/content/pages/99999');

@@ -55,9 +55,27 @@ class TileResource extends JsonResource
                 ? $this->getTranslation('description', $locale)
                 : $this->getTranslations('description'),
 
+            'slug' => $locale
+                ? $this->getTranslation('slug', $locale)
+                : $this->getTranslations('slug'),
+
             'icon'        => $this->icon
                 ? Storage::disk('public')->url($this->icon)
                 : null,
+
+            'is_public' => $this->is_public,
+
+            'meta' => [
+                'title' => $locale
+                    ? $this->getTranslation('meta_title', $locale)
+                    : $this->getTranslations('meta_title'),
+                'description' => $locale
+                    ? $this->getTranslation('meta_description', $locale)
+                    : $this->getTranslations('meta_description'),
+                'image' => $this->meta_image
+                    ? Storage::disk('public')->url($this->meta_image)
+                    : null,
+            ],
 
             // Background blocks: transform from Filament Builder format to API format
             'background_blocks' => $this->background_blocks

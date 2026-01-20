@@ -40,6 +40,7 @@ class StoreMetricValueRequest extends FormRequest
                 Rule::exists('tile_years', 'id')->where('tenant_id', $tenantId),
             ],
             'value' => ['required', 'numeric'],
+            'is_active' => ['sometimes', 'boolean'],
             // tenant_id is explicitly NOT allowed - it comes from context
         ];
     }

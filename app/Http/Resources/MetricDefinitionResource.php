@@ -25,7 +25,15 @@ class MetricDefinitionResource extends JsonResource
                 : null,
             'indicator_type' => $this->indicator_type ?? 'small',
             'values'         => MetricValueResource::collection(
-                $this->whenLoaded('metricValues')
+                $this->whenLoaded('metricValues', function () {
+                    $values = $this->metricValues;
+
+                    if (! $values) {
+                        return $values;
+                    }
+
+                    return $values->filter(fn ($value) => $value->is_active ?? true);
+                })
             ),
         ];
     }

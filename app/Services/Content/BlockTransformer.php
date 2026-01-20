@@ -20,9 +20,13 @@ class BlockTransformer
      */
     public function transform(array $blocks): array
     {
-        return collect($blocks)->map(function (array $block): array {
+        return collect($blocks)->map(function (array $block): ?array {
             $type = $block['type'] ?? $block['handle'] ?? null;
-            
+
+            if (empty($type)) {
+                return null;
+            }
+
             // If 'data' key exists, use it; otherwise, extract all non-metadata keys as props
             if (isset($block['data']) && is_array($block['data'])) {
                 $props = $block['data'];
@@ -30,12 +34,31 @@ class BlockTransformer
                 // Remove metadata keys and use the rest as props
                 $props = array_diff_key($block, array_flip(['type', 'handle', 'id', 'uuid']));
             }
-            
+
+            $isActive = null;
+
+            if (array_key_exists('is_active', $props)) {
+                $parsed = filter_var($props['is_active'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                if ($parsed !== null) {
+                    $isActive = $parsed;
+                }
+                unset($props['is_active']);
+            } elseif (array_key_exists('is_active', $block)) {
+                $parsed = filter_var($block['is_active'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                if ($parsed !== null) {
+                    $isActive = $parsed;
+                }
+            }
+
+            if ($isActive === false) {
+                return null;
+            }
+
             return [
                 'type' => $type,
                 'props' => $props,
             ];
-        })->filter(fn (array $block) => ! empty($block['type']))->values()->toArray();
+        })->filter()->values()->toArray();
     }
 }
 

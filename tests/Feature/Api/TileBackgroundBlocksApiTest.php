@@ -14,6 +14,7 @@ class TileBackgroundBlocksApiTest extends TestCase
     {
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
             'background_blocks' => [
                 [
                     'type' => 'hero',
@@ -52,6 +53,7 @@ class TileBackgroundBlocksApiTest extends TestCase
     {
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
             'background_blocks' => [
                 [
                     'type' => 'hero',
@@ -73,10 +75,43 @@ class TileBackgroundBlocksApiTest extends TestCase
         $this->assertEquals('text-image', $data['background_blocks'][1]['type']);
     }
 
+    public function test_api_filters_inactive_background_blocks(): void
+    {
+        $tile = Tile::create([
+            'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
+            'background_blocks' => [
+                [
+                    'type' => 'hero',
+                    'data' => [
+                        'title' => 'Hero Title',
+                        'is_active' => true,
+                    ],
+                ],
+                [
+                    'type' => 'text-image',
+                    'data' => [
+                        'text' => 'Hidden text',
+                        'is_active' => false,
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->getJson("/api/tiles/{$tile->id}");
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertCount(1, $data['background_blocks']);
+        $this->assertEquals('hero', $data['background_blocks'][0]['type']);
+        $this->assertArrayNotHasKey('is_active', $data['background_blocks'][0]['props']);
+    }
+
     public function test_api_returns_null_when_tile_has_no_background_blocks(): void
     {
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
             'background_blocks' => null,
         ]);
 
@@ -91,6 +126,7 @@ class TileBackgroundBlocksApiTest extends TestCase
     {
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
             'background_blocks' => [
                 [
                     'type' => 'hero',
@@ -115,6 +151,7 @@ class TileBackgroundBlocksApiTest extends TestCase
     {
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
             'background_blocks' => [
                 ['type' => 'hero', 'data' => ['title' => 'Test']],
             ],
@@ -135,6 +172,24 @@ class TileBackgroundBlocksApiTest extends TestCase
         $data = $response->json('data');
         $this->assertNotEmpty($data);
         $this->assertArrayHasKey('background_blocks', $data[0]);
+    }
+
+    public function test_api_returns_tile_by_slug_with_locale(): void
+    {
+        $tile = Tile::create([
+            'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'kachel-de', 'en' => 'tile-en'],
+        ]);
+
+        $response = $this->getJson('/api/tiles/kachel-de?locale=de');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.id', $tile->id);
+
+        $response = $this->getJson('/api/tiles/tile-en?locale=en');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.id', $tile->id);
     }
 }
 

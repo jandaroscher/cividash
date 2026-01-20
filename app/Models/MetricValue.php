@@ -13,11 +13,13 @@ class MetricValue extends Model
         'metric_definition_id',
         'tile_year_id',
         'value',
+        'is_active',
         'tenant_id',
     ];
 
     protected $casts = [
         'value' => 'decimal:2',
+        'is_active' => 'boolean',
     ];
 
     public function metricDefinition()

@@ -21,7 +21,7 @@ Route::get('/user', function (Request $request) {
 // Public API routes with tenant resolution (Token > Domain > Default)
 Route::middleware('resolve.tenant')->group(function () {
     Route::get('/tiles', [TileController::class, 'index']);
-    Route::get('/tiles/{tile}', [TileController::class, 'show']);
+    Route::get('/tiles/{slug}', [TileController::class, 'show']);
     Route::get('/filters', [FilterController::class, 'index']);
     Route::get('/handlungsfelder', [HandlungsfeldController::class, 'index']);
     Route::get('/handlungsdimensionen', [HandlungsdimensionController::class, 'index']);

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Fabricator\Resources;
 
+use App\Filament\Concerns\HasBlockActiveToggleAction;
 use App\Filament\Fabricator\Resources\PageResource\Pages;
 use App\Models\Page;
 use Filament\Forms\Components\FileUpload;
@@ -24,6 +25,7 @@ use Z3d0X\FilamentFabricator\Forms\Components\PageBuilder;
 class PageResource extends FabricatorPageResource
 {
     use Translatable;
+    use HasBlockActiveToggleAction;
 
     protected static ?string $navigationGroup = 'Inhalte';
     protected static ?int $navigationSort = 1;
@@ -175,7 +177,9 @@ class PageResource extends FabricatorPageResource
                 }
             }
         }
-        
+
+        static::applyBlockToggleActionToComponents($components);
+
         return $form;
     }
 
@@ -208,7 +212,8 @@ class PageResource extends FabricatorPageResource
                         $expression = static::getSortableTranslationExpression('slug', app()->getLocale());
 
                         $query->orderByRaw("{$expression} {$direction}");
-                    }),
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('layout')
                     ->label(__('filament.resources.page.layout'))
                     ->sortable(),
@@ -280,6 +285,25 @@ class PageResource extends FabricatorPageResource
         $locale = $locale ?: 'de';
 
         return in_array($locale, $allowedLocales, true) ? $locale : 'de';
+    }
+
+    /**
+     * @param array<\Filament\Forms\Components\Component> $components
+     */
+    protected static function applyBlockToggleActionToComponents(array $components): void
+    {
+        foreach ($components as $component) {
+            if ($component instanceof PageBuilder) {
+                $component->extraItemActions([
+                    static::getBlockActiveToggleAction(),
+                ]);
+                continue;
+            }
+
+            if (method_exists($component, 'getChildComponents')) {
+                static::applyBlockToggleActionToComponents($component->getChildComponents());
+            }
+        }
     }
 
     public static function getPages(): array

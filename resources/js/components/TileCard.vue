@@ -249,9 +249,13 @@ onMounted(() => {
         // Collect all unique years from metric values
         const yearsSet = new Set();
         
-        props.tile.metric_definitions.forEach((definition) => {
+        props.tile.metric_definitions
+            .filter((definition) => definition?.is_active !== false)
+            .forEach((definition) => {
             if (definition.values && Array.isArray(definition.values)) {
-                definition.values.forEach((valueData) => {
+                definition.values
+                    .filter((valueData) => valueData?.is_active !== false)
+                    .forEach((valueData) => {
                     const yearStr = valueData.year?.toString() || valueData.year;
                     if (yearStr) {
                         yearsSet.add(yearStr);
@@ -267,7 +271,9 @@ onMounted(() => {
         }
 
         // Build indicators from metric definitions
-        props.tile.metric_definitions.forEach((definition) => {
+        props.tile.metric_definitions
+            .filter((definition) => definition?.is_active !== false)
+            .forEach((definition) => {
             const label = definition.label?.[currentLocale.value] || definition.label || '';
             const labelEn = definition.label?.en || '';
             
@@ -296,7 +302,9 @@ onMounted(() => {
             const yearsArray = [];
             
             if (definition.values && Array.isArray(definition.values)) {
-                definition.values.forEach((valueData) => {
+                definition.values
+                    .filter((valueData) => valueData?.is_active !== false)
+                    .forEach((valueData) => {
                     const yearStr = valueData.year?.toString() || valueData.year;
                     if (yearStr) {
                         sortedYears[yearStr] = {

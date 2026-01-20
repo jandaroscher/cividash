@@ -6,6 +6,7 @@ const HomePage = () => import('../components/pages/HomePage.vue');
 const DynamicPage = () => import('../components/pages/DynamicPage.vue');
 const NotFound = () => import('../components/pages/NotFound.vue');
 const TilesPage = () => import('../components/pages/TilesPage.vue');
+const TileDetailPage = () => import('../components/pages/TileDetailPage.vue');
 
 const routes = [
     {
@@ -19,9 +20,26 @@ const routes = [
         component: TilesPage,
     },
     {
+        path: '/en/tiles',
+        name: 'tiles-en',
+        component: TilesPage,
+        meta: { locale: 'en' },
+    },
+    {
+        path: '/tiles/:slug',
+        name: 'tile-detail',
+        component: TileDetailPage,
+    },
+    {
         path: '/en',
         name: 'home-en',
         component: HomePage,
+        meta: { locale: 'en' },
+    },
+    {
+        path: '/en/tiles/:slug',
+        name: 'tile-detail-en',
+        component: TileDetailPage,
         meta: { locale: 'en' },
     },
     {
