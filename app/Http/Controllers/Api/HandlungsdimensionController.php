@@ -18,8 +18,16 @@ class HandlungsdimensionController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $group = CategoryGroup::where('key', 'dimensions')->first();
-        $items = $group?->categories()->orderBy('position')->get() ?? collect();
+        $group = CategoryGroup::where('key', 'dimensions')
+            ->where('is_active', true)
+            ->first();
+
+        $items = $group
+            ? $group->categories()
+                ->where('is_active', true)
+                ->orderBy('position')
+                ->get()
+            : collect();
 
         return CategoryItemResource::collection($items);
     }

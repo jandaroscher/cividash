@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TileResource;
 use App\Models\Tile;
+use Closure;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -15,15 +16,15 @@ use Illuminate\Support\Facades\Schema;
 class TileController extends Controller
 {
     /**
-         * Retrieve tiles ordered by their position with required relations loaded for TileResource.
-         *
-         * Loads categories.group, active metricDefinitions with their active metricValues and associated tileYear, and tileYears.
-         * If the tiles table has an `is_public` column, only tiles with `is_public = true` are included.
-         * The request is forwarded to the resource so a `locale` query parameter can be used by the TileResource.
-         *
-         * @param Request $request Optional request that may contain a `locale` query parameter used by the resource.
-         * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection A collection of TileResource objects ordered by `position`.
-         */
+     * Retrieve tiles ordered by their position with required relations loaded for TileResource.
+     *
+     * Loads categories.group, active metricDefinitions with their active metricValues and associated tileYear, and tileYears.
+     * If the tiles table has an `is_public` column, only tiles with `is_public = true` are included.
+     * The request is forwarded to the resource so a `locale` query parameter can be used by the TileResource.
+     *
+     * @param Request $request Optional request that may contain a `locale` query parameter used by the resource.
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection A collection of TileResource objects ordered by `position`.
+     */
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Tile::query();
@@ -33,7 +34,7 @@ class TileController extends Controller
         }
 
         $tiles = $query->with([
-            'categories.group',
+            'categories' => $this->getActiveCategoriesConstraint(),
             'metricDefinitions' => function ($metricQuery) {
                 $metricQuery->where('is_active', true)
                     ->with([
@@ -42,13 +43,12 @@ class TileController extends Controller
                                 ->with('tileYear');
                         },
                     ]);
-            }, // New structure (filtered)
-            'tileYears', // For years array
+            },
+            'tileYears',
         ])
             ->orderBy('position')
             ->get();
 
-        // Pass the locale along to the Resource via the request
         return TileResource::collection($tiles);
     }
 
@@ -106,7 +106,7 @@ class TileController extends Controller
         }
 
         $tile->load([
-            'categories.group',
+            'categories' => $this->getActiveCategoriesConstraint(),
             'metricDefinitions' => function ($metricQuery) {
                 $metricQuery->where('is_active', true)
                     ->with([
@@ -115,11 +115,31 @@ class TileController extends Controller
                                 ->with('tileYear');
                         },
                     ]);
-            }, // New structure (filtered)
-            'tileYears', // For years array
+            },
+            'tileYears',
         ]);
 
         return new TileResource($tile);
+    }
+
+    /**
+     * Get the constraint closure for loading active categories with active groups.
+     *
+     * Filters categories to only include those where both the category and its
+     * parent group have `is_active = true`.
+     *
+     * @return Closure The constraint closure for eager loading categories.
+     */
+    protected function getActiveCategoriesConstraint(): Closure
+    {
+        return function ($categoryQuery) {
+            $categoryQuery
+                ->where('is_active', true)
+                ->whereHas('group', function ($groupQuery) {
+                    $groupQuery->where('is_active', true);
+                })
+                ->with('group');
+        };
     }
 
     protected function findTileBySlug(EloquentBuilder $baseQuery, string $slug, string $locale): ?Tile

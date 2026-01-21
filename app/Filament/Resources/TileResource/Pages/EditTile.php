@@ -29,10 +29,7 @@ class EditTile extends EditRecord
     {
         return [
             Actions\LocaleSwitcher::make(),
-            Action::make('save_header')
-                ->label(__('filament.actions.save'))
-                ->action('save')
-                ->keyBindings(['mod+s']),
+            Actions\DeleteAction::make(),
             Actions\Action::make('view_frontend')
                 ->label(__('filament.resources.tile.actions.view_frontend'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
@@ -42,7 +39,9 @@ class EditTile extends EditRecord
                     return $this->record->getUrl(['locale' => $locale]);
                 })
                 ->openUrlInNewTab(),
-            Actions\DeleteAction::make(),
+            Action::make('save_header')
+                ->label(__('filament.actions.save'))
+                ->action('save'),
         ];
     }
 

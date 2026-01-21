@@ -30,7 +30,7 @@ return new class extends Migration
         });
     }
 
-    / **
+    /**
      * Reverts schema modifications on the categories table: removes the index and foreign key for `category_group_id`, restores the unique `slug` constraint, and drops the `key` and `color` columns.
      */
     public function down(): void

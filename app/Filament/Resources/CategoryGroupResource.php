@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Resources\CategoryGroupResource\Pages;
 use App\Filament\Resources\CategoryGroupResource\RelationManagers;
 use App\Models\CategoryGroup;
@@ -12,9 +13,11 @@ use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CategoryGroupResource extends Resource
 {
+    use HasSortableTranslations;
     use Translatable;
 
     protected static ?string $model = CategoryGroup::class;
@@ -113,6 +116,9 @@ class CategoryGroupResource extends Resource
                             }
                         };
                     }),
+                Forms\Components\Toggle::make('is_active')
+                    ->label(__('filament.resources.category_group.is_active'))
+                    ->default(true),
                 Forms\Components\TextInput::make('position')
                     ->label(__('filament.resources.category_group.position'))
                     ->required()
@@ -125,7 +131,7 @@ class CategoryGroupResource extends Resource
      * Configure table columns, row actions, and bulk actions for the CategoryGroup resource.
      *
      * @param \Filament\Tables\Table $table The table instance to configure.
-     * @return \Filament\Tables\Table The configured table with columns, actions, and bulk actions.
+     * @return \Filament\Tables\Table The configured table with columns, filters, actions, and bulk actions.
      */
     public static function table(Table $table): Table
     {
@@ -133,18 +139,35 @@ class CategoryGroupResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('key')
                     ->label(__('filament.resources.category_group.key'))
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('title')
                     ->label(__('filament.resources.category_group.title'))
-                    ->searchable(),
+                    ->formatStateUsing(function ($state, CategoryGroup $record) {
+                        return $record->getTranslation('title', app()->getLocale(), false)
+                            ?: $record->getTranslation('title', 'de', false)
+                            ?: $state;
+                    })
+                    ->searchable()
+                    ->sortable(query: function (Builder $query, string $direction) {
+                        $expression = static::getSortableTranslationExpression('title', app()->getLocale());
+                        $query->orderByRaw("{$expression} {$direction}");
+                    }),
                 Tables\Columns\TextColumn::make('selection_type')
-                    ->label(__('filament.resources.category_group.selection_type')),
+                    ->label(__('filament.resources.category_group.selection_type'))
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('is_filterable')
                     ->label(__('filament.resources.category_group.is_filterable'))
-                    ->boolean(),
+                    ->boolean()
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('is_color_source')
                     ->label(__('filament.resources.category_group.is_color_source'))
-                    ->boolean(),
+                    ->boolean()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->label(__('filament.resources.category_group.is_active'))
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('position')
                     ->label(__('filament.resources.category_group.position'))
                     ->numeric()
@@ -160,8 +183,23 @@ class CategoryGroupResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->filters([
+                Tables\Filters\TernaryFilter::make('is_active')
+                    ->label(__('filament.resources.category_group.is_active')),
+                Tables\Filters\TernaryFilter::make('is_filterable')
+                    ->label(__('filament.resources.category_group.is_filterable')),
+                Tables\Filters\TernaryFilter::make('is_color_source')
+                    ->label(__('filament.resources.category_group.is_color_source')),
+                Tables\Filters\SelectFilter::make('selection_type')
+                    ->label(__('filament.resources.category_group.selection_type'))
+                    ->options([
+                        'single' => __('filament.resources.category_group.selection_single'),
+                        'multi' => __('filament.resources.category_group.selection_multi'),
+                    ]),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

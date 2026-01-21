@@ -3,6 +3,7 @@
 namespace App\Filament\Fabricator\Resources;
 
 use App\Filament\Concerns\HasBlockActiveToggleAction;
+use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Fabricator\Resources\PageResource\Pages;
 use App\Models\Page;
 use Filament\Forms\Components\FileUpload;
@@ -26,6 +27,7 @@ class PageResource extends FabricatorPageResource
 {
     use Translatable;
     use HasBlockActiveToggleAction;
+    use HasSortableTranslations;
 
     protected static ?string $navigationGroup = 'Inhalte';
     protected static ?int $navigationSort = 1;
@@ -257,34 +259,6 @@ class PageResource extends FabricatorPageResource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    protected static function getSortableTranslationExpression(string $column, ?string $locale = null): string
-    {
-        $locale = static::normalizeSortLocale($locale);
-        $localePath = '$."' . $locale . '"';
-        $fallbackPath = '$."de"';
-
-        return sprintf(
-            "COALESCE(NULLIF(JSON_UNQUOTE(JSON_EXTRACT(%s, '%s')), ''), NULLIF(JSON_UNQUOTE(JSON_EXTRACT(%s, '%s')), ''))",
-            $column,
-            $localePath,
-            $column,
-            $fallbackPath
-        );
-    }
-
-    protected static function normalizeSortLocale(?string $locale = null): string
-    {
-        $allowedLocales = config('app.available_locales', ['de', 'en']);
-
-        if (! is_array($allowedLocales) || $allowedLocales === []) {
-            $allowedLocales = ['de', 'en'];
-        }
-
-        $locale = $locale ?: 'de';
-
-        return in_array($locale, $allowedLocales, true) ? $locale : 'de';
     }
 
     /**

@@ -23,6 +23,7 @@ class CategoryGroup extends Model
         'position',
         'is_filterable',
         'is_color_source',
+        'is_active',
         'selection_type',
         'tenant_id',
     ];
@@ -31,6 +32,7 @@ class CategoryGroup extends Model
         'title' => 'array',
         'is_filterable' => 'boolean',
         'is_color_source' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     /**

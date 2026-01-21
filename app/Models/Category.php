@@ -20,6 +20,7 @@ class Category extends Model
         'position',
         'icon',
         'color',
+        'is_active',
         'category_group_id',
         'key',
         'last_synced_at',
@@ -30,6 +31,7 @@ class Category extends Model
     // cast the JSON -> PHP array
     protected $casts = [
         'slug' => 'array',
+        'is_active' => 'boolean',
         'last_synced_at' => 'datetime',
     ];
 

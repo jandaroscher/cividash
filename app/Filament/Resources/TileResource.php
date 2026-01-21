@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TileResource\Pages;
 use App\Filament\Resources\TileResource\RelationManagers;
 use App\Filament\Concerns\HasBlockActiveToggleAction;
+use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Fabricator\PageBlocks\FAQBlock;
 use App\Filament\Fabricator\PageBlocks\IntroTextBlock;
 use App\Filament\Fabricator\PageBlocks\SliderBlock;
@@ -41,6 +42,7 @@ class TileResource extends Resource
 {
     use Translatable;
     use HasBlockActiveToggleAction;
+    use HasSortableTranslations;
 
     protected const CATEGORY_GROUP_FIELD_PREFIX = 'category_group_';
 
@@ -623,61 +625,6 @@ class TileResource extends Resource
         }
 
         return $blocks;
-    }
-
-    protected static function getSortableTranslationExpression(string $column, ?string $locale = null): string
-    {
-        $allowedColumns = ['title', 'slug'];
-
-        if (! in_array($column, $allowedColumns, true)) {
-            throw new \InvalidArgumentException("Invalid sortable column: {$column}");
-        }
-
-        $locale = static::normalizeSortLocale($locale);
-        $localePath = '$."' . $locale . '"';
-        $fallbackPath = '$."de"';
-        $driver = DB::connection()->getDriverName();
-
-        if ($driver === 'sqlite') {
-            return sprintf(
-                "COALESCE(NULLIF(json_extract(%s, '%s'), ''), NULLIF(json_extract(%s, '%s'), ''))",
-                $column,
-                $localePath,
-                $column,
-                $fallbackPath
-            );
-        }
-
-        if (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
-            return sprintf(
-                "COALESCE(NULLIF(%s->>'%s', ''), NULLIF(%s->>'%s', ''))",
-                $column,
-                $locale,
-                $column,
-                'de'
-            );
-        }
-
-        return sprintf(
-            "COALESCE(NULLIF(JSON_UNQUOTE(JSON_EXTRACT(%s, '%s')), ''), NULLIF(JSON_UNQUOTE(JSON_EXTRACT(%s, '%s')), ''))",
-            $column,
-            $localePath,
-            $column,
-            $fallbackPath
-        );
-    }
-
-    protected static function normalizeSortLocale(?string $locale = null): string
-    {
-        $allowedLocales = config('app.available_locales', ['de', 'en']);
-
-        if (! is_array($allowedLocales) || $allowedLocales === []) {
-            $allowedLocales = ['de', 'en'];
-        }
-
-        $locale = $locale ?: 'de';
-
-        return in_array($locale, $allowedLocales, true) ? $locale : 'de';
     }
 
     protected static function resolveTileForMetricValue(?Model $record, $livewire): ?Tile

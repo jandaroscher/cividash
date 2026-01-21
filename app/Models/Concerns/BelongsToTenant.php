@@ -89,7 +89,8 @@ trait BelongsToTenant
                 // SECURITY: Use where() instead of whereBelongsTo() to explicitly filter out NULL values
                 // whereBelongsTo() generates "WHERE tenant_id = ?" which doesn't filter NULL values
                 // Since tenant_id columns are nullable, records with NULL tenant_id would leak across tenants
-                $builder->where('tenant_id', $tenant->id);
+                // Use qualifyColumn() to avoid ambiguous column errors when JOINs are used
+                $builder->where($builder->qualifyColumn('tenant_id'), $tenant->id);
             } else {
                 // If no tenant context is available in HTTP requests, use default tenant
                 // to prevent data leakage. API requests should ideally provide tenant via
@@ -104,7 +105,8 @@ trait BelongsToTenant
                             'method' => $request?->method() ?? 'N/A',
                         ]);
                         // SECURITY: Use where() instead of whereBelongsTo() to explicitly filter out NULL values
-                        $builder->where('tenant_id', $defaultTenant->id);
+                        // Use qualifyColumn() to avoid ambiguous column errors when JOINs are used
+                        $builder->where($builder->qualifyColumn('tenant_id'), $defaultTenant->id);
                     } else {
                         // If no default tenant exists, filter to empty result set to prevent data leakage
                         $builder->whereRaw('1 = 0');
