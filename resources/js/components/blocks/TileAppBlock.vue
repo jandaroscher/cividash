@@ -63,6 +63,18 @@ watch(
     { immediate: true }
 );
 
+// Reload tiles when locale changes
+watch(
+    effectiveLocale,
+    (newLocale, oldLocale) => {
+        // Only reload when locale actually changed (not on initial mount)
+        if (newLocale !== oldLocale && oldLocale !== undefined) {
+            tilesStore.fetchAll(newLocale);
+        }
+    },
+    { immediate: false }
+);
+
 // Watch for tiles to be loaded, then check URL for deep-linking
 watch(
     () => tilesStore.tiles,

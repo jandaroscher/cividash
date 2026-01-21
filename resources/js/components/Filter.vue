@@ -20,7 +20,7 @@
                     type="text"
                     :placeholder="searchPlaceholder"
                     class="w-full px-4 border focus:outline-none focus:ring-2 focus:ring-offset-0"
-                    :style="{ 
+                    :style="{
                         '--tw-ring-color': brandingStore.primaryColor,
                         borderColor: '#191919',
                         height: '4rem',
@@ -32,56 +32,39 @@
             </Tooltip>
         </div>
 
-        <div 
-            v-if="showFilter"
-            class="flex flex-wrap mb-5 md:mb-10" 
+        <div
+            v-if="showFilter && filterGroups.length > 0"
+            class="flex flex-wrap mb-5 md:mb-10"
             role="tablist"
             aria-label="Filter navigation"
         >
             <button
-                v-for="(filter, index) in level1Filters"
-                :key="filter"
-                :id="getTabId(filter)"
+                v-for="(group, index) in filterGroups"
+                :key="group.id"
+                :id="getTabId(group.id)"
                 role="tab"
-                :aria-selected="filterStore.level1Filter === filter"
-                :aria-controls="getPanelId(filter)"
-                :tabindex="filterStore.level1Filter === filter ? 0 : -1"
-                @click="changeLevel1Filter(filter)"
-                @keydown="handleTabKeydown($event, filter, index)"
+                :aria-selected="filterStore.level1Filter === group.key"
+                :aria-controls="getPanelId(group.id)"
+                :tabindex="filterStore.level1Filter === group.key ? 0 : -1"
+                @click="changeLevel1Filter(group.key)"
+                @keydown="handleTabKeydown($event, group.key, index)"
                 :class="[
                     'filter-button',
-                    { 'filter-button--active': filterStore.level1Filter === filter }
+                    { 'filter-button--active': filterStore.level1Filter === group.key }
                 ]"
-                :style="getButtonStyles(filter)"
+                :style="getButtonStyles(group.key)"
             >
-                {{ getFilterLabel(filter) }}
+                {{ getGroupTitle(group) }}
             </button>
         </div>
 
-        <div v-if="showFilter" class="-mx-[30px] sm:mx-0">
+        <div v-if="showFilter && activeGroup" class="-mx-[30px] sm:mx-0">
             <div
-                v-if="filterStore.level1Filter === 'dimensions'"
-                id="dimensions-panel"
+                :id="getPanelId(activeGroup.id)"
                 role="tabpanel"
-                :aria-labelledby="getTabId('dimensions')"
+                :aria-labelledby="getTabId(activeGroup.id)"
             >
-                <Dimensions />
-            </div>
-            <div
-                v-if="filterStore.level1Filter === 'fields'"
-                id="fields-panel"
-                role="tabpanel"
-                :aria-labelledby="getTabId('fields')"
-            >
-                <Fields />
-            </div>
-            <div
-                v-if="filterStore.level1Filter === 'sdg'"
-                id="sdg-panel"
-                role="tabpanel"
-                :aria-labelledby="getTabId('sdg')"
-            >
-                <SDG />
+                <FilterGroup :group="activeGroup" />
             </div>
         </div>
     </div>
@@ -94,9 +77,7 @@ import { useBrandingStore } from '../stores/branding';
 import { useLocale } from '../composables/useLocale';
 import { useHelpContext } from '../composables/useHelpContext';
 import Tooltip from './help/Tooltip.vue';
-import Dimensions from './filter/Dimensions.vue';
-import Fields from './filter/Fields.vue';
-import SDG from './filter/SDG.vue';
+import FilterGroup from './filter/FilterGroup.vue';
 
 const props = defineProps({
     showSearch: {
@@ -114,7 +95,6 @@ const brandingStore = useBrandingStore();
 const { currentLocale } = useLocale();
 const { getTooltip } = useHelpContext();
 
-// Search input with debouncing
 const searchQuery = ref(filterStore.searchQuery || '');
 let searchTimeout = null;
 
@@ -122,21 +102,39 @@ const searchPlaceholder = computed(() => {
     return currentLocale.value === 'en' ? 'Search tiles...' : 'Kacheln durchsuchen...';
 });
 
+const filterGroups = computed(() => filterStore.groups || []);
+const activeGroup = computed(() => {
+    return filterGroups.value.find(group => group.key === filterStore.level1Filter) || filterGroups.value[0] || null;
+});
+
+const filterHeader = computed(() => {
+    return filterLabels.value.header || 'Filter';
+});
+
+const filterLabels = ref({
+    header: 'Filter',
+});
+
+const apiUrl = computed(() => {
+    if (typeof window !== 'undefined' && window.APP_URL) {
+        return window.APP_URL;
+    }
+    return '';
+});
+
 function handleSearchInput(event) {
     const value = event.target.value;
     searchQuery.value = value;
-    
-    // Debounce search updates (300ms)
+
     if (searchTimeout) {
         clearTimeout(searchTimeout);
     }
-    
+
     searchTimeout = setTimeout(() => {
         filterStore.setSearchQuery(value);
     }, 300);
 }
 
-// Sync searchQuery with store when restored from URL
 watch(
     () => filterStore.searchQuery,
     (newValue) => {
@@ -146,56 +144,36 @@ watch(
     }
 );
 
-const level1Filters = ['dimensions', 'fields', 'sdg'];
-
-// Filter labels from API
-const filterLabels = ref({
-    dimensions: 'Handlungsdimensionen',
-    fields: 'Handlungsfelder',
-    sdg: 'SDG-Ziele',
-    header: 'Filter',
-});
-
-// SSR-safe API URL
-const apiUrl = computed(() => {
-    if (typeof window !== 'undefined' && window.APP_URL) {
-        return window.APP_URL;
-    }
-    return '';
-});
-
-async function fetchFilterLabels(locale) {
+async function fetchFilterGroups(locale) {
     try {
+        filterStore.setLoading(true);
+        filterStore.setError(null);
         const res = await fetch(`${apiUrl.value}/api/filters?locale=${locale}`);
+
         if (!res.ok) {
             throw new Error(`HTTP error! status: ${res.status}`);
         }
+
         const json = await res.json();
-        // Extract labels from response (json.data.labels)
-        filterLabels.value = json.data?.labels || json.labels || {
-            dimensions: 'Handlungsdimensionen',
-            fields: 'Handlungsfelder',
-            sdg: 'SDG-Ziele',
-            header: 'Filter',
-        };
+        const data = json.data || json;
+
+        filterLabels.value = data.labels || { header: 'Filter' };
+        filterStore.setGroups(data.groups || []);
+        filterStore.restoreFromUrl();
     } catch (err) {
-        console.error('Error fetching filter labels:', err);
-        // Fallback to German labels on error
-        filterLabels.value = {
-            dimensions: 'Handlungsdimensionen',
-            fields: 'Handlungsfelder',
-            sdg: 'SDG-Ziele',
-            header: 'Filter',
-        };
+        logError('Error fetching filter groups:', err);
+        filterLabels.value = { header: 'Filter' };
+        filterStore.setGroups([]);
+        filterStore.setError(err.message || 'Failed to load filters');
+    } finally {
+        filterStore.setLoading(false);
     }
 }
 
-// Fetch labels on mount and when locale changes
 onMounted(() => {
-    fetchFilterLabels(currentLocale.value);
+    fetchFilterGroups(currentLocale.value);
 });
 
-// Cleanup debounce timer on component unmount
 onBeforeUnmount(() => {
     if (searchTimeout) {
         clearTimeout(searchTimeout);
@@ -204,23 +182,26 @@ onBeforeUnmount(() => {
 });
 
 watch(currentLocale, (newLocale) => {
-    fetchFilterLabels(newLocale);
+    fetchFilterGroups(newLocale);
 });
 
-const filterHeader = computed(() => {
-    return filterLabels.value.header || 'Filter';
-});
-
-function getFilterLabel(filter) {
-    return filterLabels.value[filter] || filter;
+function getGroupTitle(group) {
+    if (!group) return '';
+    if (typeof group.title === 'string') {
+        return group.title;
+    }
+    if (typeof group.title === 'object' && group.title !== null) {
+        return group.title[currentLocale.value] || group.title.de || group.title.en || '';
+    }
+    return '';
 }
 
-function getPanelId(filter) {
-    return `${filter}-panel`;
+function getPanelId(id) {
+    return `filter-panel-${id}`;
 }
 
-function getTabId(filter) {
-    return `${filter}-tab`;
+function getTabId(id) {
+    return `filter-tab-${id}`;
 }
 
 function changeLevel1Filter(filter) {
@@ -234,15 +215,13 @@ function handleTabKeydown(event, filter, currentIndex) {
         case 'ArrowLeft':
         case 'ArrowRight':
             event.preventDefault();
-            // Calculate target index with wrap-around
             let targetIndex = currentIndex;
             if (key === 'ArrowLeft') {
-                targetIndex = currentIndex > 0 ? currentIndex - 1 : level1Filters.length - 1;
+                targetIndex = currentIndex > 0 ? currentIndex - 1 : filterGroups.value.length - 1;
             } else {
-                targetIndex = currentIndex < level1Filters.length - 1 ? currentIndex + 1 : 0;
+                targetIndex = currentIndex < filterGroups.value.length - 1 ? currentIndex + 1 : 0;
             }
-            
-            // Only move focus, do not activate the tab
+
             setTimeout(() => {
                 const tablist = event.target.closest('[role="tablist"]');
                 if (tablist) {
@@ -277,7 +256,6 @@ function getButtonStyles(filter) {
         color: isActive ? 'white' : '#191919',
     };
 }
-
 </script>
 
 <style scoped>
@@ -341,15 +319,6 @@ function getButtonStyles(filter) {
     box-shadow: 0px 3px 6px #00000029;
 }
 
-/* SDG filter hover and active states - more prominent */
-:deep(#sdg-filter-container img.shadow-filter) {
-    box-shadow: 0px 3px 6px #00000029 !important;
-}
-
-:deep(#sdg-filter-container img:hover) {
-    box-shadow: 0px 3px 6px #00000029;
-}
-
 .filter-button {
     flex: 1 1 100%;
     display: flex;
@@ -380,4 +349,3 @@ function getButtonStyles(filter) {
     color: white !important;
 }
 </style>
-

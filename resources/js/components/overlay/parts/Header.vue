@@ -123,7 +123,8 @@ const title = computed(() => {
 });
 
 const sdgZiele = computed(() => {
-    return props.tile?.sdg_ziele || [];
+    const categories = props.tile?.categories || [];
+    return categories.filter(category => category.group?.key === 'sdg');
 });
 
 // Check if sections exist based on background blocks
@@ -171,11 +172,11 @@ function sdgIcon(sdg) {
 }
 
 function sdgTitle(sdg) {
-    if (!sdg.title) return `SDG ${sdg.number || ''}`;
+    if (!sdg.title) return 'SDG';
     if (typeof sdg.title === 'string') {
         return sdg.title;
     }
-    return sdg.title[currentLocale.value] || sdg.title.de || sdg.title.en || `SDG ${sdg.number || ''}`;
+    return sdg.title[currentLocale.value] || sdg.title.de || sdg.title.en || 'SDG';
 }
 
 function scrollToSection(sectionId) {

@@ -15,6 +15,16 @@ class EditTile extends EditRecord
 
     protected static string $resource = TileResource::class;
 
+    protected array $categoryGroupState = [];
+
+    /****
+     * Assemble the header action buttons for the edit page.
+     *
+     * Provides actions for switching locale, saving the record, opening the frontend view
+     * for the current locale in a new tab, and deleting the record.
+     *
+     * @return array An array of action objects to display in the page header.
+     */
     protected function getHeaderActions(): array
     {
         return [
@@ -66,11 +76,41 @@ class EditTile extends EditRecord
         ];
     }
 
+    /**
+     * Build the form's save action with a localized label, the 'save' action name, and the Mod+S keyboard shortcut.
+     *
+     * @return Action The configured save Action instance.
+     */
     protected function getSaveFormAction(): Action
     {
         return Action::make('save')
             ->label(__('filament.actions.save'))
             ->action('save')
             ->keyBindings(['mod+s']);
+    }
+
+    /**
+     * Extracts category group selection state from submitted form data and returns the form data with that state removed.
+     *
+     * Stores extracted category group state in $this->categoryGroupState for use after the record is saved.
+     *
+     * @param array $data The incoming form data submitted for the record.
+     * @return array The form data with category group state stripped out.
+     */
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $this->categoryGroupState = TileResource::extractCategoryGroupState($data);
+
+        return TileResource::stripCategoryGroupState($data);
+    }
+
+    /**
+     * Synchronizes category group selections on the current record using the stored category group state.
+     *
+     * Persists the category-group relationships extracted from the form into the saved record.
+     */
+    protected function afterSave(): void
+    {
+        TileResource::syncCategoryGroupSelections($this->record, $this->categoryGroupState);
     }
 }

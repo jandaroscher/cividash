@@ -9,6 +9,7 @@ use App\Filament\Fabricator\PageBlocks\FAQBlock;
 use App\Filament\Fabricator\PageBlocks\IntroTextBlock;
 use App\Filament\Fabricator\PageBlocks\SliderBlock;
 use App\Filament\Fabricator\PageBlocks\TextImageBlock;
+use App\Models\CategoryGroup;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tile;
@@ -40,6 +41,8 @@ class TileResource extends Resource
 {
     use Translatable;
     use HasBlockActiveToggleAction;
+
+    protected const CATEGORY_GROUP_FIELD_PREFIX = 'category_group_';
 
     protected static ?string $model = Tile::class;
 
@@ -84,25 +87,7 @@ class TileResource extends Resource
                                 // Tab 1: tile
                                 Tabs\Tab::make(__('filament.tabs.tile'))
                                     ->schema([
-                                        Select::make('handlungsfelder')
-                                            ->label(__('filament.resources.tile.handlungsfelder'))
-                                            ->relationship('handlungsfelder', 'slug')
-                                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->getTranslation('slug', app()->getLocale()))
-                                            ->preload()
-                                            ->multiple(),
-                                        Select::make('handlungsdimension_id')
-                                            ->label(__('filament.resources.tile.handlungsdimension'))
-                                            ->relationship('handlungsdimension', 'title')
-                                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->getTranslation('title', app()->getLocale()))
-                                            ->preload()
-                                            ->searchable(),
-                                        Select::make('sdgZiele')
-                                            ->label(__('filament.resources.tile.sdg_ziele'))
-                                            ->relationship('sdgZiele', 'title')
-                                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->getTranslation('title', app()->getLocale()))
-                                            ->preload()
-                                            ->multiple()
-                                            ->searchable(),
+                                        ...static::getCategoryGroupFields(),
                                         RichEditor::make('description')
                                             ->label(__('filament.resources.tile.description')),
                                         FileUpload::make('icon')
@@ -327,6 +312,16 @@ class TileResource extends Resource
             ]);
     }
 
+    /**
+     * Configure the Tile list table with columns, filters, actions, and bulk actions.
+     *
+     * Configures columns (localized title/slug with custom sorting, icon, position, visibility toggles, public toggle, timestamps),
+     * filters (category relationship and public ternary), the record edit URL, row actions (edit, frontend view, delete),
+     * and grouped bulk delete action.
+     *
+     * @param \Filament\Tables\Table $table The table instance to configure.
+     * @return \Filament\Tables\Table The configured table instance.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -412,6 +407,174 @@ class TileResource extends Resource
             ]);
     }
 
+    /**
+     * Build Select form fields for every CategoryGroup, ordered by group position.
+     *
+     * Constructs and returns an array of Select field instances (one per CategoryGroup),
+     * each configured via makeCategoryGroupField and populated with the group's categories
+     * ordered by their position.
+     *
+     * @return array<int,\Filament\Forms\Components\Select> Array of Select fields for category groups.
+     */
+    protected static function getCategoryGroupFields(): array
+    {
+        $groups = CategoryGroup::query()
+            ->with(['categories' => fn ($query) => $query->orderBy('position')])
+            ->orderBy('position')
+            ->get();
+
+        return $groups
+            ->map(fn (CategoryGroup $group) => static::makeCategoryGroupField($group))
+            ->all();
+    }
+
+    /**
+     * Create a Select form field representing a CategoryGroup.
+     *
+     * The field is labeled with the group's translated title, populated with the group's categories (translated slugs),
+     * configured for search and preload, and hydrated from a record's related categories for this group.
+     *
+     * @param CategoryGroup $group The category group used to build the field and its options.
+     * @return Select The configured Select field instance (set to allow multiple selection when the group is configured as multi).
+     */
+    protected static function makeCategoryGroupField(CategoryGroup $group): Select
+    {
+        $fieldName = static::getCategoryGroupFieldName($group->id);
+        $options = $group->categories
+            ->mapWithKeys(fn ($category) => [
+                $category->id => $category->getTranslation('slug', app()->getLocale()),
+            ])
+            ->toArray();
+
+        $field = Select::make($fieldName)
+            ->label($group->getTranslation('title', app()->getLocale()))
+            ->options($options)
+            ->searchable()
+            ->preload()
+            ->afterStateHydrated(function (Select $component, $state, $record) use ($group): void {
+                if (! $record) {
+                    return;
+                }
+
+                $record->loadMissing('categories');
+                $selected = $record->categories
+                    ->where('category_group_id', $group->id)
+                    ->pluck('id')
+                    ->all();
+
+                $component->state($group->selection_type === 'multi' ? $selected : ($selected[0] ?? null));
+            });
+
+        if ($group->selection_type === 'multi') {
+            $field->multiple();
+        }
+
+        return $field;
+    }
+
+    /**
+     * Builds the form field name used to store selections for a specific category group.
+     *
+     * @param int $groupId The category group's identifier.
+     * @return string The prefixed field name for the category group.
+     */
+    protected static function getCategoryGroupFieldName(int $groupId): string
+    {
+        return static::CATEGORY_GROUP_FIELD_PREFIX . $groupId;
+    }
+
+    /**
+     * Extracts entries whose keys are prefixed for category groups from the given data array.
+     *
+     * Filters the provided associative array and returns a new array containing only keys
+     * that start with the class constant CATEGORY_GROUP_FIELD_PREFIX and their corresponding values.
+     *
+     * @param array $data The input associative array (e.g., form state).
+     * @return array An array of key/value pairs where keys begin with the category group prefix.
+     */
+    public static function extractCategoryGroupState(array $data): array
+    {
+        $state = [];
+
+        foreach ($data as $key => $value) {
+            if (str_starts_with($key, static::CATEGORY_GROUP_FIELD_PREFIX)) {
+                $state[$key] = $value;
+            }
+        }
+
+        return $state;
+    }
+
+    /**
+     * Remove any keys that start with the CATEGORY_GROUP_FIELD_PREFIX from the provided array.
+     *
+     * @param array $data The input associative array potentially containing category-group fields.
+     * @return array The input array with all category-group prefixed keys removed.
+     */
+    public static function stripCategoryGroupState(array $data): array
+    {
+        foreach (array_keys($data) as $key) {
+            if (str_starts_with($key, static::CATEGORY_GROUP_FIELD_PREFIX)) {
+                unset($data[$key]);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Synchronizes a Tile's category relationships from category-group form state.
+     *
+     * Reads category selections for every CategoryGroup from the provided state (keys produced by
+     * getCategoryGroupFieldName), accumulates selected category IDs (honoring each group's
+     * `selection_type` of `multi` or single), deduplicates them, and syncs the Tile's `categories`
+     * relation to match.
+     *
+     * @param Tile  $tile  The Tile model whose categories will be synchronized.
+     * @param array $state Associative array of category-group field values keyed by
+     *                     getCategoryGroupFieldName(groupId). Values may be an integer, an array
+     *                     of integers, or null/empty (which will be ignored).
+     */
+    public static function syncCategoryGroupSelections(Tile $tile, array $state): void
+    {
+        $categoryIds = [];
+        $groups = CategoryGroup::query()->get(['id', 'selection_type']);
+
+        foreach ($groups as $group) {
+            $fieldName = static::getCategoryGroupFieldName($group->id);
+
+            if (! array_key_exists($fieldName, $state)) {
+                continue;
+            }
+
+            $value = $state[$fieldName];
+
+            if ($value === null || $value === '' || $value === []) {
+                continue;
+            }
+
+            if ($group->selection_type === 'multi') {
+                foreach ((array) $value as $id) {
+                    if (is_numeric($id)) {
+                        $categoryIds[] = (int) $id;
+                    }
+                }
+            } else {
+                // Single select - reject arrays, only accept numeric scalars
+                if (! is_array($value) && is_numeric($value)) {
+                    $categoryIds[] = (int) $value;
+                }
+            }
+        }
+
+        $tile->categories()->sync(array_values(array_unique($categoryIds)));
+    }
+
+    /**
+     * Specify relation managers available for this resource.
+     *
+     * @return array<string, class-string> Array mapping relation names to relation manager class names.
+     */
     public static function getRelations(): array
     {
         return [

@@ -9,19 +9,19 @@ use Illuminate\Support\Facades\Storage;
 class TileResource extends JsonResource
 {
     /**
-     * Transform the resource into an array for JSON responses.
-     *
-     * Returns an associative array containing:
-     * - `id`: tile identifier
-     * - `categories`: collection of category slugs
-     * - `title` / `description`: either all translations or a single locale's translation when the `locale` query parameter is provided
-     * - `icon`: public URL for the icon or `null`
-     * - `background_blocks`: transformed blocks in API format or `null`
-     * - `years`: collection of related years via TileYearResource when the relation is loaded
-     *
-     * @param \Illuminate\Http\Request $request Incoming request (reads optional `locale` query parameter).
-     * @return array The resource represented as an associative array for JSON serialization.
-     */
+         * Convert the Tile resource into an associative array suitable for JSON responses.
+         *
+         * The output includes identifier, dynamic categories (when loaded), a resolved tile color,
+         * title/description/slug and meta fields which are either full translations or a single
+         * locale translation when the request `locale` query parameter is provided, public URLs
+         * for stored images when present, transformed background blocks, metric definitions and years
+         * (each included only when their relations are loaded).
+         *
+         * @param \Illuminate\Http\Request $request Incoming HTTP request (reads optional `locale` query parameter).
+         * @return array Associative array representation of the tile containing keys: `id`, `categories`, `tile_color`,
+         *               `title`, `description`, `slug`, `icon`, `is_public`, `meta` (with `title`, `description`, `image`),
+         *               `background_blocks`, `metric_definitions`, and `years`.
+         */
     public function toArray($request): array
     {
         $locale = $request->query('locale');
@@ -30,21 +30,11 @@ class TileResource extends JsonResource
         return [
             'id'         => $this->id,
 
-            // Handlungsfelder (same as categories, but using resource)
-            'handlungsfelder' => HandlungsfeldResource::collection(
-                $this->relationLoaded('handlungsfelder') ? $this->handlungsfelder : $this->categories
+            // Dynamic categories grouped by parent
+            'categories' => CategoryItemResource::collection(
+                $this->whenLoaded('categories')
             ),
-
-            // Handlungsdimension
-            'handlungsdimension' => $this->when(
-                $this->relationLoaded('handlungsdimension') && $this->handlungsdimension,
-                fn () => new HandlungsdimensionResource($this->handlungsdimension)
-            ),
-
-            // SDG-Ziele
-            'sdg_ziele' => SDGZielResource::collection(
-                $this->whenLoaded('sdgZiele')
-            ),
+            'tile_color' => $this->resolveTileColor(),
 
             // Title & description: all or single
             'title'       => $locale
@@ -92,5 +82,27 @@ class TileResource extends JsonResource
                 $this->whenLoaded('tileYears')
             ),
         ];
+    }
+
+    /**
+     * Selects the tile color from the first category whose loaded group is marked as the color source.
+     *
+     * Only inspects categories when the `categories` relation is loaded; returns null if no matching category or relation is not loaded.
+     *
+     * @return string|null The color value from the matching category, or `null` if none is found.
+     */
+    protected function resolveTileColor(): ?string
+    {
+        if (! $this->relationLoaded('categories')) {
+            return null;
+        }
+
+        foreach ($this->categories as $category) {
+            if ($category->relationLoaded('group') && $category->group?->is_color_source) {
+                return $category->color;
+            }
+        }
+
+        return null;
     }
 }

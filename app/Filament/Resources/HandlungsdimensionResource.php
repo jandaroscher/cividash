@@ -134,6 +134,14 @@ class HandlungsdimensionResource extends Resource
         ];
     }
 
+    /**
+     * Define the resource pages and their route paths.
+     *
+     * Returns an associative array that maps page identifiers to their route builders.
+     * The array contains the keys `index`, `create`, and `edit` with their respective route paths.
+     *
+     * @return array<string, \Closure|string> Mapping of page keys to route definitions.
+     */
     public static function getPages(): array
     {
         return [
@@ -141,5 +149,15 @@ class HandlungsdimensionResource extends Resource
             'create' => Pages\CreateHandlungsdimension::route('/create'),
             'edit' => Pages\EditHandlungsdimension::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * Controls whether this resource is registered in the Filament navigation.
+     *
+     * @return bool `true` if the resource should be shown in navigation, `false` otherwise.
+     */
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
     }
 }

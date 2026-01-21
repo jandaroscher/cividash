@@ -124,6 +124,11 @@ class SDGZielResource extends Resource
         ];
     }
 
+    /**
+     * Define the resource pages and their route bindings.
+     *
+     * @return array<string,mixed> Map of page identifiers (e.g. 'index', 'create', 'edit') to their route handlers.
+     */
     public static function getPages(): array
     {
         return [
@@ -131,5 +136,15 @@ class SDGZielResource extends Resource
             'create' => Pages\CreateSDGZiel::route('/create'),
             'edit' => Pages\EditSDGZiel::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * Determine whether the resource should be registered in Filament's navigation.
+     *
+     * @return bool `true` if the resource should be shown in the navigation, `false` otherwise.
+     */
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
     }
 }

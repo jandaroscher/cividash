@@ -15,7 +15,17 @@ class Category extends Model
         'slug'
     ];
 
-    protected $fillable = ['slug', 'position', 'icon', 'last_synced_at', 'source_hash', 'tenant_id'];
+    protected $fillable = [
+        'slug',
+        'position',
+        'icon',
+        'color',
+        'category_group_id',
+        'key',
+        'last_synced_at',
+        'source_hash',
+        'tenant_id',
+    ];
 
     // cast the JSON -> PHP array
     protected $casts = [
@@ -33,6 +43,16 @@ class Category extends Model
     public function tiles()
     {
         return $this->belongsToMany(Tile::class)->orderBy('position');
+    }
+
+    /**
+     * Get the CategoryGroup this category belongs to.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo BelongsTo relation for the CategoryGroup model.
+     */
+    public function group()
+    {
+        return $this->belongsTo(CategoryGroup::class, 'category_group_id');
     }
 
     /**

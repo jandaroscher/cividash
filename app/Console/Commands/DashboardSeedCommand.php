@@ -28,6 +28,7 @@ class DashboardSeedCommand extends Command
      */
     protected $signature = 'dashboard:seed
                             {--path= : Path to dashboard.json file}
+                            {--only= : Seed only a subset (categories|handlungsfelder)}
                             {--dry-run : Run without persisting data}';
 
     /**
@@ -38,12 +39,24 @@ class DashboardSeedCommand extends Command
     protected $description = 'Seed Tiles and Categories from Regensburg dashboard.json';
 
     /**
-     * Execute the console command.
+     * Seed dashboard data from a dashboard.json file into the database, optionally performing a dry-run or seeding only a subset.
+     *
+     * Reads the configured or provided JSON path, parses dashboard entities (categories, tiles, metrics, SDG-Ziele), and executes the seeding flow.
+     * When `--dry-run` is used, outputs a summary without persisting data. When `--only=categories` is used, seeds categories and exits early.
+     *
+     * @return int Command::SUCCESS on success, Command::FAILURE on error.
      */
     public function handle(): int
     {
         $jsonPath = $this->option('path') ?? config('seeding.default_json_path');
         $dryRun = $this->option('dry-run');
+        $only = $this->normalizeOnlyOption($this->option('only'));
+
+        if ($this->option('only') && $only === null) {
+            $this->error("Invalid --only value: '{$this->option('only')}'. Valid values: categories, handlungsfelder");
+
+            return Command::FAILURE;
+        }
 
         if ($dryRun) {
             $this->warn('Running in DRY-RUN mode - no data will be persisted');
@@ -60,7 +73,7 @@ class DashboardSeedCommand extends Command
                 return Command::SUCCESS;
             }
 
-            return DB::transaction(function () use ($parsed) {
+            return DB::transaction(function () use ($parsed, $only) {
                 $mediaDownloadService = new MediaDownloadService();
 
                 // 1. Seed Handlungsfelder (Categories)
@@ -68,20 +81,36 @@ class DashboardSeedCommand extends Command
                 $categorySeeder->setCommand($this);
                 $categoryIdMap = $categorySeeder->run($parsed['categories']);
 
+                if ($only === 'categories') {
+                    $this->info('Category seeding completed successfully!');
+                    return Command::SUCCESS;
+                }
+
                 // 2. Seed Handlungsdimensionen (statisch, mit Mapping zu Handlungsfeldern)
                 $handlungsdimensionSeeder = new HandlungsdimensionSeeder($mediaDownloadService);
                 $handlungsdimensionSeeder->setCommand($this);
-                $handlungsdimensionIdMap = $handlungsdimensionSeeder->run($categoryIdMap);
+                $dimensionMaps = $handlungsdimensionSeeder->run($categoryIdMap);
+                $handlungsdimensionIdMap = $dimensionMaps['dimension_ids'] ?? [];
+                $handlungsdimensionCategoryMap = $dimensionMaps['category_ids'] ?? [];
 
                 // 3. Seed SDG-Ziele
                 $sdgZielSeeder = new SDGZielSeeder($mediaDownloadService);
                 $sdgZielSeeder->setCommand($this);
-                $sdgZielIdMap = $sdgZielSeeder->run($parsed['sdg_ziele']);
+                $sdgMaps = $sdgZielSeeder->run($parsed['sdg_ziele']);
+                $sdgZielIdMap = $sdgMaps['sdg_ids'] ?? [];
+                $sdgZielCategoryMap = $sdgMaps['category_ids'] ?? [];
 
                 // 4. Seed Tiles (mit Handlungsdimensionen und SDG-Zielen)
                 $tileSeeder = new TileSeeder;
                 $tileSeeder->setCommand($this);
-                $tileIdMap = $tileSeeder->run($parsed['tiles'], $categoryIdMap, $handlungsdimensionIdMap, $sdgZielIdMap);
+                $tileIdMap = $tileSeeder->run(
+                    $parsed['tiles'],
+                    $categoryIdMap,
+                    $handlungsdimensionCategoryMap,
+                    $sdgZielCategoryMap,
+                    $handlungsdimensionIdMap,
+                    $sdgZielIdMap
+                );
 
                 // Build tile to metric mapping from parsed tiles
                 $tileMetricMapping = [];
@@ -114,9 +143,17 @@ class DashboardSeedCommand extends Command
     }
 
     /**
-     * Display summary for dry-run mode.
+     * Output a concise summary of what would be seeded when running in dry-run mode.
      *
-     * @param array $parsed
+     * Displays counts for categories, handlungsdimensionen (fixed as 3), SDG goals, tiles,
+     * relationship links, and metrics; when verbose, lists the first five category and tile titles.
+     *
+     * @param array $parsed Parsed dashboard data containing at least the keys:
+     *                      - 'categories' (collection with count() and items having `title`),
+     *                      - 'sdg_ziele' (collection),
+     *                      - 'tiles' (collection with items having `title`),
+     *                      - 'links' (collection),
+     *                      - 'metrics' (collection).
      * @return void
      */
     protected function displayDryRunSummary(array $parsed): void
@@ -143,5 +180,28 @@ class DashboardSeedCommand extends Command
             }
         }
     }
-}
 
+    /**
+     * Normalize the CLI --only option to a canonical value.
+     *
+     * Trims whitespace and compares case-insensitively. Accepts "categories" or
+     * "handlungsfelder" and maps both to the canonical value "categories".
+     *
+     * @param string|null $only The raw --only option value.
+     * @return string|null `'categories' if the option corresponds to categories or handlungsfelder, null otherwise.`
+     */
+    protected function normalizeOnlyOption(?string $only): ?string
+    {
+        if (! $only) {
+            return null;
+        }
+
+        $only = strtolower(trim($only));
+
+        if (in_array($only, ['categories', 'handlungsfelder'], true)) {
+            return 'categories';
+        }
+
+        return null;
+    }
+}

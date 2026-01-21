@@ -3,23 +3,24 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\HandlungsdimensionResource;
-use App\Models\Handlungsdimension;
+use App\Http\Resources\CategoryItemResource;
+use App\Models\CategoryGroup;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class HandlungsdimensionController extends Controller
 {
     /**
-     * Return a collection of HandlungsdimensionResource instances ordered by position.
+     * Retrieve CategoryItemResource objects for the "dimensions" group ordered by position.
      *
-     * @param Request $request Request that may contain an optional `locale` query parameter for localization.
-     * @return AnonymousResourceCollection A collection of HandlungsdimensionResource objects ordered by `position`.
+     * @param Request $request Optional request (may include a `locale` query parameter).
+     * @return AnonymousResourceCollection A collection of CategoryItemResource instances for the group's categories ordered by `position`; an empty collection is returned if the group or its categories are missing.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $dimensionen = Handlungsdimension::orderBy('position')->get();
+        $group = CategoryGroup::where('key', 'dimensions')->first();
+        $items = $group?->categories()->orderBy('position')->get() ?? collect();
 
-        return HandlungsdimensionResource::collection($dimensionen);
+        return CategoryItemResource::collection($items);
     }
 }

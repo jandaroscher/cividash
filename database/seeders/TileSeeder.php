@@ -25,15 +25,29 @@ class TileSeeder extends Seeder
     }
 
     /**
-     * Run the tile seeder.
+     * Create or update Tile records from parsed tile data and synchronize their category and SDG relations.
      *
-     * @param Collection<int, \App\Services\ParsedTile> $tiles
-     * @param array<string, int> $categoryIdMap Map of original category ID to database ID
-     * @param array<string, int> $handlungsdimensionIdMap Map of dimension key to database ID
-     * @param array<int, int> $sdgZielIdMap Map of original SDG ID to database ID
-     * @return array<string, int> Map of original tile ID to database ID
+     * Processes each ParsedTile: finds or creates a Tile by German title, updates localized titles/descriptions,
+     * downloads and sets media, transforms background blocks, assigns handlungsdimension, syncs categories (including
+     * handlungsdimension- and SDG-derived category mappings) and legacy SDG relations, and returns a mapping of
+     * original tile IDs to database IDs.
+     *
+     * @param Collection<int, \App\Services\ParsedTile> $tiles Collection of parsed tiles to seed.
+     * @param array<string, int> $categoryIdMap Map of original category ID to database ID.
+     * @param array<string, int> $handlungsdimensionCategoryMap Map of handlungsdimension key to category ID to attach.
+     * @param array<int, int> $sdgZielCategoryMap Map of original SDG ID to category ID to attach.
+     * @param array<string, int> $handlungsdimensionIdMap Map of handlungsdimension key to database ID.
+     * @param array<int, int> $sdgZielIdMap Map of original SDG ID to database ID for legacy SDG relation syncing.
+     * @return array<string, int> Map of original tile ID to database ID.
      */
-    public function run(Collection $tiles, array $categoryIdMap, array $handlungsdimensionIdMap = [], array $sdgZielIdMap = []): array
+    public function run(
+        Collection $tiles,
+        array $categoryIdMap,
+        array $handlungsdimensionCategoryMap = [],
+        array $sdgZielCategoryMap = [],
+        array $handlungsdimensionIdMap = [],
+        array $sdgZielIdMap = []
+    ): array
     {
         $tileIdMap = [];
 
@@ -131,11 +145,24 @@ class TileSeeder extends Seeder
                 }
             }
 
-            // Attach categories (handlungsfelder)
+            // Attach categories across all groups
             $categoryIds = $this->mapCategoryIds($parsedTile->categoryIds, $categoryIdMap);
-            $tile->categories()->sync($categoryIds);
 
-            // Attach SDG-Ziele
+            if (! empty($handlungsdimensionCategoryMap) && $parsedTile->handlungsdimension) {
+                $dimensionCategoryId = $handlungsdimensionCategoryMap[$parsedTile->handlungsdimension] ?? null;
+                if ($dimensionCategoryId) {
+                    $categoryIds[] = $dimensionCategoryId;
+                }
+            }
+
+            if (! empty($sdgZielCategoryMap)) {
+                $sdgZielIds = $this->mapSDGZielIds($parsedTile->sdgZielIds, $sdgZielCategoryMap);
+                $categoryIds = array_merge($categoryIds, $sdgZielIds);
+            }
+
+            $tile->categories()->sync(array_unique($categoryIds));
+
+            // Keep legacy SDG relations in sync for backwards compatibility
             if (! empty($sdgZielIdMap)) {
                 $sdgZielIds = $this->mapSDGZielIds($parsedTile->sdgZielIds, $sdgZielIdMap);
                 $tile->sdgZiele()->sync($sdgZielIds);
@@ -458,4 +485,3 @@ class TileSeeder extends Seeder
             ->toArray();
     }
 }
-

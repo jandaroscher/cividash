@@ -15,13 +15,15 @@ use Illuminate\Support\Facades\Schema;
 class TileController extends Controller
 {
     /**
-     * Return a collection of TileResource instances ordered by tile position.
-     *
-     * The returned resources include eager-loaded `categories` and `tileYears.metrics`.
-     *
-     * @param Request $request Request that may contain an optional `locale` query parameter for localization.
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection A collection of TileResource objects representing tiles ordered by `position`.
-     */
+         * Retrieve tiles ordered by their position with required relations loaded for TileResource.
+         *
+         * Loads categories.group, active metricDefinitions with their active metricValues and associated tileYear, and tileYears.
+         * If the tiles table has an `is_public` column, only tiles with `is_public = true` are included.
+         * The request is forwarded to the resource so a `locale` query parameter can be used by the TileResource.
+         *
+         * @param Request $request Optional request that may contain a `locale` query parameter used by the resource.
+         * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection A collection of TileResource objects ordered by `position`.
+         */
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Tile::query();
@@ -31,9 +33,7 @@ class TileController extends Controller
         }
 
         $tiles = $query->with([
-            'categories',
-            'handlungsdimension',
-            'sdgZiele',
+            'categories.group',
             'metricDefinitions' => function ($metricQuery) {
                 $metricQuery->where('is_active', true)
                     ->with([
@@ -53,10 +53,16 @@ class TileController extends Controller
     }
 
     /**
-     * Create a TileResource for the provided Tile with categories and tile years' metrics preloaded.
+     * Retrieve a tile by slug (locale-aware) and return it as a TileResource.
      *
-     * @param \App\Models\Tile $tile The Tile model to wrap.
-     * @return \App\Http\Resources\TileResource A resource representing the tile including its categories and tile years' metrics.
+     * Attempts to resolve the tile using the optional `locale` query parameter (allowed: "de", "en")
+     * with fallbacks. If not found by slug and the slug is numeric, the method will try to load by primary key.
+     * If no tile is found, a 404 response is triggered. The returned resource includes preloaded relations:
+     * categories.group, active metricDefinitions with their active metricValues and tileYear, and tileYears.
+     *
+     * @param \Illuminate\Http\Request $request HTTP request (may include `locale` query parameter).
+     * @param string $slug The tile slug (or numeric id as fallback) to look up.
+     * @return \App\Http\Resources\TileResource The resolved tile wrapped as a TileResource with related data loaded.
      */
     public function show(Request $request, string $slug): TileResource
     {
@@ -100,9 +106,7 @@ class TileController extends Controller
         }
 
         $tile->load([
-            'categories',
-            'handlungsdimension',
-            'sdgZiele',
+            'categories.group',
             'metricDefinitions' => function ($metricQuery) {
                 $metricQuery->where('is_active', true)
                     ->with([

@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\CategoryGroup;
+use App\Models\Tenant;
 use App\Services\DashboardJsonParser;
 use App\Services\MediaDownloadService;
 use Illuminate\Database\Seeder;
@@ -42,15 +44,30 @@ class CategorySeeder extends Seeder
         $this->mediaDownloadService = $mediaDownloadService;
     }
     /**
-     * Run the category seeder.
+     * Seed categories from parsed input by creating or updating database records.
      *
-     * @param Collection<int, \App\Services\ParsedCategory> $categories
-     * @return array<string, int> Map of original category ID to database ID
+     * Creates new or updates existing Category records (matched by the German slug),
+     * assigns them to the resolved "fields" category group, optionally downloads and
+     * attaches icon assets when enabled, updates position, source hash, and
+     * last_synced_at, and returns a mapping of original parsed category IDs to
+     * database record IDs.
+     *
+     * @param Collection<int, \App\Services\ParsedCategory> $categories Parsed categories to seed.
+     * @return array<string, int> Map of original category ID to database ID.
      */
     public function run(Collection $categories): array
     {
         $idMap = [];
         $position = 0;
+        $group = $this->resolveFieldsGroup();
+
+        if (! $group) {
+            if ($this->command) {
+                $this->command->error('Could not resolve Fields CategoryGroup. Aborting category seeding.');
+            }
+
+            return [];
+        }
 
         foreach ($categories as $parsedCategory) {
             $slugDe = trim($parsedCategory->title); // Trim whitespace
@@ -86,10 +103,12 @@ class CategorySeeder extends Seeder
 
             if (! $category) {
                 $category = new Category();
+                $category->category_group_id = $group->id;
+                $category->tenant_id = $group->tenant_id;
                 $category->slug = $slugArray;
-                // Only set icon if we have a valid path
+                // Only set icon if we have a valid path - use JSON format for consistency with SDGZielSeeder
                 if (! empty($iconPath)) {
-                    $category->icon = $iconPath;
+                    $category->icon = json_encode(['de' => $iconPath], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                 }
                 $category->position = $position;
                 $category->last_synced_at = now();
@@ -107,13 +126,24 @@ class CategorySeeder extends Seeder
                     $needsUpdate = true;
                 }
                 // Update icon only if we have a valid path and (existing icon is empty or different)
-                if (! empty($iconPath) && (empty($category->icon) || $category->icon !== $iconPath)) {
-                    $category->icon = $iconPath;
-                    $needsUpdate = true;
+                if (! empty($iconPath)) {
+                    $newIconJson = json_encode(['de' => $iconPath], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    if (empty($category->icon) || $category->icon !== $newIconJson) {
+                        $category->icon = $newIconJson;
+                        $needsUpdate = true;
+                    }
                 }
                 // Update position if different
                 if ($category->position !== $position) {
                     $category->position = $position;
+                    $needsUpdate = true;
+                }
+                if ($category->category_group_id !== $group->id) {
+                    $category->category_group_id = $group->id;
+                    $needsUpdate = true;
+                }
+                if ($category->tenant_id !== $group->tenant_id) {
+                    $category->tenant_id = $group->tenant_id;
                     $needsUpdate = true;
                 }
                 // Update source hash and last_synced_at if data changed
@@ -137,6 +167,48 @@ class CategorySeeder extends Seeder
         }
 
         return $idMap;
+    }
+
+    /**
+     * Upserts and returns the "fields" CategoryGroup scoped to the resolved tenant.
+     *
+     * Resolves the tenant id and ensures a CategoryGroup with key "fields" exists for that tenant,
+     * creating it with predefined attributes or updating the existing record.
+     *
+     * @return CategoryGroup|null The CategoryGroup instance after creation or update.
+     */
+    protected function resolveFieldsGroup(): ?CategoryGroup
+    {
+        $tenantId = $this->resolveTenantId();
+
+        return CategoryGroup::updateOrCreate(
+            ['tenant_id' => $tenantId, 'key' => 'fields'],
+            [
+                'title' => ['de' => 'Handlungsfelder', 'en' => 'Action Fields'],
+                'position' => 0,
+                'is_filterable' => true,
+                'is_color_source' => false,
+                'selection_type' => 'multi',
+            ]
+        );
+    }
+
+    /**
+     * Resolve the current tenant ID, preferring the Filament tenant when available and falling back to available tenants.
+     *
+     * Falls back to: 'default' slug -> 'stadt-regensburg' slug -> first available tenant.
+     *
+     * @return int|null The resolved tenant ID, or `null` if no tenant could be determined.
+     */
+    protected function resolveTenantId(): ?int
+    {
+        if (class_exists(\Filament\Facades\Filament::class) && \Filament\Facades\Filament::getTenant()) {
+            return \Filament\Facades\Filament::getTenant()->id;
+        }
+
+        return Tenant::where('slug', 'default')->value('id')
+            ?? Tenant::where('slug', 'stadt-regensburg')->value('id')
+            ?? Tenant::first()?->id;
     }
 
     /**
@@ -193,4 +265,3 @@ class CategorySeeder extends Seeder
         return hash('sha256', json_encode($dataToHash, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 }
-

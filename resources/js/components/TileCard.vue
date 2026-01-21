@@ -164,21 +164,25 @@ const footnote = computed(() => {
     return null;
 });
 
+const tileColor = computed(() => {
+    if (props.tile.tile_color) {
+        return props.tile.tile_color;
+    }
+    const categories = props.tile.categories || [];
+    const colorCategory = categories.find(category => category.group?.is_color_source && category.color);
+    return colorCategory?.color || null;
+});
+
 const backgroundClass = computed(() => {
-    // Verwende color direkt aus handlungsdimension, falls vorhanden
-    if (props.tile.handlungsdimension?.color) {
-        // Keine Klasse, verwende inline style
+    if (tileColor.value) {
         return null;
     }
-    
-    // Fallback: Wenn keine color vorhanden, verwende Standard-Grau
     return 'bg-gray-100';
 });
 
 const backgroundColorStyle = computed(() => {
-    // Verwende color direkt aus handlungsdimension, falls vorhanden
-    if (props.tile.handlungsdimension?.color) {
-        return { backgroundColor: props.tile.handlungsdimension.color };
+    if (tileColor.value) {
+        return { backgroundColor: tileColor.value };
     }
     return {};
 });
@@ -188,47 +192,20 @@ const shouldShow = computed(() => {
         return true;
     }
     
-    const filterType = filterStore.level1Filter; // 'dimensions' | 'fields' | 'sdg' | null
+    const filterType = filterStore.level1Filter;
     const filterKey = filterStore.level2Filter.key;
-    const filters = [];
-    
-    // Dimensions filter: check handlungsdimension
-    if (filterType === 'dimensions') {
-        const dimension = props.tile.handlungsdimension;
-        if (dimension) {
-            const dimensionKey = typeof dimension === 'string' 
-                ? dimension 
-                : (dimension.key || dimension.id?.toString() || null);
-            if (dimensionKey) {
-                filters.push(String(dimensionKey));
+
+    const categories = props.tile.categories || [];
+    if (Array.isArray(categories) && filterType) {
+        return categories.some((category) => {
+            if (category.group?.key !== filterType) {
+                return false;
             }
-        }
-        return filters.includes(filterKey);
-    }
-    
-    // Fields filter: check handlungsfelder (categories)
-    if (filterType === 'fields' || !filterType) {
-        const categories = props.tile.handlungsfelder || props.tile.categories || [];
-        
-        categories.forEach((cat) => {
-            if (cat.id) {
-                filters.push(cat.id.toString());
-            }
+            const categoryKey = category.id?.toString() || category.key;
+            return categoryKey === filterKey || category.key === filterKey;
         });
-        return filters.includes(filterKey);
     }
-    
-    // SDG filter: check sdg_ziele
-    if (filterType === 'sdg') {
-        const sdgZiele = props.tile.sdg_ziele || [];
-        sdgZiele.forEach((sdg) => {
-            if (sdg.id) {
-                filters.push(sdg.id.toString());
-            }
-        });
-        return filters.includes(filterKey);
-    }
-    
+
     return true;
 });
 

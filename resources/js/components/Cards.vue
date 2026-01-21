@@ -1,9 +1,11 @@
 <template>
     <div class="container pt-6 md:mb-10 px-3 sm:px-[30px] overflow-hidden">
         <VueFlexWaterfall
-            v-if="filteredTiles.length > 0"
+            v-if="filteredTiles.length > 0 && isReady"
+            :key="`waterfall-${currentLocale}`"
             ref="waterfall"
             class="h-full max-w-[363px] mx-auto md:max-w-none md:mx-0"
+            :style="{ minHeight: '200px', visibility: isTransitioning ? 'hidden' : 'visible' }"
             align-content="center"
             :col="colCount"
             col-spacing="40"
@@ -44,8 +46,11 @@ const { currentLocale } = useLocale();
 const waterfall = ref(null);
 const colCount = ref(3);
 const mdColCount = ref(2);
+const isReady = ref(false); // Control when waterfall renders to prevent MutationObserver errors
+const isTransitioning = ref(false); // Hide waterfall during filter transitions to prevent flicker
 let resizeObserver = null;
 let layoutUpdateTimeout = null;
+let refreshLayoutTimeout = null; // Debounce filter changes to prevent flicker
 const cardHeights = new Map(); // Track card heights to detect actual changes
 
 // Function to check if a tile matches the search query
@@ -84,39 +89,23 @@ function isTileVisible(tile) {
         return true;
     }
 
-    const filterType = filterStore.level1Filter; // 'dimensions' | 'fields' | 'sdg' | null
+    const filterType = filterStore.level1Filter;
     const filterKey = filterStore.level2Filter.key;
 
-    if (filterType === 'dimensions') {
-        const dimension = tile.handlungsdimension;
-        if (!dimension) {
-            return false;
-        }
-        const dimensionKey = typeof dimension === 'string' 
-            ? dimension 
-            : (dimension.key || dimension.id?.toString() || null);
-        
-        if (!dimensionKey) {
-            return false;
-        }
-        
-        return String(dimensionKey) === String(filterKey);
-    }
-    
-    if (filterType === 'fields' || !filterType) {
-        const categories = tile.handlungsfelder || tile.categories || [];
-        return categories.some(cat => {
-            return cat.id?.toString() === filterKey;
+    const categories = tile.categories || [];
+    if (Array.isArray(categories) && filterType) {
+        const normalizedFilterKey = String(filterKey ?? '');
+        return categories.some(category => {
+            const groupKey = category.group?.key;
+            if (groupKey !== filterType) {
+                return false;
+            }
+            const categoryIdentifier = String(category.id ?? category.key ?? '');
+            const categoryKey = String(category.key ?? '');
+            return categoryIdentifier === normalizedFilterKey || categoryKey === normalizedFilterKey;
         });
     }
-    
-    if (filterType === 'sdg') {
-        const sdgZiele = tile.sdg_ziele || [];
-        return sdgZiele.some(sdg => {
-            return sdg.id?.toString() === filterKey;
-        });
-    }
-    
+
     return true;
 }
 
@@ -150,6 +139,8 @@ function updateLayout() {
 watch(
     () => filterStore.level2Filter,
     (filter) => {
+        // Hide waterfall immediately to prevent layout flash
+        isTransitioning.value = true;
         refreshLayout(filter);
     },
     { deep: true }
@@ -158,19 +149,31 @@ watch(
 watch(
     () => filterStore.searchQuery,
     () => {
+        // Hide waterfall immediately to prevent layout flash
+        isTransitioning.value = true;
         refreshLayout(filterStore.level2Filter);
     }
 );
 
 watch(
     filteredTiles,
-    () => {
+    (newTiles, oldTiles) => {
+        // Only transition if tile count changed significantly (filter change, not initial load)
+        if (oldTiles && oldTiles.length !== newTiles.length) {
+            isTransitioning.value = true;
+        }
         refreshLayout(filterStore.level2Filter);
     }
 );
 
 function setupResizeObserver() {
-    if (!waterfall.value?.$el) {
+    // Improved null checks to prevent MutationObserver errors during locale switch
+    if (!waterfall.value || !waterfall.value.$el) {
+        return;
+    }
+    
+    const container = waterfall.value.$el;
+    if (!(container instanceof Node)) {
         return;
     }
     
@@ -202,7 +205,7 @@ function setupResizeObserver() {
     });
     
     // Observe all tile cards for size changes
-    const tileCards = waterfall.value.$el.querySelectorAll('.shadow-card');
+    const tileCards = container.querySelectorAll('.shadow-card');
     tileCards.forEach((card) => {
         // Store initial height
         cardHeights.set(card, card.offsetHeight);
@@ -211,12 +214,18 @@ function setupResizeObserver() {
 }
 
 function setupImageLoadListeners() {
-    if (!waterfall.value?.$el) {
+    // Improved null checks to prevent errors during locale switch
+    if (!waterfall.value || !waterfall.value.$el) {
+        return;
+    }
+    
+    const container = waterfall.value.$el;
+    if (!(container instanceof Node)) {
         return;
     }
     
     // Listen for image load events that might change tile heights
-    const images = waterfall.value.$el.querySelectorAll('img[loading="lazy"]');
+    const images = container.querySelectorAll('img[loading="lazy"]');
     images.forEach((img) => {
         if (!img.complete) {
             const onLoad = () => {
@@ -231,19 +240,47 @@ function setupImageLoadListeners() {
 }
 
 onMounted(() => {
-    // Wait for tiles to be loaded and DOM to be ready
+    // Wait for DOM to be ready before allowing waterfall to render
     nextTick(() => {
-        if (tilesStore.tiles.length > 0) {
-            refreshLayout(filterStore.level2Filter);
-        }
+        isReady.value = true;
         
-        // Set up observers after initial layout
         nextTick(() => {
-            setupResizeObserver();
-            setupImageLoadListeners();
+            if (tilesStore.tiles.length > 0) {
+                refreshLayout(filterStore.level2Filter);
+            }
+            
+            // Set up observers after initial layout
+            nextTick(() => {
+                setupResizeObserver();
+                setupImageLoadListeners();
+            });
         });
     });
 });
+
+// Handle locale changes - reset isReady to force clean remount of waterfall
+watch(
+    currentLocale,
+    async (newLocale, oldLocale) => {
+        if (newLocale !== oldLocale && oldLocale !== undefined) {
+            // Hide waterfall during transition
+            isReady.value = false;
+            
+            // Wait for DOM to update
+            await nextTick();
+            
+            // Show waterfall again after DOM is ready
+            await nextTick();
+            isReady.value = true;
+            
+            // Setup observers after remount
+            await nextTick();
+            setupResizeObserver();
+            setupImageLoadListeners();
+        }
+    },
+    { immediate: false }
+);
 
 onBeforeUnmount(() => {
     if (resizeObserver) {
@@ -254,41 +291,59 @@ onBeforeUnmount(() => {
         cancelAnimationFrame(layoutUpdateTimeout);
         layoutUpdateTimeout = null;
     }
+    if (refreshLayoutTimeout) {
+        cancelAnimationFrame(refreshLayoutTimeout);
+        refreshLayoutTimeout = null;
+    }
     cardHeights.clear();
 });
 
 function refreshLayout(filter) {
-    const cardCount = visibleTilesCount.value;
-
-    if (cardCount === 1) {
-        colCount.value = 1;
-        mdColCount.value = 1;
-    } else if (cardCount === 2) {
-        colCount.value = 2;
-        mdColCount.value = 2;
-    } else {
-        colCount.value = 3;
-        mdColCount.value = 2;
+    // Cancel any pending refresh to debounce multiple rapid filter changes
+    if (refreshLayoutTimeout) {
+        cancelAnimationFrame(refreshLayoutTimeout);
     }
+    
+    // Use requestAnimationFrame to batch updates and prevent flicker
+    refreshLayoutTimeout = requestAnimationFrame(() => {
+        const cardCount = visibleTilesCount.value;
 
-    // Use setTimeout with 1ms delay like the reference app
-    // This ensures the DOM is ready before updating the layout
-    nextTick(() => {
-        setTimeout(() => {
-            if (waterfall.value && filteredTiles.value.length > 0) {
-                try {
-                    waterfall.value.updateOrder();
-                    
-                    // Re-setup observers after layout refresh
-                    nextTick(() => {
-                        setupResizeObserver();
-                        setupImageLoadListeners();
-                    });
-                } catch (error) {
-                    console.error('Error refreshing waterfall layout:', error);
+        if (cardCount === 1) {
+            colCount.value = 1;
+            mdColCount.value = 1;
+        } else if (cardCount === 2) {
+            colCount.value = 2;
+            mdColCount.value = 2;
+        } else {
+            colCount.value = 3;
+            mdColCount.value = 2;
+        }
+
+        // Use setTimeout with 1ms delay like the reference app
+        // This ensures the DOM is ready before updating the layout
+        nextTick(() => {
+            setTimeout(() => {
+                if (waterfall.value && filteredTiles.value.length > 0) {
+                    try {
+                        waterfall.value.updateOrder();
+                        
+                        // Re-setup observers and show waterfall after layout is complete
+                        nextTick(() => {
+                            setupResizeObserver();
+                            setupImageLoadListeners();
+                            // Show waterfall after positioning is complete
+                            isTransitioning.value = false;
+                        });
+                    } catch (error) {
+                        logError('Error refreshing waterfall layout:', error);
+                        isTransitioning.value = false;
+                    }
+                } else {
+                    // No tiles to show, end transition
+                    isTransitioning.value = false;
                 }
-            }
-        }, 1);
+            }, 1);
+        });
     });
 }
 </script>

@@ -111,6 +111,11 @@ class HandlungsfeldResource extends Resource
         ];
     }
 
+    /**
+     * Defines the resource's page routes for listing, creating, and editing records.
+     *
+     * @return array<string, string> Map of page keys ("index", "create", "edit") to their route URIs.
+     */
     public static function getPages(): array
     {
         return [
@@ -118,5 +123,15 @@ class HandlungsfeldResource extends Resource
             'create' => Pages\CreateHandlungsfeld::route('/create'),
             'edit' => Pages\EditHandlungsfeld::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * Determine whether this resource is registered in the admin navigation.
+     *
+     * @return bool `true` if the resource should be shown in navigation, `false` otherwise.
+     */
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
     }
 }

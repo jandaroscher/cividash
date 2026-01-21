@@ -3,22 +3,26 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\HandlungsdimensionResource;
-use App\Http\Resources\HandlungsfeldResource;
-use App\Http\Resources\SDGZielResource;
-use App\Models\Category;
-use App\Models\Handlungsdimension;
-use App\Models\SDGZiel;
+use App\Http\Resources\CategoryGroupResource;
+use App\Models\CategoryGroup;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class FilterController extends Controller
 {
     /**
-     * Return filter category labels and filter data based on locale.
+     * Provide filter labels and category group data for the requested locale.
      *
-     * @param \Illuminate\Http\Request $request Request that may contain an optional `locale` query parameter.
-     * @return JsonResource Filter labels and filter data for the requested locale.
+     * The response contains a 'labels' key with locale-specific label strings and a
+     * 'groups' key with an array representation of filterable category groups
+     * (each group includes its categories ordered by position). Locale is read
+     * from the `locale` query parameter and defaults to 'de'; unsupported locales
+     * fall back to 'de'.
+     *
+     * @param \Illuminate\Http\Request $request Request that may include a `locale` query parameter ('de' or 'en').
+     * @return \Illuminate\Http\Resources\Json\JsonResource A resource with keys:
+     *         - `labels`: array of locale-specific labels,
+     *         - `groups`: array of category group resources prepared for the resolved locale.
      */
     public function index(Request $request): JsonResource
     {
@@ -29,36 +33,30 @@ class FilterController extends Controller
             $locale = 'de';
         }
 
-        // Filter labels
+        // Filter labels (only header is static)
         $labels = [
             'de' => [
-                'dimensions' => 'Handlungsdimensionen',
-                'fields' => 'Handlungsfelder',
-                'sdg' => 'SDG-Ziele',
                 'header' => 'Filter',
             ],
             'en' => [
-                'dimensions' => 'Action Dimensions',
-                'fields' => 'Action Fields',
-                'sdg' => 'SDG Goals',
                 'header' => 'Filter',
             ],
         ];
 
-        // Fetch filter data from database
-        $dimensionen = Handlungsdimension::orderBy('position')->get();
-        $handlungsfelder = Category::orderBy('position')->get();
-        $sdgZiele = SDGZiel::orderBy('number')->get();
+        $groups = CategoryGroup::query()
+            ->where('is_filterable', true)
+            ->with(['categories' => function ($query) {
+                $query->orderBy('position');
+            }])
+            ->orderBy('position')
+            ->get();
 
         // Create a new request with locale query parameter for resources
         $resourceRequest = Request::create($request->url(), 'GET', ['locale' => $locale]);
 
         return new JsonResource([
             'labels' => $labels[$locale],
-            'dimensions' => HandlungsdimensionResource::collection($dimensionen)->toArray($resourceRequest),
-            'fields' => HandlungsfeldResource::collection($handlungsfelder)->toArray($resourceRequest),
-            'sdg' => SDGZielResource::collection($sdgZiele)->toArray($resourceRequest),
+            'groups' => CategoryGroupResource::collection($groups)->toArray($resourceRequest),
         ]);
     }
 }
-

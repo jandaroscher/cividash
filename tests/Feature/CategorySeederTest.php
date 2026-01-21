@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\CategoryGroup;
 use App\Models\Tenant;
 use App\Services\DashboardJsonParser;
 use App\Services\MediaDownloadService;
@@ -22,15 +23,16 @@ class CategorySeederTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+        $defaultTenant = Tenant::firstOrCreate(
+            ['slug' => 'default'],
+            ['name' => 'Default Tenant']
+        );
+
         // Create user and authenticate for Filament tenant context
         $user = \App\Models\User::factory()->create();
-        $tenant = Tenant::where('slug', 'default')->first();
-        if ($tenant) {
-            $user->tenants()->sync([$tenant->id]);
-            Filament::auth()->login($user);
-            Filament::setTenant($tenant);
-        }
+        $user->tenants()->sync([$defaultTenant->id]);
+        Filament::auth()->login($user);
+        Filament::setTenant($defaultTenant);
         
         $this->seeder = new CategorySeeder(new MediaDownloadService());
     }
@@ -43,10 +45,12 @@ class CategorySeederTest extends TestCase
         ]);
 
         $idMap = $this->seeder->run($categories);
+        $group = CategoryGroup::where('key', 'fields')->first();
 
         $this->assertCount(2, $idMap);
         $this->assertArrayHasKey(1, $idMap);
         $this->assertArrayHasKey(2, $idMap);
+        $this->assertNotNull($group);
 
         $this->assertDatabaseCount('categories', 2);
         $this->assertDatabaseHas('categories', [
@@ -54,6 +58,10 @@ class CategorySeederTest extends TestCase
         ]);
         $this->assertDatabaseHas('categories', [
             'id' => $idMap[2],
+        ]);
+        $this->assertDatabaseHas('categories', [
+            'id' => $idMap[1],
+            'category_group_id' => $group->id,
         ]);
     }
 
