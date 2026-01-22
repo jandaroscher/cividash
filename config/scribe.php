@@ -2,7 +2,6 @@
 
 use Knuckles\Scribe\Extracting\Strategies;
 use Knuckles\Scribe\Config\Defaults;
-use Knuckles\Scribe\Config\AuthIn;
 use function Knuckles\Scribe\Config\{removeStrategies, configureStrategy};
 
 // Only the most common configs are shown. See the https://scribe.knuckles.wtf/laravel/reference/config for all.
@@ -88,7 +87,7 @@ return [
     'auth' => [
         'enabled' => true,
         'default' => false,
-        'in' => AuthIn::BEARER->value,
+        'in' => 'bearer',
         'name' => 'Authorization',
         'use_value' => env('SCRIBE_AUTH_KEY'),
         'placeholder' => '{YOUR_AUTH_TOKEN}',
