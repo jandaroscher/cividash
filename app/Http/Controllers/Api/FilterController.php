@@ -8,18 +8,25 @@ use App\Models\CategoryGroup;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @group Public API - Filters
+ *
+ * Endpoints for retrieving filter options (category groups and categories). No authentication required.
+ */
 class FilterController extends Controller
 {
     /**
-         * Return locale-specific filter labels and filterable category groups.
-         *
-         * Reads the `locale` query parameter ('de' or 'en') and falls back to `'de'` if absent or unsupported.
-         *
-         * @param \Illuminate\Http\Request $request Request that may include a `locale` query parameter ('de' or 'en').
-         * @return \Illuminate\Http\Resources\Json\JsonResource An array with keys:
-         *         - `labels`: array of label strings for the resolved locale,
-         *         - `groups`: array of filterable category group resources (each group contains its categories ordered by position).
-         */
+     * Get available filters
+     *
+     * Returns locale-specific filter labels and filterable category groups with their categories.
+     * Only active and filterable groups/categories are included, ordered by position.
+     *
+     * @unauthenticated
+     *
+     * @queryParam locale string Locale for translations (de or en). Defaults to de. Example: de
+     *
+     * @response 200 scenario="Filters retrieved" {"data": {"labels": {"header": "Filter"}, "groups": [{"id": 1, "name": "Handlungsfeld", "slug": "handlungsfeld", "icon": "category", "categories": [{"id": 1, "name": "Energie", "slug": "energie", "color": "#ff5722"}]}]}}
+     */
     public function index(Request $request): JsonResource
     {
         $locale = $request->query('locale', 'de');

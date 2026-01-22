@@ -8,15 +8,31 @@ use App\Http\Requests\Admin\UpdateMetricValueRequest;
 use App\Models\MetricValue;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @group Admin API - Metric Values
+ *
+ * Endpoints for managing metric values (actual KPI data). Requires authentication with admin-api ability.
+ */
 class AdminMetricValueController extends Controller
 {
     /**
-     * Create a new MetricValue scoped to the current tenant.
+     * Create a new metric value
      *
-     * The incoming request is validated; `tenant_id` is assigned automatically by the tenant-scoping trait.
+     * Stores the actual value for a metric definition in a specific tile year.
+     * The tenant_id is automatically set from the token's tenant context.
      *
-     * @param StoreMetricValueRequest $request Validated request data for the new metric value.
-     * @return JsonResponse JSON with a `data` object containing `id`, `metric_definition_id`, `tile_year_id`, `value`, `tenant_id`, and `created_at` (ISO 8601). HTTP status 201.
+     * @authenticated
+     *
+     * @bodyParam metric_definition_id integer required The ID of the metric definition. Example: 5
+     * @bodyParam tile_year_id integer required The ID of the tile year. Example: 10
+     * @bodyParam value numeric required The actual metric value. Example: 150000
+     * @bodyParam is_active boolean Whether the value is active. Example: true
+     *
+     * @response 201 scenario="Metric value created" {"data": {"id": 100, "metric_definition_id": 5, "tile_year_id": 10, "value": 150000, "is_active": true, "tenant_id": 1, "created_at": "2025-01-22T10:00:00+00:00"}}
+     * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
+     * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
+     * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
+     * @response 422 scenario="Validation error" {"message": "The value field is required.", "errors": {"value": ["The value field is required."]}}
      */
     public function store(StoreMetricValueRequest $request): JsonResponse
     {
@@ -36,15 +52,25 @@ class AdminMetricValueController extends Controller
     }
 
     /**
-     * Update the specified MetricValue.
+     * Update a metric value
      *
-     * The response contains the updated resource representation. The `tenant_id` field
-     * is not modifiable via this endpoint.
+     * Updates an existing metric value. Only metric values belonging to the authenticated
+     * user's tenant can be updated. The tenant_id cannot be changed.
      *
-     * @param UpdateMetricValueRequest $request Validated input for updating the metric value.
-     * @param int $id ID of the MetricValue to update.
-     * @return \Illuminate\Http\JsonResponse JSON with a `data` object containing `id`, `metric_definition_id`,
-     * `tile_year_id`, `value`, `tenant_id`, and `updated_at` (ISO 8601 string or null).
+     * @authenticated
+     *
+     * @urlParam id integer required The ID of the metric value. Example: 100
+     *
+     * @bodyParam metric_definition_id integer The ID of the metric definition. Example: 5
+     * @bodyParam tile_year_id integer The ID of the tile year. Example: 10
+     * @bodyParam value numeric The actual metric value. Example: 155000
+     * @bodyParam is_active boolean Whether the value is active.
+     *
+     * @response 200 scenario="Metric value updated" {"data": {"id": 100, "metric_definition_id": 5, "tile_year_id": 10, "value": 155000, "is_active": true, "tenant_id": 1, "updated_at": "2025-01-22T10:30:00+00:00"}}
+     * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
+     * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
+     * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
+     * @response 404 scenario="Metric value not found" {"message": "No query results for model [App\\Models\\MetricValue] 999"}
      */
     public function update(UpdateMetricValueRequest $request, int $id): JsonResponse
     {
@@ -66,10 +92,20 @@ class AdminMetricValueController extends Controller
     }
 
     /**
-     * Delete the metric value identified by the given ID within the current tenant context.
+     * Delete a metric value
      *
-     * @param int $id The ID of the metric value to delete.
-     * @return \Illuminate\Http\JsonResponse A JSON response with a null payload and HTTP status 204 No Content.
+     * Permanently deletes a metric value. Only metric values belonging to the authenticated
+     * user's tenant can be deleted.
+     *
+     * @authenticated
+     *
+     * @urlParam id integer required The ID of the metric value to delete. Example: 100
+     *
+     * @response 204 scenario="Metric value deleted"
+     * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
+     * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
+     * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
+     * @response 404 scenario="Metric value not found" {"message": "No query results for model [App\\Models\\MetricValue] 999"}
      */
     public function destroy(int $id): JsonResponse
     {

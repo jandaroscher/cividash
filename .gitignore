@@ -36,3 +36,7 @@ logs
 *.log
 playwright-report/
 test-results/
+.scribe/
+resources/views/scribe/
+public/vendor/scribe/
+public/docs/

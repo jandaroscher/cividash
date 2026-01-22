@@ -8,16 +8,29 @@ use App\Http\Requests\Admin\UpdateTileYearRequest;
 use App\Models\TileYear;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @group Admin API - Tile Years
+ *
+ * Endpoints for managing tile years (data points per year). Requires authentication with admin-api ability.
+ */
 class AdminTileYearController extends Controller
 {
     /**
-     * Create a new TileYear and return its representation.
+     * Create a new tile year
      *
-     * The created resource includes `id`, `tile_id`, `year`, `tenant_id`, and `created_at` (ISO 8601).
-     * The `tenant_id` is populated automatically from the tenant context.
+     * Associates a year with a tile for storing year-specific metric values.
+     * The tenant_id is automatically set from the token's tenant context.
      *
-     * @param StoreTileYearRequest $request Validated input for the new TileYear.
-     * @return JsonResponse JSON payload with a `data` object describing the created TileYear; HTTP status 201.
+     * @authenticated
+     *
+     * @bodyParam tile_id integer required The ID of the parent tile. Example: 42
+     * @bodyParam year integer required The year (e.g., 2024). Example: 2024
+     *
+     * @response 201 scenario="Tile year created" {"data": {"id": 10, "tile_id": 42, "year": 2024, "tenant_id": 1, "created_at": "2025-01-22T10:00:00+00:00"}}
+     * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
+     * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
+     * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
+     * @response 422 scenario="Validation error" {"message": "The tile id field is required.", "errors": {"tile_id": ["The tile id field is required."]}}
      */
     public function store(StoreTileYearRequest $request): JsonResponse
     {
@@ -35,15 +48,25 @@ class AdminTileYearController extends Controller
     }
 
     /**
-         * Update the specified TileYear resource.
-         *
-         * tenant_id cannot be changed via this endpoint.
-         *
-         * @param UpdateTileYearRequest $request Validated request data for the update.
-         * @param int $id The identifier of the TileYear to update.
-         * @return \Illuminate\Http\JsonResponse JSON object with a `data` key containing `id`, `tile_id`, `year`, `tenant_id`, and `updated_at` (ISO 8601 string when present).
-         * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If no TileYear exists with the given id.
-         */
+     * Update a tile year
+     *
+     * Updates an existing tile year. Only tile years belonging to the authenticated user's tenant
+     * can be updated. The tenant_id cannot be changed.
+     *
+     * @authenticated
+     *
+     * @urlParam id integer required The ID of the tile year. Example: 10
+     *
+     * @bodyParam tile_id integer The ID of the parent tile. Example: 42
+     * @bodyParam year integer The year. Example: 2025
+     *
+     * @response 200 scenario="Tile year updated" {"data": {"id": 10, "tile_id": 42, "year": 2025, "tenant_id": 1, "updated_at": "2025-01-22T10:30:00+00:00"}}
+     * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
+     * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
+     * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
+     * @response 404 scenario="Tile year not found" {"message": "No query results for model [App\\Models\\TileYear] 999"}
+     * @response 422 scenario="Validation error" {"message": "The year must be an integer.", "errors": {"year": ["The year must be an integer."]}}
+     */
     public function update(UpdateTileYearRequest $request, int $id): JsonResponse
     {
         $tileYear = TileYear::findOrFail($id);
@@ -62,12 +85,20 @@ class AdminTileYearController extends Controller
     }
 
     /**
-     * Delete the specified tile year.
+     * Delete a tile year
      *
-     * Only tile years within the current tenant context can be deleted.
+     * Permanently deletes a tile year. Only tile years belonging to the authenticated user's tenant
+     * can be deleted. Attempting to delete a tile year from another tenant returns 404.
      *
-     * @param int $id The identifier of the TileYear to delete.
-     * @return \Illuminate\Http\JsonResponse A JSON response with HTTP status 204 (No Content) and a null body.
+     * @authenticated
+     *
+     * @urlParam id integer required The ID of the tile year to delete. Example: 10
+     *
+     * @response 204 scenario="Tile year deleted"
+     * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
+     * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
+     * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
+     * @response 404 scenario="Tile year not found" {"message": "No query results for model [App\\Models\\TileYear] 999"}
      */
     public function destroy(int $id): JsonResponse
     {

@@ -8,17 +8,34 @@ use App\Http\Requests\Admin\UpdateMetricDefinitionRequest;
 use App\Models\MetricDefinition;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @group Admin API - Metric Definitions
+ *
+ * Endpoints for managing metric definitions (KPI structure). Requires authentication with admin-api ability.
+ */
 class AdminMetricDefinitionController extends Controller
 {
     /**
-     * Create a new MetricDefinition from validated request data.
+     * Create a new metric definition
      *
-     * The created resource's `tenant_id` is set automatically via the BelongsToTenant trait.
+     * Defines a new metric/KPI for a tile. The tenant_id is automatically set from
+     * the token's tenant context.
      *
-     * @param StoreMetricDefinitionRequest $request The validated input for the new metric definition.
-     * @return JsonResponse JSON response with HTTP 201 containing a `data` object with the created resource:
-     *                      `id`, `tile_id`, `metric_key`, `label`, `unit`, `icon`, `indicator_type`,
-     *                      `tenant_id`, and `created_at` (ISO 8601 string or null).
+     * @authenticated
+     *
+     * @bodyParam tile_id integer required The ID of the parent tile. Example: 42
+     * @bodyParam metric_key string required Unique key for the metric. Example: population
+     * @bodyParam label object Translatable label. Example: {"de": "Einwohnerzahl", "en": "Population"}
+     * @bodyParam unit object Translatable unit. Example: {"de": "Personen", "en": "People"}
+     * @bodyParam icon string Icon identifier. Example: users
+     * @bodyParam indicator_type string Type of indicator (e.g., number, percentage). Example: number
+     * @bodyParam is_active boolean Whether the metric is active. Example: true
+     *
+     * @response 201 scenario="Metric definition created" {"data": {"id": 5, "tile_id": 42, "metric_key": "population", "label": {"de": "Einwohnerzahl", "en": "Population"}, "unit": {"de": "Personen", "en": "People"}, "icon": "users", "indicator_type": "number", "is_active": true, "tenant_id": 1, "created_at": "2025-01-22T10:00:00+00:00"}}
+     * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
+     * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
+     * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
+     * @response 422 scenario="Validation error" {"message": "The metric key field is required.", "errors": {"metric_key": ["The metric key field is required."]}}
      */
     public function store(StoreMetricDefinitionRequest $request): JsonResponse
     {
@@ -41,11 +58,28 @@ class AdminMetricDefinitionController extends Controller
     }
 
     /**
-     * Update the specified metric definition using validated request data; `tenant_id` is not changed.
+     * Update a metric definition
      *
-     * @param UpdateMetricDefinitionRequest $request Validated input for the metric definition's updatable fields.
-     * @param int $id ID of the MetricDefinition to update.
-     * @return \Illuminate\Http\JsonResponse JSON object with a `data` key containing the updated metric definition fields: `id`, `tile_id`, `metric_key`, `label`, `unit`, `icon`, `indicator_type`, `tenant_id`, and `updated_at` (ISO 8601 string or null).
+     * Updates an existing metric definition. Only metric definitions belonging to the authenticated
+     * user's tenant can be updated. The tenant_id cannot be changed.
+     *
+     * @authenticated
+     *
+     * @urlParam id integer required The ID of the metric definition. Example: 5
+     *
+     * @bodyParam tile_id integer The ID of the parent tile. Example: 42
+     * @bodyParam metric_key string Unique key for the metric. Example: population
+     * @bodyParam label object Translatable label. Example: {"de": "Bevölkerung"}
+     * @bodyParam unit object Translatable unit.
+     * @bodyParam icon string Icon identifier.
+     * @bodyParam indicator_type string Type of indicator.
+     * @bodyParam is_active boolean Whether the metric is active.
+     *
+     * @response 200 scenario="Metric definition updated" {"data": {"id": 5, "tile_id": 42, "metric_key": "population", "label": {"de": "Bevölkerung", "en": "Population"}, "unit": {"de": "Personen", "en": "People"}, "icon": "users", "indicator_type": "number", "is_active": true, "tenant_id": 1, "updated_at": "2025-01-22T10:30:00+00:00"}}
+     * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
+     * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
+     * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
+     * @response 404 scenario="Metric definition not found" {"message": "No query results for model [App\\Models\\MetricDefinition] 999"}
      */
     public function update(UpdateMetricDefinitionRequest $request, int $id): JsonResponse
     {
@@ -70,11 +104,20 @@ class AdminMetricDefinitionController extends Controller
     }
 
     /**
-     * Delete a metric definition by its ID.
+     * Delete a metric definition
      *
-     * @param int $id The ID of the metric definition to delete.
-     * @return \Illuminate\Http\JsonResponse Empty response with HTTP 204 No Content on success.
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If no metric definition exists for the given ID.
+     * Permanently deletes a metric definition. Only metric definitions belonging to the authenticated
+     * user's tenant can be deleted. This may also delete associated metric values.
+     *
+     * @authenticated
+     *
+     * @urlParam id integer required The ID of the metric definition to delete. Example: 5
+     *
+     * @response 204 scenario="Metric definition deleted"
+     * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
+     * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
+     * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
+     * @response 404 scenario="Metric definition not found" {"message": "No query results for model [App\\Models\\MetricDefinition] 999"}
      */
     public function destroy(int $id): JsonResponse
     {

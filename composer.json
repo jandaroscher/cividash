@@ -17,6 +17,7 @@
         "z3d0x/filament-fabricator": "^2.7"
     },
     "require-dev": {
+        "knuckleswtf/scribe": "^5.6",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.41",

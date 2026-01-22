@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group Public API - Content Pages
+ *
+ * Endpoints for retrieving CMS content pages (Fabricator pages). No authentication required.
+ * Results are cached and support ETag-based caching.
+ */
 class PageController extends Controller
 {
     use GetsTenantCacheKeySegment;
@@ -20,10 +26,18 @@ class PageController extends Controller
     }
 
     /**
-     * List all available Fabricator pages (metadata only, no blocks).
-     * 
-     * Query parameters:
-     * - locale: Optional. Filter by locale ('de' or 'en'). If not provided, returns both locales.
+     * List all pages
+     *
+     * Returns metadata for all public Fabricator pages (no blocks). Results are sorted by title.
+     * If no locale is specified, returns both DE and EN versions grouped by locale.
+     *
+     * @unauthenticated
+     *
+     * @queryParam locale string Filter by locale (de or en). If omitted, returns both locales. Example: de
+     *
+     * @response 200 scenario="Single locale" {"data": [{"id": 1, "slug": "start", "title": "Startseite", "layout": "landingpage", "parent_id": null, "updated_at": "2025-01-22T10:00:00+00:00"}], "meta": {"count": 1, "locale": "de", "tenant": {"id": 1, "slug": "default"}}}
+     * @response 200 scenario="Both locales" {"data": {"de": [{"id": 1, "slug": "start", "title": "Startseite", "layout": "landingpage", "parent_id": null, "updated_at": "2025-01-22T10:00:00+00:00"}], "en": [{"id": 1, "slug": "home", "title": "Home", "layout": "landingpage", "parent_id": null, "updated_at": "2025-01-22T10:00:00+00:00"}]}, "meta": {"locales": ["de", "en"], "count": {"de": 1, "en": 1}, "tenant": {"id": 1, "slug": "default"}}}
+     * @response 400 scenario="Invalid locale" {"error": "Invalid locale parameter. Must be \"de\" or \"en\"."}
      */
     public function index(Request $request): Response
     {
@@ -149,11 +163,18 @@ class PageController extends Controller
     }
 
     /**
-     * Return the root/home Fabricator page as JSON.
-     * Checks for slug '/' first, then 'home'.
-     * 
-     * Query parameters:
-     * - locale: Optional. Filter by locale ('de' or 'en'). If not provided, returns both locales.
+     * Get root/home page
+     *
+     * Returns the root or home page with full content blocks. Looks for pages with
+     * slug '/' first, then 'home'. Falls back to German locale if requested locale
+     * has no root page.
+     *
+     * @unauthenticated
+     *
+     * @queryParam locale string Filter by locale (de or en). If omitted, returns both locales. Example: de
+     *
+     * @response 200 scenario="Root page found" {"id": 1, "slug": "/", "title": "Startseite", "layout": "landingpage", "blocks": [...], "meta": {"title": "Zukunftsbarometer", "description": "..."}, "updated_at": "2025-01-22T10:00:00+00:00"}
+     * @response 404 scenario="No root page" {"message": "No root or home page found"}
      */
     public function showRoot(Request $request): Response
     {
@@ -229,11 +250,20 @@ class PageController extends Controller
     }
 
     /**
-     * Return a Fabricator page as JSON in a stable, tenant- and locale-aware schema.
-     * Retrieves page by ID.
-     * 
-     * Query parameters:
-     * - locale: Optional. Filter by locale ('de' or 'en'). If not provided, returns both locales.
+     * Get a single page
+     *
+     * Returns a specific Fabricator page by ID with full content blocks. Non-public pages
+     * return 404. Results support ETag caching.
+     *
+     * @unauthenticated
+     *
+     * @urlParam id integer required The page ID. Example: 1
+     *
+     * @queryParam locale string Filter by locale (de or en). If omitted, returns both locales. Example: de
+     *
+     * @response 200 scenario="Page found" {"id": 1, "slug": "impressum", "title": "Impressum", "layout": "subpage", "blocks": [...], "meta": {"title": "Impressum", "description": "..."}, "updated_at": "2025-01-22T10:00:00+00:00"}
+     * @response 400 scenario="Invalid locale" {"error": "Invalid locale parameter. Must be \"de\" or \"en\"."}
+     * @response 404 scenario="Page not found" {"message": "No query results for model [App\\Models\\Page] 999"}
      */
     public function show(Request $request, int $id): Response
     {

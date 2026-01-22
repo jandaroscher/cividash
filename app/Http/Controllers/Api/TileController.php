@@ -13,17 +13,25 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * @group Public API - Tiles
+ *
+ * Endpoints for retrieving tile data (dashboard cards with KPIs). No authentication required.
+ * Tenant context is resolved from Bearer token, request domain, or defaults to the default tenant.
+ */
 class TileController extends Controller
 {
     /**
-     * Retrieve tiles ordered by their position with required relations loaded for TileResource.
+     * List all tiles
      *
-     * Loads categories.group, active metricDefinitions with their active metricValues and associated tileYear, and tileYears.
-     * If the tiles table has an `is_public` column, only tiles with `is_public = true` are included.
-     * The request is forwarded to the resource so a `locale` query parameter can be used by the TileResource.
+     * Retrieves all public tiles with their categories, metric definitions, metric values, and tile years.
+     * Results are ordered by position and include only tiles where `is_public = true`.
      *
-     * @param Request $request Optional request that may contain a `locale` query parameter used by the resource.
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection A collection of TileResource objects ordered by `position`.
+     * @unauthenticated
+     *
+     * @queryParam locale string Locale for translated content (de or en). Example: de
+     *
+     * @response 200 scenario="Tiles retrieved" {"data": [{"id": 1, "slug": {"de": "energie", "en": "energy"}, "title": {"de": "Energie", "en": "Energy"}, "description": {"de": "Energieverbrauch und erneuerbare Energien", "en": "Energy consumption and renewables"}, "icon": "bolt", "position": 1, "categories": [], "metric_definitions": [], "tile_years": []}]}
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -53,16 +61,19 @@ class TileController extends Controller
     }
 
     /**
-     * Retrieve a tile by slug (locale-aware) and return it as a TileResource.
+     * Get a single tile
      *
-     * Attempts to resolve the tile using the optional `locale` query parameter (allowed: "de", "en")
-     * with fallbacks. If not found by slug and the slug is numeric, the method will try to load by primary key.
-     * If no tile is found, a 404 response is triggered. The returned resource includes preloaded relations:
-     * categories.group, active metricDefinitions with their active metricValues and tileYear, and tileYears.
+     * Retrieves a specific tile by its slug or ID. Includes categories, metric definitions,
+     * metric values, and tile years. Slug lookup is locale-aware with fallback to other locales.
      *
-     * @param \Illuminate\Http\Request $request HTTP request (may include `locale` query parameter).
-     * @param string $slug The tile slug (or numeric id as fallback) to look up.
-     * @return \App\Http\Resources\TileResource The resolved tile wrapped as a TileResource with related data loaded.
+     * @unauthenticated
+     *
+     * @urlParam slug string required The tile slug or numeric ID. Example: energie
+     *
+     * @queryParam locale string Locale for slug lookup and translated content (de or en). Example: de
+     *
+     * @response 200 scenario="Tile found" {"data": {"id": 1, "slug": {"de": "energie", "en": "energy"}, "title": {"de": "Energie", "en": "Energy"}, "description": {"de": "Energieverbrauch", "en": "Energy consumption"}, "icon": "bolt", "position": 1, "categories": [], "metric_definitions": [], "tile_years": []}}
+     * @response 404 scenario="Tile not found" {"message": "No query results for model [App\\Models\\Tile]"}
      */
     public function show(Request $request, string $slug): TileResource
     {

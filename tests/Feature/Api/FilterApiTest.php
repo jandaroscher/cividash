@@ -14,10 +14,10 @@ class FilterApiTest extends TestCase
 
     public function test_filters_endpoint_returns_dynamic_groups(): void
     {
-        $tenant = Tenant::create([
-            'name' => 'Default Tenant',
-            'slug' => 'default',
-        ]);
+        $tenant = Tenant::firstOrCreate(
+            ['slug' => 'default'],
+            ['name' => 'Default Tenant']
+        );
 
         $group = CategoryGroup::create([
             'tenant_id' => $tenant->id,

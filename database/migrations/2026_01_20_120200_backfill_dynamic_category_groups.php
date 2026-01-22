@@ -66,49 +66,104 @@ return new class extends Migration
 
     /**
      * Ensure the default category groups ("fields", "dimensions", "sdg") exist for the given tenant.
+     * Uses raw DB queries to avoid BelongsToTenant trait issues during migrations.
      *
      * @param int|null $tenantId Tenant id to scope groups to, or null for global groups.
-     * @return array<string, CategoryGroup> Associative array mapping group keys ('fields', 'dimensions', 'sdg') to their CategoryGroup models.
+     * @return array<string, object> Associative array mapping group keys ('fields', 'dimensions', 'sdg') to objects with id property.
      */
     protected function ensureDefaultGroups(?int $tenantId): array
     {
-        $fields = CategoryGroup::updateOrCreate(
-            ['tenant_id' => $tenantId, 'key' => 'fields'],
-            [
-                'title' => ['de' => 'Handlungsfelder', 'en' => 'Action Fields'],
-                'position' => 0,
-                'is_filterable' => true,
-                'is_color_source' => false,
-                'selection_type' => 'multi',
-            ]
-        );
+        $now = now();
+        $hasIsActive = Schema::hasColumn('category_groups', 'is_active');
+        
+        // Use raw DB queries to avoid BelongsToTenant trait issues
+        $fieldsData = [
+            'tenant_id' => $tenantId,
+            'key' => 'fields',
+            'title' => json_encode(['de' => 'Handlungsfelder', 'en' => 'Action Fields']),
+            'position' => 0,
+            'is_filterable' => true,
+            'is_color_source' => false,
+            'selection_type' => 'multi',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+        if ($hasIsActive) {
+            $fieldsData['is_active'] = true;
+        }
+        
+        $fieldsId = DB::table('category_groups')
+            ->when($tenantId !== null, fn ($q) => $q->where('tenant_id', $tenantId), fn ($q) => $q->whereNull('tenant_id'))
+            ->where('key', 'fields')
+            ->value('id');
+            
+        if (!$fieldsId) {
+            $fieldsId = DB::table('category_groups')->insertGetId($fieldsData);
+        } else {
+            unset($fieldsData['created_at']);
+            DB::table('category_groups')->where('id', $fieldsId)->update($fieldsData);
+        }
 
-        $dimensions = CategoryGroup::updateOrCreate(
-            ['tenant_id' => $tenantId, 'key' => 'dimensions'],
-            [
-                'title' => ['de' => 'Handlungsdimensionen', 'en' => 'Action Dimensions'],
-                'position' => 1,
-                'is_filterable' => true,
-                'is_color_source' => true,
-                'selection_type' => 'single',
-            ]
-        );
+        $dimensionsData = [
+            'tenant_id' => $tenantId,
+            'key' => 'dimensions',
+            'title' => json_encode(['de' => 'Handlungsdimensionen', 'en' => 'Action Dimensions']),
+            'position' => 1,
+            'is_filterable' => true,
+            'is_color_source' => true,
+            'selection_type' => 'single',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+        if ($hasIsActive) {
+            $dimensionsData['is_active'] = true;
+        }
+        
+        $dimensionsId = DB::table('category_groups')
+            ->when($tenantId !== null, fn ($q) => $q->where('tenant_id', $tenantId), fn ($q) => $q->whereNull('tenant_id'))
+            ->where('key', 'dimensions')
+            ->value('id');
+            
+        if (!$dimensionsId) {
+            $dimensionsId = DB::table('category_groups')->insertGetId($dimensionsData);
+        } else {
+            unset($dimensionsData['created_at']);
+            DB::table('category_groups')->where('id', $dimensionsId)->update($dimensionsData);
+        }
 
-        $sdg = CategoryGroup::updateOrCreate(
-            ['tenant_id' => $tenantId, 'key' => 'sdg'],
-            [
-                'title' => ['de' => 'SDG-Ziele', 'en' => 'SDG Goals'],
-                'position' => 2,
-                'is_filterable' => true,
-                'is_color_source' => false,
-                'selection_type' => 'multi',
-            ]
-        );
+        $sdgData = [
+            'tenant_id' => $tenantId,
+            'key' => 'sdg',
+            'title' => json_encode(['de' => 'SDG-Ziele', 'en' => 'SDG Goals']),
+            'position' => 2,
+            'is_filterable' => true,
+            'is_color_source' => false,
+            'selection_type' => 'multi',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+        if ($hasIsActive) {
+            $sdgData['is_active'] = true;
+        }
+        
+        $sdgId = DB::table('category_groups')
+            ->when($tenantId !== null, fn ($q) => $q->where('tenant_id', $tenantId), fn ($q) => $q->whereNull('tenant_id'))
+            ->where('key', 'sdg')
+            ->value('id');
+            
+        if (!$sdgId) {
+            $sdgId = DB::table('category_groups')->insertGetId($sdgData);
+        } else {
+            unset($sdgData['created_at']);
+            DB::table('category_groups')->where('id', $sdgId)->update($sdgData);
+        }
 
+        // Return simple objects with id property instead of Eloquent models
+        // to avoid BelongsToTenant global scope issues
         return [
-            'fields' => $fields,
-            'dimensions' => $dimensions,
-            'sdg' => $sdg,
+            'fields' => (object) ['id' => $fieldsId],
+            'dimensions' => (object) ['id' => $dimensionsId],
+            'sdg' => (object) ['id' => $sdgId],
         ];
     }
 
@@ -117,10 +172,10 @@ return new class extends Migration
      * creating or updating categories and applying title translations, icon, color, position, and key.
      *
      * @param int|null $tenantId The tenant id to operate on, or null for global records.
-     * @param CategoryGroup $group The parent category group to attach the created or updated categories to.
+     * @param object $group The parent category group object with id property.
      * @return array<int,int> Map of Handlungsdimension id => created or updated Category id.
      */
-    protected function backfillDimensionCategories(?int $tenantId, CategoryGroup $group): array
+    protected function backfillDimensionCategories(?int $tenantId, object $group): array
     {
         $map = [];
         $dimensions = Handlungsdimension::query()
@@ -162,10 +217,10 @@ return new class extends Migration
      * Create or update category records for SDG‑Ziele under the given category group.
      *
      * @param int|null $tenantId Tenant id used to scope which SDG‑Ziele are processed, or null for global entries.
-     * @param CategoryGroup $group The category group that will contain the backfilled SDG child categories.
+     * @param object $group The category group object with id property.
      * @return array<int,int> Map where each key is an SDGZiel id and each value is the corresponding Category id.
      */
-    protected function backfillSdgCategories(?int $tenantId, CategoryGroup $group): array
+    protected function backfillSdgCategories(?int $tenantId, object $group): array
     {
         $map = [];
         $sdgZiele = SDGZiel::query()

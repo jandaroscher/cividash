@@ -13,25 +13,23 @@ use Filament\Facades\Filament;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Configuration API endpoints for branding, general settings, header, footer, and tenant information.
+ */
 class ConfigController extends Controller
 {
     protected static ?bool $pageHasIsPublic = null;
 
     /**
-     * Return the application's branding and styling configuration.
+     * Get branding configuration
      *
-     * The resource contains color palette, typography, background and overlay colors, text and link colors,
-     * border/divider/shadow colors, slider colors, font sizes, and custom font metadata. Stored file paths
-     * for `logo_url` and `typography_custom_font_file` are converted to public URLs when present; otherwise
-     * those fields are `null`.
+     * Returns the tenant's branding and styling configuration including colors, typography,
+     * logo, and other visual settings. File paths are converted to public URLs.
      *
-     * @return JsonResource JSON resource containing the following keys: `primary_color`, `secondary_color`,
-     * `logo_url`, `accent_color`, `typography_font_family`, `typography_font_weights`, `slider_colors`,
-     * `background_color`, `card_background_color`, `hero_background_color`, `overlay_background_color`,
-     * `header_background_color`, `footer_background_color`, `text_primary_color`, `text_secondary_color`,
-     * `text_inverse_color`, `link_color`, `link_hover_color`, `border_color`, `divider_color`, `shadow_color`,
-     * `nav_text_color`, `nav_text_color_inactive`, `nav_hover_color`, `typography_font_sizes`,
-     * `typography_custom_font_name`, `typography_custom_font_file`.
+     * @group Public API - Configuration
+     * @unauthenticated
+     *
+     * @response 200 scenario="Branding config" {"data": {"primary_color": "#0d47a1", "secondary_color": "#1976d2", "logo_url": "https://example.com/storage/logos/logo.png", "accent_color": "#ff9800", "typography_font_family": "Inter", "typography_font_weights": ["400", "600", "700"], "slider_colors": ["#0d47a1", "#1976d2"], "background_color": "#ffffff", "card_background_color": "#f5f5f5", "hero_background_color": "#e3f2fd", "overlay_background_color": "rgba(0,0,0,0.5)", "header_background_color": "#ffffff", "footer_background_color": "#f5f5f5", "text_primary_color": "#212121", "text_secondary_color": "#757575", "text_inverse_color": "#ffffff", "link_color": "#0d47a1", "link_hover_color": "#1565c0", "border_color": "#e0e0e0", "divider_color": "#bdbdbd", "shadow_color": "rgba(0,0,0,0.1)", "nav_text_color": "#212121", "nav_text_color_inactive": "#757575", "nav_hover_color": "#0d47a1", "typography_font_sizes": {"small": "0.875rem", "base": "1rem", "large": "1.25rem"}, "typography_custom_font_name": null, "typography_custom_font_file": null}}
      */
     public function branding(): JsonResource
     {
@@ -74,11 +72,14 @@ class ConfigController extends Controller
     }
 
     /**
-     * Provide site-wide general configuration values.
+     * Get general configuration
      *
-     * @return \Illuminate\Http\Resources\Json\JsonResource JSON resource with keys:
-     *         - `site_name`: the site's display name.
-     *         - `site_active`: whether the site is active (`true` or `false`).
+     * Returns site-wide general configuration values like site name and active status.
+     *
+     * @group Public API - Configuration
+     * @unauthenticated
+     *
+     * @response 200 scenario="General config" {"data": {"site_name": "Zukunftsbarometer Regensburg", "site_active": true}}
      */
     public function general(): JsonResource
     {
@@ -91,13 +92,17 @@ class ConfigController extends Controller
     }
 
     /**
-     * Provide header configuration including translated navigation items and UI toggles.
+     * Get header configuration
      *
-     * @param \Illuminate\Http\Request $request The HTTP request; may include a `locale` query parameter and tenant identifiers (query `tenant` or `X-Tenant` header) used to resolve context.
-     * @return \Illuminate\Http\Resources\Json\JsonResource An object with:
-     *  - `navigation_items`: array of navigation items translated to the resolved locale,
-     *  - `show_language_switcher`: `true` if the language switcher should be shown, `false` otherwise,
-     *  - `dropdown_enabled`: `true` if dropdown navigation is enabled, `false` otherwise.
+     * Returns header configuration including translated navigation items and UI toggles.
+     * Navigation items referencing inactive pages are filtered out.
+     *
+     * @group Public API - Configuration
+     * @unauthenticated
+     *
+     * @queryParam locale string Locale for translations (de or en). Example: de
+     *
+     * @response 200 scenario="Header config" {"data": {"navigation_items": [{"type": "page", "page_id": 1, "label": "Start", "url": "/"}], "show_language_switcher": true, "dropdown_enabled": false}}
      */
     public function header(\Illuminate\Http\Request $request): JsonResource
     {
@@ -138,10 +143,17 @@ class ConfigController extends Controller
     }
 
     /**
-     * Retrieve footer configuration settings as a JSON resource.
+     * Get footer configuration
      *
-     * @param \Illuminate\Http\Request $request The HTTP request (may contain locale parameter)
-     * @return \Illuminate\Http\Resources\Json\JsonResource JsonResource containing `footer_navigation_items`, `social_links`, `layout_type`, `columns`, `social_links_enabled`, and `copyright_text`.
+     * Returns footer configuration including navigation items, social links, layout settings,
+     * and copyright text. Navigation items referencing inactive pages are filtered out.
+     *
+     * @group Public API - Configuration
+     * @unauthenticated
+     *
+     * @queryParam locale string Locale for translations (de or en). Example: de
+     *
+     * @response 200 scenario="Footer config" {"data": {"footer_navigation_items": [{"type": "page", "page_id": 2, "label": "Impressum"}], "social_links": [{"platform": "twitter", "url": "https://twitter.com/example"}], "layout_type": "columns", "columns": 3, "social_links_enabled": true, "copyright_text": "© 2025 Stadt Regensburg"}}
      */
     public function footer(\Illuminate\Http\Request $request): JsonResource
     {
@@ -276,12 +288,17 @@ class ConfigController extends Controller
     }
     
     /**
-     * Provide the current tenant's public configuration.
+     * Get tenant information
      *
-     * If a tenant was attached to the request by middleware it is used; otherwise the tenant with slug "default" is returned.
+     * Returns the resolved tenant's public configuration. Shows how the tenant was resolved
+     * (via token, domain, or default fallback) in the `resolved_by` field.
      *
-     * @param \Illuminate\Http\Request $request Request that may contain `resolved_tenant` and `resolved_tenant_by` attributes.
-     * @return \Illuminate\Http\Resources\Json\JsonResource JSON resource with keys: `slug`, `name`, `domain`, `frontend_base_url`, and `resolved_by`.
+     * @group Public API - Configuration
+     * @unauthenticated
+     *
+     * @response 200 scenario="Tenant resolved via domain" {"data": {"slug": "stadt-regensburg", "name": "Stadt Regensburg", "domain": "regensburg.example.org", "frontend_base_url": "https://regensburg.example.org", "resolved_by": "domain"}}
+     * @response 200 scenario="Tenant resolved via token" {"data": {"slug": "stadt-regensburg", "name": "Stadt Regensburg", "domain": "regensburg.example.org", "frontend_base_url": "https://regensburg.example.org", "resolved_by": "token"}}
+     * @response 200 scenario="Default tenant fallback" {"data": {"slug": "default", "name": "Default", "domain": null, "frontend_base_url": null, "resolved_by": "default"}}
      */
     public function tenant(\Illuminate\Http\Request $request): JsonResource
     {
@@ -351,13 +368,31 @@ class ConfigController extends Controller
     }
 
     /**
-     * Update stored branding settings with the validated request data and return the updated branding payload.
+     * Update branding configuration
      *
-     * Only keys present in the validated input are persisted. File path fields (`logo_url` and
-     * `typography_custom_font_file`) are converted to public URLs when present; otherwise they are `null`.
+     * Updates the tenant's branding settings. Only provided fields are updated (partial update).
+     * Requires admin-api permission and explicit tenant context.
      *
-     * @param UpdateBrandingRequest $request Validated request containing branding fields to update.
-     * @return JsonResource Associative array of branding properties; includes color, typography, background, text, link, navigation, border/divider/shadow values, font sizes and names, and public URLs for `logo_url` and `typography_custom_font_file` when available (otherwise `null`).
+     * @group Admin API - Branding Configuration
+     * @authenticated
+     *
+     * @bodyParam primary_color string Primary brand color (hex). Example: #0d47a1
+     * @bodyParam secondary_color string Secondary brand color (hex). Example: #1976d2
+     * @bodyParam accent_color string Accent color (hex). Example: #ff9800
+     * @bodyParam background_color string Page background color. Example: #ffffff
+     * @bodyParam card_background_color string Card background color. Example: #f5f5f5
+     * @bodyParam header_background_color string Header background color. Example: #ffffff
+     * @bodyParam footer_background_color string Footer background color. Example: #f5f5f5
+     * @bodyParam text_primary_color string Primary text color. Example: #212121
+     * @bodyParam text_secondary_color string Secondary text color. Example: #757575
+     * @bodyParam link_color string Link color. Example: #0d47a1
+     * @bodyParam typography_font_family string Font family name. Example: Inter
+     *
+     * @response 200 scenario="Branding updated" {"data": {"primary_color": "#0d47a1", "secondary_color": "#1976d2", "logo_url": null, "accent_color": "#ff9800", "typography_font_family": "Inter", "typography_font_weights": ["400", "600", "700"], "slider_colors": ["#0d47a1", "#1976d2"], "background_color": "#ffffff", "card_background_color": "#f5f5f5", "hero_background_color": "#e3f2fd", "overlay_background_color": "rgba(0,0,0,0.5)", "header_background_color": "#ffffff", "footer_background_color": "#f5f5f5", "text_primary_color": "#212121", "text_secondary_color": "#757575", "text_inverse_color": "#ffffff", "link_color": "#0d47a1", "link_hover_color": "#1565c0", "border_color": "#e0e0e0", "divider_color": "#bdbdbd", "shadow_color": "rgba(0,0,0,0.1)", "nav_text_color": "#212121", "nav_text_color_inactive": "#757575", "nav_hover_color": "#0d47a1", "typography_font_sizes": {"small": "0.875rem", "base": "1rem", "large": "1.25rem"}, "typography_custom_font_name": null, "typography_custom_font_file": null}}
+     * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
+     * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
+     * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
+     * @response 422 scenario="Validation error" {"message": "The primary color must be a valid hex color.", "errors": {"primary_color": ["The primary color must be a valid hex color."]}}
      */
     public function updateBranding(UpdateBrandingRequest $request): JsonResource
     {

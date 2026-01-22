@@ -5,6 +5,26 @@
 
 ---
 
+## OpenAPI Dokumentation
+
+Die vollständige, interaktive API-Dokumentation ist verfügbar unter:
+
+- **HTML-Docs:** `/docs/` (z.B. `https://example.com/docs/`)
+- **OpenAPI 3.0 Spec:** `/docs/openapi.yaml`
+- **Postman Collection:** `/docs/collection.json`
+
+> **Hinweis:** Die Dokumentation wird als statische Dateien generiert und benötigt kein Scribe-Package zur Laufzeit.
+
+### Regenerieren der Dokumentation (lokal)
+
+```bash
+ddev exec php artisan scribe:generate
+```
+
+Die Dokumentation wird automatisch im CI bei jedem Deployment neu generiert.
+
+---
+
 ## Übersicht
 
 Die Admin API ermöglicht das programmgesteuerte Management von Tiles, Jahren, Metriken und Konfigurationen. Alle Endpoints sind:
