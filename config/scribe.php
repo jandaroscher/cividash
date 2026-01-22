@@ -4,14 +4,14 @@
 
 return [
     // The HTML <title> for the generated documentation.
-    'title' => 'Zukunftsbarometer API Documentation',
+    'title' => 'CiviDash API Documentation',
 
     // A short description of your API. Will be included in the docs webpage, Postman collection and OpenAPI spec.
-    'description' => 'REST API for the Zukunftsbarometer sustainability dashboard. Provides endpoints for tiles, metrics, filters, content pages, and configuration.',
+    'description' => 'REST API for CiviDash. Provides endpoints for tiles, metrics, filters, content pages, and configuration.',
 
     // Text to place in the "Introduction" section, right after the `description`. Markdown and HTML are supported.
     'intro_text' => <<<INTRO
-        This documentation provides all the information you need to work with the Zukunftsbarometer API.
+        This documentation provides all the information you need to work with the CiviDash API.
 
         ## Authentication
 
