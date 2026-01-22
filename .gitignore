@@ -40,3 +40,4 @@ test-results/
 resources/views/scribe/
 public/vendor/scribe/
 public/docs/
+.claude/settings.local.json
