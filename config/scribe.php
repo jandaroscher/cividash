@@ -53,10 +53,10 @@ return [
         ],
     ],
 
-    // Using "static" so docs work without Scribe package in production (dev dependency only)
-    'type' => 'static',
+    // Using "external_static" with Scalar for modern interactive API docs
+    'type' => 'external_static',
 
-    'theme' => 'default',
+    'theme' => 'scalar',
 
     'static' => [
         'output_path' => 'public/docs',
