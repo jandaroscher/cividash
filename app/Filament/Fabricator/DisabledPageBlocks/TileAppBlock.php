@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Fabricator\PageBlocks;
+namespace App\Filament\Fabricator\DisabledPageBlocks;
 
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Hidden;

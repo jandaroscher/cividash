@@ -58,15 +58,11 @@ return [
          * in addition to those that are auto-registered
          */
         'register' => [
-            \App\Filament\Fabricator\PageBlocks\HeroBlock::class,
             \App\Filament\Fabricator\PageBlocks\IntroTextBlock::class,
             \App\Filament\Fabricator\PageBlocks\TextImageBlock::class,
             \App\Filament\Fabricator\PageBlocks\SliderBlock::class,
-            \App\Filament\Fabricator\PageBlocks\SectionBlock::class,
-            \App\Filament\Fabricator\PageBlocks\ListBlock::class,
             \App\Filament\Fabricator\PageBlocks\FAQBlock::class,
-            \App\Filament\Fabricator\PageBlocks\LinkBlock::class,
-            \App\Filament\Fabricator\PageBlocks\TileAppBlock::class,
+            \App\Filament\Fabricator\PageBlocks\CardGridBlock::class,
         ],
     ],
 
