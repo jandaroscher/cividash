@@ -3,9 +3,9 @@
 namespace App\Filament\Fabricator\DisabledPageBlocks;
 
 use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
@@ -22,7 +22,7 @@ class ListBlock extends PageBlock
                     ->schema([
                         TextInput::make('text')
                             ->label('Text')
-                            ->required()
+                            ->required(),
                     ])
                     ->defaultItems(1)
                     ->collapsible(),
@@ -44,8 +44,3 @@ class ListBlock extends PageBlock
             ]);
     }
 }
-
-
-
-
-

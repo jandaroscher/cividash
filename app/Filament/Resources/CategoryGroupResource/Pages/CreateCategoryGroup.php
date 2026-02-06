@@ -15,7 +15,7 @@ class CreateCategoryGroup extends CreateRecord
     /**
      * Provide header actions for the create page.
      *
-     * @return array An array of Filament header action instances; currently contains a LocaleSwitcher action to change the active locale. 
+     * @return array An array of Filament header action instances; currently contains a LocaleSwitcher action to change the active locale.
      */
     protected function getHeaderActions(): array
     {

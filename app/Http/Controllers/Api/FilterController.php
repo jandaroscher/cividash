@@ -32,7 +32,7 @@ class FilterController extends Controller
         $locale = $request->query('locale', 'de');
 
         // Validate locale
-        if (!in_array($locale, ['de', 'en'])) {
+        if (! in_array($locale, ['de', 'en'])) {
             $locale = 'de';
         }
 

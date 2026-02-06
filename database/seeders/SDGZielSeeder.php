@@ -6,10 +6,9 @@ use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\SDGZiel;
 use App\Models\Tenant;
-use App\Services\DashboardJsonParser;
 use App\Services\MediaDownloadService;
-use Illuminate\Database\Seeder;
 use Illuminate\Console\Command;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 
 /**
@@ -64,7 +63,7 @@ class SDGZielSeeder extends Seeder
      *
      * For each parsed entry, validates the SDG number, creates or updates the SDGZiel record with localized titles, icons (downloads assets when enabled), and position, and creates or updates a Category linked to the SDG group. Builds and returns mappings from the original parsed SDG IDs to the created/updated SDG and Category database IDs.
      *
-     * @param Collection<int, \App\Services\ParsedSDGZiel> $sdgZiele Collection of parsed SDG entries to seed.
+     * @param  Collection<int, \App\Services\ParsedSDGZiel>  $sdgZiele  Collection of parsed SDG entries to seed.
      * @return array<string, array<int,int>> Associative array with keys 'sdg_ids' and 'category_ids', each mapping original SDG IDs to database IDs.
      */
     public function run(Collection $sdgZiele): array
@@ -86,6 +85,7 @@ class SDGZielSeeder extends Seeder
                 if ($this->command) {
                     $this->command->warn("Skipping SDG with invalid number: {$parsedSDG->number} (ID: {$parsedSDG->id})");
                 }
+
                 continue;
             }
 
@@ -96,6 +96,7 @@ class SDGZielSeeder extends Seeder
                 if ($this->command) {
                     $this->command->warn("No title mapping found for SDG number: {$number}");
                 }
+
                 continue;
             }
 
@@ -103,7 +104,7 @@ class SDGZielSeeder extends Seeder
             $numberPadded = str_pad((string) $number, 2, '0', STR_PAD_LEFT);
             $iconDePath = null;
             $iconEnPath = null;
-            
+
             if (config('seeding.media_download_enabled', true)) {
                 $iconDeUrl = "sdg/SDG-icon-DE-{$numberPadded}.svg";
                 $iconEnUrl = "sdg/SDG-icon-EN-{$numberPadded}.svg";
@@ -122,7 +123,7 @@ class SDGZielSeeder extends Seeder
             $sdgZiel = SDGZiel::where('number', $number)->first();
 
             if (! $sdgZiel) {
-                $sdgZiel = new SDGZiel();
+                $sdgZiel = new SDGZiel;
                 $sdgZiel->number = $number;
                 $sdgZiel->title = $titles;
                 $sdgZiel->icon = $iconArray; // Store as translatable array
@@ -162,7 +163,7 @@ class SDGZielSeeder extends Seeder
                 ->first();
 
             if (! $category) {
-                $category = new Category();
+                $category = new Category;
                 $category->category_group_id = $group->id;
                 $category->tenant_id = $sdgZiel->tenant_id;
             }

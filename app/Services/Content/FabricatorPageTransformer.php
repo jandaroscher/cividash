@@ -8,8 +8,7 @@ class FabricatorPageTransformer
 {
     public function __construct(
         protected BlockTransformer $blockTransformer
-    ) {
-    }
+    ) {}
 
     /**
      * Transform a Fabricator Page model into a stable API payload.
@@ -116,5 +115,3 @@ class FabricatorPageTransformer
         return $result;
     }
 }
-
-

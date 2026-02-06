@@ -91,7 +91,7 @@ class AdminTileController extends Controller
     {
         // Global scope ensures only tiles from current tenant are found
         $tile = Tile::findOrFail($id);
-        
+
         $tile->update($request->validated());
 
         return response()->json([

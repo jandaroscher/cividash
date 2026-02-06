@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'admin_api_enabled' => app()->isLocal() || app()->environment('testing'),
         ]);
 
         $this->call(TenantSeeder::class);

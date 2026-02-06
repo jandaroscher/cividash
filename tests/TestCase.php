@@ -19,7 +19,7 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Only run when a DB is available (when RefreshDatabase is used)
         if ($this->usesDatabase()) {
             try {

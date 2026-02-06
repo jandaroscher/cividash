@@ -11,9 +11,9 @@ class BlockTransformer
      * as top-level fields; each returned block contains `type` and `props`, and
      * entries without a resolvable type are omitted.
      *
-     * @param array $blocks Array of input blocks. Accepted shapes:
-     *                      - ['type' => 'hero', 'data' => [...]]
-     *                      - ['type' => 'hero', 'field1' => 'value1', ...]
+     * @param  array  $blocks  Array of input blocks. Accepted shapes:
+     *                         - ['type' => 'hero', 'data' => [...]]
+     *                         - ['type' => 'hero', 'field1' => 'value1', ...]
      * @return array An indexed array of transformed blocks, each with keys:
      *               - 'type' => string
      *               - 'props' => array
@@ -61,6 +61,3 @@ class BlockTransformer
         })->filter()->values()->toArray();
     }
 }
-
-
-

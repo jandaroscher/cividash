@@ -7,7 +7,6 @@ use App\Models\Tenant;
 use App\Models\Tile;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
@@ -18,7 +17,7 @@ class DashboardSeedCommandTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create user and authenticate for Filament tenant context
         $user = \App\Models\User::factory()->create();
         $tenant = Tenant::where('slug', 'default')->first();
@@ -27,7 +26,7 @@ class DashboardSeedCommandTest extends TestCase
             Filament::auth()->login($user);
             Filament::setTenant($tenant);
         }
-        
+
         // Ensure fixtures directory exists
         if (! File::exists(base_path('tests/Fixtures'))) {
             File::makeDirectory(base_path('tests/Fixtures'), 0755, true);
@@ -41,8 +40,9 @@ class DashboardSeedCommandTest extends TestCase
         $this->artisan('dashboard:seed', ['--path' => $jsonPath])
             ->assertSuccessful();
 
-        // Verify categories were created
-        $this->assertDatabaseCount('categories', 3);
+        // Verify categories were created:
+        // 3 from handlungsfelder + 3 from HandlungsdimensionSeeder (grün, gerecht, produktiv)
+        $this->assertDatabaseCount('categories', 6);
         $this->assertDatabaseHas('categories', []); // At least one category exists
 
         // Verify tiles were created
@@ -103,8 +103,9 @@ class DashboardSeedCommandTest extends TestCase
         $this->artisan('dashboard:seed', ['--path' => $jsonPath])
             ->assertSuccessful();
 
-        // Verify data was seeded using the provided path
-        $this->assertDatabaseCount('categories', 3);
+        // Verify data was seeded using the provided path:
+        // 3 from handlungsfelder + 3 from HandlungsdimensionSeeder (grün, gerecht, produktiv)
+        $this->assertDatabaseCount('categories', 6);
         $this->assertDatabaseCount('tiles', 3);
     }
 
@@ -129,9 +130,9 @@ class DashboardSeedCommandTest extends TestCase
         $this->artisan('dashboard:seed', ['--path' => $jsonPath])
             ->assertSuccessful();
 
-        // Verify all categories and tiles from full fixture were created
-        $this->assertDatabaseCount('categories', 5);
+        // Verify all categories and tiles from full fixture were created:
+        // 5 from handlungsfelder + 3 from HandlungsdimensionSeeder (grün, gerecht, produktiv)
+        $this->assertDatabaseCount('categories', 8);
         $this->assertDatabaseCount('tiles', 5);
     }
 }
-

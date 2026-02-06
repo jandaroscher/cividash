@@ -14,6 +14,7 @@ class DashboardServerInfoTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected Tenant $tenant;
 
     protected function setUp(): void
@@ -39,7 +40,7 @@ class DashboardServerInfoTest extends TestCase
     {
         $driver = DB::connection()->getDriverName();
         $serverVersion = DB::connection()->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
-        $dbInfo = trim($driver . ' ' . $serverVersion);
+        $dbInfo = trim($driver.' '.$serverVersion);
 
         $response = $this->followingRedirects()->get('/admin');
 

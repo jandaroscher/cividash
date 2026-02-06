@@ -1,0 +1,43 @@
+/**
+ * Filament Admin Panel CSS Overrides
+ * Custom styles that override Filament's default styling
+ */
+
+/**
+ * Fix for filament-simple-alert plugin missing ring-custom-100 class
+ * The plugin's compiled CSS doesn't include this class, causing blue borders
+ */
+.ring-custom-100 {
+    --tw-ring-color: rgba(var(--c-500), 1);
+}
+
+.dark .ring-custom-100,
+.dark\:ring-custom-500\/70:is(.dark *) {
+    --tw-ring-color: rgba(var(--c-500), 0.7);
+}
+
+/* Stronger icon colors for simple-alert */
+.filament-simple-alert .text-custom-400 {
+    color: rgba(var(--c-500), var(--tw-text-opacity, 1));
+}
+
+/**
+ * Fix for RichEditor (Trix) list markers being too light
+ * Overrides Tailwind prose list marker colors for accessibility
+ */
+.trix-content ul > li::marker,
+.prose ul > li::marker {
+    color: #111827 !important;
+}
+
+.trix-content ol > li::marker,
+.prose ol > li::marker {
+    color: #111827 !important;
+}
+
+.dark .trix-content ul > li::marker,
+.dark .prose ul > li::marker,
+.dark .trix-content ol > li::marker,
+.dark .prose ol > li::marker {
+    color: #f3f4f6 !important;
+}

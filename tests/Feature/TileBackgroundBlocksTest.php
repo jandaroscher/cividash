@@ -37,7 +37,7 @@ class TileBackgroundBlocksTest extends TestCase
     {
         $tenant = $this->tenant;
         $this->assertNotNull($tenant, 'Default tenant must exist for this test');
-        
+
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
             'background_blocks' => null,
@@ -90,20 +90,19 @@ class TileBackgroundBlocksTest extends TestCase
         };
 
         $form = TileResource::form(Form::make($livewire));
-        
+
         // Check that the form schema can be retrieved (this validates the form structure)
         $components = $form->getComponents();
         $this->assertNotEmpty($components, 'Form should have components');
-        
+
         // Verify that getBackgroundBlockSchemas method exists and returns blocks
         $reflection = new \ReflectionClass(TileResource::class);
         $method = $reflection->getMethod('getBackgroundBlockSchemas');
         $this->assertTrue($method->isProtected(), 'getBackgroundBlockSchemas should be protected');
-        
+
         $method->setAccessible(true);
         $blocks = $method->invoke(null);
         $this->assertIsArray($blocks, 'getBackgroundBlockSchemas should return an array');
         $this->assertNotEmpty($blocks, 'Should have at least one block registered');
     }
 }
-

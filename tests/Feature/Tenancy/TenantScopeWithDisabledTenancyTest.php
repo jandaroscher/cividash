@@ -39,7 +39,7 @@ class TenantScopeWithDisabledTenancyTest extends TestCase
 
         // Set tenant A - this should work even if tenancy is disabled on panel
         Filament::setTenant($tenantA);
-        
+
         // Verify that getTenant() returns the set tenant even when tenancy is disabled
         $retrievedTenant = Filament::getTenant();
         $this->assertNotNull($retrievedTenant, 'getTenant() should return tenant even when tenancy is disabled on panel');
@@ -55,7 +55,7 @@ class TenantScopeWithDisabledTenancyTest extends TestCase
 
         // Switch to tenant B
         Filament::setTenant($tenantB);
-        
+
         // Verify tenant B is retrieved
         $retrievedTenantB = Filament::getTenant();
         $this->assertNotNull($retrievedTenantB);

@@ -49,20 +49,21 @@ class PagesSeedCommand extends Command
         try {
             if ($dryRun) {
                 $this->displayDryRunSummary();
+
                 return Command::SUCCESS;
             }
 
             // Seed Pages
             $this->info('Seeding Fabricator Pages...');
-            $pageSeeder = new PageSeeder();
+            $pageSeeder = new PageSeeder;
             $pageSeeder->setCommand($this);
             $pageIdMap = $pageSeeder->run();
 
-            $this->info("Seeded " . count($pageIdMap) . " pages");
+            $this->info('Seeded '.count($pageIdMap).' pages');
 
             // Seed Navigation
             $this->info('Seeding Header and Footer Navigation...');
-            $navigationSeeder = new NavigationSeeder();
+            $navigationSeeder = new NavigationSeeder;
             $navigationSeeder->setCommand($this);
             $navigationSeeder->run($pageIdMap);
 
@@ -70,8 +71,9 @@ class PagesSeedCommand extends Command
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Error seeding pages: ' . $e->getMessage());
+            $this->error('Error seeding pages: '.$e->getMessage());
             $this->error($e->getTraceAsString());
+
             return Command::FAILURE;
         }
     }

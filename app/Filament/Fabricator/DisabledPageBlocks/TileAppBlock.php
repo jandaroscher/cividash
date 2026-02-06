@@ -46,7 +46,7 @@ class TileAppBlock extends PageBlock
      *
      * Existing values for these keys are cast to `bool`; if a key is missing it is added with a value of `true`.
      *
-     * @param array $data Input data array that may contain 'show_search' and/or 'show_filter'.
+     * @param  array  $data  Input data array that may contain 'show_search' and/or 'show_filter'.
      * @return array The modified data array with 'show_search' and 'show_filter' guaranteed to be booleans.
      */
     public static function mutateData(array $data): array
@@ -58,7 +58,7 @@ class TileAppBlock extends PageBlock
         } else {
             $data['show_search'] = true;
         }
-        
+
         if (array_key_exists('show_filter', $data)) {
             $data['show_filter'] = (bool) $data['show_filter'];
         } else {
@@ -68,7 +68,3 @@ class TileAppBlock extends PageBlock
         return $data;
     }
 }
-
-
-
-

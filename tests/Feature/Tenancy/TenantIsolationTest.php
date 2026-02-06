@@ -58,7 +58,7 @@ class TenantIsolationTest extends TestCase
         // Without tenant context, should only see default tenant's data
         $this->assertEquals(1, Tile::count());
         $this->assertEquals('Tile Default', Tile::first()->getTranslation('title', 'en'));
-        
+
         // Verify that other tenants' data is not visible
         $this->assertFalse(Tile::where('tenant_id', $tenantA->id)->exists());
         $this->assertFalse(Tile::where('tenant_id', $tenantB->id)->exists());
@@ -73,14 +73,14 @@ class TenantIsolationTest extends TestCase
     {
         $user = User::factory()->create();
         $tenantA = Tenant::create(['name' => 'Tenant A', 'slug' => 'tenant-a']);
-        
+
         // Link user to tenant so they have access
         $user->tenants()->sync([$tenantA->id]);
-        
+
         // Verify tenant exists and user has access
         $this->assertTrue($user->canAccessTenant($tenantA));
         $this->assertEquals('tenant-a', $tenantA->slug);
-        
+
         // Note: Full integration test for query parameter resolution is in TenantSecurityTest
         // which tests actual HTTP requests with proper request binding
     }
@@ -94,14 +94,14 @@ class TenantIsolationTest extends TestCase
     {
         $user = User::factory()->create();
         $tenantB = Tenant::create(['name' => 'Tenant B', 'slug' => 'tenant-b']);
-        
+
         // Link user to tenant so they have access
         $user->tenants()->sync([$tenantB->id]);
-        
+
         // Verify tenant exists and user has access
         $this->assertTrue($user->canAccessTenant($tenantB));
         $this->assertEquals('tenant-b', $tenantB->slug);
-        
+
         // Note: Full integration test for header resolution is in TenantSecurityTest
         // which tests actual HTTP requests with proper request binding
     }

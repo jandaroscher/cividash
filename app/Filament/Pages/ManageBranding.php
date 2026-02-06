@@ -16,19 +16,26 @@ use Filament\Pages\SettingsPage;
 class ManageBranding extends SettingsPage
 {
     protected static ?string $navigationIcon = 'heroicon-o-paint-brush';
+
     protected static ?string $title = 'Theme';
+
     protected static ?string $navigationLabel = 'Theme';
-    protected static ?string $navigationGroup = 'Einstellungen';
+
     protected static ?int $navigationSort = 21;
 
     protected static string $settings = BrandingSettings::class;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.groups.settings');
+    }
 
     /**
      * Builds the branding settings form schema for the Theme page.
      *
      * Configures sections for colors, logo, typography, font sizes, background colors, text colors, border/shadow colors, and slider colors.
      *
-     * @param Form $form The form instance to configure.
+     * @param  Form  $form  The form instance to configure.
      * @return Form The configured form instance containing the Theme branding settings schema.
      */
     public function form(Form $form): Form
@@ -80,7 +87,7 @@ class ManageBranding extends SettingsPage
                             ->required(fn ($get) => empty($get('typography_custom_font_file')))
                             ->searchable()
                             ->reactive()
-                            ->hidden(fn ($get) => !empty($get('typography_custom_font_file'))),
+                            ->hidden(fn ($get) => ! empty($get('typography_custom_font_file'))),
 
                         Repeater::make('typography_font_weights')
                             ->label(__('filament.pages.manage_branding.typography_font_weights'))
@@ -106,34 +113,34 @@ class ManageBranding extends SettingsPage
                             ->addActionLabel(__('filament.actions.add'))
                             ->afterStateHydrated(function ($component, $state) {
                                 // Convert simple array [400, 600, 700] to repeater format [{'weight': 400}, ...]
-                                if (is_array($state) && !empty($state) && isset($state[0]) && is_numeric($state[0])) {
-                                    $component->state(array_map(fn($w) => ['weight' => (int)$w], $state));
+                                if (is_array($state) && ! empty($state) && isset($state[0]) && is_numeric($state[0])) {
+                                    $component->state(array_map(fn ($w) => ['weight' => (int) $w], $state));
                                 }
                             })
                             ->mutateDehydratedStateUsing(function ($state) {
                                 // Convert repeater format back to simple array [400, 600, 700]
-                                if (!is_array($state)) {
+                                if (! is_array($state)) {
                                     return $state;
                                 }
-                                
+
                                 $weights = [];
                                 foreach ($state as $item) {
                                     // Skip non-array items or items without 'weight' key
-                                    if (!is_array($item) || !isset($item['weight'])) {
+                                    if (! is_array($item) || ! isset($item['weight'])) {
                                         continue;
                                     }
-                                    
+
                                     // Coerce numeric strings to int, skip non-numeric values
                                     $weight = $item['weight'];
                                     if (is_numeric($weight)) {
-                                        $weights[] = (int)$weight;
+                                        $weights[] = (int) $weight;
                                     }
                                 }
-                                
+
                                 return array_values($weights);
                             })
                             ->required(fn ($get) => empty($get('typography_custom_font_file')))
-                            ->hidden(fn ($get) => !empty($get('typography_custom_font_file'))),
+                            ->hidden(fn ($get) => ! empty($get('typography_custom_font_file'))),
 
                         Forms\Components\Group::make([
                             FileUpload::make('typography_custom_font_file')
@@ -150,12 +157,12 @@ class ManageBranding extends SettingsPage
                             TextInput::make('typography_custom_font_name')
                                 ->label(__('filament.pages.manage_branding.custom_font_name'))
                                 ->helperText(__('filament.pages.manage_branding.custom_font_name_helper'))
-                                ->required(fn ($get) => !empty($get('typography_custom_font_file')))
+                                ->required(fn ($get) => ! empty($get('typography_custom_font_file')))
                                 ->nullable()
                                 ->hidden(fn ($get) => empty($get('typography_font_family')) && empty($get('typography_custom_font_file'))),
                         ])
-                        ->columns(2)
-                        ->hidden(fn ($get) => empty($get('typography_font_family')) && empty($get('typography_custom_font_file'))),
+                            ->columns(2)
+                            ->hidden(fn ($get) => empty($get('typography_font_family')) && empty($get('typography_custom_font_file'))),
                     ])
                     ->columns(2),
 

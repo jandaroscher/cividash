@@ -10,8 +10,8 @@ use Spatie\Translatable\HasTranslations;
 
 class CategoryGroup extends Model
 {
-    use HasTranslations;
     use BelongsToTenant;
+    use HasTranslations;
 
     public array $translatable = [
         'title',

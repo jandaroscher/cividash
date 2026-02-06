@@ -6,9 +6,9 @@ use App\Exceptions\InvalidTenantContextException;
 use App\Models\Tenant;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Schema;
 
 trait BelongsToTenant
 {
@@ -42,13 +42,13 @@ trait BelongsToTenant
                     // Try to use default tenant as fallback
                     try {
                         $defaultTenant = Tenant::where('slug', 'default')->first();
-                        
+
                         if ($defaultTenant) {
                             $model->tenant()->associate($defaultTenant);
                         } else {
                             // No tenant context and no default tenant - throw exception
                             throw new InvalidTenantContextException(
-                                'No tenant context available and no default tenant found. Please provide a tenant explicitly when creating ' . get_class($model) . '.'
+                                'No tenant context available and no default tenant found. Please provide a tenant explicitly when creating '.get_class($model).'.'
                             );
                         }
                     } catch (\Throwable $e) {
@@ -97,7 +97,7 @@ trait BelongsToTenant
                 // query parameter (?tenant=slug) or header (X-Tenant: slug) for proper isolation.
                 try {
                     $defaultTenant = Tenant::where('slug', 'default')->first();
-                    
+
                     if ($defaultTenant) {
                         $request = rescue(fn () => app('request'), null, false);
                         Log::warning('BelongsToTenant: No tenant context found, using default tenant', [
@@ -170,22 +170,22 @@ trait BelongsToTenant
                 if (! $user) {
                     $user = auth()->user();
                 }
-                
+
                 if ($request && $request->has('tenant')) {
                     $tenantIdentifier = $request->input('tenant');
                     $tenant = null;
-                    
+
                     if (is_numeric($tenantIdentifier)) {
                         $tenant = Tenant::find($tenantIdentifier);
                     } else {
                         $tenant = Tenant::where('slug', $tenantIdentifier)->first();
                     }
-                    
+
                     // Validate that authenticated user has access to the tenant
                     if ($tenant && $user instanceof \App\Models\User && $user->canAccessTenant($tenant)) {
                         return $tenant;
                     }
-                    
+
                     // If tenant specified but user doesn't have access, return null
                     // This will fall back to default tenant or empty result set
                     if ($tenant && $user) {
@@ -196,7 +196,7 @@ trait BelongsToTenant
                             'url' => $request->fullUrl(),
                         ]);
                     }
-                    
+
                     return null;
                 }
 
@@ -204,18 +204,18 @@ trait BelongsToTenant
                 if ($request && $request->hasHeader('X-Tenant')) {
                     $tenantIdentifier = $request->header('X-Tenant');
                     $tenant = null;
-                    
+
                     if (is_numeric($tenantIdentifier)) {
                         $tenant = Tenant::find($tenantIdentifier);
                     } else {
                         $tenant = Tenant::where('slug', $tenantIdentifier)->first();
                     }
-                    
+
                     // Validate that authenticated user has access to the tenant
                     if ($tenant && $user instanceof \App\Models\User && $user->canAccessTenant($tenant)) {
                         return $tenant;
                     }
-                    
+
                     // If tenant specified but user doesn't have access, return null
                     if ($tenant && $user) {
                         \Log::warning('BelongsToTenant: User attempted to access unauthorized tenant via header', [
@@ -225,7 +225,7 @@ trait BelongsToTenant
                             'url' => $request->fullUrl(),
                         ]);
                     }
-                    
+
                     return null;
                 }
             } catch (\Throwable $e) {
@@ -247,13 +247,13 @@ trait BelongsToTenant
                         if (! $user) {
                             $user = auth()->user();
                         }
-                        
+
                         // Validate that authenticated user has access to the tenant
                         // Filament should already validate this, but we check again for security
                         if ($tenant && $user instanceof \App\Models\User && $user->canAccessTenant($tenant)) {
                             return $tenant;
                         }
-                        
+
                         // If tenant in session but user doesn't have access, clear it and return null
                         if ($tenant && $user && ! $user->canAccessTenant($tenant)) {
                             \Log::warning('BelongsToTenant: User session contains unauthorized tenant, clearing', [
@@ -263,7 +263,7 @@ trait BelongsToTenant
                             ]);
                             $request->session()->forget('filament.tenant');
                         }
-                        
+
                         return null;
                     }
                 }

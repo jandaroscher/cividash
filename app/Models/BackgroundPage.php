@@ -8,20 +8,19 @@ use Spatie\Translatable\HasTranslations;
 
 class BackgroundPage extends Model
 {
-
-    use HasTranslations;
     use BelongsToTenant;
+    use HasTranslations;
 
     public array $translatable = [
         'slug',
-        'content'
+        'content',
     ];
 
     protected $fillable = ['slug', 'content', 'position', 'tile_id', 'tenant_id'];
 
     /** Cast JSON columns to arrays so Spatie can handle them. */
     protected $casts = [
-        'slug'    => 'array',
+        'slug' => 'array',
         'content' => 'array',
     ];
 

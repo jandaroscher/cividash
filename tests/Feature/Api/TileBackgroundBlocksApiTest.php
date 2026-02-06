@@ -192,7 +192,3 @@ class TileBackgroundBlocksApiTest extends TestCase
             ->assertJsonPath('data.id', $tile->id);
     }
 }
-
-
-
-

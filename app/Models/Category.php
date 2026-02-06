@@ -8,11 +8,11 @@ use Spatie\Translatable\HasTranslations;
 
 class Category extends Model
 {
-    use HasTranslations;
     use BelongsToTenant;
+    use HasTranslations;
 
     public array $translatable = [
-        'slug'
+        'slug',
     ];
 
     protected $fillable = [

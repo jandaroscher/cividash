@@ -70,11 +70,12 @@ class DashboardSeedCommand extends Command
 
             if ($dryRun) {
                 $this->displayDryRunSummary($parsed);
+
                 return Command::SUCCESS;
             }
 
             return DB::transaction(function () use ($parsed, $only) {
-                $mediaDownloadService = new MediaDownloadService();
+                $mediaDownloadService = new MediaDownloadService;
 
                 // 1. Seed Handlungsfelder (Categories)
                 $categorySeeder = new CategorySeeder($mediaDownloadService);
@@ -83,6 +84,7 @@ class DashboardSeedCommand extends Command
 
                 if ($only === 'categories') {
                     $this->info('Category seeding completed successfully!');
+
                     return Command::SUCCESS;
                 }
 
@@ -148,19 +150,18 @@ class DashboardSeedCommand extends Command
      * Displays counts for categories, handlungsdimensionen (fixed as 3), SDG goals, tiles,
      * relationship links, and metrics; when verbose, lists the first five category and tile titles.
      *
-     * @param array $parsed Parsed dashboard data containing at least the keys:
-     *                      - 'categories' (collection with count() and items having `title`),
-     *                      - 'sdg_ziele' (collection),
-     *                      - 'tiles' (collection with items having `title`),
-     *                      - 'links' (collection),
-     *                      - 'metrics' (collection).
-     * @return void
+     * @param  array  $parsed  Parsed dashboard data containing at least the keys:
+     *                         - 'categories' (collection with count() and items having `title`),
+     *                         - 'sdg_ziele' (collection),
+     *                         - 'tiles' (collection with items having `title`),
+     *                         - 'links' (collection),
+     *                         - 'metrics' (collection).
      */
     protected function displayDryRunSummary(array $parsed): void
     {
         $this->info('=== DRY-RUN SUMMARY ===');
         $this->info("Categories to seed: {$parsed['categories']->count()}");
-        $this->info("Handlungsdimensionen to seed: 3 (static)");
+        $this->info('Handlungsdimensionen to seed: 3 (static)');
         $this->info("SDG-Ziele to seed: {$parsed['sdg_ziele']->count()}");
         $this->info("Tiles to seed: {$parsed['tiles']->count()}");
         $this->info("Relationships to create: {$parsed['links']->count()}");
@@ -187,7 +188,7 @@ class DashboardSeedCommand extends Command
      * Trims whitespace and compares case-insensitively. Accepts "categories" or
      * "handlungsfelder" and maps both to the canonical value "categories".
      *
-     * @param string|null $only The raw --only option value.
+     * @param  string|null  $only  The raw --only option value.
      * @return string|null `'categories' if the option corresponds to categories or handlungsfelder, null otherwise.`
      */
     protected function normalizeOnlyOption(?string $only): ?string

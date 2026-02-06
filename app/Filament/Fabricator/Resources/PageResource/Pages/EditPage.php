@@ -5,7 +5,6 @@ namespace App\Filament\Fabricator\Resources\PageResource\Pages;
 use App\Filament\Fabricator\Resources\PageResource;
 use Filament\Actions;
 use Filament\Actions\Action;
-use Filament\Resources\Pages\EditRecord;
 use Filament\Resources\Pages\EditRecord\Concerns\Translatable;
 use Illuminate\Support\Arr;
 use Z3d0X\FilamentFabricator\Resources\PageResource\Pages\EditPage as FabricatorEditPage;
@@ -79,4 +78,3 @@ class EditPage extends FabricatorEditPage
             ->keyBindings(['mod+s']);
     }
 }
-

@@ -4,8 +4,8 @@ namespace App\Providers;
 
 use App\Models\Page;
 use App\Observers\PageObserver;
-use Illuminate\Support\ServiceProvider;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
+use Illuminate\Support\ServiceProvider;
 use Z3d0X\FilamentFabricator\Forms\Components\PageBuilder;
 
 class AppServiceProvider extends ServiceProvider

@@ -7,8 +7,8 @@ return new class extends SettingsMigration
     /**
      * Adds navigation color settings to the branding settings.
      *
-     * Registers three settings: 'branding.nav_text_color' ('#374151'), 
-     * 'branding.nav_text_color_inactive' ('#9CA3AF'), and 
+     * Registers three settings: 'branding.nav_text_color' ('#374151'),
+     * 'branding.nav_text_color_inactive' ('#9CA3AF'), and
      * 'branding.nav_hover_color' ('#FCA5A5').
      */
     public function up(): void
@@ -25,4 +25,3 @@ return new class extends SettingsMigration
         $this->migrator->remove('branding.nav_hover_color');
     }
 };
-

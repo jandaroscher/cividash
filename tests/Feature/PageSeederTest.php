@@ -18,7 +18,7 @@ class PageSeederTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create user and authenticate for Filament tenant context
         $user = \App\Models\User::factory()->create();
         $tenant = Tenant::where('slug', 'default')->first();
@@ -27,8 +27,8 @@ class PageSeederTest extends TestCase
             Filament::auth()->login($user);
             Filament::setTenant($tenant);
         }
-        
-        $this->seeder = new PageSeeder();
+
+        $this->seeder = new PageSeeder;
     }
 
     public function test_page_seeder_creates_pages(): void
@@ -129,10 +129,10 @@ class PageSeederTest extends TestCase
 
         $homePage = Page::find($pageIdMap['/']);
         $blocks = $homePage->getTranslation('blocks', 'de', false) ?? [];
-        
+
         $this->assertIsArray($blocks);
         $this->assertGreaterThan(0, count($blocks));
-        
+
         // Check first block structure
         $firstBlock = $blocks[0];
         $this->assertArrayHasKey('type', $firstBlock);
@@ -145,7 +145,7 @@ class PageSeederTest extends TestCase
 
         $homePage = Page::find($pageIdMap['/']);
         $metaDescription = $homePage->getTranslation('meta_description', 'de', false);
-        
+
         $this->assertNotNull($metaDescription);
         $this->assertStringContainsString('Nachhaltigkeitsmonitoring', $metaDescription);
     }
@@ -178,14 +178,13 @@ class PageSeederTest extends TestCase
         $pageIdMap = $this->seeder->run();
 
         $contactPage = Page::find($pageIdMap['kontakt']);
-        
+
         // Check DE content
         $this->assertEquals('Kontakt', $contactPage->getTranslation('title', 'de'));
         $this->assertEquals('kontakt', $contactPage->getTranslation('slug', 'de'));
-        
+
         // Check EN content
         $this->assertEquals('Contact', $contactPage->getTranslation('title', 'en'));
         $this->assertEquals('contact', $contactPage->getTranslation('slug', 'en'));
     }
 }
-

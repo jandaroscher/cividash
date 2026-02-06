@@ -13,10 +13,15 @@ use Illuminate\Contracts\Support\Htmlable;
 class ManageDashboard extends SettingsPage
 {
     protected static ?string $navigationIcon = 'heroicon-o-home';
-    protected static ?string $navigationGroup = 'Einstellungen';
+
     protected static ?int $navigationSort = 22;
 
     protected static string $settings = DashboardSettings::class;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.groups.settings');
+    }
 
     /**
      * Get the localized title for the settings page.
@@ -51,7 +56,7 @@ class ManageDashboard extends SettingsPage
     /**
      * Builds the settings form schema for the dashboard management page.
      *
-     * @param \Filament\Forms\Form $form The form instance to configure.
+     * @param  \Filament\Forms\Form  $form  The form instance to configure.
      * @return \Filament\Forms\Form The configured form with sections and fields for content links, contact details, and server display options.
      */
     public function form(Form $form): Form

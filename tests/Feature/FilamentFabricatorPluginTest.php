@@ -13,12 +13,13 @@ class FilamentFabricatorPluginTest extends TestCase
     use RefreshDatabase;
 
     protected ?User $user = null;
+
     protected ?Tenant $tenant = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create user and authenticate for Filament tenant context
         $this->user = User::factory()->create();
         $this->tenant = Tenant::where('slug', 'default')->first();
@@ -43,7 +44,7 @@ class FilamentFabricatorPluginTest extends TestCase
 
         // Access admin panel (follow redirects automatically)
         $response = $this->followingRedirects()->get('/admin');
-        
+
         $response->assertStatus(200);
 
         // Assert that the response contains "Seiten" (German navigation label for Fabricator Pages resource)
@@ -57,29 +58,23 @@ class FilamentFabricatorPluginTest extends TestCase
     public function test_fabricator_plugin_is_registered(): void
     {
         $panel = \Filament\Facades\Filament::getPanel('admin');
-        
+
         $this->assertNotNull($panel, 'Admin panel should exist');
-        
+
         // Check if FilamentFabricatorPlugin is registered
         $plugins = $panel->getPlugins();
         $fabricatorPluginFound = false;
-        
+
         foreach ($plugins as $plugin) {
             if (str_contains(get_class($plugin), 'FilamentFabricator')) {
                 $fabricatorPluginFound = true;
                 break;
             }
         }
-        
+
         $this->assertTrue(
             $fabricatorPluginFound,
             'FilamentFabricatorPlugin should be registered in the admin panel'
         );
     }
 }
-
-
-
-
-
-

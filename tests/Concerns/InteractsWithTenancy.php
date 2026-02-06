@@ -13,7 +13,7 @@ trait InteractsWithTenancy
      * Merges the provided `$attributes` with default values (`name` => "Test Tenant", `slug` => "test-tenant`)
      * and persists the resulting Tenant.
      *
-     * @param array $attributes Attributes to override the defaults (e.g. 'name', 'slug').
+     * @param  array  $attributes  Attributes to override the defaults (e.g. 'name', 'slug').
      * @return Tenant The created Tenant instance.
      */
     protected function createTenant(array $attributes = []): Tenant
@@ -27,7 +27,7 @@ trait InteractsWithTenancy
     /**
      * Set the current Filament tenant context for tests.
      *
-     * @param Tenant $tenant The tenant to set as the active Filament context.
+     * @param  Tenant  $tenant  The tenant to set as the active Filament context.
      */
     protected function setTenantContext(Tenant $tenant): void
     {
@@ -39,8 +39,8 @@ trait InteractsWithTenancy
      *
      * If no previous tenant was set, the tenant context is cleared after execution.
      *
-     * @param Tenant $tenant The tenant to set for the duration of the callback.
-     * @param callable $callback The callback to execute within the tenant context.
+     * @param  Tenant  $tenant  The tenant to set for the duration of the callback.
+     * @param  callable  $callback  The callback to execute within the tenant context.
      * @return mixed The value returned by the callback.
      */
     protected function withTenant(Tenant $tenant, callable $callback)
@@ -48,6 +48,7 @@ trait InteractsWithTenancy
         $previous = Filament::getTenant();
         try {
             Filament::setTenant($tenant);
+
             return $callback();
         } finally {
             if ($previous) {
@@ -61,12 +62,13 @@ trait InteractsWithTenancy
     /**
      * Run the given callback with the Tenant model's 'tenant' global scope disabled.
      *
-     * @param callable $callback The callback to execute without the tenant scope.
+     * @param  callable  $callback  The callback to execute without the tenant scope.
      * @return mixed The value returned by the callback.
      */
     protected function withoutTenantScope(callable $callback)
     {
         $builder = \App\Models\Tenant::withoutGlobalScope('tenant');
+
         return $callback($builder);
     }
 }

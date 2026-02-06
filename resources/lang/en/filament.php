@@ -1,6 +1,13 @@
 <?php
 
 return [
+    'navigation' => [
+        'groups' => [
+            'settings' => 'Settings',
+            'categories' => 'Categories',
+            'content' => 'Content',
+        ],
+    ],
     'pages' => [
         'manage_dashboard' => [
             'title' => 'Dashboard',
@@ -75,6 +82,48 @@ return [
             'column_last_used' => 'Last Used',
             'never' => 'Never',
         ],
+        'manage_general' => [
+            'title' => 'Site Settings',
+            'site_name' => 'Site name',
+            'favicon' => 'Favicon',
+            'favicon_helper' => 'Recommended: ICO, PNG or SVG, max. 512 KB',
+        ],
+        'manage_header' => [
+            'title' => 'Header / Navigation',
+            'navigation_items' => 'Navigation Items',
+            'item_type' => 'Type',
+            'type_page' => 'Page',
+            'type_manual' => 'External Link',
+            'page' => 'Page',
+            'label' => 'Label',
+            'url' => 'URL',
+            'children' => 'Submenu Items',
+            'show_language_switcher' => 'Show language switcher',
+            'dropdown_enabled' => 'Enable dropdown menu',
+            'dropdown_enabled_helper' => 'Enables nested navigation with dropdown submenus',
+        ],
+        'manage_footer' => [
+            'title' => 'Footer',
+            'footer_navigation_items' => 'Footer Navigation Items',
+            'item_type' => 'Type',
+            'type_page' => 'Page',
+            'type_manual' => 'External Link',
+            'page' => 'Page',
+            'label' => 'Label',
+            'url' => 'URL',
+            'layout_type' => 'Layout Type',
+            'layout_single_row' => 'Single Row',
+            'layout_multi_column' => 'Multi-Column',
+            'layout_grid' => 'Grid',
+            'columns' => 'Columns',
+            'social_links_enabled' => 'Show Social Media Links',
+            'copyright_text' => 'Copyright Text',
+            'copyright_text_helper' => 'Use {year} for the current year and {site_name} for the site name',
+            'social_media_links' => 'Social Media Links',
+            'icon' => 'Icon',
+            'profile_url' => 'Profile URL',
+            'tooltip_text' => 'Tooltip Text',
+        ],
         'edit_tenant_profile' => [
             'title' => 'Tenant profile',
             'form' => [
@@ -116,6 +165,7 @@ return [
             'plural_model_label' => 'Categories',
             'group' => 'Category group',
             'key' => 'Key',
+            'key_helper' => 'Only lowercase letters, numbers, underscores and hyphens (must start with a letter)',
             'title' => 'Title',
             'icon' => 'Icon',
             'color' => 'Color',
@@ -129,6 +179,7 @@ return [
             'model_label' => 'Category group',
             'plural_model_label' => 'Category groups',
             'key' => 'Key',
+            'key_helper' => 'Only lowercase letters, numbers, underscores and hyphens (must start with a letter)',
             'title' => 'Title',
             'selection_type' => 'Selection type',
             'selection_single' => 'Single selection',
@@ -142,6 +193,7 @@ return [
             'updated_at' => 'Updated at',
             'items' => [
                 'key' => 'Key',
+                'key_helper' => 'Only lowercase letters, numbers, underscores and hyphens (must start with a letter)',
                 'title' => 'Title',
                 'icon' => 'Icon',
                 'color' => 'Color',
@@ -214,11 +266,21 @@ return [
             'actions' => [
                 'view_frontend' => 'View',
             ],
+            'lottie_preview' => 'Lottie Preview',
+            'no_lottie_file' => 'No Lottie animation (only .json or .lottie files)',
         ],
     ],
     'blocks' => [
         'is_active' => 'Active',
         'activate' => 'Activate block',
         'deactivate' => 'Deactivate block',
+    ],
+    'actions' => [
+        'edit' => 'Edit',
+        'create' => 'Create',
+        'delete' => 'Delete',
+        'save' => 'Save',
+        'cancel' => 'Cancel',
+        'add' => 'Add',
     ],
 ];

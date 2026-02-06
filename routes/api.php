@@ -1,16 +1,16 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminMetricDefinitionController;
+use App\Http\Controllers\Api\Admin\AdminMetricValueController;
+use App\Http\Controllers\Api\Admin\AdminTileController;
+use App\Http\Controllers\Api\Admin\AdminTileYearController;
 use App\Http\Controllers\Api\ConfigController;
+use App\Http\Controllers\Api\Content\PageController as ContentPageController;
 use App\Http\Controllers\Api\FilterController;
 use App\Http\Controllers\Api\HandlungsdimensionController;
 use App\Http\Controllers\Api\HandlungsfeldController;
 use App\Http\Controllers\Api\SDGZielController;
 use App\Http\Controllers\Api\TileController;
-use App\Http\Controllers\Api\Content\PageController as ContentPageController;
-use App\Http\Controllers\Api\Admin\AdminTileController;
-use App\Http\Controllers\Api\Admin\AdminTileYearController;
-use App\Http\Controllers\Api\Admin\AdminMetricDefinitionController;
-use App\Http\Controllers\Api\Admin\AdminMetricValueController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

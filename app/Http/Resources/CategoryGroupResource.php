@@ -15,7 +15,7 @@ class CategoryGroupResource extends JsonResource
      * translations), position, selection type, color source and filterable flags,
      * and related category items when the `categories` relation is loaded.
      *
-     * @param Request $request Request instance; may include optional `locale` query parameter to select a single title translation.
+     * @param  Request  $request  Request instance; may include optional `locale` query parameter to select a single title translation.
      * @return array<string, mixed> Associative array representation of the category group resource.
      */
     public function toArray(Request $request): array

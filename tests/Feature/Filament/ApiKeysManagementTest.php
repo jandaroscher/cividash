@@ -16,9 +16,13 @@ class ApiKeysManagementTest extends TestCase
     use RefreshDatabase;
 
     protected Tenant $tenantA;
+
     protected Tenant $tenantB;
+
     protected User $adminUser;
+
     protected User $regularUser;
+
     protected ApiTokenService $tokenService;
 
     protected function setUp(): void
@@ -37,7 +41,7 @@ class ApiKeysManagementTest extends TestCase
         $this->regularUser->tenants()->attach([$this->tenantA->id, $this->tenantB->id]);
 
         // Instantiate the service
-        $this->tokenService = new ApiTokenService();
+        $this->tokenService = new ApiTokenService;
     }
 
     protected function tearDown(): void

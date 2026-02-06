@@ -18,8 +18,8 @@ class SetFilamentDefaultTenant
      * - When running unit tests and no user-provided default exists, creates or retrieves a tenant with slug `default`.
      * When a tenant is selected, it sets the Filament tenant and, if the request has a session, stores the tenant key under `filament.tenant`.
      *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request.
-     * @param \Closure $next The next middleware callback.
+     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request.
+     * @param  \Closure  $next  The next middleware callback.
      * @return mixed The response from the next middleware or request handler.
      */
     public function handle(Request $request, Closure $next)

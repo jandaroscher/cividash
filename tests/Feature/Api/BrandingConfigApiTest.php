@@ -15,6 +15,7 @@ class BrandingConfigApiTest extends TestCase
     use RefreshDatabase;
 
     protected Tenant $tenant;
+
     protected User $user;
 
     protected function setUp(): void
@@ -42,7 +43,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->user->createToken('test-token', $abilities);
         $token->accessToken->tenant_id = $tenant->id;
         $token->accessToken->save();
-        
+
         return $token->plainTextToken;
     }
 
@@ -81,7 +82,7 @@ class BrandingConfigApiTest extends TestCase
 
         $response->assertStatus(200);
         $data = $response->json('data');
-        
+
         $this->assertEquals('#0d47a1', $data['primary_color']);
         $this->assertEquals('#1976d2', $data['secondary_color']);
         $this->assertEquals('Open Sans', $data['typography_font_family']);
@@ -110,7 +111,7 @@ class BrandingConfigApiTest extends TestCase
     public function test_post_branding_config_updates_settings(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
-        
+
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'primary_color' => '#FF0000',
@@ -143,7 +144,7 @@ class BrandingConfigApiTest extends TestCase
     public function test_patch_branding_config_partially_updates_settings(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
-        
+
         // Set initial values
         $settings = app(BrandingSettings::class);
         $settings->primary_color = '#000000';
@@ -158,7 +159,7 @@ class BrandingConfigApiTest extends TestCase
 
         $response->assertStatus(200);
         $data = $response->json('data');
-        
+
         $this->assertEquals('#FF0000', $data['primary_color']);
         // secondary_color should remain unchanged
         $this->assertEquals('#FFFFFF', $data['secondary_color']);
@@ -172,7 +173,7 @@ class BrandingConfigApiTest extends TestCase
     public function test_post_branding_config_validates_color_format(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
-        
+
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'primary_color' => 'invalid-color',
@@ -185,7 +186,7 @@ class BrandingConfigApiTest extends TestCase
     public function test_post_branding_config_validates_hex_color_format(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
-        
+
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'primary_color' => '#GGG',
@@ -198,7 +199,7 @@ class BrandingConfigApiTest extends TestCase
     public function test_post_branding_config_accepts_valid_hex_colors(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
-        
+
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'primary_color' => '#ABC',
@@ -211,7 +212,7 @@ class BrandingConfigApiTest extends TestCase
     public function test_post_branding_config_validates_font_weights(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
-        
+
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'typography_font_weights' => [50, 1500], // Invalid weights
@@ -224,7 +225,7 @@ class BrandingConfigApiTest extends TestCase
     public function test_post_branding_config_updates_slider_colors(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
-        
+
         $sliderColors = [
             'rail' => '#000000',
             'handle' => '#FFFFFF',
@@ -238,7 +239,7 @@ class BrandingConfigApiTest extends TestCase
 
         $response->assertStatus(200);
         $data = $response->json('data');
-        
+
         $this->assertEquals('#000000', $data['slider_colors']['rail']);
         $this->assertEquals('#FFFFFF', $data['slider_colors']['handle']);
         $this->assertEquals('#CCCCCC', $data['slider_colors']['handleBorder']);
@@ -250,7 +251,7 @@ class BrandingConfigApiTest extends TestCase
     public function test_post_branding_config_validates_slider_color_format(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
-        
+
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'slider_colors' => [
@@ -265,7 +266,7 @@ class BrandingConfigApiTest extends TestCase
     public function test_get_branding_config_after_update_returns_updated_values(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
-        
+
         // Update settings
         $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
@@ -278,7 +279,7 @@ class BrandingConfigApiTest extends TestCase
 
         $response->assertStatus(200);
         $data = $response->json('data');
-        
+
         $this->assertEquals('#123456', $data['primary_color']);
         $this->assertEquals('Inter', $data['typography_font_family']);
     }
@@ -286,7 +287,7 @@ class BrandingConfigApiTest extends TestCase
     public function test_post_branding_config_updates_header_footer_colors(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
-        
+
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'header_background_color' => '#F0F0F0',
@@ -295,7 +296,7 @@ class BrandingConfigApiTest extends TestCase
 
         $response->assertStatus(200);
         $data = $response->json('data');
-        
+
         $this->assertEquals('#F0F0F0', $data['header_background_color']);
         $this->assertEquals('#CCCCCC', $data['footer_background_color']);
 
@@ -307,7 +308,7 @@ class BrandingConfigApiTest extends TestCase
     public function test_post_branding_config_validates_header_footer_color_format(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
-        
+
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/config/branding', [
                 'header_background_color' => 'invalid-color',

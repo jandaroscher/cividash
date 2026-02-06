@@ -1,3 +1,9 @@
+@php
+    $generalSettings = app(\App\Settings\GeneralSettings::class);
+    $faviconUrl = $generalSettings->favicon
+        ? \Illuminate\Support\Facades\Storage::disk('public')->url($generalSettings->favicon)
+        : null;
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -5,6 +11,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Laravel') }}</title>
+    @if($faviconUrl)
+    <link rel="icon" href="{{ $faviconUrl }}">
+    @endif
 
     <script>
         window.APP_URL = '{{ config('app.url') }}';

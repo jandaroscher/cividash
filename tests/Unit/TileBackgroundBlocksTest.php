@@ -82,4 +82,3 @@ class TileBackgroundBlocksTest extends TestCase
         $this->assertIsArray($tile->background_blocks[0]);
     }
 }
-

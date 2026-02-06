@@ -15,7 +15,9 @@ class TenantDomainSettingsTest extends TestCase
     use RefreshDatabase;
 
     protected Tenant $tenantA;
+
     protected Tenant $tenantB;
+
     protected User $user;
 
     protected function setUp(): void

@@ -6,7 +6,6 @@ use App\Filament\Resources\TileResource;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
-use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Arr;
 
 class EditTile extends EditRecord
@@ -36,6 +35,7 @@ class EditTile extends EditRecord
                 ->color('success')
                 ->url(function () {
                     $locale = $this->activeLocale ?? app()->getLocale();
+
                     return $this->record->getUrl(['locale' => $locale]);
                 })
                 ->openUrlInNewTab(),
@@ -93,7 +93,7 @@ class EditTile extends EditRecord
      *
      * Stores extracted category group state in $this->categoryGroupState for use after the record is saved.
      *
-     * @param array $data The incoming form data submitted for the record.
+     * @param  array  $data  The incoming form data submitted for the record.
      * @return array The form data with category group state stripped out.
      */
     protected function mutateFormDataBeforeSave(array $data): array

@@ -22,8 +22,6 @@ return new class extends Migration
 
     /**
      * Reverts tenant table changes by removing the unique constraint on `domain` and dropping the `domain` and `frontend_base_url` columns.
-     *
-     * @return void
      */
     public function down(): void
     {

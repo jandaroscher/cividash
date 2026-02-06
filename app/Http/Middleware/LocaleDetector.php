@@ -19,13 +19,14 @@ class LocaleDetector
     public function handle(Request $request, Closure $next): Response
     {
         $path = $request->path();
-        
+
         // Ensure admin uses German UI labels by default
         if (str_starts_with($path, 'admin')) {
             App::setLocale('de');
+
             return $next($request);
         }
-        
+
         // Check if path is exactly 'en' or starts with 'en/'
         if ($path === 'en' || str_starts_with($path, 'en/')) {
             App::setLocale('en');

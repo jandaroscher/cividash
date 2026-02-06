@@ -17,10 +17,15 @@ class AdminMetricValueApiTest extends TestCase
     use RefreshDatabase;
 
     protected Tenant $tenant;
+
     protected Tenant $otherTenant;
+
     protected User $user;
+
     protected Tile $tile;
+
     protected TileYear $tileYear;
+
     protected MetricDefinition $metricDefinition;
 
     protected function setUp(): void
@@ -29,31 +34,31 @@ class AdminMetricValueApiTest extends TestCase
 
         $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
         $this->otherTenant = Tenant::create(['name' => 'Other Tenant', 'slug' => 'other-tenant']);
-        
+
         $this->user = User::factory()->create(['admin_api_enabled' => true]);
         $this->user->tenants()->attach([$this->tenant->id, $this->otherTenant->id]);
 
         // Create test data using Filament context
         Filament::auth()->login($this->user);
         Filament::setTenant($this->tenant);
-        
+
         $this->tile = Tile::create([
             'title' => ['de' => 'Test', 'en' => 'Test'],
             'description' => ['de' => 'Desc', 'en' => 'Desc'],
         ]);
-        
+
         $this->tileYear = TileYear::create([
             'tile_id' => $this->tile->id,
             'year' => 2024,
         ]);
-        
+
         $this->metricDefinition = MetricDefinition::create([
             'tile_id' => $this->tile->id,
             'metric_key' => 'test_metric',
             'label' => ['de' => 'Test', 'en' => 'Test'],
             'unit' => ['de' => '%', 'en' => '%'],
         ]);
-        
+
         Filament::setTenant(null);
     }
 
@@ -71,7 +76,7 @@ class AdminMetricValueApiTest extends TestCase
         $token = $this->user->createToken('test-token', $abilities);
         $token->accessToken->tenant_id = $tenant->id;
         $token->accessToken->save();
-        
+
         return $token->plainTextToken;
     }
 
@@ -81,6 +86,7 @@ class AdminMetricValueApiTest extends TestCase
     protected function createTokenWithoutTenant(array $abilities = ['admin-api']): string
     {
         $token = $this->user->createToken('test-token-no-tenant', $abilities);
+
         return $token->plainTextToken;
     }
 
@@ -91,25 +97,25 @@ class AdminMetricValueApiTest extends TestCase
     {
         Filament::auth()->login($this->user);
         Filament::setTenant($tenant);
-        
+
         $tile = Tile::create([
             'title' => ['de' => 'Other', 'en' => 'Other'],
             'description' => ['de' => 'Desc', 'en' => 'Desc'],
         ]);
-        
+
         $tileYear = TileYear::create([
             'tile_id' => $tile->id,
             'year' => 2020,
         ]);
-        
+
         $definition = MetricDefinition::create([
             'tile_id' => $tile->id,
             'metric_key' => 'other',
             'label' => ['de' => 'Other', 'en' => 'Other'],
         ]);
-        
+
         Filament::setTenant(null);
-        
+
         return compact('tile', 'tileYear', 'definition');
     }
 
@@ -120,15 +126,15 @@ class AdminMetricValueApiTest extends TestCase
     {
         Filament::auth()->login($this->user);
         Filament::setTenant($tenant);
-        
+
         $metricValue = MetricValue::create([
             'metric_definition_id' => $definition->id,
             'tile_year_id' => $tileYear->id,
             'value' => $value,
         ]);
-        
+
         Filament::setTenant(null);
-        
+
         return $metricValue;
     }
 
@@ -213,7 +219,7 @@ class AdminMetricValueApiTest extends TestCase
             $this->tileYear,
             50.0
         );
-        
+
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
@@ -255,7 +261,7 @@ class AdminMetricValueApiTest extends TestCase
             $this->tileYear,
             50.0
         );
-        
+
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
@@ -265,7 +271,7 @@ class AdminMetricValueApiTest extends TestCase
             ]);
 
         $response->assertStatus(200);
-        
+
         $metricValue->refresh();
         $this->assertEquals($this->tenant->id, $metricValue->tenant_id);
     }
@@ -280,7 +286,7 @@ class AdminMetricValueApiTest extends TestCase
             $this->tileYear,
             50.0
         );
-        
+
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
@@ -319,7 +325,7 @@ class AdminMetricValueApiTest extends TestCase
     {
         // Ensure no residual auth from setUp
         Filament::auth()->logout();
-        
+
         $response = $this->postJson('/api/admin/metric-values', [
             'metric_definition_id' => 1,
             'tile_year_id' => 1,
@@ -332,7 +338,7 @@ class AdminMetricValueApiTest extends TestCase
     public function test_unauthenticated_patch_returns_401(): void
     {
         Filament::auth()->logout();
-        
+
         $response = $this->patchJson('/api/admin/metric-values/1', [
             'value' => 50,
         ]);
@@ -343,7 +349,7 @@ class AdminMetricValueApiTest extends TestCase
     public function test_unauthenticated_delete_returns_401(): void
     {
         Filament::auth()->logout();
-        
+
         $response = $this->deleteJson('/api/admin/metric-values/1');
 
         $response->assertStatus(401);

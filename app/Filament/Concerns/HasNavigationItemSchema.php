@@ -33,14 +33,15 @@ trait HasNavigationItemSchema
                 ->label(__('filament.pages.manage_header.page'))
                 ->options(function () {
                     $locale = property_exists($this, 'activeLocale') ? $this->activeLocale : app()->getLocale();
-                    
+
                     return Page::query()
                         ->where('is_public', true)
                         ->get()
                         ->mapWithKeys(function ($page) use ($locale) {
-                            $title = $page->getTranslation('title', $locale, false) 
-                                ?: $page->getTranslation('title', 'de', false) 
+                            $title = $page->getTranslation('title', $locale, false)
+                                ?: $page->getTranslation('title', 'de', false)
                                 ?: 'Untitled';
+
                             return [$page->id => $title];
                         })
                         ->toArray();
@@ -54,12 +55,12 @@ trait HasNavigationItemSchema
                         $page = Page::find($state);
                         if ($page) {
                             $locale = property_exists($this, 'activeLocale') ? $this->activeLocale : app()->getLocale();
-                            
-                            $title = $page->getTranslation('title', $locale, false) 
-                                ?: $page->getTranslation('title', 'de', false) 
+
+                            $title = $page->getTranslation('title', $locale, false)
+                                ?: $page->getTranslation('title', 'de', false)
                                 ?: 'Untitled';
                             $url = $page->getUrl(['locale' => $locale]);
-                            
+
                             $set('label', $title);
                             $set('url', $url);
                         }

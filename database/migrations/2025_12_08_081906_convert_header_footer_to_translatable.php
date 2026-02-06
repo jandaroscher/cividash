@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -24,21 +22,21 @@ return new class extends Migration
 
         if ($headerSettings) {
             $payload = json_decode($headerSettings->payload, true);
-            
+
             if (isset($payload['navigation_items']) && is_array($payload['navigation_items'])) {
                 $convertedItems = array_map(function ($item) {
                     $convertedItem = $item;
-                    
+
                     // Convert label if it's a string
                     if (isset($item['label']) && is_string($item['label'])) {
                         $convertedItem['label'] = ['de' => $item['label'], 'en' => ''];
                     }
-                    
+
                     // Convert url if it's a string
                     if (isset($item['url']) && is_string($item['url'])) {
                         $convertedItem['url'] = ['de' => $item['url'], 'en' => ''];
                     }
-                    
+
                     // Convert children recursively
                     if (isset($item['children']) && is_array($item['children'])) {
                         $convertedItem['children'] = array_map(function ($child) {
@@ -49,15 +47,16 @@ return new class extends Migration
                             if (isset($child['url']) && is_string($child['url'])) {
                                 $convertedChild['url'] = ['de' => $child['url'], 'en' => ''];
                             }
+
                             return $convertedChild;
                         }, $item['children']);
                     }
-                    
+
                     return $convertedItem;
                 }, $payload['navigation_items']);
-                
+
                 $payload['navigation_items'] = $convertedItems;
-                
+
                 DB::table('settings')
                     ->where('id', $headerSettings->id)
                     ->update(['payload' => json_encode($payload)]);
@@ -73,35 +72,35 @@ return new class extends Migration
         if ($footerSettings) {
             $payload = json_decode($footerSettings->payload, true);
             $updated = false;
-            
+
             // Convert footer_navigation_items
             if (isset($payload['footer_navigation_items']) && is_array($payload['footer_navigation_items'])) {
                 $convertedItems = array_map(function ($item) {
                     $convertedItem = $item;
-                    
+
                     // Convert label if it's a string
                     if (isset($item['label']) && is_string($item['label'])) {
                         $convertedItem['label'] = ['de' => $item['label'], 'en' => ''];
                     }
-                    
+
                     // Convert url if it's a string
                     if (isset($item['url']) && is_string($item['url'])) {
                         $convertedItem['url'] = ['de' => $item['url'], 'en' => ''];
                     }
-                    
+
                     return $convertedItem;
                 }, $payload['footer_navigation_items']);
-                
+
                 $payload['footer_navigation_items'] = $convertedItems;
                 $updated = true;
             }
-            
+
             // Convert copyright_text if it's a string
             if (isset($payload['copyright_text']) && is_string($payload['copyright_text'])) {
                 $payload['copyright_text'] = ['de' => $payload['copyright_text'], 'en' => ''];
                 $updated = true;
             }
-            
+
             if ($updated) {
                 DB::table('settings')
                     ->where('id', $footerSettings->id)
@@ -129,21 +128,21 @@ return new class extends Migration
 
         if ($headerSettings) {
             $payload = json_decode($headerSettings->payload, true);
-            
+
             if (isset($payload['navigation_items']) && is_array($payload['navigation_items'])) {
                 $convertedItems = array_map(function ($item) {
                     $convertedItem = $item;
-                    
+
                     // Extract 'de' value from label
                     if (isset($item['label']) && is_array($item['label']) && isset($item['label']['de'])) {
                         $convertedItem['label'] = $item['label']['de'];
                     }
-                    
+
                     // Extract 'de' value from url
                     if (isset($item['url']) && is_array($item['url']) && isset($item['url']['de'])) {
                         $convertedItem['url'] = $item['url']['de'];
                     }
-                    
+
                     // Convert children recursively
                     if (isset($item['children']) && is_array($item['children'])) {
                         $convertedItem['children'] = array_map(function ($child) {
@@ -154,15 +153,16 @@ return new class extends Migration
                             if (isset($child['url']) && is_array($child['url']) && isset($child['url']['de'])) {
                                 $convertedChild['url'] = $child['url']['de'];
                             }
+
                             return $convertedChild;
                         }, $item['children']);
                     }
-                    
+
                     return $convertedItem;
                 }, $payload['navigation_items']);
-                
+
                 $payload['navigation_items'] = $convertedItems;
-                
+
                 DB::table('settings')
                     ->where('id', $headerSettings->id)
                     ->update(['payload' => json_encode($payload)]);
@@ -178,7 +178,7 @@ return new class extends Migration
         if ($footerSettings) {
             $payload = json_decode($footerSettings->payload, true);
             $updated = false;
-            
+
             // Convert footer_navigation_items
             if (isset($payload['footer_navigation_items']) && is_array($payload['footer_navigation_items'])) {
                 $convertedItems = array_map(function ($item) {
@@ -189,19 +189,20 @@ return new class extends Migration
                     if (isset($item['url']) && is_array($item['url']) && isset($item['url']['de'])) {
                         $convertedItem['url'] = $item['url']['de'];
                     }
+
                     return $convertedItem;
                 }, $payload['footer_navigation_items']);
-                
+
                 $payload['footer_navigation_items'] = $convertedItems;
                 $updated = true;
             }
-            
+
             // Convert copyright_text back to string
             if (isset($payload['copyright_text']) && is_array($payload['copyright_text']) && isset($payload['copyright_text']['de'])) {
                 $payload['copyright_text'] = $payload['copyright_text']['de'];
                 $updated = true;
             }
-            
+
             if ($updated) {
                 DB::table('settings')
                     ->where('id', $footerSettings->id)

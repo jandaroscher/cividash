@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.2",
         "bezhansalleh/filament-language-switch": "^3.1",
+        "codewithdennis/filament-simple-alert": "^3.0",
         "fakerphp/faker": "^1.23",
         "filament/filament": "^3.3",
         "filament/spatie-laravel-settings-plugin": "^3.2",

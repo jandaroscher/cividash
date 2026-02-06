@@ -8,8 +8,8 @@ use Spatie\Translatable\HasTranslations;
 
 class Navigation extends Model
 {
-    use HasTranslations;
     use BelongsToTenant;
+    use HasTranslations;
 
     /**
      * List of translatable fields.
@@ -47,21 +47,22 @@ class Navigation extends Model
      * creating a new singleton if none exists.
      *
      * @return Navigation The singleton Navigation instance for the resolved tenant.
+     *
      * @throws \App\Exceptions\InvalidTenantContextException If no tenant context is available.
      */
     public static function getInstance(): Navigation
     {
         $tenant = static::resolveTenant();
-        
-        if (!$tenant) {
+
+        if (! $tenant) {
             // Fallback: use default tenant
             $tenant = \App\Models\Tenant::where('slug', 'default')->first();
         }
-        
-        if (!$tenant) {
+
+        if (! $tenant) {
             throw new \App\Exceptions\InvalidTenantContextException('No tenant context available');
         }
-        
+
         // For the default tenant, ensure id=1 in a transaction to avoid races
         if ($tenant->slug === 'default') {
             $defaultRecord = \DB::transaction(function () use ($tenant) {
@@ -120,15 +121,15 @@ class Navigation extends Model
                 return $defaultRecord;
             }
         }
-        
+
         // Find singleton for this tenant (not by id=1, but by tenant_id)
         // Since there's only one singleton per tenant, we can use first()
         $instance = static::where('tenant_id', $tenant->id)->first();
-        
+
         if ($instance) {
             return $instance;
         }
-        
+
         // If not found, create it via getOrCreateInstance()
         return static::getOrCreateInstance();
     }
@@ -141,16 +142,16 @@ class Navigation extends Model
     public static function getOrCreateInstance(): Navigation
     {
         $tenant = static::resolveTenant();
-        
-        if (!$tenant) {
+
+        if (! $tenant) {
             // Fallback: use default tenant
             $tenant = \App\Models\Tenant::where('slug', 'default')->first();
         }
-        
-        if (!$tenant) {
+
+        if (! $tenant) {
             throw new \App\Exceptions\InvalidTenantContextException('No tenant context available');
         }
-        
+
         return \DB::transaction(function () use ($tenant) {
             $tableName = (new static)->getTable();
 
@@ -211,16 +212,16 @@ class Navigation extends Model
     /**
      * Retrieve navigation items translated for the given locale or the application's current locale.
      *
-     * @param string|null $locale Locale to use for translations; when null the application's current locale is used.
+     * @param  string|null  $locale  Locale to use for translations; when null the application's current locale is used.
      * @return array Array of navigation items with `label` and `url` fields translated for the resolved locale. If a translation is missing the method falls back to the 'de' locale or an empty string. Child items in a `children` array are translated recursively.
      */
     public function getTranslatedNavigationItems(?string $locale = null): array
     {
         $locale = $locale ?? app()->getLocale();
-        
+
         // Try to get translation for requested locale first (without fallback)
         $items = $this->getTranslation('navigation_items', $locale, false);
-        
+
         // If we got an array, check if it's the translatable structure (has locale keys like 'de', 'en')
         // or if it's already the items array (has numeric keys)
         if (is_array($items)) {
@@ -228,7 +229,7 @@ class Navigation extends Model
             if (isset($items['de']) || isset($items['en']) || isset($items[$locale])) {
                 // This is the translatable structure
                 // Check if requested locale has a non-empty value, otherwise fallback to 'de'
-                if (isset($items[$locale]) && !empty($items[$locale])) {
+                if (isset($items[$locale]) && ! empty($items[$locale])) {
                     $items = $items[$locale];
                 } else {
                     $items = $items['de'] ?? [];
@@ -236,7 +237,7 @@ class Navigation extends Model
             }
             // Otherwise, items is already the array of navigation items for the requested locale
         }
-        
+
         // If null/empty (including empty string) and locale is not 'de', try to get 'de' translation
         if ((($items === null) || ($items === '') || (is_array($items) && empty($items))) && $locale !== 'de') {
             $itemsDe = $this->getTranslation('navigation_items', 'de', false);
@@ -253,9 +254,9 @@ class Navigation extends Model
         }
 
         $items = $items ?? [];
-        
+
         // Ensure $items is an array before using array_map
-        if (!is_array($items)) {
+        if (! is_array($items)) {
             $items = [];
         }
 
@@ -282,6 +283,7 @@ class Navigation extends Model
                     if (isset($child['url']) && is_array($child['url'])) {
                         $translatedChild['url'] = $child['url'][$locale] ?? $child['url']['de'] ?? '';
                     }
+
                     return $translatedChild;
                 }, $item['children']);
             }

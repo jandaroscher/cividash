@@ -9,8 +9,6 @@ trait GetsTenantCacheKeySegment
     /**
      * Get tenant cache key segment for cache key generation.
      * Returns the tenant ID if available, otherwise 'public'.
-     *
-     * @return string
      */
     protected function getTenantCacheKeySegment(?int $tenantId = null): string
     {
@@ -53,4 +51,3 @@ trait GetsTenantCacheKeySegment
         return 'public';
     }
 }
-

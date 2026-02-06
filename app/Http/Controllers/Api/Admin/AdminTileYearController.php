@@ -70,7 +70,7 @@ class AdminTileYearController extends Controller
     public function update(UpdateTileYearRequest $request, int $id): JsonResponse
     {
         $tileYear = TileYear::findOrFail($id);
-        
+
         $tileYear->update($request->validated());
 
         return response()->json([

@@ -22,7 +22,7 @@ class ApiTokenService
      *
      * Excludes tokens with a null tenant_id and eager-loads the token owner; results are ordered by newest first.
      *
-     * @param Tenant $tenant The tenant whose tokens should be listed.
+     * @param  Tenant  $tenant  The tenant whose tokens should be listed.
      * @return Collection<PersonalAccessToken> Collection of tokens ordered by newest first.
      */
     public function listForTenant(Tenant $tenant): Collection
@@ -41,10 +41,10 @@ class ApiTokenService
      * in ALLOWED_ABILITIES, and that the user has admin_api_enabled when requesting
      * the `admin-api` ability.
      *
-     * @param User $user The user who will own the token.
-     * @param Tenant $tenant The tenant context to scope the token to.
-     * @param string $name Display name for the token.
-     * @param array $abilities Array of abilities for the token; must contain at least one entry and only values from ALLOWED_ABILITIES.
+     * @param  User  $user  The user who will own the token.
+     * @param  Tenant  $tenant  The tenant context to scope the token to.
+     * @param  string  $name  Display name for the token.
+     * @param  array  $abilities  Array of abilities for the token; must contain at least one entry and only values from ALLOWED_ABILITIES.
      * @return NewAccessToken The newly created access token (includes `plainTextToken`).
      *
      * @throws ValidationException When abilities are empty, contain invalid entries, or `admin-api` is requested but the user lacks admin_api_enabled.
@@ -62,7 +62,7 @@ class ApiTokenService
         $invalidAbilities = array_diff($abilities, self::ALLOWED_ABILITIES);
         if (! empty($invalidAbilities)) {
             throw ValidationException::withMessages([
-                'abilities' => ['Invalid abilities: ' . implode(', ', $invalidAbilities) . '. Allowed: ' . implode(', ', self::ALLOWED_ABILITIES)],
+                'abilities' => ['Invalid abilities: '.implode(', ', $invalidAbilities).'. Allowed: '.implode(', ', self::ALLOWED_ABILITIES)],
             ]);
         }
 
@@ -86,8 +86,9 @@ class ApiTokenService
     /**
      * Revoke a personal access token scoped to the given tenant.
      *
-     * @param PersonalAccessToken $token The token to revoke.
-     * @param Tenant $tenant The tenant that must own the token.
+     * @param  PersonalAccessToken  $token  The token to revoke.
+     * @param  Tenant  $tenant  The tenant that must own the token.
+     *
      * @throws \InvalidArgumentException If the token's tenant_id does not match the provided tenant's id.
      */
     public function revokeForTenant(PersonalAccessToken $token, Tenant $tenant): void
@@ -108,7 +109,7 @@ class ApiTokenService
      * Returns the abilities that the user is allowed to select when creating tokens.
      * Users without admin_api_enabled cannot create admin-api tokens.
      *
-     * @param User $user The user to check abilities for
+     * @param  User  $user  The user to check abilities for
      * @return array Available abilities with labels
      */
     public function getAvailableAbilitiesForUser(User $user): array

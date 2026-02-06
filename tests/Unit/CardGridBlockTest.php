@@ -92,6 +92,3 @@ class CardGridBlockTest extends TestCase
         $this->assertArrayNotHasKey('tile_models', $mutated);
     }
 }
-
-
-

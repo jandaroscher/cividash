@@ -3,9 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Page;
-use Illuminate\Console\Command;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 /**
  * Seeder for Fabricator Pages from reference site.
@@ -16,7 +14,6 @@ use Illuminate\Support\Str;
  */
 class PageSeeder extends Seeder
 {
-
     /**
      * Perform idempotent create-or-update seeding of bilingual (de/en) public pages.
      *
@@ -33,12 +30,12 @@ class PageSeeder extends Seeder
 
         foreach ($pages as $pageData) {
             $slugDe = $pageData['slug']['de'];
-            
+
             // Find existing page by DE slug
             $page = Page::whereJsonContains('slug->de', $slugDe)->first();
 
-            if (!$page) {
-                $page = new Page();
+            if (! $page) {
+                $page = new Page;
                 $page->title = $pageData['title'];
                 $page->slug = $pageData['slug'];
                 $page->layout = $pageData['layout'];
@@ -53,45 +50,45 @@ class PageSeeder extends Seeder
                     $page->meta_description = $pageData['meta_description'];
                 }
                 $page->save();
-                
+
                 if ($this->command) {
                     $this->command->info("Page created: {$pageData['title']['de']} (ID: {$page->id})");
                 }
             } else {
                 // Update existing page if needed
                 $needsUpdate = false;
-                
+
                 if ($page->getTranslation('title', 'de') !== $pageData['title']['de']) {
                     $page->setTranslation('title', 'de', $pageData['title']['de']);
                     $needsUpdate = true;
                 }
-                
+
                 if (isset($pageData['title']['en']) && $page->getTranslation('title', 'en') !== $pageData['title']['en']) {
                     $page->setTranslation('title', 'en', $pageData['title']['en']);
                     $needsUpdate = true;
                 }
-                
+
                 if ($page->getTranslation('slug', 'de') !== $pageData['slug']['de']) {
                     $page->setTranslation('slug', 'de', $pageData['slug']['de']);
                     $needsUpdate = true;
                 }
-                
+
                 if (isset($pageData['slug']['en']) && $page->getTranslation('slug', 'en') !== $pageData['slug']['en']) {
                     $page->setTranslation('slug', 'en', $pageData['slug']['en']);
                     $needsUpdate = true;
                 }
-                
+
                 if ($page->layout !== $pageData['layout']) {
                     $page->layout = $pageData['layout'];
                     $needsUpdate = true;
                 }
-                
+
                 // Update blocks if structure changed (simple comparison)
                 $currentBlocks = $page->getTranslation('blocks', 'de', false) ?? [];
                 $currentBlocksEn = $page->getTranslation('blocks', 'en', false) ?? [];
                 $blocksChanged = json_encode($currentBlocks) !== json_encode($pageData['blocks']);
                 $blocksEnChanged = isset($pageData['blocks_en']) && json_encode($currentBlocksEn) !== json_encode($pageData['blocks_en']);
-                
+
                 if ($blocksChanged || $blocksEnChanged) {
                     $page->setTranslation('blocks', 'de', $pageData['blocks']);
                     // Set EN blocks if provided, otherwise use DE blocks
@@ -102,7 +99,7 @@ class PageSeeder extends Seeder
                     }
                     $needsUpdate = true;
                 }
-                
+
                 // Update meta_description if provided
                 if (isset($pageData['meta_description'])) {
                     $currentMeta = $page->getTranslation('meta_description', 'de', false);
@@ -111,7 +108,7 @@ class PageSeeder extends Seeder
                         $needsUpdate = true;
                     }
                 }
-                
+
                 if ($needsUpdate) {
                     $page->save();
                     if ($this->command) {
@@ -336,12 +333,12 @@ class PageSeeder extends Seeder
     }
 
     /**
-         * Provide the block definitions for the German privacy (Datenschutz) page.
-         *
-         * Each array item represents a block with keys such as `'type'` and `'data'`.
-         *
-         * @return array<int, array<string, mixed>> Array of block definitions for the German privacy page.
-         */
+     * Provide the block definitions for the German privacy (Datenschutz) page.
+     *
+     * Each array item represents a block with keys such as `'type'` and `'data'`.
+     *
+     * @return array<int, array<string, mixed>> Array of block definitions for the German privacy page.
+     */
     protected function getPrivacyBlocks(): array
     {
         return [

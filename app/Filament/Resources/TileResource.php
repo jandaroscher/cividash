@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TileResource\Pages;
-use App\Filament\Resources\TileResource\RelationManagers;
 use App\Filament\Concerns\HasBlockActiveToggleAction;
 use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Fabricator\PageBlocks\FAQBlock;
 use App\Filament\Fabricator\PageBlocks\IntroTextBlock;
 use App\Filament\Fabricator\PageBlocks\SliderBlock;
 use App\Filament\Fabricator\PageBlocks\TextImageBlock;
+use App\Filament\Resources\TileResource\Pages;
+use App\Filament\Support\RichEditorConfig;
 use App\Models\CategoryGroup;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
@@ -21,35 +21,33 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
+use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
-use Z3d0X\FilamentFabricator\Facades\FilamentFabricator;
-
-use Filament\Resources\Concerns\Translatable;
 
 class TileResource extends Resource
 {
-    use Translatable;
     use HasBlockActiveToggleAction;
     use HasSortableTranslations;
+    use Translatable;
 
     protected const CATEGORY_GROUP_FIELD_PREFIX = 'category_group_';
 
     protected static ?string $model = Tile::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'Inhalte';
+
     protected static ?int $navigationSort = 2;
 
     /**
@@ -60,6 +58,11 @@ class TileResource extends Resource
     public static function getNavigationLabel(): string
     {
         return __('filament.resources.tile.navigation_label');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.groups.content');
     }
 
     public static function getModelLabel(): string
@@ -73,10 +76,10 @@ class TileResource extends Resource
     }
 
     /**
-     * Configure the form schema for the Tile resource with three tabs: Tile (basic fields and relationships), Background Page (block builder), and Metrics (nested repeaters for year groups and metrics).
+     * Builds the form schema for the Tile resource, composed of three tabs: Tile, Background Page, and Metrics.
      *
-     * @param Form $form The form instance to configure.
-     * @return Form The configured form containing the Tabs schema, a Builder for background blocks, and nested Repeaters for tile years and metrics.
+     * @param  Form  $form  The form instance to configure.
+     * @return Form The configured form instance.
      */
     public static function form(Form $form): Form
     {
@@ -90,14 +93,19 @@ class TileResource extends Resource
                                 Tabs\Tab::make(__('filament.tabs.tile'))
                                     ->schema([
                                         ...static::getCategoryGroupFields(),
-                                        RichEditor::make('description')
+                                        RichEditorConfig::make('description')
                                             ->label(__('filament.resources.tile.description')),
                                         FileUpload::make('icon')
                                             ->label(__('filament.resources.tile.icon'))
                                             ->disk('public')
                                             ->directory('tiles')
                                             ->preserveFilenames()
+                                            ->acceptedFileTypes(['image/*', 'application/json', 'application/zip+dotlottie'])
                                             ->required(false),
+                                        ViewField::make('icon_preview')
+                                            ->view('filament.forms.components.lottie-preview')
+                                            ->dehydrated(false)
+                                            ->afterStateHydrated(fn ($component, $record) => $component->state($record?->icon)),
                                         TextInput::make('position')
                                             ->label(__('filament.resources.tile.position'))
                                             ->numeric()
@@ -124,7 +132,7 @@ class TileResource extends Resource
                                         Repeater::make('metricDefinitions')
                                             ->relationship('metricDefinitions')
                                             ->label(__('filament.resources.tile.metrics_label'))
-                                            ->itemLabel(fn(array $state): ?string => $state['label'] ?? null)
+                                            ->itemLabel(fn (array $state): ?string => $state['label'] ?? null)
                                             ->extraItemActions([
                                                 static::getBlockActiveToggleAction(),
                                             ])
@@ -171,8 +179,10 @@ class TileResource extends Resource
                                                         // Fallback: load from database if relationship not loaded
                                                         if (isset($state['tile_year_id']) && is_numeric($state['tile_year_id'])) {
                                                             $tileYear = TileYear::find($state['tile_year_id']);
+
                                                             return $tileYear ? (string) $tileYear->year : (string) $state['tile_year_id'];
                                                         }
+
                                                         return null;
                                                     })
                                                     ->extraItemActions([
@@ -180,10 +190,12 @@ class TileResource extends Resource
                                                     ])
                                                     ->mutateRelationshipDataBeforeCreateUsing(function (array $data, $record, $livewire): array {
                                                         $tile = static::resolveTileForMetricValue($record, $livewire);
+
                                                         return static::resolveMetricValueTileYearId($data, $tile);
                                                     })
                                                     ->mutateRelationshipDataBeforeSaveUsing(function (array $data, $record, $livewire): array {
                                                         $tile = static::resolveTileForMetricValue($record, $livewire);
+
                                                         return static::resolveMetricValueTileYearId($data, $tile);
                                                     })
                                                     ->schema([
@@ -201,6 +213,7 @@ class TileResource extends Resource
                                                             ->afterStateHydrated(function (TextInput $component, $state, $record): void {
                                                                 if ($record && $record->relationLoaded('tileYear') && $record->tileYear) {
                                                                     $component->state($record->tileYear->year);
+
                                                                     return;
                                                                 }
 
@@ -213,6 +226,7 @@ class TileResource extends Resource
                                                             })
                                                             ->dehydrateStateUsing(function ($state) {
                                                                 $year = is_numeric($state) ? (int) $state : null;
+
                                                                 return $year;
                                                             })
                                                             ->required(),
@@ -221,9 +235,9 @@ class TileResource extends Resource
                                                             ->numeric()
                                                             ->required(),
                                                     ])
-                                                    ->collapsible()
+                                                    ->collapsible(),
                                             ])
-                                            ->collapsible()
+                                            ->collapsible(),
                                     ]),
                             ])
                             ->columnSpan(['lg' => 2]),
@@ -277,7 +291,7 @@ class TileResource extends Resource
                                             }
 
                                             $driver = $query->getConnection()->getDriverName();
-                                            $localePath = '$."' . $locale . '"';
+                                            $localePath = '$."'.$locale.'"';
 
                                             if ($driver === 'sqlite') {
                                                 $query->whereRaw('json_extract(slug, ?) = ?', [$localePath, $value]);
@@ -321,7 +335,7 @@ class TileResource extends Resource
      * filters (category relationship and public ternary), the record edit URL, row actions (edit, frontend view, delete),
      * and grouped bulk delete action.
      *
-     * @param \Filament\Tables\Table $table The table instance to configure.
+     * @param  \Filament\Tables\Table  $table  The table instance to configure.
      * @return \Filament\Tables\Table The configured table instance.
      */
     public static function table(Table $table): Table
@@ -330,35 +344,39 @@ class TileResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label(__('filament.resources.tile.title'))
-                    ->formatStateUsing(function ($state, Tile $record) {
-                        return $record->getTranslation('title', app()->getLocale(), false)
+                    ->formatStateUsing(function ($state, Tile $record, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+
+                        return $record->getTranslation('title', $locale, false)
                             ?: $record->getTranslation('title', 'de', false)
                             ?: $state;
                     })
                     ->searchable()
-                    ->sortable(query: function (EloquentBuilder $query, string $direction) {
-                        $expression = static::getSortableTranslationExpression('title', app()->getLocale());
+                    ->sortable(query: function (EloquentBuilder $query, string $direction, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+                        $expression = static::getSortableTranslationExpression('title', $locale);
                         $query->orderByRaw("{$expression} {$direction}");
                     }),
                 Tables\Columns\TextColumn::make('slug')
                     ->label(__('filament.resources.tile.slug'))
-                    ->formatStateUsing(function ($state, Tile $record) {
-                        return $record->getTranslation('slug', app()->getLocale(), false)
+                    ->formatStateUsing(function ($state, Tile $record, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+
+                        return $record->getTranslation('slug', $locale, false)
                             ?: $record->getTranslation('slug', 'de', false)
                             ?: $state;
                     })
                     ->searchable()
-                    ->sortable(query: function (EloquentBuilder $query, string $direction) {
-                        $expression = static::getSortableTranslationExpression('slug', app()->getLocale());
+                    ->sortable(query: function (EloquentBuilder $query, string $direction, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+                        $expression = static::getSortableTranslationExpression('slug', $locale);
                         $query->orderByRaw("{$expression} {$direction}");
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\ImageColumn::make('icon')
+                Tables\Columns\ViewColumn::make('icon')
                     ->label(__('filament.resources.tile.icon'))
-                    ->disk('public')
-                    ->square()
-                    ->size(40)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->view('filament.tables.columns.icon-column')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('position')
                     ->label(__('filament.resources.tile.position'))
                     ->sortable()
@@ -381,7 +399,11 @@ class TileResource extends Resource
                 Tables\Filters\SelectFilter::make('handlungsfelder')
                     ->label(__('filament.resources.tile.categories'))
                     ->relationship('handlungsfelder', 'slug')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->getTranslation('slug', app()->getLocale()))
+                    ->getOptionLabelFromRecordUsing(function ($record, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+
+                        return $record->getTranslation('slug', $locale);
+                    })
                     ->searchable()
                     ->preload()
                     ->multiple(),
@@ -397,6 +419,7 @@ class TileResource extends Resource
                     ->color('success')
                     ->url(function (Tile $record, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
+
                         return $record->getUrl(['locale' => $locale]);
                     })
                     ->openUrlInNewTab(),
@@ -436,7 +459,7 @@ class TileResource extends Resource
      * The field is labeled with the group's translated title, populated with the group's categories (translated slugs),
      * configured for search and preload, and hydrated from a record's related categories for this group.
      *
-     * @param CategoryGroup $group The category group used to build the field and its options.
+     * @param  CategoryGroup  $group  The category group used to build the field and its options.
      * @return Select The configured Select field instance (set to allow multiple selection when the group is configured as multi).
      */
     protected static function makeCategoryGroupField(CategoryGroup $group): Select
@@ -477,22 +500,19 @@ class TileResource extends Resource
     /**
      * Builds the form field name used to store selections for a specific category group.
      *
-     * @param int $groupId The category group's identifier.
+     * @param  int  $groupId  The category group's identifier.
      * @return string The prefixed field name for the category group.
      */
     protected static function getCategoryGroupFieldName(int $groupId): string
     {
-        return static::CATEGORY_GROUP_FIELD_PREFIX . $groupId;
+        return static::CATEGORY_GROUP_FIELD_PREFIX.$groupId;
     }
 
     /**
-     * Extracts entries whose keys are prefixed for category groups from the given data array.
+     * Get subset of the input array containing only entries whose keys start with the category group prefix.
      *
-     * Filters the provided associative array and returns a new array containing only keys
-     * that start with the class constant CATEGORY_GROUP_FIELD_PREFIX and their corresponding values.
-     *
-     * @param array $data The input associative array (e.g., form state).
-     * @return array An array of key/value pairs where keys begin with the category group prefix.
+     * @param  array  $data  The input associative array to filter (e.g., form state).
+     * @return array Key/value pairs from $data where keys begin with `static::CATEGORY_GROUP_FIELD_PREFIX`.
      */
     public static function extractCategoryGroupState(array $data): array
     {
@@ -508,10 +528,10 @@ class TileResource extends Resource
     }
 
     /**
-     * Remove any keys that start with the CATEGORY_GROUP_FIELD_PREFIX from the provided array.
+     * Remove keys starting with the CATEGORY_GROUP_FIELD_PREFIX from the provided array.
      *
-     * @param array $data The input associative array potentially containing category-group fields.
-     * @return array The input array with all category-group prefixed keys removed.
+     * @param  array  $data  Associative array that may contain category-group fields.
+     * @return array The array with all category-group prefixed keys removed.
      */
     public static function stripCategoryGroupState(array $data): array
     {
@@ -532,10 +552,10 @@ class TileResource extends Resource
      * `selection_type` of `multi` or single), deduplicates them, and syncs the Tile's `categories`
      * relation to match.
      *
-     * @param Tile  $tile  The Tile model whose categories will be synchronized.
-     * @param array $state Associative array of category-group field values keyed by
-     *                     getCategoryGroupFieldName(groupId). Values may be an integer, an array
-     *                     of integers, or null/empty (which will be ignored).
+     * @param  Tile  $tile  The Tile model whose categories will be synchronized.
+     * @param  array  $state  Associative array of category-group field values keyed by
+     *                        getCategoryGroupFieldName(groupId). Values may be an integer, an array
+     *                        of integers, or null/empty (which will be ignored).
      */
     public static function syncCategoryGroupSelections(Tile $tile, array $state): void
     {
@@ -599,13 +619,14 @@ class TileResource extends Resource
     }
 
     /**
-         * Load and return Builder block schemas registered via the Fabricator configuration.
-         *
-         * Reads the `filament-fabricator.page-blocks.register` config, calls `getBlockSchema()` on each valid block class,
-         * and returns the collected Builder block schemas.
-         *
-         * @return array<\Filament\Forms\Components\Builder\Block> The array of Builder block schemas to use in the background blocks.
-         */
+     * Collect available background Builder block schemas from configuration.
+     *
+     * Only block classes listed in the configuration key "filament-fabricator.page-blocks.register"
+     * that are in the allowed set (FAQBlock, IntroTextBlock, SliderBlock, TextImageBlock) and expose
+     * a static `getBlockSchema()` method will be included.
+     *
+     * @return array<\Filament\Forms\Components\Builder\Block> The Builder block schemas to use in the background blocks.
+     */
     protected static function getBackgroundBlockSchemas(): array
     {
         $blocks = [];
@@ -627,6 +648,13 @@ class TileResource extends Resource
         return $blocks;
     }
 
+    /**
+     * Resolve the Tile associated with a metric-related record or a Livewire component.
+     *
+     * @param  Model|null  $record  A Tile, MetricDefinition, MetricValue, or null; the method will resolve the related Tile when possible.
+     * @param  mixed  $livewire  Optional Livewire component; if provided and it exposes a `getRecord()` method that returns a Tile, that Tile will be returned.
+     * @return Tile|null The associated Tile when found, or null otherwise.
+     */
     protected static function resolveTileForMetricValue(?Model $record, $livewire): ?Tile
     {
         if ($record instanceof Tile) {
@@ -656,8 +684,11 @@ class TileResource extends Resource
     }
 
     /**
-     * @param array<string, mixed> $data
-     * @return array<string, mixed>
+     * Ensure a TileYear exists for the given tile and numeric year, and replace `tile_year_id` in the provided data with that TileYear's id.
+     *
+     * @param  array<string,mixed>  $data  Input data array which may contain a numeric `tile_year_id` representing a year.
+     * @param  Tile|null  $tile  The Tile to associate the year with; if null, the data is returned unchanged.
+     * @return array<string,mixed> The (possibly modified) data array with `tile_year_id` set to the corresponding TileYear id when applicable.
      */
     protected static function resolveMetricValueTileYearId(array $data, ?Tile $tile): array
     {

@@ -6,7 +6,6 @@ use App\Models\Handlungsdimension;
 use App\Models\SDGZiel;
 use App\Models\Tile;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -57,8 +56,8 @@ return new class extends Migration
     }
 
     /**
-         * No-op rollback: this migration does not revert the data backfill.
-         */
+     * No-op rollback: this migration does not revert the data backfill.
+     */
     public function down(): void
     {
         // No automatic rollback for data backfill
@@ -68,14 +67,14 @@ return new class extends Migration
      * Ensure the default category groups ("fields", "dimensions", "sdg") exist for the given tenant.
      * Uses raw DB queries to avoid BelongsToTenant trait issues during migrations.
      *
-     * @param int|null $tenantId Tenant id to scope groups to, or null for global groups.
+     * @param  int|null  $tenantId  Tenant id to scope groups to, or null for global groups.
      * @return array<string, object> Associative array mapping group keys ('fields', 'dimensions', 'sdg') to objects with id property.
      */
     protected function ensureDefaultGroups(?int $tenantId): array
     {
         $now = now();
         $hasIsActive = Schema::hasColumn('category_groups', 'is_active');
-        
+
         // Use raw DB queries to avoid BelongsToTenant trait issues
         $fieldsData = [
             'tenant_id' => $tenantId,
@@ -91,13 +90,13 @@ return new class extends Migration
         if ($hasIsActive) {
             $fieldsData['is_active'] = true;
         }
-        
+
         $fieldsId = DB::table('category_groups')
             ->when($tenantId !== null, fn ($q) => $q->where('tenant_id', $tenantId), fn ($q) => $q->whereNull('tenant_id'))
             ->where('key', 'fields')
             ->value('id');
-            
-        if (!$fieldsId) {
+
+        if (! $fieldsId) {
             $fieldsId = DB::table('category_groups')->insertGetId($fieldsData);
         } else {
             unset($fieldsData['created_at']);
@@ -118,13 +117,13 @@ return new class extends Migration
         if ($hasIsActive) {
             $dimensionsData['is_active'] = true;
         }
-        
+
         $dimensionsId = DB::table('category_groups')
             ->when($tenantId !== null, fn ($q) => $q->where('tenant_id', $tenantId), fn ($q) => $q->whereNull('tenant_id'))
             ->where('key', 'dimensions')
             ->value('id');
-            
-        if (!$dimensionsId) {
+
+        if (! $dimensionsId) {
             $dimensionsId = DB::table('category_groups')->insertGetId($dimensionsData);
         } else {
             unset($dimensionsData['created_at']);
@@ -145,13 +144,13 @@ return new class extends Migration
         if ($hasIsActive) {
             $sdgData['is_active'] = true;
         }
-        
+
         $sdgId = DB::table('category_groups')
             ->when($tenantId !== null, fn ($q) => $q->where('tenant_id', $tenantId), fn ($q) => $q->whereNull('tenant_id'))
             ->where('key', 'sdg')
             ->value('id');
-            
-        if (!$sdgId) {
+
+        if (! $sdgId) {
             $sdgId = DB::table('category_groups')->insertGetId($sdgData);
         } else {
             unset($sdgData['created_at']);
@@ -171,8 +170,8 @@ return new class extends Migration
      * Ensure a Category exists under the given group for each Handlungsdimension of the tenant,
      * creating or updating categories and applying title translations, icon, color, position, and key.
      *
-     * @param int|null $tenantId The tenant id to operate on, or null for global records.
-     * @param object $group The parent category group object with id property.
+     * @param  int|null  $tenantId  The tenant id to operate on, or null for global records.
+     * @param  object  $group  The parent category group object with id property.
      * @return array<int,int> Map of Handlungsdimension id => created or updated Category id.
      */
     protected function backfillDimensionCategories(?int $tenantId, object $group): array
@@ -195,7 +194,7 @@ return new class extends Migration
                 ->first();
 
             if (! $category) {
-                $category = new Category();
+                $category = new Category;
                 $category->category_group_id = $group->id;
                 $category->tenant_id = $tenantId;
             }
@@ -216,8 +215,8 @@ return new class extends Migration
     /**
      * Create or update category records for SDG‑Ziele under the given category group.
      *
-     * @param int|null $tenantId Tenant id used to scope which SDG‑Ziele are processed, or null for global entries.
-     * @param object $group The category group object with id property.
+     * @param  int|null  $tenantId  Tenant id used to scope which SDG‑Ziele are processed, or null for global entries.
+     * @param  object  $group  The category group object with id property.
      * @return array<int,int> Map where each key is an SDGZiel id and each value is the corresponding Category id.
      */
     protected function backfillSdgCategories(?int $tenantId, object $group): array
@@ -240,7 +239,7 @@ return new class extends Migration
                 ->first();
 
             if (! $category) {
-                $category = new Category();
+                $category = new Category;
                 $category->category_group_id = $group->id;
                 $category->tenant_id = $tenantId;
             }
@@ -266,8 +265,8 @@ return new class extends Migration
      *
      * Processes tiles scoped to the given tenant (or global when null) that have a non-null handlungsdimension_id and inserts or updates category_tile rows using the provided mapping.
      *
-     * @param int|null $tenantId The tenant ID to scope the backfill, or null to operate on global (no-tenant) records.
-     * @param array<int,int> $dimensionCategoryMap Map of handlungsdimension_id => category_id used to create or update pivot entries.
+     * @param  int|null  $tenantId  The tenant ID to scope the backfill, or null to operate on global (no-tenant) records.
+     * @param  array<int,int>  $dimensionCategoryMap  Map of handlungsdimension_id => category_id used to create or update pivot entries.
      */
     protected function backfillTileDimensionLinks(?int $tenantId, array $dimensionCategoryMap): void
     {
@@ -298,7 +297,7 @@ return new class extends Migration
      *
      * Inserts or updates pivot rows so each tile referenced in tile_sdg_ziel is associated with the mapped category.
      *
-     * @param array<int,int> $sdgCategoryMap Map of SDG Ziel IDs to category IDs used when creating/updating pivot rows.
+     * @param  array<int,int>  $sdgCategoryMap  Map of SDG Ziel IDs to category IDs used when creating/updating pivot rows.
      */
     protected function backfillTileSdgLinks(?int $tenantId, array $sdgCategoryMap): void
     {

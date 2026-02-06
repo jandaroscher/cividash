@@ -5,7 +5,6 @@ namespace App\Filament\Resources\TileResource\Pages;
 use App\Filament\Resources\TileResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
-use Filament\Resources\Pages\ListRecords;
 
 class CreateTile extends CreateRecord
 {
@@ -31,7 +30,7 @@ class CreateTile extends CreateRecord
      * Extracts category group selections from the incoming form data, stores them on the page,
      * and returns the form data with that category group state removed.
      *
-     * @param array $data The incoming form data, potentially including category group selections.
+     * @param  array  $data  The incoming form data, potentially including category group selections.
      * @return array The form data with category group state stripped out.
      */
     protected function mutateFormDataBeforeCreate(array $data): array

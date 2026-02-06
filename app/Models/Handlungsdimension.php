@@ -8,8 +8,8 @@ use Spatie\Translatable\HasTranslations;
 
 class Handlungsdimension extends Model
 {
-    use HasTranslations;
     use BelongsToTenant;
+    use HasTranslations;
 
     public array $translatable = [
         'title',

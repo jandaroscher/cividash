@@ -15,8 +15,6 @@ return new class extends Migration
      *
      * Singleton behavior is enforced in application code via Navigation::getInstance()/getOrCreateInstance()
      * which always targets the record with id=1.
-     *
-     * @return void
      */
     public function up(): void
     {

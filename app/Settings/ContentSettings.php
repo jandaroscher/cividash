@@ -6,7 +6,7 @@ use Spatie\LaravelSettings\Settings;
 
 class ContentSettings extends Settings
 {
-    public array|null $hero_content = null;
+    public ?array $hero_content = null;
 
     public static function group(): string
     {

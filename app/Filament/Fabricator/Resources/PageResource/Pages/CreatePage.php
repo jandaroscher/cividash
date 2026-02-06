@@ -4,7 +4,6 @@ namespace App\Filament\Fabricator\Resources\PageResource\Pages;
 
 use App\Filament\Fabricator\Resources\PageResource;
 use Filament\Actions;
-use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\CreateRecord\Concerns\Translatable;
 use Z3d0X\FilamentFabricator\Resources\PageResource\Pages\CreatePage as FabricatorCreatePage;
 
@@ -27,4 +26,3 @@ class CreatePage extends FabricatorCreatePage
         ];
     }
 }
-

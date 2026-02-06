@@ -84,7 +84,7 @@ class AdminMetricDefinitionController extends Controller
     public function update(UpdateMetricDefinitionRequest $request, int $id): JsonResponse
     {
         $definition = MetricDefinition::findOrFail($id);
-        
+
         $definition->update($request->validated());
 
         return response()->json([

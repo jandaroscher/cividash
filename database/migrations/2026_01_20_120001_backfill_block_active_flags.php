@@ -82,8 +82,7 @@ return new class extends Migration
     }
 
     /**
-     * @param array<int, array<string, mixed>> $blocks
-     * @param bool $changed
+     * @param  array<int, array<string, mixed>>  $blocks
      * @return array<int, array<string, mixed>>
      */
     private function normalizeBlocks(array $blocks, bool &$changed): array

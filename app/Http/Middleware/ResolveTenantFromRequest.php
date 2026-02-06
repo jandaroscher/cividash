@@ -18,8 +18,8 @@ class ResolveTenantFromRequest
      * Resolves the tenant using the following priority: Bearer token (token->tenant_id) > request host domain > tenant with slug "default".
      * When a tenant is resolved it is attached to the request attributes as `resolved_tenant` and `resolved_tenant_by`. If a Filament user is authenticated, the middleware will attempt to set the Filament tenant. A structured debug log is emitted with resolution details.
      *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request.
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next The next middleware/action.
+     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request.
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next  The next middleware/action.
      * @return \Symfony\Component\HttpFoundation\Response The response returned by the next middleware or action.
      */
     public function handle(Request $request, Closure $next): Response
@@ -42,7 +42,7 @@ class ResolveTenantFromRequest
         }
 
         // Priority 2: Match request host against tenant domain
-        if (!$tenant) {
+        if (! $tenant) {
             $host = $this->normalizeHost($request);
             if ($host) {
                 $tenant = Tenant::where('domain', $host)->first();
@@ -53,19 +53,19 @@ class ResolveTenantFromRequest
         }
 
         // Priority 3: Fall back to default tenant
-        if (!$tenant) {
+        if (! $tenant) {
             $tenant = Tenant::where('slug', 'default')->first();
             $resolvedBy = 'default';
         }
 
         // Set the tenant context if found
         if ($tenant) {
-            // For API context, we can't always set Filament tenant 
+            // For API context, we can't always set Filament tenant
             // because it requires an authenticated Filament user
             // Instead, we'll store it in the request for models to use
             $request->attributes->set('resolved_tenant', $tenant);
             $request->attributes->set('resolved_tenant_by', $resolvedBy);
-            
+
             // Try to set Filament tenant if user is authenticated via Filament
             if (Filament::auth()->check()) {
                 Filament::setTenant($tenant);
@@ -95,14 +95,14 @@ class ResolveTenantFromRequest
     {
         // Prefer X-Forwarded-Host if trusted proxy is configured
         $host = $request->getHost();
-        
-        if (!$host) {
+
+        if (! $host) {
             return null;
         }
 
         // Lowercase
         $host = strtolower($host);
-        
+
         // Strip www. prefix
         if (str_starts_with($host, 'www.')) {
             $host = substr($host, 4);

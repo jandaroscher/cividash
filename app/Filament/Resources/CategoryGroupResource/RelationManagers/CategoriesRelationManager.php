@@ -22,11 +22,9 @@ class CategoriesRelationManager extends RelationManager
     protected static ?string $recordTitleAttribute = 'id';
 
     /**
-     * Build the Filament form schema for creating and editing Category records related to a CategoryGroup.
+     * Builds the Filament form schema for creating and editing Category records related to the current CategoryGroup.
      *
-     * The form contains fields for `key`, required `slug`, `icon` (image upload stored on the `public` disk under
-     * `categories` that preserves filenames and supports locale-keyed JSON or plain path values), `color` (visible only
-     * when the owner CategoryGroup is the color source), `is_active`, and numeric `position`.
+     * The form defines inputs for `key`, `slug`, `icon` (image upload stored on the `public` disk under `categories`, supporting per-locale JSON or plain path values), `color` (visible only when the owner CategoryGroup is the color source), `is_active`, and numeric `position`.
      *
      * @return \Filament\Forms\Form The configured form instance.
      */
@@ -36,7 +34,10 @@ class CategoriesRelationManager extends RelationManager
             ->schema([
                 Forms\Components\TextInput::make('key')
                     ->label(__('filament.resources.category_group.items.key'))
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->nullable()
+                    ->regex('/^[a-z][a-z0-9_-]*$/')
+                    ->helperText(__('filament.resources.category_group.items.key_helper')),
                 Forms\Components\TextInput::make('slug')
                     ->label(__('filament.resources.category_group.items.title'))
                     ->required()
@@ -85,6 +86,7 @@ class CategoriesRelationManager extends RelationManager
                         if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                             $locale = app()->getLocale();
                             $decoded[$locale] = $path;
+
                             return json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                         }
 

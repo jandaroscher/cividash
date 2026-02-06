@@ -9,7 +9,6 @@ use App\Services\ParsedTile;
 use Database\Seeders\TileSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class TileSeederTest extends TestCase
@@ -21,7 +20,7 @@ class TileSeederTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create user and authenticate for Filament tenant context
         $user = \App\Models\User::factory()->create();
         $tenant = Tenant::where('slug', 'default')->first();
@@ -30,8 +29,8 @@ class TileSeederTest extends TestCase
             Filament::auth()->login($user);
             Filament::setTenant($tenant);
         }
-        
-        $this->seeder = new TileSeeder();
+
+        $this->seeder = new TileSeeder;
     }
 
     public function test_tile_seeder_creates_tiles(): void
@@ -137,7 +136,7 @@ class TileSeederTest extends TestCase
 
         $tile = Tile::whereJsonContains('title->de', 'Deutscher Titel')->first();
         $this->assertNotNull($tile);
-        
+
         // Title should be translatable
         $this->assertEquals('Deutscher Titel', $tile->getTranslation('title', 'de'));
         $this->assertEquals('English Title', $tile->getTranslation('title', 'en'));
@@ -395,4 +394,3 @@ class TileSeederTest extends TestCase
         $this->assertCount(2, $sliderBlock['data']['items']);
     }
 }
-

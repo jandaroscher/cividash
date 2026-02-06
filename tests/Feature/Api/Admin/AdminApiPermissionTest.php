@@ -13,7 +13,9 @@ class AdminApiPermissionTest extends TestCase
     use RefreshDatabase;
 
     protected Tenant $tenant;
+
     protected User $adminUser;
+
     protected User $regularUser;
 
     protected function setUp(): void
@@ -21,10 +23,10 @@ class AdminApiPermissionTest extends TestCase
         parent::setUp();
 
         $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
-        
+
         $this->adminUser = User::factory()->create(['admin_api_enabled' => true]);
         $this->adminUser->tenants()->attach($this->tenant->id);
-        
+
         $this->regularUser = User::factory()->create(['admin_api_enabled' => false]);
         $this->regularUser->tenants()->attach($this->tenant->id);
     }
@@ -43,7 +45,7 @@ class AdminApiPermissionTest extends TestCase
         $token = $user->createToken('test-token', $abilities);
         $token->accessToken->tenant_id = $tenant->id;
         $token->accessToken->save();
-        
+
         return $token->plainTextToken;
     }
 

@@ -10,31 +10,33 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Z3d0X\FilamentFabricator\Facades\FilamentFabricator;
-use Z3d0X\FilamentFabricator\Resources\PageResource as FabricatorPageResource;
-use Z3d0X\FilamentFabricator\Enums\ResourceSchemaSlot;
 use Z3d0X\FilamentFabricator\Forms\Components\PageBuilder;
+use Z3d0X\FilamentFabricator\Resources\PageResource as FabricatorPageResource;
 
 class PageResource extends FabricatorPageResource
 {
-    use Translatable;
     use HasBlockActiveToggleAction;
     use HasSortableTranslations;
+    use Translatable;
 
-    protected static ?string $navigationGroup = 'Inhalte';
     protected static ?int $navigationSort = 1;
 
     public static function getNavigationLabel(): string
     {
         return __('filament.resources.page.navigation_label');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.groups.content');
     }
 
     public static function getModelLabel(): string
@@ -61,29 +63,29 @@ class PageResource extends FabricatorPageResource
      * - displays `'-'` when no record is present,
      * - otherwise returns the record URL for the active locale (from the Livewire component's `activeLocale` property or `app()->getLocale()`).
      *
-     * @param \Filament\Forms\Form $form The base form to modify.
+     * @param  \Filament\Forms\Form  $form  The base form to modify.
      * @return \Filament\Forms\Form The modified form instance.
      */
     public static function form(Form $form): Form
     {
         // Get the base form structure from parent
         $form = parent::form($form);
-        
+
         // We need to customize the sidebar schema to make the URL field locale-aware
         // The parent uses a Section with page_url Placeholder, we need to override it
-        
+
         // Get all components
         $components = $form->getComponents();
-        
+
         // Find the right sidebar column and replace the page_url Placeholder
         foreach ($components as $columnKey => $column) {
             if (method_exists($column, 'getChildComponents')) {
                 $childComponents = $column->getChildComponents();
-                
+
                 foreach ($childComponents as $sectionKey => $section) {
                     if ($section instanceof Section && method_exists($section, 'getChildComponents')) {
                         $sectionChildren = $section->getChildComponents();
-                        
+
                         foreach ($sectionChildren as $placeholderKey => $placeholder) {
                             if ($placeholder instanceof Placeholder && $placeholder->getName() === 'page_url') {
                                 // Replace with our custom locale-aware version
@@ -91,15 +93,15 @@ class PageResource extends FabricatorPageResource
                                     ->label(__('filament.resources.page.url_preview'))
                                     ->visible(fn (?Page $record) => config('filament-fabricator.routing.enabled') && filled($record))
                                     ->content(function (?Page $record, $livewire) {
-                                        if (!$record) {
+                                        if (! $record) {
                                             return '-';
                                         }
-                                        
+
                                         // Get the active locale from the Livewire component
-                                        $activeLocale = property_exists($livewire, 'activeLocale') 
-                                            ? $livewire->activeLocale 
+                                        $activeLocale = property_exists($livewire, 'activeLocale')
+                                            ? $livewire->activeLocale
                                             : app()->getLocale();
-                                        
+
                                         // Generate URL with the correct locale
                                         return $record->getUrl(['locale' => $activeLocale]);
                                     });
@@ -185,33 +187,45 @@ class PageResource extends FabricatorPageResource
         return $form;
     }
 
+    /**
+     * Configure the resource index table with its columns, filters, row actions, and bulk actions.
+     *
+     * @param  Table  $table  The base table instance to configure.
+     * @return Table The configured table instance.
+     */
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label(__('filament.resources.page.title'))
-                    ->formatStateUsing(function ($state, Page $record) {
-                        return $record->getTranslation('title', app()->getLocale(), false)
+                    ->formatStateUsing(function ($state, Page $record, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+
+                        return $record->getTranslation('title', $locale, false)
                             ?: $record->getTranslation('title', 'de', false)
                             ?: $state;
                     })
                     ->searchable()
-                    ->sortable(query: function (Builder $query, string $direction) {
-                        $expression = static::getSortableTranslationExpression('title', app()->getLocale());
+                    ->sortable(query: function (Builder $query, string $direction, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+                        $expression = static::getSortableTranslationExpression('title', $locale);
 
                         $query->orderByRaw("{$expression} {$direction}");
                     }),
                 Tables\Columns\TextColumn::make('slug')
                     ->label(__('filament.resources.page.slug'))
-                    ->formatStateUsing(function ($state, Page $record) {
-                        return $record->getTranslation('slug', app()->getLocale(), false)
+                    ->formatStateUsing(function ($state, Page $record, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+
+                        return $record->getTranslation('slug', $locale, false)
                             ?: $record->getTranslation('slug', 'de', false)
                             ?: $state;
                     })
                     ->searchable()
-                    ->sortable(query: function (Builder $query, string $direction) {
-                        $expression = static::getSortableTranslationExpression('slug', app()->getLocale());
+                    ->sortable(query: function (Builder $query, string $direction, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+                        $expression = static::getSortableTranslationExpression('slug', $locale);
 
                         $query->orderByRaw("{$expression} {$direction}");
                     })
@@ -249,6 +263,7 @@ class PageResource extends FabricatorPageResource
                     ->color('success')
                     ->url(function (Page $record, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
+
                         return $record->getUrl(['locale' => $locale]);
                     })
                     ->openUrlInNewTab(),
@@ -262,7 +277,7 @@ class PageResource extends FabricatorPageResource
     }
 
     /**
-     * @param array<\Filament\Forms\Components\Component> $components
+     * @param  array<\Filament\Forms\Components\Component>  $components
      */
     protected static function applyBlockToggleActionToComponents(array $components): void
     {
@@ -271,6 +286,7 @@ class PageResource extends FabricatorPageResource
                 $component->extraItemActions([
                     static::getBlockActiveToggleAction(),
                 ]);
+
                 continue;
             }
 

@@ -14,7 +14,7 @@ return new class extends Migration
         // Check if table exists (it may have been dropped in a later migration)
         if (Schema::hasTable('metrics')) {
             // Check if column already exists (in case migration was partially run)
-            if (!Schema::hasColumn('metrics', 'indicator_type')) {
+            if (! Schema::hasColumn('metrics', 'indicator_type')) {
                 Schema::table('metrics', function (Blueprint $table) {
                     // Add indicator_type column with default value 'small'
                     $table->string('indicator_type')->default('small')->after('icon');
@@ -40,4 +40,3 @@ return new class extends Migration
         }
     }
 };
-

@@ -36,4 +36,3 @@ return new class extends Migration
         Schema::dropIfExists('metric_definitions');
     }
 };
-

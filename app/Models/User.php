@@ -8,19 +8,18 @@ use Filament\Models\Contracts\HasDefaultTenant;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Tenant;
 
-class User extends Authenticatable implements FilamentUser, HasTenants, HasDefaultTenant
+class User extends Authenticatable implements FilamentUser, HasDefaultTenant, HasTenants
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -45,10 +44,10 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
     ];
 
     /**
-         * Define attribute casting rules for the model.
-         *
-         * @return array<string, string> Mapping of attribute names to their cast types (e.g., 'datetime', 'boolean', 'hashed').
-         */
+     * Define attribute casting rules for the model.
+     *
+     * @return array<string, string> Mapping of attribute names to their cast types (e.g., 'datetime', 'boolean', 'hashed').
+     */
     protected function casts(): array
     {
         return [
@@ -64,8 +63,6 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
      * On creation of a User, ensures a tenant with slug "default" exists, attaches that tenant
      * to the new user without detaching existing tenant relations, and sets the user's
      * `default_tenant_id` to that tenant if it is not already set.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -88,7 +85,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
      *
      * This implementation permits access for all authenticated users.
      *
-     * @param Panel $panel The Filament panel to check access for.
+     * @param  Panel  $panel  The Filament panel to check access for.
      * @return bool `true` if the user may access the panel, `false` otherwise.
      */
     public function canAccessPanel(Panel $panel): bool
@@ -99,7 +96,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
     /**
      * Provide the user's tenants ordered by name for the given Filament panel.
      *
-     * @param Panel $panel The Filament panel requesting the tenant list.
+     * @param  Panel  $panel  The Filament panel requesting the tenant list.
      * @return Collection|array A collection or array of Tenant models belonging to the user, ordered by the tenants' `name`.
      */
     public function getTenants(Panel $panel): Collection|array
@@ -110,7 +107,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
     /**
      * Resolve the user's default tenant for the given Filament panel, falling back to the first tenant the user can access.
      *
-     * @param Panel $panel The Filament panel context used for tenant resolution.
+     * @param  Panel  $panel  The Filament panel context used for tenant resolution.
      * @return Tenant|null The user's configured default Tenant if the user has access to it; otherwise the first accessible Tenant ordered by name, or `null` if the user has no tenants.
      */
     public function getDefaultTenant(Panel $panel): ?Tenant
@@ -137,7 +134,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants, HasDefau
     /**
      * Determine whether the user can access the given tenant.
      *
-     * @param \Illuminate\Database\Eloquent\Model $tenant The tenant model to check access for.
+     * @param  \Illuminate\Database\Eloquent\Model  $tenant  The tenant model to check access for.
      * @return bool `true` if the user has access to the tenant, `false` otherwise.
      */
     public function canAccessTenant(Model $tenant): bool

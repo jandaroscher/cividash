@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\FooterNavigation;
 use App\Models\Navigation;
 use App\Models\Page;
-use Illuminate\Console\Command;
 use Illuminate\Database\Seeder;
 
 /**
@@ -16,12 +15,11 @@ use Illuminate\Database\Seeder;
  */
 class NavigationSeeder extends Seeder
 {
-
     /**
-         * Seed header and footer navigation items using the given map of page slugs to IDs.
-         *
-         * @param array<string,int> $pageIdMap Map of page slug (DE) to database ID
-         */
+     * Seed header and footer navigation items using the given map of page slugs to IDs.
+     *
+     * @param  array<string,int>  $pageIdMap  Map of page slug (DE) to database ID
+     */
     public function run(array $pageIdMap): void
     {
         $this->seedHeaderNavigation($pageIdMap);
@@ -31,20 +29,20 @@ class NavigationSeeder extends Seeder
     /**
      * Seed header navigation items.
      *
-     * @param array<string, int> $pageIdMap Map of page slug (DE) to database ID
-     * @return void
+     * @param  array<string, int>  $pageIdMap  Map of page slug (DE) to database ID
      */
     protected function seedHeaderNavigation(array $pageIdMap): void
     {
         $navigation = Navigation::getOrCreateInstance();
-        
+
         // Check if navigation already exists (only skip if we have items AND they match expected structure)
         // Empty array means nothing was seeded yet, so we should seed
         $existingItems = $navigation->getTranslation('navigation_items', 'de', false) ?? [];
-        if (!empty($existingItems) && count($existingItems) > 0) {
+        if (! empty($existingItems) && count($existingItems) > 0) {
             if ($this->command) {
                 $this->command->info('Header navigation already exists, skipping...');
             }
+
             return;
         }
 
@@ -102,19 +100,20 @@ class NavigationSeeder extends Seeder
      *
      * Writes footer navigation translations for German ('de') and English ('en') and persists the FooterNavigation instance.
      *
-     * @param array<string,int> $pageIdMap Map of page slug (DE) to database ID
+     * @param  array<string,int>  $pageIdMap  Map of page slug (DE) to database ID
      */
     protected function seedFooterNavigation(array $pageIdMap): void
     {
         $footer = FooterNavigation::getOrCreateInstance();
-        
+
         // Check if navigation already exists (only skip if we have items AND they match expected structure)
         // Empty array means nothing was seeded yet, so we should seed
         $existingItems = $footer->getTranslation('footer_navigation_items', 'de', false) ?? [];
-        if (!empty($existingItems) && count($existingItems) > 0) {
+        if (! empty($existingItems) && count($existingItems) > 0) {
             if ($this->command) {
                 $this->command->info('Footer navigation already exists, skipping...');
             }
+
             return;
         }
 

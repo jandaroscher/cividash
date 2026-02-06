@@ -14,7 +14,9 @@ class AdminTileApiTest extends TestCase
     use RefreshDatabase;
 
     protected Tenant $tenant;
+
     protected Tenant $otherTenant;
+
     protected User $user;
 
     protected function setUp(): void
@@ -23,7 +25,7 @@ class AdminTileApiTest extends TestCase
 
         $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
         $this->otherTenant = Tenant::create(['name' => 'Other Tenant', 'slug' => 'other-tenant']);
-        
+
         $this->user = User::factory()->create(['admin_api_enabled' => true]);
         $this->user->tenants()->attach([$this->tenant->id, $this->otherTenant->id]);
     }
@@ -42,11 +44,11 @@ class AdminTileApiTest extends TestCase
     {
         Filament::auth()->login($this->user);
         Filament::setTenant($tenant);
-        
+
         $tile = Tile::create($data);
-        
+
         Filament::setTenant(null);
-        
+
         return $tile;
     }
 
@@ -59,7 +61,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->user->createToken('test-token', $abilities);
         $token->accessToken->tenant_id = $tenant->id;
         $token->accessToken->save();
-        
+
         return $token->plainTextToken;
     }
 
@@ -69,6 +71,7 @@ class AdminTileApiTest extends TestCase
     protected function createTokenWithoutTenant(array $abilities = ['admin-api']): string
     {
         $token = $this->user->createToken('test-token-no-tenant', $abilities);
+
         // Explicitly NOT setting tenant_id
         return $token->plainTextToken;
     }

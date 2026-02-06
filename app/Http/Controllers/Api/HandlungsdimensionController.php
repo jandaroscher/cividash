@@ -13,7 +13,7 @@ class HandlungsdimensionController extends Controller
     /**
      * Retrieve CategoryItemResource objects for the "dimensions" group ordered by position.
      *
-     * @param Request $request Optional request (may include a `locale` query parameter).
+     * @param  Request  $request  Optional request (may include a `locale` query parameter).
      * @return AnonymousResourceCollection A collection of CategoryItemResource instances for the group's categories ordered by `position`; an empty collection is returned if the group or its categories are missing.
      */
     public function index(Request $request): AnonymousResourceCollection

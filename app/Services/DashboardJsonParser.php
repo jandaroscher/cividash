@@ -18,8 +18,9 @@ class DashboardJsonParser
     /**
      * Parse the dashboard.json file and return structured data.
      *
-     * @param string $jsonPath Path to the dashboard.json file
+     * @param  string  $jsonPath  Path to the dashboard.json file
      * @return array{categories: Collection, tiles: Collection, links: Collection}
+     *
      * @throws \RuntimeException If file cannot be read or JSON is invalid
      */
     public function parse(string $jsonPath): array
@@ -56,7 +57,6 @@ class DashboardJsonParser
      * Validates category IDs (numeric keys or explicit 'id' field) and titles.
      * Skips invalid entries and logs warnings.
      *
-     * @param array $categoriesData
      * @return Collection<int, ParsedCategory>
      */
     protected function parseCategories(array $categoriesData): Collection
@@ -75,6 +75,7 @@ class DashboardJsonParser
                         'key' => $key,
                         'category' => $category,
                     ]);
+
                     return null;
                 }
 
@@ -101,7 +102,6 @@ class DashboardJsonParser
     /**
      * Parse tiles from JSON data.
      *
-     * @param array $tilesData
      * @return Collection<int, ParsedTile>
      */
     protected function parseTiles(array $tilesData): Collection
@@ -133,7 +133,6 @@ class DashboardJsonParser
      *
      * Groups slider fields by index (1, 2, 3, etc.) and returns structured array.
      *
-     * @param array $tile
      * @return array<int, array{title?: string, title_en?: string, text?: string, text_en?: string, image?: array|string, link?: string}>
      */
     protected function extractSliderData(array $tile): array
@@ -196,7 +195,6 @@ class DashboardJsonParser
     /**
      * Parse relationship links from tiles.
      *
-     * @param array $tilesData
      * @return Collection<int, ParsedLink>
      */
     protected function parseLinks(array $tilesData): Collection
@@ -221,8 +219,6 @@ class DashboardJsonParser
     /**
      * Parse metrics (Kennzahlen) from JSON data.
      *
-     * @param array $metricsData
-     * @param array $datenData
      * @return Collection<int, ParsedMetric>
      */
     protected function parseMetrics(array $metricsData, array $datenData): Collection
@@ -248,7 +244,7 @@ class DashboardJsonParser
             $indicatorType = null;
             if (isset($metric['indikatortyp'])) {
                 // Map German values to English
-                $indicatorType = match($metric['indikatortyp']) {
+                $indicatorType = match ($metric['indikatortyp']) {
                     'groß' => 'big',
                     'klein' => 'small',
                     'normal' => 'small',
@@ -277,8 +273,8 @@ class DashboardJsonParser
      *
      * Iterates over all daten entries and extracts years where the metric key has a value.
      *
-     * @param string $metricKey The key of the metric (e.g., 'straftaten')
-     * @param array $datenData The daten array from JSON
+     * @param  string  $metricKey  The key of the metric (e.g., 'straftaten')
+     * @param  array  $datenData  The daten array from JSON
      * @return array<int, array{year: int, value: mixed}> Array of year data
      */
     protected function extractMetricYears(string $metricKey, array $datenData): array
@@ -333,8 +329,7 @@ class DashboardJsonParser
     /**
      * Extract year from datetime string.
      *
-     * @param string $datetime DateTime string (e.g., "2022-12-31 00:00:00")
-     * @return int|null
+     * @param  string  $datetime  DateTime string (e.g., "2022-12-31 00:00:00")
      */
     protected function extractYearFromDateTime(string $datetime): ?int
     {
@@ -350,7 +345,6 @@ class DashboardJsonParser
     /**
      * Parse SDG goals (SDG-Ziele) from JSON data.
      *
-     * @param array $sdgData
      * @return Collection<int, ParsedSDGZiel>
      */
     protected function parseSDGZiele(array $sdgData): Collection
@@ -378,8 +372,7 @@ class ParsedCategory
     public function __construct(
         public readonly int $id,
         public readonly string $title,
-    ) {
-    }
+    ) {}
 }
 
 /**
@@ -404,8 +397,7 @@ class ParsedTile
         public readonly array $metricIds,
         public readonly ?string $handlungsdimension, // "grün", "gerecht", "produktiv"
         public readonly array $sdgZielIds,
-    ) {
-    }
+    ) {}
 }
 
 /**
@@ -416,8 +408,7 @@ class ParsedLink
     public function __construct(
         public readonly int $tileId,
         public readonly int $categoryId,
-    ) {
-    }
+    ) {}
 }
 
 /**
@@ -434,8 +425,7 @@ class ParsedMetric
         public readonly mixed $icon,
         public readonly array $years, // [{year: int, value: mixed}]
         public readonly ?string $indicator_type = null,
-    ) {
-    }
+    ) {}
 }
 
 /**
@@ -446,7 +436,5 @@ class ParsedSDGZiel
     public function __construct(
         public readonly int $id,
         public readonly ?int $number, // 1-17
-    ) {
-    }
+    ) {}
 }
-

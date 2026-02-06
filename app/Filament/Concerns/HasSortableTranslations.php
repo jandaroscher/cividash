@@ -25,8 +25,8 @@ trait HasSortableTranslations
      * Supports both simple column names (e.g., 'slug') and fully qualified column names
      * with table prefixes (e.g., 'category_groups.title') for use with JOIN queries.
      *
-     * @param string $column The column name containing JSON translations (optionally with table prefix).
-     * @param string|null $locale The locale to sort by (defaults to 'de' with fallback).
+     * @param  string  $column  The column name containing JSON translations (optionally with table prefix).
+     * @param  string|null  $locale  The locale to sort by (defaults to 'de' with fallback).
      * @return string SQL expression for sorting.
      *
      * @throws \InvalidArgumentException If the column name is not in the allowed list.
@@ -36,7 +36,7 @@ trait HasSortableTranslations
         static::validateSortableColumn($column);
 
         $locale = static::normalizeSortLocale($locale);
-        $localePath = '$."' . $locale . '"';
+        $localePath = '$."'.$locale.'"';
         $fallbackPath = '$."de"';
         $driver = DB::connection()->getDriverName();
 
@@ -77,8 +77,7 @@ trait HasSortableTranslations
      * (e.g., 'category_groups.title'). For prefixed names, only the last segment
      * is validated against the allowed list.
      *
-     * @param string $column The column name to validate.
-     * @return void
+     * @param  string  $column  The column name to validate.
      *
      * @throws \InvalidArgumentException If the column name is not allowed.
      */
@@ -89,7 +88,7 @@ trait HasSortableTranslations
 
         if (! in_array($columnName, self::$allowedSortableColumns, true)) {
             throw new \InvalidArgumentException(
-                "Invalid sortable column: {$column}. Allowed columns: " . implode(', ', self::$allowedSortableColumns)
+                "Invalid sortable column: {$column}. Allowed columns: ".implode(', ', self::$allowedSortableColumns)
             );
         }
     }
@@ -97,7 +96,7 @@ trait HasSortableTranslations
     /**
      * Normalize the locale for sorting, ensuring it's in the allowed list.
      *
-     * @param string|null $locale The locale to normalize.
+     * @param  string|null  $locale  The locale to normalize.
      * @return string The normalized locale (defaults to 'de' if invalid or not provided).
      */
     protected static function normalizeSortLocale(?string $locale = null): string

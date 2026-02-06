@@ -15,7 +15,7 @@ class NavigationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create user and authenticate for Filament tenant context
         $user = \App\Models\User::factory()->create();
         $tenant = Tenant::where('slug', 'default')->first();
@@ -42,7 +42,7 @@ class NavigationTest extends TestCase
         // Get or create instance first
         $navigation = Navigation::getOrCreateInstance();
         $navigationId = $navigation->id; // Store the id for comparison
-        
+
         // Update the record
         $navigation->show_language_switcher = false;
         $navigation->dropdown_enabled = true;

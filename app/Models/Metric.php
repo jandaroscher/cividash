@@ -8,8 +8,8 @@ use Spatie\Translatable\HasTranslations;
 
 class Metric extends Model
 {
-    use HasTranslations;
     use BelongsToTenant;
+    use HasTranslations;
 
     public array $translatable = [
         'label',

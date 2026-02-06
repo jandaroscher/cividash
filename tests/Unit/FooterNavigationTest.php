@@ -15,7 +15,7 @@ class FooterNavigationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create user and authenticate for Filament tenant context
         $user = \App\Models\User::factory()->create();
         $tenant = Tenant::where('slug', 'default')->first();
@@ -43,7 +43,7 @@ class FooterNavigationTest extends TestCase
         // Get or create instance first
         $footer = FooterNavigation::getOrCreateInstance();
         $footerId = $footer->id; // Store the id for comparison
-        
+
         // Update the record
         $footer->layout_type = 'grid';
         $footer->columns = 4;

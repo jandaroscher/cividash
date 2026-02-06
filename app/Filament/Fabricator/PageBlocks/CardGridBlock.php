@@ -43,7 +43,7 @@ class CardGridBlock extends PageBlock
     public static function mutateData(array $data): array
     {
         // Ensure tiles is always an array
-        if (!isset($data['tiles']) || empty($data['tiles'])) {
+        if (! isset($data['tiles']) || empty($data['tiles'])) {
             // If no tiles selected, get all tiles
             $data['tiles'] = Tile::query()
                 ->orderBy('position')
@@ -60,4 +60,3 @@ class CardGridBlock extends PageBlock
         return $data;
     }
 }
-

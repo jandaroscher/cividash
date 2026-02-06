@@ -11,15 +11,15 @@ class MetricResource extends JsonResource
         $locale = $request->query('locale');
 
         return [
-            'id'             => $this->id,
-            'label'          => $locale
+            'id' => $this->id,
+            'label' => $locale
                 ? $this->getTranslation('label', $locale)
                 : $this->getTranslations('label'),
-            'value'          => (float) $this->value,
-            'unit'           => $locale
+            'value' => (float) $this->value,
+            'unit' => $locale
                 ? $this->getTranslation('unit', $locale)
                 : $this->getTranslations('unit'),
-            'icon'           => $this->icon,
+            'icon' => $this->icon,
             'indicator_type' => $this->indicator_type ?? 'small',
         ];
     }

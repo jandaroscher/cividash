@@ -12,19 +12,19 @@ class MetricDefinitionResource extends JsonResource
         $locale = $request->query('locale');
 
         return [
-            'id'             => $this->id,
-            'metric_key'     => $this->metric_key,
-            'label'          => $locale
+            'id' => $this->id,
+            'metric_key' => $this->metric_key,
+            'label' => $locale
                 ? $this->getTranslation('label', $locale)
                 : $this->getTranslations('label'),
-            'unit'           => $locale
+            'unit' => $locale
                 ? ($this->unit ? $this->getTranslation('unit', $locale) : null)
                 : ($this->unit ? $this->getTranslations('unit') : null),
-            'icon'           => $this->icon
+            'icon' => $this->icon
                 ? Storage::disk('public')->url($this->icon)
                 : null,
             'indicator_type' => $this->indicator_type ?? 'small',
-            'values'         => MetricValueResource::collection(
+            'values' => MetricValueResource::collection(
                 $this->whenLoaded('metricValues', function () {
                     $values = $this->metricValues;
 
@@ -38,4 +38,3 @@ class MetricDefinitionResource extends JsonResource
         ];
     }
 }
-

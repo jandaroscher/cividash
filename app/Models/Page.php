@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 use Z3d0X\FilamentFabricator\Facades\FilamentFabricator;
-use Z3d0X\FilamentFabricator\Models\Page as FabricatorPage;
 use Z3d0X\FilamentFabricator\Models\Contracts\Page as PageContract;
+use Z3d0X\FilamentFabricator\Models\Page as FabricatorPage;
 
 class Page extends FabricatorPage implements PageContract
 {
-    use HasTranslations;
     use BelongsToTenant;
+    use HasTranslations;
 
     protected static function booted(): void
     {
@@ -111,7 +111,7 @@ class Page extends FabricatorPage implements PageContract
 
             // Get translatable slug for current locale
             $slug = $this->getTranslation('slug', $locale, false);
-            
+
             // If slug is empty for this locale, fall back to default locale
             if (empty($slug)) {
                 $slug = $this->getTranslation('slug', config('app.locale', 'de'), false);
@@ -126,7 +126,7 @@ class Page extends FabricatorPage implements PageContract
             // This page's part of the URL (i.e. its URI) is defined as the slug.
             // Normalize slug: remove leading/trailing slashes, then add single leading slash
             $selfUri = trim($slug, '/');
-            $selfUri = $selfUri === '' ? '/' : '/' . $selfUri;
+            $selfUri = $selfUri === '' ? '/' : '/'.$selfUri;
 
             // Add /en prefix for EN locale only at root level (when parent is null)
             // This prevents duplication of /en prefix in nested pages
@@ -136,7 +136,7 @@ class Page extends FabricatorPage implements PageContract
                     $selfUri = '/en';
                 } else {
                     // Remove leading slash before adding /en prefix to avoid double slash
-                    $selfUri = '/en' . $selfUri;
+                    $selfUri = '/en'.$selfUri;
                 }
             }
 

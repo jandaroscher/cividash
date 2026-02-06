@@ -75,7 +75,7 @@ class AdminMetricValueController extends Controller
     public function update(UpdateMetricValueRequest $request, int $id): JsonResponse
     {
         $metricValue = MetricValue::findOrFail($id);
-        
+
         $metricValue->update($request->validated());
 
         return response()->json([

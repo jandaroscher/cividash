@@ -15,6 +15,7 @@ class DashboardServerTimeTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected Tenant $tenant;
 
     protected function setUp(): void

@@ -21,11 +21,11 @@ class PageObserver
     public function updated(Page $page): void
     {
         $this->invalidateAllCaches($page);
-        
+
         // Check if slug or parent_id changed, which affects child page URLs
         $slugChanged = $page->wasChanged('slug');
         $parentIdChanged = $page->wasChanged('parent_id');
-        
+
         if ($slugChanged || $parentIdChanged) {
             // Invalidate all child pages recursively since their URLs depend on parent URL
             $this->invalidateChildPagesUrlCache($page);
@@ -57,7 +57,7 @@ class PageObserver
     protected function invalidateUrlCache(Page $page): void
     {
         $locales = ['de', 'en'];
-        
+
         foreach ($locales as $locale) {
             $cacheKey = $page->getUrlCacheKey(['locale' => $locale]);
             Cache::forget($cacheKey);
@@ -69,17 +69,17 @@ class PageObserver
      * This is necessary because child page URLs are computed using parent->getUrl(),
      * so when a parent's slug or parent_id changes, all descendant URLs become stale.
      *
-     * @param Page $page The parent page whose children should be invalidated
+     * @param  Page  $page  The parent page whose children should be invalidated
      */
     protected function invalidateChildPagesUrlCache(Page $page): void
     {
         // Load direct children
         $children = $page->children()->get();
-        
+
         foreach ($children as $child) {
             // Invalidate this child's URL cache
             $this->invalidateUrlCache($child);
-            
+
             // Recursively invalidate this child's children
             $this->invalidateChildPagesUrlCache($child);
         }
@@ -94,4 +94,3 @@ class PageObserver
         $page->flushContentCache();
     }
 }
-

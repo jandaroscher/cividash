@@ -15,8 +15,8 @@ class PageModelTest extends TestCase
      */
     public function test_page_model_uses_has_translations_trait(): void
     {
-        $page = new Page();
-        
+        $page = new Page;
+
         $this->assertTrue(method_exists($page, 'getTranslation'));
         $this->assertTrue(method_exists($page, 'setTranslation'));
     }
@@ -82,10 +82,10 @@ class PageModelTest extends TestCase
      */
     public function test_get_all_url_cache_keys_args_returns_both_locales(): void
     {
-        $page = new Page();
-        
+        $page = new Page;
+
         $args = $page->getAllUrlCacheKeysArgs();
-        
+
         $this->assertIsArray($args);
         $this->assertCount(2, $args);
         $this->assertContains(['locale' => 'de'], $args);

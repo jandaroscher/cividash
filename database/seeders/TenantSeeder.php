@@ -38,4 +38,3 @@ class TenantSeeder extends Seeder
         Artisan::call('tenancy:backfill');
     }
 }
-

@@ -4,12 +4,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Resources\CategoryResource\Pages;
-use App\Filament\Resources\CategoryResource\RelationManagers;
 use App\Models\Category;
 use App\Models\CategoryGroup;
 use Filament\Forms;
-use Filament\Forms\Get;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -24,7 +23,7 @@ class CategoryResource extends Resource
     protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
-    protected static ?string $navigationGroup = 'Kategorien';
+
     protected static ?int $navigationSort = 10;
 
     /**
@@ -35,6 +34,11 @@ class CategoryResource extends Resource
     public static function getNavigationLabel(): string
     {
         return __('filament.resources.category.navigation_label');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.groups.categories');
     }
 
     public static function getModelLabel(): string
@@ -48,15 +52,14 @@ class CategoryResource extends Resource
     }
 
     /**
-         * Configure and return the Filament form schema for the Category resource.
-         *
-         * The form includes inputs for category group selection, key, slug (title), icon
-         * (locale-aware state handling and persistence), color (visible when the selected
-         * group provides color), is_active toggle, and position.
-         *
-         * @param Form $form The base Filament form instance to configure.
-         * @return Form The configured form instance containing the Category resource fields.
-         */
+     * Builds the Filament form schema for the Category resource.
+     *
+     * Configures fields for category group selection, key, slug (title), locale-aware icon
+     * upload/persistence, conditional color, is_active toggle, and position.
+     *
+     * @param  Form  $form  The base Filament form instance to configure.
+     * @return Form The configured Form containing the Category resource fields.
+     */
     public static function form(Form $form): Form
     {
         return $form
@@ -67,7 +70,8 @@ class CategoryResource extends Resource
                         ->orderBy('position')
                         ->get()
                         ->mapWithKeys(fn ($group) => [
-                            $group->id => $group->getTranslation('title', app()->getLocale()),
+                            $group->id => $group->getTranslation('title', app()->getLocale())
+                                ?: $group->getTranslation('title', 'de'),
                         ])
                         ->toArray())
                     ->default(fn () => request()->query('category_group_id'))
@@ -76,7 +80,9 @@ class CategoryResource extends Resource
                     ->live(),
                 Forms\Components\TextInput::make('key')
                     ->label(__('filament.resources.category.key'))
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->regex('/^[a-z][a-z0-9_-]*$/')
+                    ->helperText(__('filament.resources.category.key_helper')),
                 Forms\Components\TextInput::make('slug')
                     ->label(__('filament.resources.category.title'))
                     ->required()
@@ -149,32 +155,40 @@ class CategoryResource extends Resource
     }
 
     /**
-         * Configure the resource table's columns, filters, row actions, and bulk actions.
-         *
-         * @param \Filament\Tables\Table $table The table to configure.
-         * @return \Filament\Tables\Table The configured table instance.
-         */
+     * Configure the resource table's columns, filters, row actions, and bulk actions.
+     *
+     * @param  \Filament\Tables\Table  $table  The table to configure.
+     * @return \Filament\Tables\Table The configured table instance.
+     */
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('slug')
                     ->label(__('filament.resources.category.title'))
-                    ->formatStateUsing(function ($state, Category $record) {
-                        return $record->getTranslation('slug', app()->getLocale(), false)
+                    ->formatStateUsing(function ($state, Category $record, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+
+                        return $record->getTranslation('slug', $locale, false)
                             ?: $record->getTranslation('slug', 'de', false)
                             ?: $state;
                     })
                     ->searchable()
-                    ->sortable(query: function (Builder $query, string $direction) {
-                        $expression = static::getSortableTranslationExpression('slug', app()->getLocale());
+                    ->sortable(query: function (Builder $query, string $direction, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+                        $expression = static::getSortableTranslationExpression('slug', $locale);
                         $query->orderByRaw("{$expression} {$direction}");
                     }),
                 Tables\Columns\TextColumn::make('group.title')
                     ->label(__('filament.resources.category.group'))
-                    ->formatStateUsing(fn ($state, $record) => $state ?? $record->group?->getTranslation('title', app()->getLocale()))
-                    ->sortable(query: function (Builder $query, string $direction) {
-                        $expression = static::getSortableTranslationExpression('category_groups.title', app()->getLocale());
+                    ->formatStateUsing(function ($state, $record, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+
+                        return $state ?? $record->group?->getTranslation('title', $locale);
+                    })
+                    ->sortable(query: function (Builder $query, string $direction, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+                        $expression = static::getSortableTranslationExpression('category_groups.title', $locale);
                         $query->select('categories.*')
                             ->leftJoin('category_groups', 'categories.category_group_id', '=', 'category_groups.id')
                             ->orderByRaw("{$expression} {$direction}");
@@ -218,7 +232,11 @@ class CategoryResource extends Resource
                 Tables\Filters\SelectFilter::make('category_group_id')
                     ->label(__('filament.resources.category.group'))
                     ->relationship('group', 'title')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->getTranslation('title', app()->getLocale()))
+                    ->getOptionLabelFromRecordUsing(function ($record, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+
+                        return $record->getTranslation('title', $locale);
+                    })
                     ->searchable()
                     ->preload(),
             ])

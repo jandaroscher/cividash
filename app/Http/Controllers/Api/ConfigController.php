@@ -21,31 +21,34 @@ class ConfigController extends Controller
     protected static ?bool $pageHasIsPublic = null;
 
     /**
-     * Get branding configuration
+     * Retrieve the tenant's branding and styling configuration.
      *
-     * Returns the tenant's branding and styling configuration including colors, typography,
-     * logo, and other visual settings. File paths are converted to public URLs.
+     * Includes colors, typography, logo, and other visual settings. Stored file paths
+     * (logo and custom font file) are converted to public URLs or null when absent.
      *
      * @group Public API - Configuration
+     *
      * @unauthenticated
      *
      * @response 200 scenario="Branding config" {"data": {"primary_color": "#0d47a1", "secondary_color": "#1976d2", "logo_url": "https://example.com/storage/logos/logo.png", "accent_color": "#ff9800", "typography_font_family": "Inter", "typography_font_weights": ["400", "600", "700"], "slider_colors": ["#0d47a1", "#1976d2"], "background_color": "#ffffff", "card_background_color": "#f5f5f5", "hero_background_color": "#e3f2fd", "overlay_background_color": "rgba(0,0,0,0.5)", "header_background_color": "#ffffff", "footer_background_color": "#f5f5f5", "text_primary_color": "#212121", "text_secondary_color": "#757575", "text_inverse_color": "#ffffff", "link_color": "#0d47a1", "link_hover_color": "#1565c0", "border_color": "#e0e0e0", "divider_color": "#bdbdbd", "shadow_color": "rgba(0,0,0,0.1)", "nav_text_color": "#212121", "nav_text_color_inactive": "#757575", "nav_hover_color": "#0d47a1", "typography_font_sizes": {"small": "0.875rem", "base": "1rem", "large": "1.25rem"}, "typography_custom_font_name": null, "typography_custom_font_file": null}}
+     *
+     * @return \Illuminate\Http\Resources\Json\JsonResource The branding configuration as a JSON resource, with file paths converted to public URLs or null.
      */
     public function branding(): JsonResource
     {
         $settings = app(BrandingSettings::class);
 
         return new JsonResource([
-            'primary_color'   => $settings->primary_color,
+            'primary_color' => $settings->primary_color,
             'secondary_color' => $settings->secondary_color,
             // Convert the stored path into a public URL:
-            'logo_url'        => $settings->logo_url
+            'logo_url' => $settings->logo_url
                 ? Storage::disk('public')->url($settings->logo_url)
                 : null,
-            'accent_color'    => $settings->accent_color,
+            'accent_color' => $settings->accent_color,
             'typography_font_family' => $settings->typography_font_family,
             'typography_font_weights' => $settings->typography_font_weights,
-            'slider_colors'   => $settings->slider_colors,
+            'slider_colors' => $settings->slider_colors,
             'background_color' => $settings->background_color,
             'card_background_color' => $settings->card_background_color,
             'hero_background_color' => $settings->hero_background_color,
@@ -72,37 +75,44 @@ class ConfigController extends Controller
     }
 
     /**
-     * Get general configuration
-     *
-     * Returns site-wide general configuration values like site name and active status.
+     * Retrieve site-wide general configuration such as site name and favicon URL.
      *
      * @group Public API - Configuration
+     *
      * @unauthenticated
      *
-     * @response 200 scenario="General config" {"data": {"site_name": "Zukunftsbarometer Regensburg", "site_active": true}}
+     * @response 200 scenario="General config" {"data": {"site_name": "Zukunftsbarometer Regensburg", "favicon_url": "https://example.com/storage/branding/favicon.png"}}
+     *
+     * @return \Illuminate\Http\Resources\Json\JsonResource The general configuration containing `site_name` (string) and `favicon_url` (string|null).
      */
     public function general(): JsonResource
     {
         $settings = app(GeneralSettings::class);
 
         return new JsonResource([
-            'site_name'   => $settings->site_name,
+            'site_name' => $settings->site_name,
             'site_active' => $settings->site_active,
+            'favicon_url' => $settings->favicon
+                ? Storage::disk('public')->url($settings->favicon)
+                : null,
         ]);
     }
 
     /**
-     * Get header configuration
+     * Retrieve header configuration including translated navigation items and UI toggles.
      *
-     * Returns header configuration including translated navigation items and UI toggles.
-     * Navigation items referencing inactive pages are filtered out.
+     * Navigation items that reference pages not considered active or that are explicitly marked inactive are removed.
      *
      * @group Public API - Configuration
+     *
      * @unauthenticated
      *
-     * @queryParam locale string Locale for translations (de or en). Example: de
+     * @queryParam locale string Locale for translations (`de` or `en`). Example: de
      *
-     * @response 200 scenario="Header config" {"data": {"navigation_items": [{"type": "page", "page_id": 1, "label": "Start", "url": "/"}], "show_language_switcher": true, "dropdown_enabled": false}}
+     * @return \Illuminate\Http\Resources\Json\JsonResource JSON resource with:
+     *                                                      - `navigation_items`: array of navigation items (filtered and translated),
+     *                                                      - `show_language_switcher`: boolean,
+     *                                                      - `dropdown_enabled`: boolean
      */
     public function header(\Illuminate\Http\Request $request): JsonResource
     {
@@ -115,25 +125,26 @@ class ConfigController extends Controller
                 // Filament might not be initialized, continue anyway
             }
         }
-        
+
         // Try to get existing instance first, create if it doesn't exist
         try {
             $navigation = Navigation::getInstance();
         } catch (\Throwable $e) {
             $navigation = Navigation::getOrCreateInstance();
         }
-        
+
         // Get locale from request parameter or use app locale
         $locale = $request->query('locale', app()->getLocale());
-        
+
         // Validate locale
-        if (!in_array($locale, ['de', 'en'])) {
+        if (! in_array($locale, ['de', 'en'])) {
             $locale = app()->getLocale();
         }
 
         $navigationItems = $navigation->getTranslatedNavigationItems($locale);
         $activePageIds = $this->getActivePageIds($navigationItems);
         $filteredItems = $this->filterItemsByActivePages($navigationItems, $activePageIds);
+        $filteredItems = $this->filterInactiveItems($filteredItems);
 
         return new JsonResource([
             'navigation_items' => $filteredItems,
@@ -143,17 +154,21 @@ class ConfigController extends Controller
     }
 
     /**
-     * Get footer configuration
+     * Retrieve the tenant's footer configuration.
      *
-     * Returns footer configuration including navigation items, social links, layout settings,
-     * and copyright text. Navigation items referencing inactive pages are filtered out.
+     * Returns navigation items, social links, layout settings, column count, whether social links are enabled,
+     * and the translated copyright text. Navigation items and social links that reference inactive pages or are
+     * explicitly marked inactive are removed.
      *
      * @group Public API - Configuration
+     *
      * @unauthenticated
      *
      * @queryParam locale string Locale for translations (de or en). Example: de
      *
      * @response 200 scenario="Footer config" {"data": {"footer_navigation_items": [{"type": "page", "page_id": 2, "label": "Impressum"}], "social_links": [{"platform": "twitter", "url": "https://twitter.com/example"}], "layout_type": "columns", "columns": 3, "social_links_enabled": true, "copyright_text": "© 2025 Stadt Regensburg"}}
+     *
+     * @return \Illuminate\Http\Resources\Json\JsonResource JSON resource containing the footer configuration.
      */
     public function footer(\Illuminate\Http\Request $request): JsonResource
     {
@@ -166,29 +181,33 @@ class ConfigController extends Controller
                 // Filament might not be initialized, continue anyway
             }
         }
-        
+
         // Try to get existing instance first, create if it doesn't exist
         try {
             $footer = FooterNavigation::getInstance();
         } catch (\Throwable $e) {
             $footer = FooterNavigation::getOrCreateInstance();
         }
-        
+
         // Get locale from request parameter or use app locale
         $locale = $request->query('locale', app()->getLocale());
-        
+
         // Validate locale
-        if (!in_array($locale, ['de', 'en'])) {
+        if (! in_array($locale, ['de', 'en'])) {
             $locale = app()->getLocale();
         }
 
         $footerItems = $footer->getTranslatedFooterNavigationItems($locale);
         $activePageIds = $this->getActivePageIds($footerItems);
         $filteredFooterItems = $this->filterItemsByActivePages($footerItems, $activePageIds);
+        $filteredFooterItems = $this->filterInactiveItems($filteredFooterItems);
+
+        $socialLinks = $footer->getTranslatedSocialLinks($locale) ?? [];
+        $filteredSocialLinks = $this->filterInactiveItems($socialLinks);
 
         return new JsonResource([
             'footer_navigation_items' => $filteredFooterItems,
-            'social_links' => $footer->getTranslatedSocialLinks($locale),
+            'social_links' => $filteredSocialLinks,
             'layout_type' => $footer->layout_type,
             'columns' => $footer->columns,
             'social_links_enabled' => $footer->social_links_enabled,
@@ -197,10 +216,10 @@ class ConfigController extends Controller
     }
 
     /**
-     * Collect all page IDs referenced by navigation items (recursive).
+     * Collects all page IDs referenced by navigation or footer items recursively.
      *
-     * @param array $items
-     * @return array<int>
+     * @param  array  $items  Array of navigation/footer items; items may contain 'type', 'page_id', and nested 'children'.
+     * @return array<int> Unique page IDs referenced by the items as integers.
      */
     protected function collectPageIds(array $items): array
     {
@@ -220,10 +239,15 @@ class ConfigController extends Controller
     }
 
     /**
-     * Get active page IDs for the provided navigation items.
+     * Determine which page IDs referenced by the given navigation items are considered active.
      *
-     * @param array $items
-     * @return array<int>
+     * Collects page IDs from the provided items and, if the Page model defines an `is_public`
+     * column, returns only those IDs whose pages have `is_public` set to true. If the model
+     * does not have the `is_public` column, returns all collected page IDs. Returns an empty
+     * array when no page IDs are found.
+     *
+     * @param  array  $items  Navigation or footer items to scan for `page_id` values.
+     * @return array<int> The active page IDs as integers; empty array if none are active or found.
      */
     protected function getActivePageIds(array $items): array
     {
@@ -245,25 +269,65 @@ class ConfigController extends Controller
             ->all();
     }
 
+    /**
+     * Determine whether the `pages` database table contains an `is_public` column and cache the result.
+     *
+     * The result is stored in the static::$pageHasIsPublic cache to avoid repeated schema checks.
+     *
+     * @return bool `true` if the Page table has an `is_public` column, `false` otherwise.
+     */
     protected static function pageHasIsPublicColumn(): bool
     {
         if (static::$pageHasIsPublic !== null) {
             return static::$pageHasIsPublic;
         }
 
-        $pageTable = (new \App\Models\Page())->getTable();
+        $pageTable = (new \App\Models\Page)->getTable();
         static::$pageHasIsPublic = \Illuminate\Support\Facades\Schema::hasColumn($pageTable, 'is_public');
 
         return static::$pageHasIsPublic;
     }
 
     /**
-     * Filter out navigation items that reference inactive pages.
-     * Children are filtered recursively; parents remain even if children become empty.
+     * Remove items explicitly marked as inactive.
      *
-     * @param array $items
-     * @param array<int> $activePageIds
-     * @return array
+     * Recursively removes any item with an `is_active` key set to `false`.
+     * Items lacking an `is_active` key are preserved for backward compatibility.
+     *
+     * @param  array  $items  Array of item arrays; each item may contain an `is_active` boolean and a `children` array.
+     * @return array The input items with inactive entries removed and children recursively filtered.
+     */
+    protected function filterInactiveItems(array $items): array
+    {
+        $filtered = [];
+
+        foreach ($items as $item) {
+            // Skip items that are explicitly deactivated (handles false, 0, "0")
+            if (array_key_exists('is_active', $item) && ! $item['is_active']) {
+                continue;
+            }
+
+            // Recursively filter children
+            if (isset($item['children']) && is_array($item['children'])) {
+                $item['children'] = $this->filterInactiveItems($item['children']);
+            }
+
+            $filtered[] = $item;
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * Remove navigation items that reference pages not in the provided active page ID list.
+     *
+     * Filters items recursively; items of type "page" whose page_id is missing or not present
+     * in $activePageIds are removed. Parent items are retained even if their children list
+     * becomes empty.
+     *
+     * @param  array<int,mixed>  $items  List of navigation/footer items to filter.
+     * @param  array<int>  $activePageIds  Page IDs considered active.
+     * @return array<int,mixed> The filtered list of items.
      */
     protected function filterItemsByActivePages(array $items, array $activePageIds): array
     {
@@ -273,7 +337,7 @@ class ConfigController extends Controller
             $type = $item['type'] ?? null;
             $pageId = isset($item['page_id']) ? (int) $item['page_id'] : null;
 
-            if ($type === 'page' && (!$pageId || !in_array($pageId, $activePageIds, true))) {
+            if ($type === 'page' && (! $pageId || ! in_array($pageId, $activePageIds, true))) {
                 continue;
             }
 
@@ -286,7 +350,7 @@ class ConfigController extends Controller
 
         return $filtered;
     }
-    
+
     /**
      * Get tenant information
      *
@@ -294,6 +358,7 @@ class ConfigController extends Controller
      * (via token, domain, or default fallback) in the `resolved_by` field.
      *
      * @group Public API - Configuration
+     *
      * @unauthenticated
      *
      * @response 200 scenario="Tenant resolved via domain" {"data": {"slug": "stadt-regensburg", "name": "Stadt Regensburg", "domain": "regensburg.example.org", "frontend_base_url": "https://regensburg.example.org", "resolved_by": "domain"}}
@@ -304,8 +369,8 @@ class ConfigController extends Controller
     {
         $tenant = $request->attributes->get('resolved_tenant');
         $resolvedBy = $request->attributes->get('resolved_tenant_by', 'default');
-        
-        if (!$tenant) {
+
+        if (! $tenant) {
             // Fallback to default tenant
             $tenant = Tenant::where('slug', 'default')->first();
             $resolvedBy = 'default';
@@ -326,7 +391,7 @@ class ConfigController extends Controller
      * Checks the `tenant` query parameter first, then the `X-Tenant` header; accepts either a numeric id or a slug.
      * If no tenant is found, returns the tenant with slug "default" when present.
      *
-     * @param \Illuminate\Http\Request $request The current HTTP request.
+     * @param  \Illuminate\Http\Request  $request  The current HTTP request.
      * @return \App\Models\Tenant|null The resolved Tenant model, the tenant with slug "default" if none was specified, or `null` if no default tenant exists.
      */
     protected function resolveTenantFromRequest(\Illuminate\Http\Request $request): ?Tenant
@@ -335,46 +400,49 @@ class ConfigController extends Controller
         if ($request->has('tenant')) {
             $tenantIdentifier = $request->input('tenant');
             $tenant = null;
-            
+
             if (is_numeric($tenantIdentifier)) {
                 $tenant = Tenant::find($tenantIdentifier);
             } else {
                 $tenant = Tenant::where('slug', $tenantIdentifier)->first();
             }
-            
+
             if ($tenant) {
                 return $tenant;
             }
         }
-        
+
         // Try header
         if ($request->hasHeader('X-Tenant')) {
             $tenantIdentifier = $request->header('X-Tenant');
             $tenant = null;
-            
+
             if (is_numeric($tenantIdentifier)) {
                 $tenant = Tenant::find($tenantIdentifier);
             } else {
                 $tenant = Tenant::where('slug', $tenantIdentifier)->first();
             }
-            
+
             if ($tenant) {
                 return $tenant;
             }
         }
-        
+
         // Fallback to default tenant
         return Tenant::where('slug', 'default')->first();
     }
 
     /**
-     * Update branding configuration
+     * Partially update the tenant's branding settings.
      *
-     * Updates the tenant's branding settings. Only provided fields are updated (partial update).
-     * Requires admin-api permission and explicit tenant context.
+     * Only provided fields are updated. Requires admin-api permission and an explicit tenant context.
      *
      * @group Admin API - Branding Configuration
+     *
      * @authenticated
+     *
+     * @param  \App\Http\Requests\UpdateBrandingRequest  $request  The validated request containing branding fields to update.
+     * @return \Illuminate\Http\Resources\Json\JsonResource The updated branding configuration formatted for API responses.
      *
      * @bodyParam primary_color string Primary brand color (hex). Example: #0d47a1
      * @bodyParam secondary_color string Secondary brand color (hex). Example: #1976d2
@@ -413,15 +481,15 @@ class ConfigController extends Controller
 
         // Return updated settings in the same format as GET
         return new JsonResource([
-            'primary_color'   => $settings->primary_color,
+            'primary_color' => $settings->primary_color,
             'secondary_color' => $settings->secondary_color,
-            'logo_url'        => $settings->logo_url
+            'logo_url' => $settings->logo_url
                 ? Storage::disk('public')->url($settings->logo_url)
                 : null,
-            'accent_color'    => $settings->accent_color,
+            'accent_color' => $settings->accent_color,
             'typography_font_family' => $settings->typography_font_family,
             'typography_font_weights' => $settings->typography_font_weights,
-            'slider_colors'   => $settings->slider_colors,
+            'slider_colors' => $settings->slider_colors,
             'background_color' => $settings->background_color,
             'card_background_color' => $settings->card_background_color,
             'hero_background_color' => $settings->hero_background_color,

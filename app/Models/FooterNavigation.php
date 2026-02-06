@@ -8,8 +8,8 @@ use Spatie\Translatable\HasTranslations;
 
 class FooterNavigation extends Model
 {
-    use HasTranslations;
     use BelongsToTenant;
+    use HasTranslations;
 
     /**
      * List of translatable fields.
@@ -53,21 +53,22 @@ class FooterNavigation extends Model
      * tenant is represented by `id = 1`. If no tenant context can be resolved, an exception is thrown.
      *
      * @return FooterNavigation The FooterNavigation instance for the resolved tenant.
+     *
      * @throws \App\Exceptions\InvalidTenantContextException If no tenant context is available.
      */
     public static function getInstance(): FooterNavigation
     {
         $tenant = static::resolveTenant();
-        
-        if (!$tenant) {
+
+        if (! $tenant) {
             // Fallback: use default tenant
             $tenant = \App\Models\Tenant::where('slug', 'default')->first();
         }
-        
-        if (!$tenant) {
+
+        if (! $tenant) {
             throw new \App\Exceptions\InvalidTenantContextException('No tenant context available');
         }
-        
+
         // For the default tenant, ensure id=1 in a transaction to avoid races
         if ($tenant->slug === 'default') {
             $result = \DB::transaction(function () use ($tenant) {
@@ -128,15 +129,15 @@ class FooterNavigation extends Model
                 return $result;
             }
         }
-        
+
         // Find singleton for this tenant (not by id=1, but by tenant_id)
         // Since there's only one singleton per tenant, we can use first()
         $instance = static::where('tenant_id', $tenant->id)->first();
-        
+
         if ($instance) {
             return $instance;
         }
-        
+
         // If not found, create it via getOrCreateInstance()
         return static::getOrCreateInstance();
     }
@@ -144,22 +145,23 @@ class FooterNavigation extends Model
     /**
      * Ensure a FooterNavigation exists for the resolved tenant; for the 'default' tenant, ensure the record uses id = 1, migrating any conflicting record if necessary.
      *
-     * @throws \App\Exceptions\InvalidTenantContextException If no tenant context can be resolved.
      * @return FooterNavigation The FooterNavigation instance for the resolved tenant.
+     *
+     * @throws \App\Exceptions\InvalidTenantContextException If no tenant context can be resolved.
      */
     public static function getOrCreateInstance(): FooterNavigation
     {
         $tenant = static::resolveTenant();
-        
-        if (!$tenant) {
+
+        if (! $tenant) {
             // Fallback: use default tenant
             $tenant = \App\Models\Tenant::where('slug', 'default')->first();
         }
-        
-        if (!$tenant) {
+
+        if (! $tenant) {
             throw new \App\Exceptions\InvalidTenantContextException('No tenant context available');
         }
-        
+
         // Default tenant: enforce id=1 with transactional migration
         if ($tenant->slug === 'default') {
             return \DB::transaction(function () use ($tenant) {
@@ -251,18 +253,18 @@ class FooterNavigation extends Model
     }
 
     /**
-         * Return footer navigation items with labels and URLs translated for the resolved locale.
-         *
-         * @param string|null $locale Locale to use for translations; when null the application locale is used.
-         * @return array Footer navigation items where `label` and `url` have been translated for the resolved locale.
-         */
+     * Return footer navigation items with labels and URLs translated for the resolved locale.
+     *
+     * @param  string|null  $locale  Locale to use for translations; when null the application locale is used.
+     * @return array Footer navigation items where `label` and `url` have been translated for the resolved locale.
+     */
     public function getTranslatedFooterNavigationItems(?string $locale = null): array
     {
         $locale = $locale ?? app()->getLocale();
-        
+
         // Try to get translation for requested locale first (without fallback)
         $items = $this->getTranslation('footer_navigation_items', $locale, false);
-        
+
         // If we got an array, check if it's the translatable structure (has locale keys like 'de', 'en')
         // or if it's already the items array (has numeric keys)
         if (is_array($items)) {
@@ -270,7 +272,7 @@ class FooterNavigation extends Model
             if (isset($items['de']) || isset($items['en']) || isset($items[$locale])) {
                 // This is the translatable structure
                 // Check if requested locale has a non-empty value, otherwise fallback to 'de'
-                if (isset($items[$locale]) && !empty($items[$locale])) {
+                if (isset($items[$locale]) && ! empty($items[$locale])) {
                     $items = $items[$locale];
                 } else {
                     $items = $items['de'] ?? [];
@@ -278,7 +280,7 @@ class FooterNavigation extends Model
             }
             // Otherwise, items is already the array of footer navigation items for the requested locale
         }
-        
+
         // If null/empty (including empty string) and locale is not 'de', try to get 'de' translation
         if ((($items === null) || ($items === '') || (is_array($items) && empty($items))) && $locale !== 'de') {
             $itemsDe = $this->getTranslation('footer_navigation_items', 'de', false);
@@ -295,9 +297,9 @@ class FooterNavigation extends Model
         }
 
         $items = $items ?? [];
-        
+
         // Ensure $items is an array before using array_map
-        if (!is_array($items)) {
+        if (! is_array($items)) {
             $items = [];
         }
 
@@ -321,7 +323,7 @@ class FooterNavigation extends Model
     /**
      * Provide social links with titles translated for a given locale.
      *
-     * @param string|null $locale The locale to use for translations; when null the application locale is used.
+     * @param  string|null  $locale  The locale to use for translations; when null the application locale is used.
      * @return array Social link arrays with the `title` field translated for the resolved locale (empty string if no translation is available).
      */
     public function getTranslatedSocialLinks(?string $locale = null): array
@@ -333,7 +335,7 @@ class FooterNavigation extends Model
         if (is_array($links)) {
             if (isset($links[$locale]) || isset($links['de']) || isset($links['en'])) {
                 // Translation structure
-                if (isset($links[$locale]) && !empty($links[$locale])) {
+                if (isset($links[$locale]) && ! empty($links[$locale])) {
                     $links = $links[$locale];
                 } else {
                     $links = $links['de'] ?? [];
@@ -358,7 +360,7 @@ class FooterNavigation extends Model
         $links = $links ?? [];
 
         // Ensure $links is an array before using array_map
-        if (!is_array($links)) {
+        if (! is_array($links)) {
             $links = [];
         }
 
@@ -378,25 +380,25 @@ class FooterNavigation extends Model
     }
 
     /**
-         * Resolve the copyright text for the given locale, falling back to German ('de') when a translation is not available.
-         *
-         * If the stored value is a translatable structure (array), the function returns the entry for the requested locale or the 'de' entry as a fallback. If the stored value is a non-empty string for the requested locale, that string is returned. When no translation can be resolved, `null` is returned.
-         *
-         * @param string|null $locale Locale to use for translation; when null, the application's current locale is used.
-         * @return string|null The resolved copyright text for the locale, or null if no translation is available.
-         */
+     * Resolve the copyright text for the given locale, falling back to German ('de') when a translation is not available.
+     *
+     * If the stored value is a translatable structure (array), the function returns the entry for the requested locale or the 'de' entry as a fallback. If the stored value is a non-empty string for the requested locale, that string is returned. When no translation can be resolved, `null` is returned.
+     *
+     * @param  string|null  $locale  Locale to use for translation; when null, the application's current locale is used.
+     * @return string|null The resolved copyright text for the locale, or null if no translation is available.
+     */
     public function getTranslatedCopyrightText(?string $locale = null): ?string
     {
         $locale = $locale ?? app()->getLocale();
-        
+
         // Try to get translation for requested locale first (without fallback)
         $copyright = $this->getTranslation('copyright_text', $locale, false);
-        
+
         // If we got a non-empty string, that means the locale exists, return it
         if (is_string($copyright) && $copyright !== '') {
             return $copyright;
         }
-        
+
         // If we got an empty string or null, the requested locale doesn't exist
         // Fallback to 'de' translation
         if (($copyright === '' || $copyright === null) && $locale !== 'de') {
@@ -408,7 +410,7 @@ class FooterNavigation extends Model
                 return $copyrightDe['de'] ?? null;
             }
         }
-        
+
         // If we got an array, it's the translatable structure
         // Extract the value for requested locale, fallback to 'de'
         if (is_array($copyright)) {
@@ -416,10 +418,11 @@ class FooterNavigation extends Model
             if (isset($copyright[$locale]) && $copyright[$locale] !== '') {
                 return $copyright[$locale];
             }
+
             // Otherwise fallback to 'de'
             return $copyright['de'] ?? null;
         }
-        
+
         return $copyright;
     }
 

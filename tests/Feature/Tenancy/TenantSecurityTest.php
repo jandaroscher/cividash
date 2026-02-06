@@ -7,7 +7,6 @@ use App\Models\Tile;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 /**
@@ -76,7 +75,7 @@ class TenantSecurityTest extends TestCase
         $this->actingAs($user);
 
         // Try to access unauthorized tenant via query parameter
-        $request = \Illuminate\Http\Request::create('/api/tiles?tenant=' . $unauthorizedTenant->id, 'GET');
+        $request = \Illuminate\Http\Request::create('/api/tiles?tenant='.$unauthorizedTenant->id, 'GET');
         $request->setUserResolver(fn () => $user);
         $this->app->instance('request', $request);
 
@@ -136,7 +135,7 @@ class TenantSecurityTest extends TestCase
         ]);
 
         // No authentication
-        $request = \Illuminate\Http\Request::create('/api/tiles?tenant=' . $tenant->id, 'GET');
+        $request = \Illuminate\Http\Request::create('/api/tiles?tenant='.$tenant->id, 'GET');
         $this->app->instance('request', $request);
 
         // Should not see tenant data (will fall back to default tenant or empty)
@@ -156,7 +155,7 @@ class TenantSecurityTest extends TestCase
         // in test_api_query_parameter_validates_tenant_access which verifies that
         // unauthorized tenants cannot be accessed. The positive case (authorized access)
         // is implicitly verified by the fact that unauthorized access is blocked.
-        
+
         // Create default tenant to prevent fallback to empty result
         Tenant::firstOrCreate(['slug' => 'default'], ['name' => 'Default Tenant']);
 
@@ -167,7 +166,7 @@ class TenantSecurityTest extends TestCase
 
         // Verify user has access to tenant (this is what the security fix validates)
         $this->assertTrue($user->canAccessTenant($tenant), 'User should have access to tenant');
-        
+
         // The actual tenant resolution in resolveTenant() requires proper request context
         // which is complex to mock in unit tests. The security validation is verified
         // by the negative tests above (unauthorized access is blocked).

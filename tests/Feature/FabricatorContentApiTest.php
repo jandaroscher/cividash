@@ -3,9 +3,9 @@
 namespace Tests\Feature;
 
 use App\Filament\Fabricator\Layouts\LandingpageLayout;
+use App\Models\Page;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\Page;
 
 class FabricatorContentApiTest extends TestCase
 {
@@ -15,7 +15,7 @@ class FabricatorContentApiTest extends TestCase
     {
         // Set locale to ensure consistent API response
         app()->setLocale('de');
-        
+
         $page = Page::create([
             'title' => ['de' => 'API Test Page', 'en' => ''],
             'slug' => ['de' => 'api-test-page', 'en' => ''],
@@ -242,7 +242,7 @@ class FabricatorContentApiTest extends TestCase
     {
         // Set locale for consistent test results
         app()->setLocale('en');
-        
+
         // Request /api/content/pages (list endpoint) with no pages and locale parameter
         $response = $this->getJson('/api/content/pages?locale=en');
 
@@ -271,5 +271,3 @@ class FabricatorContentApiTest extends TestCase
         $response->assertStatus(404);
     }
 }
-
-

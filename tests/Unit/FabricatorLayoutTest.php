@@ -24,9 +24,3 @@ class FabricatorLayoutTest extends TestCase
         $this->assertEquals('subpage', SubpageLayout::getName());
     }
 }
-
-
-
-
-
-

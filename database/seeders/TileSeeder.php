@@ -21,7 +21,7 @@ class TileSeeder extends Seeder
 
     public function __construct()
     {
-        $this->mediaDownloadService = new MediaDownloadService();
+        $this->mediaDownloadService = new MediaDownloadService;
     }
 
     /**
@@ -32,12 +32,12 @@ class TileSeeder extends Seeder
      * handlungsdimension- and SDG-derived category mappings) and legacy SDG relations, and returns a mapping of
      * original tile IDs to database IDs.
      *
-     * @param Collection<int, \App\Services\ParsedTile> $tiles Collection of parsed tiles to seed.
-     * @param array<string, int> $categoryIdMap Map of original category ID to database ID.
-     * @param array<string, int> $handlungsdimensionCategoryMap Map of handlungsdimension key to category ID to attach.
-     * @param array<int, int> $sdgZielCategoryMap Map of original SDG ID to category ID to attach.
-     * @param array<string, int> $handlungsdimensionIdMap Map of handlungsdimension key to database ID.
-     * @param array<int, int> $sdgZielIdMap Map of original SDG ID to database ID for legacy SDG relation syncing.
+     * @param  Collection<int, \App\Services\ParsedTile>  $tiles  Collection of parsed tiles to seed.
+     * @param  array<string, int>  $categoryIdMap  Map of original category ID to database ID.
+     * @param  array<string, int>  $handlungsdimensionCategoryMap  Map of handlungsdimension key to category ID to attach.
+     * @param  array<int, int>  $sdgZielCategoryMap  Map of original SDG ID to category ID to attach.
+     * @param  array<string, int>  $handlungsdimensionIdMap  Map of handlungsdimension key to database ID.
+     * @param  array<int, int>  $sdgZielIdMap  Map of original SDG ID to database ID for legacy SDG relation syncing.
      * @return array<string, int> Map of original tile ID to database ID.
      */
     public function run(
@@ -47,8 +47,7 @@ class TileSeeder extends Seeder
         array $sdgZielCategoryMap = [],
         array $handlungsdimensionIdMap = [],
         array $sdgZielIdMap = []
-    ): array
-    {
+    ): array {
         $tileIdMap = [];
 
         foreach ($tiles as $parsedTile) {
@@ -61,7 +60,7 @@ class TileSeeder extends Seeder
             $sourceHash = $this->calculateSourceHash($parsedTile);
 
             if (! $tile) {
-                $tile = new Tile();
+                $tile = new Tile;
                 $tile->title = [
                     'de' => $parsedTile->title,
                     'en' => $parsedTile->titleEn,
@@ -181,9 +180,6 @@ class TileSeeder extends Seeder
 
     /**
      * Generate a slug from the tile title.
-     *
-     * @param string $title
-     * @return string
      */
     protected function generateSlug(string $title): string
     {
@@ -194,9 +190,6 @@ class TileSeeder extends Seeder
      * Transform tile content into Fabricator background blocks.
      * Validates blocks against the registry and falls back to IntroTextBlock if needed.
      * Includes both German (DE) and English (EN) translations when available.
-     *
-     * @param \App\Services\ParsedTile $tile
-     * @return array|null
      */
     protected function transformBackgroundBlocks(\App\Services\ParsedTile $tile): ?array
     {
@@ -330,9 +323,7 @@ class TileSeeder extends Seeder
     /**
      * Validate block type against registry, fallback to safe option if invalid.
      *
-     * @param string $blockType
-     * @param array<string> $validTypes
-     * @return string
+     * @param  array<string>  $validTypes
      */
     protected function validateBlockType(string $blockType, array $validTypes): string
     {
@@ -346,6 +337,7 @@ class TileSeeder extends Seeder
             if ($this->command) {
                 $this->command->warn("Block type '{$blockType}' is not registered, falling back to '{$fallbackType}'");
             }
+
             return $fallbackType;
         }
 
@@ -380,9 +372,6 @@ class TileSeeder extends Seeder
 
     /**
      * Calculate SHA256 hash of the source data for change detection.
-     *
-     * @param \App\Services\ParsedTile $tile
-     * @return string
      */
     protected function calculateSourceHash(\App\Services\ParsedTile $tile): string
     {
@@ -409,9 +398,6 @@ class TileSeeder extends Seeder
 
     /**
      * Download icon and return local path.
-     *
-     * @param mixed $iconData
-     * @return string|null
      */
     protected function downloadIcon(mixed $iconData): ?string
     {
@@ -432,9 +418,6 @@ class TileSeeder extends Seeder
 
     /**
      * Download slider image and return local path.
-     *
-     * @param mixed $imageData
-     * @return string|null
      */
     protected function downloadSliderImage(mixed $imageData): ?string
     {
@@ -456,8 +439,8 @@ class TileSeeder extends Seeder
     /**
      * Map original category IDs to database IDs.
      *
-     * @param array<int> $originalIds
-     * @param array<string, int> $idMap
+     * @param  array<int>  $originalIds
+     * @param  array<string, int>  $idMap
      * @return array<int>
      */
     protected function mapCategoryIds(array $originalIds, array $idMap): array
@@ -472,8 +455,8 @@ class TileSeeder extends Seeder
     /**
      * Map original SDG-Ziel IDs to database IDs.
      *
-     * @param array<int> $originalIds
-     * @param array<int, int> $idMap
+     * @param  array<int>  $originalIds
+     * @param  array<int, int>  $idMap
      * @return array<int>
      */
     protected function mapSDGZielIds(array $originalIds, array $idMap): array

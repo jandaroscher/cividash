@@ -24,7 +24,7 @@ class MetricSeederTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create user and authenticate for Filament tenant context
         $user = \App\Models\User::factory()->create();
         $tenant = Tenant::where('slug', 'default')->first();
@@ -33,8 +33,8 @@ class MetricSeederTest extends TestCase
             Filament::auth()->login($user);
             Filament::setTenant($tenant);
         }
-        
-        $this->seeder = new MetricSeeder();
+
+        $this->seeder = new MetricSeeder;
         // Ensure ParsedMetric class is loaded by referencing DashboardJsonParser
         class_exists(DashboardJsonParser::class);
     }
@@ -42,7 +42,7 @@ class MetricSeederTest extends TestCase
     public function test_seeder_creates_tile_years_and_metrics(): void
     {
         // Create a tile
-        $tile = new Tile();
+        $tile = new Tile;
         $tile->title = ['de' => 'Test Tile', 'en' => 'Test Tile EN'];
         $tile->description = ['de' => 'Test Description', 'en' => 'Test Description EN'];
         $tile->position = 1;
@@ -100,7 +100,7 @@ class MetricSeederTest extends TestCase
     public function test_seeder_is_idempotent(): void
     {
         // Create a tile
-        $tile = new Tile();
+        $tile = new Tile;
         $tile->title = ['de' => 'Test Tile', 'en' => 'Test Tile EN'];
         $tile->description = ['de' => 'Test Description', 'en' => 'Test Description EN'];
         $tile->position = 1;
@@ -148,7 +148,7 @@ class MetricSeederTest extends TestCase
     public function test_seeder_handles_multiple_metrics_per_tile(): void
     {
         // Create a tile
-        $tile = new Tile();
+        $tile = new Tile;
         $tile->title = ['de' => 'Test Tile', 'en' => 'Test Tile EN'];
         $tile->description = ['de' => 'Test Description', 'en' => 'Test Description EN'];
         $tile->position = 1;
@@ -204,7 +204,7 @@ class MetricSeederTest extends TestCase
     public function test_seeder_handles_translatable_fields(): void
     {
         // Create a tile
-        $tile = new Tile();
+        $tile = new Tile;
         $tile->title = ['de' => 'Test Tile', 'en' => 'Test Tile EN'];
         $tile->description = ['de' => 'Test Description', 'en' => 'Test Description EN'];
         $tile->position = 1;
@@ -241,7 +241,7 @@ class MetricSeederTest extends TestCase
     public function test_seeder_skips_metrics_without_years(): void
     {
         // Create a tile
-        $tile = new Tile();
+        $tile = new Tile;
         $tile->title = ['de' => 'Test Tile', 'en' => 'Test Tile EN'];
         $tile->description = ['de' => 'Test Description', 'en' => 'Test Description EN'];
         $tile->position = 1;
@@ -276,7 +276,7 @@ class MetricSeederTest extends TestCase
     public function test_seeder_converts_values_to_decimal(): void
     {
         // Create a tile
-        $tile = new Tile();
+        $tile = new Tile;
         $tile->title = ['de' => 'Test Tile', 'en' => 'Test Tile EN'];
         $tile->description = ['de' => 'Test Description', 'en' => 'Test Description EN'];
         $tile->position = 1;
@@ -313,4 +313,3 @@ class MetricSeederTest extends TestCase
         $this->assertEquals(123.45, (float) $metricValue->value);
     }
 }
-

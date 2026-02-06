@@ -9,8 +9,6 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -156,14 +154,14 @@ class TileController extends Controller
     protected function findTileBySlug(EloquentBuilder $baseQuery, string $slug, string $locale): ?Tile
     {
         $tile = (clone $baseQuery)
-            ->where('slug->' . $locale, $slug)
+            ->where('slug->'.$locale, $slug)
             ->first();
 
         if ($tile || $baseQuery->getConnection()->getDriverName() !== 'sqlite') {
             return $tile;
         }
 
-        $path = '$."' . $locale . '"';
+        $path = '$."'.$locale.'"';
 
         $tile = (clone $baseQuery)
             ->whereRaw('json_extract(slug, ?) = ?', [$path, $slug])
@@ -177,9 +175,11 @@ class TileController extends Controller
             ->get()
             ->first(function (Tile $candidate) use ($slug, $locale): bool {
                 $translations = $candidate->getTranslations('slug');
+
                 return ($translations[$locale] ?? null) === $slug;
             });
     }
+
     /**
      * Store a newly created resource in storage.
      */

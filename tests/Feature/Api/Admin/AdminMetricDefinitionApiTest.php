@@ -15,8 +15,11 @@ class AdminMetricDefinitionApiTest extends TestCase
     use RefreshDatabase;
 
     protected Tenant $tenant;
+
     protected Tenant $otherTenant;
+
     protected User $user;
+
     protected Tile $tile;
 
     protected function setUp(): void
@@ -25,7 +28,7 @@ class AdminMetricDefinitionApiTest extends TestCase
 
         $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
         $this->otherTenant = Tenant::create(['name' => 'Other Tenant', 'slug' => 'other-tenant']);
-        
+
         $this->user = User::factory()->create(['admin_api_enabled' => true]);
         $this->user->tenants()->attach([$this->tenant->id, $this->otherTenant->id]);
 
@@ -53,7 +56,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $token = $this->user->createToken('test-token', $abilities);
         $token->accessToken->tenant_id = $tenant->id;
         $token->accessToken->save();
-        
+
         return $token->plainTextToken;
     }
 
@@ -63,6 +66,7 @@ class AdminMetricDefinitionApiTest extends TestCase
     protected function createTokenWithoutTenant(array $abilities = ['admin-api']): string
     {
         $token = $this->user->createToken('test-token-no-tenant', $abilities);
+
         return $token->plainTextToken;
     }
 
@@ -73,11 +77,11 @@ class AdminMetricDefinitionApiTest extends TestCase
     {
         Filament::auth()->login($this->user);
         Filament::setTenant($tenant);
-        
+
         $tile = Tile::create($data);
-        
+
         Filament::setTenant(null);
-        
+
         return $tile;
     }
 
@@ -88,11 +92,11 @@ class AdminMetricDefinitionApiTest extends TestCase
     {
         Filament::auth()->login($this->user);
         Filament::setTenant($tenant);
-        
+
         $definition = MetricDefinition::create(array_merge(['tile_id' => $tile->id], $data));
-        
+
         Filament::setTenant(null);
-        
+
         return $definition;
     }
 
@@ -178,7 +182,7 @@ class AdminMetricDefinitionApiTest extends TestCase
             'label' => ['de' => 'Old', 'en' => 'Old'],
             'unit' => ['de' => '%', 'en' => '%'],
         ]);
-        
+
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
@@ -220,7 +224,7 @@ class AdminMetricDefinitionApiTest extends TestCase
             'metric_key' => 'test',
             'label' => ['de' => 'Test', 'en' => 'Test'],
         ]);
-        
+
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
@@ -230,7 +234,7 @@ class AdminMetricDefinitionApiTest extends TestCase
             ]);
 
         $response->assertStatus(200);
-        
+
         $definition->refresh();
         $this->assertEquals($this->tenant->id, $definition->tenant_id);
     }
@@ -243,7 +247,7 @@ class AdminMetricDefinitionApiTest extends TestCase
             'metric_key' => 'to_delete',
             'label' => ['de' => 'Delete', 'en' => 'Delete'],
         ]);
-        
+
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
@@ -283,7 +287,7 @@ class AdminMetricDefinitionApiTest extends TestCase
     {
         // Ensure no residual auth from setUp
         Filament::auth()->logout();
-        
+
         $response = $this->postJson('/api/admin/metric-definitions', [
             'tile_id' => 1,
             'metric_key' => 'test',
@@ -296,7 +300,7 @@ class AdminMetricDefinitionApiTest extends TestCase
     public function test_unauthenticated_patch_returns_401(): void
     {
         Filament::auth()->logout();
-        
+
         $response = $this->patchJson('/api/admin/metric-definitions/1', [
             'label' => ['de' => 'Updated', 'en' => 'Updated'],
         ]);
@@ -307,7 +311,7 @@ class AdminMetricDefinitionApiTest extends TestCase
     public function test_unauthenticated_delete_returns_401(): void
     {
         Filament::auth()->logout();
-        
+
         $response = $this->deleteJson('/api/admin/metric-definitions/1');
 
         $response->assertStatus(401);

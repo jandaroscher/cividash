@@ -32,8 +32,3 @@ class SectionBlock extends PageBlock
             ]);
     }
 }
-
-
-
-
-

@@ -13,7 +13,7 @@ class DashboardJsonParserTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->parser = new DashboardJsonParser();
+        $this->parser = new DashboardJsonParser;
     }
 
     public function test_parser_parses_minimal_json_successfully(): void
@@ -280,4 +280,3 @@ class DashboardJsonParserTest extends TestCase
         }
     }
 }
-

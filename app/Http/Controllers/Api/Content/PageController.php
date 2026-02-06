@@ -20,10 +20,10 @@ use Symfony\Component\HttpFoundation\Response;
 class PageController extends Controller
 {
     use GetsTenantCacheKeySegment;
+
     public function __construct(
         protected FabricatorPageTransformer $transformer
-    ) {
-    }
+    ) {}
 
     /**
      * List all pages
@@ -45,9 +45,9 @@ class PageController extends Controller
         $tenantKey = $this->getTenantCacheKeySegment();
 
         // Validate locale parameter if provided
-        if ($requestedLocale && !in_array($requestedLocale, ['de', 'en'])) {
+        if ($requestedLocale && ! in_array($requestedLocale, ['de', 'en'])) {
             return response()->json([
-                'error' => 'Invalid locale parameter. Must be "de" or "en".'
+                'error' => 'Invalid locale parameter. Must be "de" or "en".',
             ], 400);
         }
 
@@ -58,12 +58,12 @@ class PageController extends Controller
             $data = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($requestedLocale) {
                 $query = Page::query()
                     ->select('id', 'slug', 'title', 'layout', 'parent_id', 'updated_at');
-                
+
                 // Filter by is_public if column exists
                 if (Schema::hasColumn((new Page)->getTable(), 'is_public')) {
                     $query->where('is_public', true);
                 }
-                
+
                 $pages = $query->get();
 
                 return $pages->map(function (Page $page) use ($requestedLocale) {
@@ -105,12 +105,12 @@ class PageController extends Controller
         $data = Cache::remember($cacheKey, now()->addMinutes(10), function () {
             $query = Page::query()
                 ->select('id', 'slug', 'title', 'layout', 'parent_id', 'updated_at');
-            
+
             // Filter by is_public if column exists
             if (Schema::hasColumn((new Page)->getTable(), 'is_public')) {
                 $query->where('is_public', true);
             }
-            
+
             $pages = $query->get();
 
             $result = ['de' => [], 'en' => []];
@@ -180,10 +180,10 @@ class PageController extends Controller
     {
         $requestedLocale = $request->query('locale');
         $tableName = (new Page)->getTable();
-        
+
         // Validate locale against whitelist to prevent SQL injection
         $allowedLocales = ['de', 'en'];
-        
+
         // If locale is specified, validate and try to find root page for that locale
         if ($requestedLocale && in_array($requestedLocale, $allowedLocales)) {
             // Locale is validated, safe to use in JSON_EXTRACT
@@ -196,13 +196,13 @@ class PageController extends Controller
             $page = $query
                 ->where(function ($q) use ($requestedLocale) {
                     $q->whereRaw("JSON_EXTRACT(slug, '$.{$requestedLocale}') = ?", ['/'])
-                      ->orWhereRaw("JSON_EXTRACT(slug, '$.{$requestedLocale}') = ?", ['home']);
+                        ->orWhereRaw("JSON_EXTRACT(slug, '$.{$requestedLocale}') = ?", ['home']);
                 })
                 ->orderByRaw("CASE WHEN JSON_EXTRACT(slug, '$.{$requestedLocale}') = '/' THEN 0 ELSE 1 END")
                 ->first();
-            
+
             // If not found for requested locale, try default locale (de)
-            if (!$page && $requestedLocale !== 'de') {
+            if (! $page && $requestedLocale !== 'de') {
                 $query = Page::query();
 
                 if (Schema::hasColumn($tableName, 'is_public')) {
@@ -212,7 +212,7 @@ class PageController extends Controller
                 $page = $query
                     ->where(function ($q) {
                         $q->whereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['/'])
-                          ->orWhereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['home']);
+                            ->orWhereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['home']);
                     })
                     ->orderByRaw("CASE WHEN JSON_EXTRACT(slug, '$.de') = '/' THEN 0 ELSE 1 END")
                     ->first();
@@ -230,12 +230,12 @@ class PageController extends Controller
                 ->where(function ($q) {
                     $q->where(function ($q2) {
                         $q2->whereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['/'])
-                           ->orWhereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['home']);
+                            ->orWhereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['home']);
                     })
-                    ->orWhere(function ($q2) {
-                        $q2->whereRaw("JSON_EXTRACT(slug, '$.en') = ?", ['/'])
-                           ->orWhereRaw("JSON_EXTRACT(slug, '$.en') = ?", ['home']);
-                    });
+                        ->orWhere(function ($q2) {
+                            $q2->whereRaw("JSON_EXTRACT(slug, '$.en') = ?", ['/'])
+                                ->orWhereRaw("JSON_EXTRACT(slug, '$.en') = ?", ['home']);
+                        });
                 })
                 ->orderByRaw("CASE WHEN JSON_EXTRACT(slug, '$.de') = '/' THEN 0 WHEN JSON_EXTRACT(slug, '$.en') = '/' THEN 1 ELSE 2 END")
                 ->first();
@@ -271,9 +271,9 @@ class PageController extends Controller
         $tenantKey = $this->getTenantCacheKeySegment();
 
         // Validate locale parameter if provided
-        if ($requestedLocale && !in_array($requestedLocale, ['de', 'en'])) {
+        if ($requestedLocale && ! in_array($requestedLocale, ['de', 'en'])) {
             return response()->json([
-                'error' => 'Invalid locale parameter. Must be "de" or "en".'
+                'error' => 'Invalid locale parameter. Must be "de" or "en".',
             ], 400);
         }
 
@@ -380,5 +380,3 @@ class PageController extends Controller
         ];
     }
 }
-
-

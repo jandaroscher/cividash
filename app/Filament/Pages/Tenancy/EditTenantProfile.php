@@ -37,7 +37,7 @@ class EditTenantProfile extends BaseEditTenantProfile
      * The schema contains sections for basic information (name, slug) and domain/frontend settings
      * (domain, frontend_base_url). The domain field is normalized and validated for format and uniqueness.
      *
-     * @param Form $form The form instance to configure.
+     * @param  Form  $form  The form instance to configure.
      * @return Form The configured form instance.
      */
     public function form(Form $form): Form
@@ -119,7 +119,7 @@ class EditTenantProfile extends BaseEditTenantProfile
      * Trims surrounding whitespace, converts to lowercase, and removes a leading
      * "www." prefix. Empty or null input returns null.
      *
-     * @param string|null $domain The raw domain input.
+     * @param  string|null  $domain  The raw domain input.
      * @return string|null The normalized domain, or null if the input is null or empty after normalization.
      */
     protected function normalizeDomain(?string $domain): ?string
@@ -143,7 +143,7 @@ class EditTenantProfile extends BaseEditTenantProfile
      *
      * Allows standard hostnames (labels with letters, digits, hyphens, and dots) and "localhost".
      *
-     * @param string|null $domain The normalized domain to validate (trimmed and lowercased, or null).
+     * @param  string|null  $domain  The normalized domain to validate (trimmed and lowercased, or null).
      * @return bool `true` if the domain is a valid hostname with no scheme, path, or port; `false` otherwise.
      */
     protected function isValidDomain(?string $domain): bool

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "45fa772e09dcad47a5b166ccc15b3469",
+    "content-hash": "c4cf1b5eef890a68586cdf9f1e9931d0",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -425,6 +425,79 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
+        },
+        {
+            "name": "codewithdennis/filament-simple-alert",
+            "version": "v3.0.21",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CodeWithDennis/filament-simple-alert.git",
+                "reference": "2633ec467f6a7ec7088a5396c64eed08d48a3369"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CodeWithDennis/filament-simple-alert/zipball/2633ec467f6a7ec7088a5396c64eed08d48a3369",
+                "reference": "2633ec467f6a7ec7088a5396c64eed08d48a3369",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^3.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.16",
+                "nunomaduro/collision": "^7.9",
+                "orchestra/testbench": "^8.0",
+                "pestphp/pest": "^2.1",
+                "pestphp/pest-plugin-arch": "^2.0",
+                "pestphp/pest-plugin-laravel": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "SimpleAlert": "CodeWithDennis\\SimpleAlert\\Facades\\SimpleAlert"
+                    },
+                    "providers": [
+                        "CodeWithDennis\\SimpleAlert\\SimpleAlertServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "CodeWithDennis\\SimpleAlert\\": "src/",
+                    "CodeWithDennis\\SimpleAlert\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "CodeWithDennis",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A plugin for adding straightforward alerts to your filament pages",
+            "homepage": "https://github.com/codewithdennis/filament-simple-alert",
+            "keywords": [
+                "CodeWithDennis",
+                "filament-simple-alert",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/codewithdennis/filament-simple-alert/issues",
+                "source": "https://github.com/codewithdennis/filament-simple-alert"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/CodeWithDennis",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-01-24T18:21:09+00:00"
         },
         {
             "name": "danharrin/date-format-converter",

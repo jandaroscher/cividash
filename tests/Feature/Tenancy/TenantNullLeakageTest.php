@@ -108,10 +108,10 @@ class TenantNullLeakageTest extends TestCase
         // where('tenant_id', $tenant->id) should filter out NULL values
         // Note: In SQL, WHERE tenant_id = ? does NOT match NULL values, so this should work
         $tiles = Tile::all();
-        
+
         // Debug: Check what tiles are returned
         $tileIds = $tiles->pluck('id')->toArray();
-        $this->assertCount(1, $tiles, 'Should only see tenant tile, not NULL tenant tile. Got: ' . json_encode($tileIds));
+        $this->assertCount(1, $tiles, 'Should only see tenant tile, not NULL tenant tile. Got: '.json_encode($tileIds));
         $this->assertEquals($tenantTile->id, $tiles->first()->id);
 
         // Verify NULL tile exists but is filtered out

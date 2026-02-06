@@ -49,7 +49,7 @@ return new class extends SettingsMigration
                 try {
                     // Parse the payload (could be JSON string or already decoded)
                     $payload = $footerLinksSetting->payload;
-                    
+
                     if (is_string($payload)) {
                         $decoded = json_decode($payload, true);
                         if (json_last_error() === JSON_ERROR_NONE) {
@@ -98,8 +98,8 @@ return new class extends SettingsMigration
                             }
 
                             // Only add item if it has a meaningful URL or label
-                            $hasMeaningfulUrl = !empty($item['url']) && $item['url'] !== '#';
-                            if ($hasMeaningfulUrl || !empty($item['label'])) {
+                            $hasMeaningfulUrl = ! empty($item['url']) && $item['url'] !== '#';
+                            if ($hasMeaningfulUrl || ! empty($item['label'])) {
                                 $migratedItems[] = $item;
                             }
                         }

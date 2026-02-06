@@ -23,7 +23,7 @@ class CategoryGroupResource extends Resource
     protected static ?string $model = CategoryGroup::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'Kategorien';
+
     protected static ?int $navigationSort = 9;
 
     /**
@@ -34,6 +34,11 @@ class CategoryGroupResource extends Resource
     public static function getNavigationLabel(): string
     {
         return __('filament.resources.category_group.navigation_label');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.groups.categories');
     }
 
     /**
@@ -59,15 +64,10 @@ class CategoryGroupResource extends Resource
     /**
      * Configure the resource's create/edit form schema.
      *
-     * Builds and returns a Form containing fields for:
-     * - `key` (text, required, read-only when editing),
-     * - `title` (text, required),
-     * - `selection_type` (select with `single`/`multi`, default `multi`),
-     * - `is_filterable` (toggle),
-     * - `is_color_source` (toggle with validation enforcing at most one color source per tenant or globally),
-     * - `position` (numeric, required, default 0).
+     * Contains fields for `key`, `title`, `selection_type`, `is_filterable`, `is_color_source`, `is_active`, and `position`.
+     * The `is_color_source` field enforces that at most one color source exists for the same tenant or globally.
      *
-     * @return Form The form configured with the resource's schema.
+     * @return Form The configured form instance with the resource's schema.
      */
     public static function form(Form $form): Form
     {
@@ -77,6 +77,8 @@ class CategoryGroupResource extends Resource
                     ->label(__('filament.resources.category_group.key'))
                     ->required()
                     ->maxLength(255)
+                    ->regex('/^[a-z][a-z0-9_-]*$/')
+                    ->helperText(__('filament.resources.category_group.key_helper'))
                     ->disabled(fn ($record) => $record !== null),
                 Forms\Components\TextInput::make('title')
                     ->label(__('filament.resources.category_group.title'))
@@ -130,7 +132,7 @@ class CategoryGroupResource extends Resource
     /**
      * Configure table columns, row actions, and bulk actions for the CategoryGroup resource.
      *
-     * @param \Filament\Tables\Table $table The table instance to configure.
+     * @param  \Filament\Tables\Table  $table  The table instance to configure.
      * @return \Filament\Tables\Table The configured table with columns, filters, actions, and bulk actions.
      */
     public static function table(Table $table): Table
@@ -143,14 +145,17 @@ class CategoryGroupResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('title')
                     ->label(__('filament.resources.category_group.title'))
-                    ->formatStateUsing(function ($state, CategoryGroup $record) {
-                        return $record->getTranslation('title', app()->getLocale(), false)
+                    ->formatStateUsing(function ($state, CategoryGroup $record, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+
+                        return $record->getTranslation('title', $locale, false)
                             ?: $record->getTranslation('title', 'de', false)
                             ?: $state;
                     })
                     ->searchable()
-                    ->sortable(query: function (Builder $query, string $direction) {
-                        $expression = static::getSortableTranslationExpression('title', app()->getLocale());
+                    ->sortable(query: function (Builder $query, string $direction, $livewire) {
+                        $locale = $livewire->activeLocale ?? app()->getLocale();
+                        $expression = static::getSortableTranslationExpression('title', $locale);
                         $query->orderByRaw("{$expression} {$direction}");
                     }),
                 Tables\Columns\TextColumn::make('selection_type')

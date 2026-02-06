@@ -75,5 +75,3 @@ class TenantSetupTest extends TestCase
         $this->assertTrue($user->fresh()->tenants()->whereKey($tenant->id)->exists());
     }
 }
-
-

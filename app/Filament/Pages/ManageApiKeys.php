@@ -29,11 +29,14 @@ class ManageApiKeys extends Page implements HasForms, HasTable
 
     protected static ?string $navigationIcon = 'heroicon-o-key';
 
-    protected static ?string $navigationGroup = 'Einstellungen';
-
     protected static ?int $navigationSort = 25;
 
     protected static string $view = 'filament.pages.manage-api-keys';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.groups.settings');
+    }
 
     /**
      * The newly created token's plain text value (shown once after creation).
@@ -100,7 +103,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
      * revoke action that revokes a token for the tenant and shows success/error notifications, and defines a
      * localized empty state.
      *
-     * @param Table $table The Table instance to configure.
+     * @param  Table  $table  The Table instance to configure.
      * @return Table The configured Table instance for tenant-scoped PersonalAccessToken records.
      */
     public function table(Table $table): Table
@@ -254,7 +257,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
     /**
      * Build a map of available API abilities to their translated labels for the given user.
      *
-     * @param object $user The current user; inclusion of the `admin-api` ability depends on `$user->admin_api_enabled`.
+     * @param  object  $user  The current user; inclusion of the `admin-api` ability depends on `$user->admin_api_enabled`.
      * @return array<string,string> Associative array where keys are ability identifiers (e.g., `public-read`, `admin-api`) and values are their translated labels.
      */
     protected function getAvailableAbilitiesTranslated($user): array

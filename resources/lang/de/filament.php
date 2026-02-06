@@ -1,13 +1,20 @@
 <?php
 
 return [
+    'navigation' => [
+        'groups' => [
+            'settings' => 'Einstellungen',
+            'categories' => 'Kategorien',
+            'content' => 'Inhalte',
+        ],
+    ],
     'pages' => [
         'manage_header' => [
             'title' => 'Header / Navigation',
             'navigation_items' => 'Navigations-Elemente',
             'item_type' => 'Typ',
-            'type_page' => 'Filament Page',
-            'type_manual' => 'Manueller Link',
+            'type_page' => 'Seite',
+            'type_manual' => 'Externer Link',
             'page' => 'Seite',
             'label' => 'Bezeichnung',
             'url' => 'URL',
@@ -19,6 +26,12 @@ return [
         'manage_footer' => [
             'title' => 'Footer',
             'footer_navigation_items' => 'Footer-Navigations-Elemente',
+            'item_type' => 'Typ',
+            'type_page' => 'Seite',
+            'type_manual' => 'Externer Link',
+            'page' => 'Seite',
+            'label' => 'Bezeichnung',
+            'url' => 'URL',
             'layout_type' => 'Layout-Typ',
             'layout_single_row' => 'Einzeilig',
             'layout_multi_column' => 'Mehrspaltig',
@@ -107,7 +120,8 @@ return [
         'manage_general' => [
             'title' => 'Seiteneinstellungen',
             'site_name' => 'Seitenname',
-            'site_active' => 'Seite aktiv',
+            'favicon' => 'Favicon',
+            'favicon_helper' => 'Empfohlen: ICO, PNG oder SVG, max. 512 KB',
         ],
         'manage_dashboard' => [
             'title' => 'Dashboard',
@@ -223,6 +237,7 @@ return [
             'plural_model_label' => 'Kategorien',
             'group' => 'Kategorie-Gruppe',
             'key' => 'Schlüssel',
+            'key_helper' => 'Nur Kleinbuchstaben, Zahlen, Unterstriche und Bindestriche (muss mit Buchstabe beginnen)',
             'title' => 'Titel',
             'icon' => 'Icon',
             'color' => 'Farbe',
@@ -236,6 +251,7 @@ return [
             'model_label' => 'Kategorie-Gruppe',
             'plural_model_label' => 'Kategorie-Gruppen',
             'key' => 'Schlüssel',
+            'key_helper' => 'Nur Kleinbuchstaben, Zahlen, Unterstriche und Bindestriche (muss mit Buchstabe beginnen)',
             'title' => 'Titel',
             'selection_type' => 'Auswahltyp',
             'selection_single' => 'Einfachauswahl',
@@ -249,6 +265,7 @@ return [
             'updated_at' => 'Aktualisiert am',
             'items' => [
                 'key' => 'Schlüssel',
+                'key_helper' => 'Nur Kleinbuchstaben, Zahlen, Unterstriche und Bindestriche (muss mit Buchstabe beginnen)',
                 'title' => 'Titel',
                 'icon' => 'Icon',
                 'color' => 'Farbe',
@@ -310,6 +327,8 @@ return [
             'actions' => [
                 'view_frontend' => 'Anzeigen',
             ],
+            'lottie_preview' => 'Lottie-Vorschau',
+            'no_lottie_file' => 'Keine Lottie-Animation (nur .json oder .lottie Dateien)',
         ],
         'page' => [
             'navigation_label' => 'Seiten',

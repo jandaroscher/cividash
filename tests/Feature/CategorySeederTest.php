@@ -5,13 +5,11 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\Tenant;
-use App\Services\DashboardJsonParser;
 use App\Services\MediaDownloadService;
 use App\Services\ParsedCategory;
 use Database\Seeders\CategorySeeder;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class CategorySeederTest extends TestCase
@@ -33,8 +31,8 @@ class CategorySeederTest extends TestCase
         $user->tenants()->sync([$defaultTenant->id]);
         Filament::auth()->login($user);
         Filament::setTenant($defaultTenant);
-        
-        $this->seeder = new CategorySeeder(new MediaDownloadService());
+
+        $this->seeder = new CategorySeeder(new MediaDownloadService);
     }
 
     public function test_category_seeder_creates_categories(): void
@@ -163,4 +161,3 @@ class CategorySeederTest extends TestCase
         $this->assertEquals(2, $third->position);
     }
 }
-

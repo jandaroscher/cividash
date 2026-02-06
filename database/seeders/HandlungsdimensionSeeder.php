@@ -7,8 +7,8 @@ use App\Models\CategoryGroup;
 use App\Models\Handlungsdimension;
 use App\Models\Tenant;
 use App\Services\MediaDownloadService;
-use Illuminate\Database\Seeder;
 use Illuminate\Console\Command;
+use Illuminate\Database\Seeder;
 
 /**
  * Seeder for Handlungsdimensionen (Action Dimensions).
@@ -38,10 +38,10 @@ class HandlungsdimensionSeeder extends Seeder
      *
      * Creates or updates the static dimensions (grün, gerecht, produktiv), ensures a corresponding Category in the resolved "dimensions" CategoryGroup, downloads and assigns icons when enabled, and optionally maps existing handlungsfeld IDs to the created dimensions.
      *
-     * @param array<int,int> $handlungsfeldIdMap Map from original handlungsfeld ID to database ID used to associate handlungsfelder with dimensions; if empty no mapping is performed.
+     * @param  array<int,int>  $handlungsfeldIdMap  Map from original handlungsfeld ID to database ID used to associate handlungsfelder with dimensions; if empty no mapping is performed.
      * @return array<string, array<string,int>> Associative array with two keys:
-     *     - `dimension_ids`: map of dimension key to the created/updated Handlungsdimension database ID.
-     *     - `category_ids`: map of dimension key to the created/updated Category database ID.
+     *                                          - `dimension_ids`: map of dimension key to the created/updated Handlungsdimension database ID.
+     *                                          - `category_ids`: map of dimension key to the created/updated Category database ID.
      */
     public function run(array $handlungsfeldIdMap = []): array
     {
@@ -96,7 +96,7 @@ class HandlungsdimensionSeeder extends Seeder
             $dimension = Handlungsdimension::where('key', $key)->first();
 
             if (! $dimension) {
-                $dimension = new Handlungsdimension();
+                $dimension = new Handlungsdimension;
                 $dimension->key = $key;
                 $dimension->title = $data['title'];
                 $dimension->icon = $iconPath; // Store as string (local path)
@@ -136,7 +136,7 @@ class HandlungsdimensionSeeder extends Seeder
                 ->first();
 
             if (! $category) {
-                $category = new Category();
+                $category = new Category;
                 $category->category_group_id = $group?->id;
                 $category->tenant_id = $dimension->tenant_id;
             }

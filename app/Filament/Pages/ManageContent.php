@@ -2,18 +2,20 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Support\RichEditorConfig;
 use App\Settings\ContentSettings;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\SettingsPage;
 
 class ManageContent extends SettingsPage
 {
     protected static string $settings = ContentSettings::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+
     protected static ?string $title = 'Inhaltsbereich';
 
     /**
@@ -27,11 +29,9 @@ class ManageContent extends SettingsPage
     }
 
     /**
-     * Constructs the form schema for the content settings page, providing a
-     * `hero_content` builder with `heading`, `paragraph`, `image`, and `text_image`
-     * blocks for managing hero section content.
+     * Builds the settings page form schema with a `hero_content` builder containing
+     * `heading`, `paragraph`, `image`, and `text_image` blocks for managing hero section content.
      *
-     * @param \Filament\Forms\Form $form The base form instance to configure.
      * @return \Filament\Forms\Form The configured form instance.
      */
     public function form(\Filament\Forms\Form $form): \Filament\Forms\Form
@@ -54,7 +54,7 @@ class ManageContent extends SettingsPage
                     Builder\Block::make('paragraph')
                         ->label(__('filament.pages.manage_content.paragraph'))
                         ->schema([
-                            RichEditor::make('content')
+                            RichEditorConfig::make('content')
                                 ->label(__('filament.pages.manage_content.body_text'))
                                 ->required(),
                         ]),
@@ -75,7 +75,7 @@ class ManageContent extends SettingsPage
                         ->schema([
                             Grid::make()
                                 ->schema([
-                                    RichEditor::make('text')
+                                    RichEditorConfig::make('text')
                                         ->label(__('filament.pages.manage_content.text'))
                                         ->required(),
                                     FileUpload::make('image')
@@ -86,7 +86,7 @@ class ManageContent extends SettingsPage
                                 ])
                                 ->columns(2) // two equal-width columns
                                 ->columnSpan('full'),
-                        ])
+                        ]),
                 ])
                 ->columns(2)
                 ->collapsible()

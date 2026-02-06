@@ -11,7 +11,7 @@ class HandlungsfeldResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param Request $request Request that may contain an optional `locale` query parameter for localization.
+     * @param  Request  $request  Request that may contain an optional `locale` query parameter for localization.
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array

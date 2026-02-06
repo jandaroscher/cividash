@@ -13,6 +13,7 @@ class DashboardNavigationTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected Tenant $tenant;
 
     protected function setUp(): void

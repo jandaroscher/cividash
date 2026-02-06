@@ -20,10 +20,10 @@ class BackgroundPageResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'      => $this->id,
-            'slug'    => $this->slug,
+            'id' => $this->id,
+            'slug' => $this->slug,
             'content' => $this->content,
-            'position'=> $this->position,
+            'position' => $this->position,
         ];
     }
 }

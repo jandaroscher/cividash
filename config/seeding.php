@@ -58,4 +58,3 @@ return [
     'media_base_url' => env('SEED_MEDIA_BASE_URL'),
     'media_storage_path' => env('SEED_MEDIA_STORAGE_PATH', 'seeds'),
 ];
-

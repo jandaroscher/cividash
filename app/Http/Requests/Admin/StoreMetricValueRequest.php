@@ -47,8 +47,6 @@ class StoreMetricValueRequest extends FormRequest
 
     /**
      * Remove any provided `tenant_id` from the request input before validation to prevent tampering.
-     *
-     * @return void
      */
     protected function prepareForValidation(): void
     {

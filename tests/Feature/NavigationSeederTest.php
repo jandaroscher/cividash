@@ -17,12 +17,13 @@ class NavigationSeederTest extends TestCase
     use RefreshDatabase;
 
     protected ?NavigationSeeder $seeder = null;
+
     protected ?PageSeeder $pageSeeder = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create user and authenticate for Filament tenant context
         $user = \App\Models\User::factory()->create();
         $tenant = Tenant::where('slug', 'default')->first();
@@ -31,9 +32,9 @@ class NavigationSeederTest extends TestCase
             Filament::auth()->login($user);
             Filament::setTenant($tenant);
         }
-        
-        $this->seeder = new NavigationSeeder();
-        $this->pageSeeder = new PageSeeder();
+
+        $this->seeder = new NavigationSeeder;
+        $this->pageSeeder = new PageSeeder;
     }
 
     public function test_navigation_seeder_creates_header_navigation(): void
@@ -207,4 +208,3 @@ class NavigationSeederTest extends TestCase
         $this->assertEquals('Kontakt', $contactItem['label']['de'] ?? '');
     }
 }
-

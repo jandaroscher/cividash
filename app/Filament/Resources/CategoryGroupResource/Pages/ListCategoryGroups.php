@@ -8,6 +8,8 @@ use Filament\Resources\Pages\ListRecords;
 
 class ListCategoryGroups extends ListRecords
 {
+    use ListRecords\Concerns\Translatable;
+
     protected static string $resource = CategoryGroupResource::class;
 
     /**
@@ -18,6 +20,7 @@ class ListCategoryGroups extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\LocaleSwitcher::make(),
             Actions\CreateAction::make(),
         ];
     }

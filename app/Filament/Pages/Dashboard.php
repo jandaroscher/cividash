@@ -68,7 +68,7 @@ class Dashboard extends BaseDashboard
         $connection = DB::connection();
         $driver = $connection->getDriverName();
         $serverVersion = $connection->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
-        $dbInfo = trim($driver . ' ' . $serverVersion);
+        $dbInfo = trim($driver.' '.$serverVersion);
 
         return [
             'server_time' => now()->toDateTimeString(),

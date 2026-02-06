@@ -23,21 +23,21 @@ return new class extends Migration
 
         if ($headerSettings) {
             $payload = json_decode($headerSettings->payload, true);
-            
+
             // Skip if payload is invalid
-            if (!is_array($payload)) {
+            if (! is_array($payload)) {
                 $payload = [];
             }
-            
+
             // Check if Navigation record already exists (idempotent)
-            if (!Navigation::find(1)) {
+            if (! Navigation::find(1)) {
                 $navigation = Navigation::create([
                     'id' => 1,
                     'navigation_items' => [],
                     'show_language_switcher' => $payload['show_language_switcher'] ?? true,
                     'dropdown_enabled' => $payload['dropdown_enabled'] ?? false,
                 ]);
-                
+
                 // Set translatable navigation_items using setTranslation
                 if (isset($payload['navigation_items'])) {
                     $navigation->setTranslation('navigation_items', 'de', $payload['navigation_items']);
@@ -46,19 +46,19 @@ return new class extends Migration
                     $navigation->setTranslation('navigation_items', 'de', []);
                     $navigation->setTranslation('navigation_items', 'en', []);
                 }
-                
+
                 $navigation->save();
             }
         } else {
             // Create default Navigation record if no settings exist
-            if (!Navigation::find(1)) {
+            if (! Navigation::find(1)) {
                 $navigation = Navigation::create([
                     'id' => 1,
                     'navigation_items' => [],
                     'show_language_switcher' => true,
                     'dropdown_enabled' => false,
                 ]);
-                
+
                 // Set empty translatable navigation_items for both locales
                 $navigation->setTranslation('navigation_items', 'de', []);
                 $navigation->setTranslation('navigation_items', 'en', []);
@@ -74,15 +74,15 @@ return new class extends Migration
 
         if ($footerSettings) {
             $payload = json_decode($footerSettings->payload, true);
-            
+
             // Skip if payload is invalid
-            if (!is_array($payload)) {
+            if (! is_array($payload)) {
                 $payload = [];
             }
-            
+
             // Convert social_links to translatable format if needed
             $socialLinks = $payload['social_links'] ?? [];
-            if (!empty($socialLinks) && isset($socialLinks[0])) {
+            if (! empty($socialLinks) && isset($socialLinks[0])) {
                 // Convert non-translatable social_links to translatable format
                 $socialLinks = array_map(function ($link) {
                     $convertedLink = $link;
@@ -90,16 +90,17 @@ return new class extends Migration
                     if (isset($link['title']) && is_string($link['title'])) {
                         $convertedLink['title'] = ['de' => $link['title'], 'en' => $link['title']];
                     }
+
                     return $convertedLink;
                 }, $socialLinks);
             }
-            
+
             // Store social_links as translatable (same data for both locales)
             $socialLinksDe = $socialLinks;
             $socialLinksEn = $socialLinks;
-            
+
             // Check if FooterNavigation record already exists (idempotent)
-            if (!FooterNavigation::find(1)) {
+            if (! FooterNavigation::find(1)) {
                 $footer = FooterNavigation::create([
                     'id' => 1,
                     'footer_navigation_items' => [],
@@ -109,18 +110,18 @@ return new class extends Migration
                     'social_links_enabled' => $payload['social_links_enabled'] ?? true,
                     'copyright_text' => null,
                 ]);
-                
+
                 // Set translatable fields using setTranslation
                 if (isset($payload['footer_navigation_items'])) {
                     $footer->setTranslation('footer_navigation_items', 'de', $payload['footer_navigation_items']);
                     $footer->setTranslation('footer_navigation_items', 'en', $payload['footer_navigation_items']);
                 }
-                
-                if (!empty($socialLinksDe)) {
+
+                if (! empty($socialLinksDe)) {
                     $footer->setTranslation('social_links', 'de', $socialLinksDe);
                     $footer->setTranslation('social_links', 'en', $socialLinksEn);
                 }
-                
+
                 if (isset($payload['copyright_text'])) {
                     // copyright_text might already be in translatable format
                     if (is_array($payload['copyright_text'])) {
@@ -131,12 +132,12 @@ return new class extends Migration
                         $footer->setTranslation('copyright_text', 'en', $payload['copyright_text']);
                     }
                 }
-                
+
                 $footer->save();
             }
         } else {
             // Create default FooterNavigation record if no settings exist
-            if (!FooterNavigation::find(1)) {
+            if (! FooterNavigation::find(1)) {
                 $footer = FooterNavigation::create([
                     'id' => 1,
                     'footer_navigation_items' => [],
@@ -146,7 +147,7 @@ return new class extends Migration
                     'social_links_enabled' => true,
                     'copyright_text' => null,
                 ]);
-                
+
                 // Set empty translatable fields for both locales
                 $footer->setTranslation('footer_navigation_items', 'de', []);
                 $footer->setTranslation('footer_navigation_items', 'en', []);
@@ -170,7 +171,7 @@ return new class extends Migration
         // Prevent accidental destructive rollbacks in production
         if (app()->environment('production')) {
             throw new \RuntimeException(
-                'Rolling back this migration in production will result in data loss. ' .
+                'Rolling back this migration in production will result in data loss. '.
                 'Please restore data manually before rolling back.'
             );
         }

@@ -13,8 +13,8 @@ class EnsureAdminTenantResolved
      *
      * Accepts requests only if a tenant was resolved via 'token' or 'domain'; rejects when resolution is missing or was performed via 'default'.
      *
-     * @param  \Illuminate\Http\Request  $request The incoming HTTP request.
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next The next middleware/handler.
+     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request.
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next  The next middleware/handler.
      * @return \Symfony\Component\HttpFoundation\Response The next handler's response, or a 400 JSON error when tenant context is missing or default.
      */
     public function handle(Request $request, Closure $next): Response
@@ -23,7 +23,7 @@ class EnsureAdminTenantResolved
         $resolvedBy = $request->attributes->get('resolved_tenant_by');
 
         // Tenant must be resolved and NOT via default fallback
-        if (!$resolvedTenant || $resolvedBy === 'default') {
+        if (! $resolvedTenant || $resolvedBy === 'default') {
             return response()->json([
                 'message' => 'Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.',
                 'error' => 'missing_tenant_context',

@@ -17,11 +17,11 @@ return new class extends SettingsMigration
     {
         // Accent color (nullable, falls nicht gesetzt wird primary_color verwendet)
         $this->migrator->add('branding.accent_color', null);
-        
+
         // Typography settings
         $this->migrator->add('branding.typography_font_family', 'Open Sans');
         $this->migrator->add('branding.typography_font_weights', [400, 600, 700]);
-        
+
         // Slider colors
         $this->migrator->add('branding.slider_colors', [
             'rail' => '#191919',

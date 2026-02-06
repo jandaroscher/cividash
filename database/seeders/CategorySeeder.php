@@ -5,10 +5,8 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\Tenant;
-use App\Services\DashboardJsonParser;
 use App\Services\MediaDownloadService;
 use Illuminate\Database\Seeder;
-use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -43,6 +41,7 @@ class CategorySeeder extends Seeder
     {
         $this->mediaDownloadService = $mediaDownloadService;
     }
+
     /**
      * Seed categories from parsed input by creating or updating database records.
      *
@@ -52,7 +51,7 @@ class CategorySeeder extends Seeder
      * last_synced_at, and returns a mapping of original parsed category IDs to
      * database record IDs.
      *
-     * @param Collection<int, \App\Services\ParsedCategory> $categories Parsed categories to seed.
+     * @param  Collection<int, \App\Services\ParsedCategory>  $categories  Parsed categories to seed.
      * @return array<string, int> Map of original category ID to database ID.
      */
     public function run(Collection $categories): array
@@ -72,7 +71,7 @@ class CategorySeeder extends Seeder
         foreach ($categories as $parsedCategory) {
             $slugDe = trim($parsedCategory->title); // Trim whitespace
             $slugEn = $this->handlungsfeldTitles[$slugDe] ?? null;
-            
+
             $slugArray = [
                 'de' => $slugDe,
                 'en' => $slugEn,
@@ -102,7 +101,7 @@ class CategorySeeder extends Seeder
             $needsUpdate = false;
 
             if (! $category) {
-                $category = new Category();
+                $category = new Category;
                 $category->category_group_id = $group->id;
                 $category->tenant_id = $group->tenant_id;
                 $category->slug = $slugArray;
@@ -213,9 +212,6 @@ class CategorySeeder extends Seeder
 
     /**
      * Generate a slug from the category title.
-     *
-     * @param string $title
-     * @return string
      */
     protected function generateSlug(string $title): string
     {
@@ -225,35 +221,29 @@ class CategorySeeder extends Seeder
     /**
      * Generate icon slug from category title.
      * Converts "Umwelt und Ressourcenschutz" to "umwelt_ressourcenschutz"
-     *
-     * @param string $title
-     * @return string
      */
     protected function generateIconSlug(string $title): string
     {
         // Remove trailing spaces
         $title = trim($title);
-        
+
         // Convert to lowercase
         $slug = mb_strtolower($title, 'UTF-8');
-        
+
         // Remove "und" (and) as it's not in the icon filenames
         $slug = preg_replace('/\s+und\s+/u', '_', $slug);
-        
+
         // Replace spaces and special characters with underscores
         $slug = preg_replace('/[^a-z0-9äöüß]+/u', '_', $slug);
-        
+
         // Remove leading/trailing underscores
         $slug = trim($slug, '_');
-        
+
         return $slug;
     }
 
     /**
      * Calculate SHA256 hash of the source data for change detection.
-     *
-     * @param \App\Services\ParsedCategory $category
-     * @return string
      */
     protected function calculateSourceHash(\App\Services\ParsedCategory $category): string
     {

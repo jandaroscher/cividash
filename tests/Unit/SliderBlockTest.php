@@ -17,9 +17,9 @@ class SliderBlockTest extends TestCase
     {
         $schema = SliderBlock::getBlockSchema();
         $fields = $schema->getChildComponents();
-        
-        $fieldNames = array_map(fn($field) => $field->getName(), $fields);
-        
+
+        $fieldNames = array_map(fn ($field) => $field->getName(), $fields);
+
         // SliderBlock should have items/content fields
         $this->assertNotEmpty($fieldNames);
     }
@@ -29,9 +29,3 @@ class SliderBlockTest extends TestCase
         $this->assertEquals('filament-fabricator.page-blocks.slider', SliderBlock::getComponent());
     }
 }
-
-
-
-
-
-

@@ -23,15 +23,15 @@ class MetricSeeder extends Seeder
 
     public function __construct()
     {
-        $this->mediaDownloadService = new MediaDownloadService();
+        $this->mediaDownloadService = new MediaDownloadService;
     }
+
     /**
      * Run the metric seeder.
      *
-     * @param Collection<int, \App\Services\ParsedMetric> $metrics
-     * @param array<string, int> $tileIdMap Map of original tile ID to database ID
-     * @param array<int, array<int>> $tileMetricMapping Map of tile ID to array of metric IDs
-     * @return void
+     * @param  Collection<int, \App\Services\ParsedMetric>  $metrics
+     * @param  array<string, int>  $tileIdMap  Map of original tile ID to database ID
+     * @param  array<int, array<int>>  $tileMetricMapping  Map of tile ID to array of metric IDs
      */
     public function run(Collection $metrics, array $tileIdMap, array $tileMetricMapping): void
     {
@@ -126,9 +126,6 @@ class MetricSeeder extends Seeder
 
     /**
      * Convert a value to decimal format.
-     *
-     * @param mixed $value
-     * @return float
      */
     protected function convertToDecimal(mixed $value): float
     {
@@ -150,9 +147,6 @@ class MetricSeeder extends Seeder
 
     /**
      * Download icon and return local path.
-     *
-     * @param mixed $iconData
-     * @return string|null
      */
     protected function downloadIcon(mixed $iconData): ?string
     {
@@ -171,4 +165,3 @@ class MetricSeeder extends Seeder
         return $downloadedPath;
     }
 }
-

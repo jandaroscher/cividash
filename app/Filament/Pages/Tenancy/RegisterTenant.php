@@ -38,7 +38,7 @@ class RegisterTenant extends BaseRegisterTenant
      * - `name`: text input labeled "Tenant name", required, maximum length 255, validates on blur, and updates the `slug` field with a slugified value when changed.
      * - `slug`: text input labeled "Slug", required, maximum length 255, unique against the Tenant model (ignores the current record).
      *
-     * @param Form $form The form instance to configure.
+     * @param  Form  $form  The form instance to configure.
      * @return Form The configured form instance.
      */
     public function form(Form $form): Form
@@ -68,9 +68,9 @@ class RegisterTenant extends BaseRegisterTenant
      *
      * Expects $data to contain 'name' and 'slug'.
      *
-     * @param array $data Associative array with keys:
-     *                    - 'name' (string): Tenant display name.
-     *                    - 'slug' (string): Unique tenant slug.
+     * @param  array  $data  Associative array with keys:
+     *                       - 'name' (string): Tenant display name.
+     *                       - 'slug' (string): Unique tenant slug.
      * @return \App\Models\Tenant The created Tenant model instance.
      */
     protected function handleRegistration(array $data): Tenant

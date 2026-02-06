@@ -56,7 +56,7 @@ class TenancyBackfillCommand extends Command
      *
      * Existing tenant associations for users are preserved; only users without a default tenant will have their `default_tenant_id` set.
      *
-     * @param Tenant $tenant The tenant to attach to users and to use when populating missing default tenant assignments.
+     * @param  Tenant  $tenant  The tenant to attach to users and to use when populating missing default tenant assignments.
      */
     protected function backfillUsers(Tenant $tenant): void
     {
@@ -76,7 +76,7 @@ class TenancyBackfillCommand extends Command
      * Tables that do not exist are skipped. The operation ignores the tenant global scope so records are found regardless
      * of any active tenant context.
      *
-     * @param Tenant $tenant The tenant whose `id` will be assigned to records with a null `tenant_id`.
+     * @param  Tenant  $tenant  The tenant whose `id` will be assigned to records with a null `tenant_id`.
      */
     protected function backfillModels(Tenant $tenant): void
     {
@@ -97,12 +97,12 @@ class TenancyBackfillCommand extends Command
 
         foreach ($models as $modelClass) {
             $tableName = (new $modelClass)->getTable();
-            
+
             // Skip if table doesn't exist (e.g., metrics table might not exist in all environments)
             if (! Schema::hasTable($tableName)) {
                 continue;
             }
-            
+
             // Use withoutGlobalScope('tenant') to ensure all null tenant_id records are found
             // regardless of the active tenant context (e.g., when called via Artisan::call())
             $modelClass::withoutGlobalScope('tenant')
@@ -111,5 +111,3 @@ class TenancyBackfillCommand extends Command
         }
     }
 }
-
-

@@ -10,8 +10,8 @@ use Spatie\Translatable\HasTranslations;
 
 class Tile extends Model
 {
-    use HasTranslations;
     use BelongsToTenant;
+    use HasTranslations;
 
     protected static function booted(): void
     {
@@ -102,7 +102,6 @@ class Tile extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany Collection of TileYear models ordered by year.
      */
-
     public function tileYears()
     {
         return $this->hasMany(TileYear::class)->orderBy('year');
@@ -131,7 +130,7 @@ class Tile extends Model
     /**
      * Build the frontend URL for this tile.
      *
-     * @param array<string, mixed> $args
+     * @param  array<string, mixed>  $args
      */
     public function getUrl(array $args = []): string
     {
@@ -140,13 +139,13 @@ class Tile extends Model
             ?: $this->getTranslation('slug', 'de', false);
 
         $slug = trim((string) $slug, '/');
-        $suffix = $slug === '' ? '' : '/' . $slug;
+        $suffix = $slug === '' ? '' : '/'.$slug;
 
         if ($locale === 'en') {
-            return '/en/tiles' . $suffix;
+            return '/en/tiles'.$suffix;
         }
 
-        return '/tiles' . $suffix;
+        return '/tiles'.$suffix;
     }
 
     protected static function buildSlugs(self $tile): array

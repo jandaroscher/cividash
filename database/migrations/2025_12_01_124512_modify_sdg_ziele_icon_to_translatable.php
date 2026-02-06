@@ -14,7 +14,7 @@ return new class extends Migration
         // First, read existing data before schema changes
         $sdgZiele = DB::table('sdg_ziele')->get();
         $dataToMigrate = [];
-        
+
         foreach ($sdgZiele as $sdg) {
             if ($sdg->icon || $sdg->icon_en) {
                 $dataToMigrate[$sdg->id] = [
@@ -23,20 +23,27 @@ return new class extends Migration
                 ];
             }
         }
-        
+
         // First, clear icon column to allow type change
         // We'll restore the data after schema change
         DB::table('sdg_ziele')->update(['icon' => null]);
-        
+
         // Apply schema changes first
         Schema::table('sdg_ziele', function (Blueprint $table) {
-            // Change icon column from string to json
-            $table->json('icon')->nullable()->change();
-            
-            // Drop icon_en column
+            if (DB::getDriverName() === 'sqlite') {
+                $table->dropColumn('icon');
+            } else {
+                $table->json('icon')->nullable()->change();
+            }
             $table->dropColumn('icon_en');
         });
-        
+
+        if (DB::getDriverName() === 'sqlite') {
+            Schema::table('sdg_ziele', function (Blueprint $table) {
+                $table->json('icon')->nullable();
+            });
+        }
+
         // Then migrate data after schema changes are applied
         foreach ($dataToMigrate as $id => $iconArray) {
             DB::table('sdg_ziele')
@@ -52,16 +59,24 @@ return new class extends Migration
     {
         // Apply schema changes first
         Schema::table('sdg_ziele', function (Blueprint $table) {
-            // Add icon_en column back
             $table->string('icon_en')->nullable()->after('icon');
-            
-            // Change icon back to string
-            $table->string('icon')->nullable()->change();
+
+            if (DB::getDriverName() === 'sqlite') {
+                $table->dropColumn('icon');
+            } else {
+                $table->string('icon')->nullable()->change();
+            }
         });
-        
+
+        if (DB::getDriverName() === 'sqlite') {
+            Schema::table('sdg_ziele', function (Blueprint $table) {
+                $table->string('icon')->nullable();
+            });
+        }
+
         // Then migrate data back after schema changes are applied
         $sdgZiele = DB::table('sdg_ziele')->get();
-        
+
         foreach ($sdgZiele as $sdg) {
             if ($sdg->icon) {
                 $iconArray = json_decode($sdg->icon, true);

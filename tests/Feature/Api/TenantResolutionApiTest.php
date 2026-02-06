@@ -7,7 +7,6 @@ use App\Models\Tile;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 
 class TenantResolutionApiTest extends TestCase
@@ -15,8 +14,11 @@ class TenantResolutionApiTest extends TestCase
     use RefreshDatabase;
 
     protected Tenant $tenantA;
+
     protected Tenant $tenantB;
+
     protected Tenant $defaultTenant;
+
     protected User $user;
 
     protected function setUp(): void
@@ -47,7 +49,7 @@ class TenantResolutionApiTest extends TestCase
 
         // Create tiles in different tenants
         Filament::auth()->login($this->user);
-        
+
         Filament::setTenant($this->tenantA);
         Tile::create([
             'title' => ['de' => 'Tile A', 'en' => 'Tile A'],
@@ -91,7 +93,7 @@ class TenantResolutionApiTest extends TestCase
             ->getJson('/api/tiles');
 
         $response->assertStatus(200);
-        
+
         // Should only contain tenant A tiles
         $tiles = $response->json('data');
         $this->assertCount(1, $tiles);
@@ -111,7 +113,7 @@ class TenantResolutionApiTest extends TestCase
             ->getJson('/api/tiles');
 
         $response->assertStatus(200);
-        
+
         // Token should win - only tenant A tiles
         $tiles = $response->json('data');
         $this->assertCount(1, $tiles);
@@ -142,7 +144,7 @@ class TenantResolutionApiTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        
+
         // Should only contain default tenant tiles
         $tiles = $response->json('data');
         $this->assertCount(1, $tiles);
@@ -227,7 +229,7 @@ class TenantResolutionApiTest extends TestCase
             ->getJson('/api/tiles');
 
         $response->assertStatus(200);
-        
+
         // Without tenant_id on token and no domain match, falls back to default
         $tiles = $response->json('data');
         $this->assertCount(1, $tiles);

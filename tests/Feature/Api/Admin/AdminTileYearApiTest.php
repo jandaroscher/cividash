@@ -15,8 +15,11 @@ class AdminTileYearApiTest extends TestCase
     use RefreshDatabase;
 
     protected Tenant $tenant;
+
     protected Tenant $otherTenant;
+
     protected User $user;
+
     protected Tile $tile;
 
     protected function setUp(): void
@@ -25,7 +28,7 @@ class AdminTileYearApiTest extends TestCase
 
         $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
         $this->otherTenant = Tenant::create(['name' => 'Other Tenant', 'slug' => 'other-tenant']);
-        
+
         $this->user = User::factory()->create(['admin_api_enabled' => true]);
         $this->user->tenants()->attach([$this->tenant->id, $this->otherTenant->id]);
 
@@ -53,7 +56,7 @@ class AdminTileYearApiTest extends TestCase
         $token = $this->user->createToken('test-token', $abilities);
         $token->accessToken->tenant_id = $tenant->id;
         $token->accessToken->save();
-        
+
         return $token->plainTextToken;
     }
 
@@ -63,6 +66,7 @@ class AdminTileYearApiTest extends TestCase
     protected function createTokenWithoutTenant(array $abilities = ['admin-api']): string
     {
         $token = $this->user->createToken('test-token-no-tenant', $abilities);
+
         return $token->plainTextToken;
     }
 
@@ -73,14 +77,14 @@ class AdminTileYearApiTest extends TestCase
     {
         Filament::auth()->login($this->user);
         Filament::setTenant($tenant);
-        
+
         $tileYear = TileYear::create([
             'tile_id' => $tile->id,
             'year' => $year,
         ]);
-        
+
         Filament::setTenant(null);
-        
+
         return $tileYear;
     }
 
@@ -91,11 +95,11 @@ class AdminTileYearApiTest extends TestCase
     {
         Filament::auth()->login($this->user);
         Filament::setTenant($tenant);
-        
+
         $tile = Tile::create($data);
-        
+
         Filament::setTenant(null);
-        
+
         return $tile;
     }
 
@@ -215,7 +219,7 @@ class AdminTileYearApiTest extends TestCase
             ]);
 
         $response->assertStatus(200);
-        
+
         $tileYear->refresh();
         $this->assertEquals($this->tenant->id, $tileYear->tenant_id);
     }
@@ -261,7 +265,7 @@ class AdminTileYearApiTest extends TestCase
     {
         // Ensure no residual auth from setUp
         Filament::auth()->logout();
-        
+
         $response = $this->postJson('/api/admin/tile-years', [
             'tile_id' => 1,
             'year' => 2024,
@@ -273,7 +277,7 @@ class AdminTileYearApiTest extends TestCase
     public function test_unauthenticated_patch_returns_401(): void
     {
         Filament::auth()->logout();
-        
+
         $response = $this->patchJson('/api/admin/tile-years/1', [
             'year' => 2025,
         ]);
@@ -284,7 +288,7 @@ class AdminTileYearApiTest extends TestCase
     public function test_unauthenticated_delete_returns_401(): void
     {
         Filament::auth()->logout();
-        
+
         $response = $this->deleteJson('/api/admin/tile-years/1');
 
         $response->assertStatus(401);
