@@ -82,20 +82,26 @@ class ManageFooter extends Page implements HasForms
         $copyrightText = $this->record->getTranslation('copyright_text', $locale, false);
 
         // Handle translatable structure (with locale keys) for footer_navigation_items
+        if (is_string($footerItems)) {
+            $footerItems = json_decode($footerItems, true) ?: [];
+        }
         if (is_array($footerItems)) {
             if (isset($footerItems['de']) || isset($footerItems['en'])) {
                 $footerItems = $footerItems[$locale] ?? $footerItems['de'] ?? [];
             }
         }
-        $data['footer_navigation_items'] = $footerItems ?? [];
+        $data['footer_navigation_items'] = is_array($footerItems) ? $footerItems : [];
 
         // Handle translatable structure for social_links
+        if (is_string($socialLinks)) {
+            $socialLinks = json_decode($socialLinks, true) ?: [];
+        }
         if (is_array($socialLinks)) {
             if (isset($socialLinks['de']) || isset($socialLinks['en'])) {
                 $socialLinks = $socialLinks[$locale] ?? $socialLinks['de'] ?? [];
             }
         }
-        $data['social_links'] = $socialLinks ?? [];
+        $data['social_links'] = is_array($socialLinks) ? $socialLinks : [];
 
         // Handle translatable structure for copyright_text
         if (is_array($copyrightText)) {
@@ -398,9 +404,11 @@ class ManageFooter extends Page implements HasForms
                 if ($pending !== null) {
                     $existingTranslations[$existingLocale] = $pending;
                 } else {
+                    $footerNav = $this->record->getTranslation('footer_navigation_items', $existingLocale, false);
+                    $social = $this->record->getTranslation('social_links', $existingLocale, false);
                     $existingTranslations[$existingLocale] = [
-                        'footer_navigation_items' => $this->record->getTranslation('footer_navigation_items', $existingLocale, false) ?? [],
-                        'social_links' => $this->record->getTranslation('social_links', $existingLocale, false) ?? [],
+                        'footer_navigation_items' => is_array($footerNav) ? $footerNav : [],
+                        'social_links' => is_array($social) ? $social : [],
                         'copyright_text' => $this->record->getTranslation('copyright_text', $existingLocale, false),
                     ];
                 }
@@ -597,10 +605,15 @@ class ManageFooter extends Page implements HasForms
             $copyrightText = $this->record->getTranslation('copyright_text', $this->activeLocale, false);
 
             // Handle translatable structure (with locale keys) for footer_navigation_items
+            if (is_string($footerItems)) {
+                $footerItems = json_decode($footerItems, true) ?: [];
+            }
             if (is_array($footerItems)) {
                 if (isset($footerItems['de']) || isset($footerItems['en'])) {
                     $footerItems = $footerItems[$this->activeLocale] ?? $footerItems['de'] ?? [];
                 }
+            } else {
+                $footerItems = [];
             }
 
             // Handle translatable structure for social_links

@@ -76,6 +76,9 @@ class ManageNavigation extends Page implements HasForms
         $navigationItems = $this->record->getTranslation('navigation_items', $locale, false);
 
         // Handle both old format (direct items array) and translatable format (with locale keys)
+        if (is_string($navigationItems)) {
+            $navigationItems = json_decode($navigationItems, true) ?: [];
+        }
         if (is_array($navigationItems)) {
             // Check if it's the translatable structure (has locale keys like 'de', 'en')
             if (isset($navigationItems['de']) || isset($navigationItems['en'])) {
@@ -83,7 +86,7 @@ class ManageNavigation extends Page implements HasForms
             }
         }
 
-        $data['navigation_items'] = $navigationItems ?? [];
+        $data['navigation_items'] = is_array($navigationItems) ? $navigationItems : [];
 
         $data = $this->mutateFormDataBeforeFill($data);
 
@@ -254,9 +257,12 @@ class ManageNavigation extends Page implements HasForms
                 continue;
             }
             $pending = $this->otherLocaleData[$existingLocale]['navigation_items'] ?? null;
-            $existingTranslations[$existingLocale] = $pending !== null
-                ? $this->convertRepeaterItemsToTranslatable($pending, $existingLocale)
-                : ($this->record->getTranslation('navigation_items', $existingLocale, false) ?? []);
+            if ($pending !== null) {
+                $existingTranslations[$existingLocale] = $this->convertRepeaterItemsToTranslatable($pending, $existingLocale);
+            } else {
+                $navItems = $this->record->getTranslation('navigation_items', $existingLocale, false);
+                $existingTranslations[$existingLocale] = is_array($navItems) ? $navItems : [];
+            }
         }
 
         if (isset($data['navigation_items']) && is_array($data['navigation_items'])) {
@@ -399,15 +405,20 @@ class ManageNavigation extends Page implements HasForms
             $navigationItems = $this->record->getTranslation('navigation_items', $this->activeLocale, false);
 
             // Handle translatable structure (with locale keys)
+            if (is_string($navigationItems)) {
+                $navigationItems = json_decode($navigationItems, true) ?: [];
+            }
             if (is_array($navigationItems)) {
                 if (isset($navigationItems['de']) || isset($navigationItems['en'])) {
                     $navigationItems = $navigationItems[$this->activeLocale] ?? $navigationItems['de'] ?? [];
                 }
+            } else {
+                $navigationItems = [];
             }
 
             $newLocaleData = [
                 'navigation_items' => $this->transformTranslatableRepeaterItems(
-                    $navigationItems ?? [],
+                    $navigationItems,
                     $this->activeLocale
                 ),
             ];
