@@ -86,7 +86,7 @@ class ManageNavigation extends Page implements HasForms
             }
         }
 
-        $data['navigation_items'] = is_array($navigationItems) ? $navigationItems : [];
+        $data['navigation_items'] = is_array($navigationItems) ? $this->filterValidRepeaterItems($navigationItems) : [];
 
         $data = $this->mutateFormDataBeforeFill($data);
 
@@ -372,6 +372,14 @@ class ManageNavigation extends Page implements HasForms
     }
 
     /**
+     * Filter out non-array entries from repeater items to prevent phantom empty rows.
+     */
+    private function filterValidRepeaterItems(array $items): array
+    {
+        return array_values(array_filter($items, fn ($item) => is_array($item)));
+    }
+
+    /**
      * Preserve the currently selected locale by copying it to `$oldActiveLocale` before the active locale changes.
      */
     public function updatingActiveLocale(): void
@@ -418,7 +426,7 @@ class ManageNavigation extends Page implements HasForms
 
             $newLocaleData = [
                 'navigation_items' => $this->transformTranslatableRepeaterItems(
-                    $navigationItems,
+                    $this->filterValidRepeaterItems($navigationItems),
                     $this->activeLocale
                 ),
             ];

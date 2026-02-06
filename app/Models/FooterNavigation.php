@@ -303,6 +303,9 @@ class FooterNavigation extends Model
             $items = [];
         }
 
+        // Filter out non-array entries (e.g. corrupted locale-level keys)
+        $items = array_values(array_filter($items, fn ($item) => is_array($item)));
+
         return array_map(function ($item) use ($locale) {
             $translatedItem = $item;
 
@@ -363,6 +366,9 @@ class FooterNavigation extends Model
         if (! is_array($links)) {
             $links = [];
         }
+
+        // Filter out non-array entries (e.g. corrupted locale-level keys)
+        $links = array_values(array_filter($links, fn ($link) => is_array($link)));
 
         return array_map(function ($link) use ($locale) {
             $translatedLink = $link;

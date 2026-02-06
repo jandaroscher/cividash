@@ -90,7 +90,7 @@ class ManageFooter extends Page implements HasForms
                 $footerItems = $footerItems[$locale] ?? $footerItems['de'] ?? [];
             }
         }
-        $data['footer_navigation_items'] = is_array($footerItems) ? $footerItems : [];
+        $data['footer_navigation_items'] = is_array($footerItems) ? $this->filterValidRepeaterItems($footerItems) : [];
 
         // Handle translatable structure for social_links
         if (is_string($socialLinks)) {
@@ -101,7 +101,7 @@ class ManageFooter extends Page implements HasForms
                 $socialLinks = $socialLinks[$locale] ?? $socialLinks['de'] ?? [];
             }
         }
-        $data['social_links'] = is_array($socialLinks) ? $socialLinks : [];
+        $data['social_links'] = is_array($socialLinks) ? $this->filterValidSocialLinks($socialLinks) : [];
 
         // Handle translatable structure for copyright_text
         if (is_array($copyrightText)) {
@@ -568,6 +568,22 @@ class ManageFooter extends Page implements HasForms
     }
 
     /**
+     * Filter out non-array entries from repeater items to prevent phantom empty rows.
+     */
+    private function filterValidRepeaterItems(array $items): array
+    {
+        return array_values(array_filter($items, fn ($item) => is_array($item)));
+    }
+
+    /**
+     * Filter out non-array entries from social links to prevent phantom empty rows.
+     */
+    private function filterValidSocialLinks(array $links): array
+    {
+        return array_values(array_filter($links, fn ($link) => is_array($link)));
+    }
+
+    /**
      * Remember the current active locale before it changes.
      *
      * Sets {@see $oldActiveLocale} to the current {@see $activeLocale} so the previous locale is available during locale switching.
@@ -638,7 +654,7 @@ class ManageFooter extends Page implements HasForms
 
             $newLocaleData = [
                 'footer_navigation_items' => $this->transformTranslatableRepeaterItems(
-                    $footerItems ?? [],
+                    $this->filterValidRepeaterItems($footerItems ?? []),
                     $this->activeLocale
                 ),
                 'social_links' => array_map(function ($link) {
@@ -647,7 +663,7 @@ class ManageFooter extends Page implements HasForms
                     }
 
                     return $link;
-                }, $socialLinks ?? []),
+                }, $this->filterValidSocialLinks($socialLinks ?? [])),
                 'copyright_text' => $copyrightText ?? '',
             ];
         } else {
