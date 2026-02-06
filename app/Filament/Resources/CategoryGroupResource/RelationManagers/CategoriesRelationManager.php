@@ -138,7 +138,21 @@ class CategoriesRelationManager extends RelationManager
                     ->label(__('filament.resources.category_group.items.icon'))
                     ->disk('public')
                     ->square()
-                    ->size(40),
+                    ->size(40)
+                    ->getStateUsing(function (Category $record) {
+                        $icon = $record->getRawOriginal('icon');
+                        if (! $icon) {
+                            return null;
+                        }
+                        $decoded = json_decode($icon, true);
+                        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                            $locale = app()->getLocale();
+
+                            return $decoded[$locale] ?? $decoded['de'] ?? $decoded['en'] ?? null;
+                        }
+
+                        return $icon;
+                    }),
                 Tables\Columns\ColorColumn::make('color')
                     ->label(__('filament.resources.category_group.items.color'))
                     ->sortable()
