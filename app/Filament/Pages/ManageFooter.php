@@ -604,10 +604,16 @@ class ManageFooter extends Page implements HasForms
             }
 
             // Handle translatable structure for social_links
+            if (is_string($socialLinks)) {
+                $decoded = json_decode($socialLinks, true);
+                $socialLinks = is_array($decoded) ? $decoded : [];
+            }
             if (is_array($socialLinks)) {
                 if (isset($socialLinks['de']) || isset($socialLinks['en'])) {
                     $socialLinks = $socialLinks[$this->activeLocale] ?? $socialLinks['de'] ?? [];
                 }
+            } else {
+                $socialLinks = [];
             }
 
             // Handle translatable structure for copyright_text
