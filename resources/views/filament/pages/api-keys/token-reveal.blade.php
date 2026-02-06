@@ -13,19 +13,21 @@
     }"
     class="space-y-4"
 >
-    {{-- Success Alert --}}
+    {{-- Success Alert (wrapper provides CSS variable fallback for production view-cache compatibility) --}}
     @php
         $successTitle = __('filament.pages.manage_api_keys.token_created_title');
         $successDescription = __('filament.pages.manage_api_keys.your_token_intro') . ' "' . $tokenName . '" ' . __('filament.pages.manage_api_keys.token_created_for');
         $warningTitle = __('filament.pages.manage_api_keys.token_warning');
     @endphp
-    <x-filament-simple-alert::simple-alert
-        color="success"
-        icon="heroicon-o-check-circle"
-        :title="$successTitle"
-        :description="$successDescription"
-        border
-    />
+    <div style="--c-50:var(--success-50);--c-100:var(--success-100);--c-400:var(--success-400);--c-500:var(--success-500);--c-700:var(--success-700);--c-800:var(--success-800)">
+        <x-filament-simple-alert::simple-alert
+            color="success"
+            icon="heroicon-o-check-circle"
+            :title="$successTitle"
+            :description="$successDescription"
+            border
+        />
+    </div>
 
     {{-- Token Input Section --}}
     <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 space-y-3">
@@ -62,13 +64,15 @@
         </div>
     </div>
 
-    {{-- Warning Alert --}}
-    <x-filament-simple-alert::simple-alert
-        color="warning"
-        icon="heroicon-o-exclamation-triangle"
-        :title="$warningTitle"
-        border
-    />
+    {{-- Warning Alert (wrapper provides CSS variable fallback for production view-cache compatibility) --}}
+    <div style="--c-50:var(--warning-50);--c-100:var(--warning-100);--c-400:var(--warning-400);--c-500:var(--warning-500);--c-700:var(--warning-700);--c-800:var(--warning-800)">
+        <x-filament-simple-alert::simple-alert
+            color="warning"
+            icon="heroicon-o-exclamation-triangle"
+            :title="$warningTitle"
+            border
+        />
+    </div>
 
     {{-- Confirm Button --}}
     <div>
