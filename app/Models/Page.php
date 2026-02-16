@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -14,6 +15,7 @@ use Z3d0X\FilamentFabricator\Models\Page as FabricatorPage;
 class Page extends FabricatorPage implements PageContract
 {
     use BelongsToTenant;
+    use HasFactory;
     use HasTranslations;
 
     protected static function booted(): void

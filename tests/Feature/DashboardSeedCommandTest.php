@@ -41,7 +41,7 @@ class DashboardSeedCommandTest extends TestCase
             ->assertSuccessful();
 
         // Verify categories were created:
-        // 3 from handlungsfelder + 3 from HandlungsdimensionSeeder (grün, gerecht, produktiv)
+        // 3 from handlungsfelder + 3 from CategorySeeder::seedDimensions() (grün, gerecht, produktiv)
         $this->assertDatabaseCount('categories', 6);
         $this->assertDatabaseHas('categories', []); // At least one category exists
 
@@ -104,7 +104,7 @@ class DashboardSeedCommandTest extends TestCase
             ->assertSuccessful();
 
         // Verify data was seeded using the provided path:
-        // 3 from handlungsfelder + 3 from HandlungsdimensionSeeder (grün, gerecht, produktiv)
+        // 3 from handlungsfelder + 3 from CategorySeeder::seedDimensions() (grün, gerecht, produktiv)
         $this->assertDatabaseCount('categories', 6);
         $this->assertDatabaseCount('tiles', 3);
     }
@@ -131,7 +131,7 @@ class DashboardSeedCommandTest extends TestCase
             ->assertSuccessful();
 
         // Verify all categories and tiles from full fixture were created:
-        // 5 from handlungsfelder + 3 from HandlungsdimensionSeeder (grün, gerecht, produktiv)
+        // 5 from handlungsfelder + 3 from CategorySeeder::seedDimensions() (grün, gerecht, produktiv)
         $this->assertDatabaseCount('categories', 8);
         $this->assertDatabaseCount('tiles', 5);
     }

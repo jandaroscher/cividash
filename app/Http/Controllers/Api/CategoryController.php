@@ -8,18 +8,11 @@ use App\Models\CategoryGroup;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class SDGZielController extends Controller
+class CategoryController extends Controller
 {
-    /**
-     * List SDG category items as a collection of CategoryItemResource ordered by `position`.
-     *
-     * If no category group with key 'sdg' is found, an empty collection is returned.
-     *
-     * @return AnonymousResourceCollection A collection of CategoryItemResource instances ordered by `position`.
-     */
-    public function index(Request $request): AnonymousResourceCollection
+    public function showByGroup(Request $request, string $groupKey): AnonymousResourceCollection
     {
-        $group = CategoryGroup::where('key', 'sdg')
+        $group = CategoryGroup::where('key', $groupKey)
             ->where('is_active', true)
             ->first();
 

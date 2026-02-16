@@ -139,14 +139,14 @@ class CategoriesRelationManager extends RelationManager
                     ->disk('public')
                     ->square()
                     ->size(40)
-                    ->getStateUsing(function (Category $record) {
+                    ->getStateUsing(function (Category $record, $livewire = null) {
                         $icon = $record->getRawOriginal('icon');
                         if (! $icon) {
                             return null;
                         }
                         $decoded = json_decode($icon, true);
                         if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                            $locale = app()->getLocale();
+                            $locale = $livewire?->activeLocale ?? app()->getLocale();
 
                             return $decoded[$locale] ?? $decoded['de'] ?? $decoded['en'] ?? null;
                         }

@@ -11,9 +11,13 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
- * Seeder for Categories from dashboard.json.
+ * Seeder for all CategoryGroups and their Categories from dashboard.json.
  *
- * Seeds categories (handlungsfelder) from the Regensburg dashboard.json file.
+ * Seeds three groups:
+ * - "fields" (Handlungsfelder) from parsed dashboard.json data
+ * - "dimensions" (Handlungsdimensionen) with 3 static entries
+ * - "sdg" (SDG-Ziele) with 17 static entries
+ *
  * Supports idempotent upserts based on slug.
  */
 class CategorySeeder extends Seeder
@@ -22,8 +26,6 @@ class CategorySeeder extends Seeder
 
     /**
      * Static mapping of German Handlungsfeld titles to English translations.
-     *
-     * @var array<string, string>
      */
     protected array $handlungsfeldTitles = [
         'Partizipation und Teilhabe' => 'Participation and Inclusion',
@@ -37,19 +39,60 @@ class CategorySeeder extends Seeder
         'Klimaschutz und Energie' => 'Climate Protection and Energy',
     ];
 
+    /**
+     * Static definition of the 3 Handlungsdimensionen.
+     */
+    protected array $dimensions = [
+        'grün' => [
+            'title' => ['de' => 'Grün', 'en' => 'Green'],
+            'icon_path' => 'dimensionen/gruen.svg',
+            'position' => 0,
+            'color' => '#dcfce7',
+        ],
+        'gerecht' => [
+            'title' => ['de' => 'Gerecht', 'en' => 'Just'],
+            'icon_path' => 'dimensionen/gerecht.svg',
+            'position' => 1,
+            'color' => '#ffedd4',
+        ],
+        'produktiv' => [
+            'title' => ['de' => 'Produktiv', 'en' => 'Productive'],
+            'icon_path' => 'dimensionen/produktiv.svg',
+            'position' => 2,
+            'color' => '#dbeafe',
+        ],
+    ];
+
+    /**
+     * SDG title mapping (DE/EN) for all 17 goals.
+     */
+    protected array $sdgTitles = [
+        1 => ['de' => 'KEINE ARMUT', 'en' => 'NO POVERTY'],
+        2 => ['de' => 'KEIN HUNGER', 'en' => 'ZERO HUNGER'],
+        3 => ['de' => 'GESUNDHEIT UND WOHLERGEHEN', 'en' => 'GOOD HEALTH AND WELL-BEING'],
+        4 => ['de' => 'HOCHWERTIGE BILDUNG', 'en' => 'QUALITY EDUCATION'],
+        5 => ['de' => 'GESCHLECHTERGLEICHHEIT', 'en' => 'GENDER EQUALITY'],
+        6 => ['de' => 'SAUBERES WASSER UND SANITÄREINRICHTUNGEN', 'en' => 'CLEAN WATER AND SANITATION'],
+        7 => ['de' => 'BEZAHLBARE UND SAUBERE ENERGIE', 'en' => 'AFFORDABLE AND CLEAN ENERGY'],
+        8 => ['de' => 'MENSCHWÜRDIGE ARBEIT UND WIRTSCHAFTSWACHSTUM', 'en' => 'DECENT WORK AND ECONOMIC GROWTH'],
+        9 => ['de' => 'INDUSTRIE, INNOVATION UND INFRASTRUKTUR', 'en' => 'INDUSTRY, INNOVATION AND INFRASTRUCTURE'],
+        10 => ['de' => 'WENIGER UNGLEICHHEITEN', 'en' => 'REDUCED INEQUALITIES'],
+        11 => ['de' => 'NACHHALTIGE STÄDTE UND GEMEINDEN', 'en' => 'SUSTAINABLE CITIES AND COMMUNITIES'],
+        12 => ['de' => 'NACHHALTIGER KONSUM UND PRODUKTION', 'en' => 'RESPONSIBLE CONSUMPTION AND PRODUCTION'],
+        13 => ['de' => 'MASSNAHMEN ZUM KLIMASCHUTZ', 'en' => 'CLIMATE ACTION'],
+        14 => ['de' => 'LEBEN UNTER WASSER', 'en' => 'LIFE BELOW WATER'],
+        15 => ['de' => 'LEBEN AN LAND', 'en' => 'LIFE ON LAND'],
+        16 => ['de' => 'FRIEDEN, GERECHTIGKEIT UND STARKE INSTITUTIONEN', 'en' => 'PEACE, JUSTICE AND STRONG INSTITUTIONS'],
+        17 => ['de' => 'PARTNERSCHAFTEN ZUR ERREICHUNG DER ZIELE', 'en' => 'PARTNERSHIPS FOR THE GOALS'],
+    ];
+
     public function __construct(MediaDownloadService $mediaDownloadService)
     {
         $this->mediaDownloadService = $mediaDownloadService;
     }
 
     /**
-     * Seed categories from parsed input by creating or updating database records.
-     *
-     * Creates new or updates existing Category records (matched by the German slug),
-     * assigns them to the resolved "fields" category group, optionally downloads and
-     * attaches icon assets when enabled, updates position, source hash, and
-     * last_synced_at, and returns a mapping of original parsed category IDs to
-     * database record IDs.
+     * Seed Handlungsfelder categories from parsed dashboard.json data.
      *
      * @param  Collection<int, \App\Services\ParsedCategory>  $categories  Parsed categories to seed.
      * @return array<string, int> Map of original category ID to database ID.
@@ -69,7 +112,7 @@ class CategorySeeder extends Seeder
         }
 
         foreach ($categories as $parsedCategory) {
-            $slugDe = trim($parsedCategory->title); // Trim whitespace
+            $slugDe = trim($parsedCategory->title);
             $slugEn = $this->handlungsfeldTitles[$slugDe] ?? null;
 
             $slugArray = [
@@ -77,25 +120,19 @@ class CategorySeeder extends Seeder
                 'en' => $slugEn,
             ];
 
-            // Generate icon slug from title (e.g., "Umwelt und Ressourcenschutz" -> "umwelt_ressourcenschutz")
             $iconSlug = $this->generateIconSlug($slugDe);
             $iconPath = null;
 
-            // Download icon if enabled
             if (config('seeding.media_download_enabled', true)) {
                 $iconAssetPath = "handlungsfelder/{$iconSlug}.svg";
                 $iconPath = $this->mediaDownloadService->downloadAsset($iconAssetPath, 'handlungsfelder');
-                // Only log when a download actually produced a path
                 if ($iconPath && $this->command) {
                     $this->command->info("Downloaded category icon: {$iconPath}");
                 }
             }
 
-            // Calculate source hash from parsed category data
             $sourceHash = $this->calculateSourceHash($parsedCategory);
 
-            // For translatable fields, we need to search by the DE value
-            // Using whereJsonContains or finding by checking all records
             $category = Category::whereJsonContains('slug->de', $slugDe)->first();
 
             $needsUpdate = false;
@@ -105,7 +142,6 @@ class CategorySeeder extends Seeder
                 $category->category_group_id = $group->id;
                 $category->tenant_id = $group->tenant_id;
                 $category->slug = $slugArray;
-                // Only set icon if we have a valid path - use JSON format for consistency with SDGZielSeeder
                 if (! empty($iconPath)) {
                     $category->icon = json_encode(['de' => $iconPath], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                 }
@@ -114,17 +150,14 @@ class CategorySeeder extends Seeder
                 $category->source_hash = $sourceHash;
                 $category->save();
             } else {
-                // Update if needed
                 if ($category->getTranslation('slug', 'de') !== $slugDe) {
                     $category->setTranslation('slug', 'de', $slugDe);
                     $needsUpdate = true;
                 }
-                // Update EN translation if different
                 if ($slugEn && $category->getTranslation('slug', 'en') !== $slugEn) {
                     $category->setTranslation('slug', 'en', $slugEn);
                     $needsUpdate = true;
                 }
-                // Update icon only if we have a valid path and (existing icon is empty or different)
                 if (! empty($iconPath)) {
                     $newIconJson = json_encode(['de' => $iconPath], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                     if (empty($category->icon) || $category->icon !== $newIconJson) {
@@ -132,7 +165,6 @@ class CategorySeeder extends Seeder
                         $needsUpdate = true;
                     }
                 }
-                // Update position if different
                 if ($category->position !== $position) {
                     $category->position = $position;
                     $needsUpdate = true;
@@ -145,7 +177,6 @@ class CategorySeeder extends Seeder
                     $category->tenant_id = $group->tenant_id;
                     $needsUpdate = true;
                 }
-                // Update source hash and last_synced_at if data changed
                 if ($category->source_hash !== $sourceHash) {
                     $category->source_hash = $sourceHash;
                     $category->last_synced_at = now();
@@ -169,13 +200,142 @@ class CategorySeeder extends Seeder
     }
 
     /**
-     * Upserts and returns the "fields" CategoryGroup scoped to the resolved tenant.
+     * Seed the 3 static Handlungsdimensionen as Categories in the "dimensions" group.
      *
-     * Resolves the tenant id and ensures a CategoryGroup with key "fields" exists for that tenant,
-     * creating it with predefined attributes or updating the existing record.
-     *
-     * @return CategoryGroup|null The CategoryGroup instance after creation or update.
+     * @return array<string, int> Map of dimension key to Category database ID.
      */
+    public function seedDimensions(): array
+    {
+        $categoryIdMap = [];
+        $group = $this->resolveDimensionsGroup();
+
+        if (! $group) {
+            if ($this->command) {
+                $this->command->error('Could not resolve Dimensions CategoryGroup. Aborting dimension seeding.');
+            }
+
+            return [];
+        }
+
+        foreach ($this->dimensions as $key => $data) {
+            $iconPath = null;
+            if (config('seeding.media_download_enabled', true)) {
+                $iconPath = $this->mediaDownloadService->downloadAsset($data['icon_path'], 'dimensions');
+                if ($this->command && $iconPath) {
+                    $this->command->info("Downloaded dimension icon: {$iconPath}");
+                }
+            }
+
+            $category = Category::where('category_group_id', $group->id)
+                ->whereJsonContains('slug->de', $data['title']['de'])
+                ->first();
+
+            if (! $category) {
+                $category = new Category;
+                $category->category_group_id = $group->id;
+                $category->tenant_id = $group->tenant_id;
+            }
+
+            $category->slug = $data['title'];
+            $category->icon = $iconPath;
+            $category->color = $data['color'] ?? null;
+            $category->position = $data['position'];
+            $category->key = $key;
+            $category->save();
+
+            $categoryIdMap[$key] = $category->id;
+
+            if ($this->command) {
+                $this->command->info("Dimension category seeded: {$key} (ID: {$category->id})");
+            }
+        }
+
+        return $categoryIdMap;
+    }
+
+    /**
+     * Seed the 17 SDG-Ziele as Categories in the "sdg" group.
+     *
+     * @param  Collection<int, \App\Services\ParsedSDGZiel>  $sdgZiele  Parsed SDG entries (used for ID mapping).
+     * @return array<int, int> Map of original parsed SDG ID to Category database ID.
+     */
+    public function seedSdgZiele(Collection $sdgZiele): array
+    {
+        $categoryIdMap = [];
+        $group = $this->resolveSdgGroup();
+
+        if (! $group) {
+            if ($this->command) {
+                $this->command->error('Could not resolve SDG CategoryGroup. Aborting SDG seeding.');
+            }
+
+            return [];
+        }
+
+        foreach ($sdgZiele as $parsedSDG) {
+            if ($parsedSDG->number === null || $parsedSDG->number < 1 || $parsedSDG->number > 17) {
+                if ($this->command) {
+                    $this->command->warn("Skipping SDG with invalid number: {$parsedSDG->number} (ID: {$parsedSDG->id})");
+                }
+
+                continue;
+            }
+
+            $number = $parsedSDG->number;
+            $titles = $this->sdgTitles[$number] ?? null;
+
+            if (! $titles) {
+                if ($this->command) {
+                    $this->command->warn("No title mapping found for SDG number: {$number}");
+                }
+
+                continue;
+            }
+
+            $numberPadded = str_pad((string) $number, 2, '0', STR_PAD_LEFT);
+            $iconDePath = null;
+            $iconEnPath = null;
+
+            if (config('seeding.media_download_enabled', true)) {
+                $iconDeUrl = "sdg/SDG-icon-DE-{$numberPadded}.svg";
+                $iconEnUrl = "sdg/SDG-icon-EN-{$numberPadded}.svg";
+                $iconDePath = $this->mediaDownloadService->downloadAsset($iconDeUrl, 'sdg');
+                $iconEnPath = $this->mediaDownloadService->downloadAsset($iconEnUrl, 'sdg');
+                if ($this->command && ($iconDePath || $iconEnPath)) {
+                    $this->command->info("Downloaded SDG icons: DE={$iconDePath}, EN={$iconEnPath}");
+                }
+            }
+
+            $iconArray = [
+                'de' => $iconDePath,
+                'en' => $iconEnPath,
+            ];
+
+            $category = Category::where('category_group_id', $group->id)
+                ->whereJsonContains('slug->de', $titles['de'])
+                ->first();
+
+            if (! $category) {
+                $category = new Category;
+                $category->category_group_id = $group->id;
+                $category->tenant_id = $group->tenant_id;
+            }
+
+            $category->slug = $titles;
+            $category->icon = json_encode($iconArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $category->position = $number;
+            $category->save();
+
+            $categoryIdMap[$parsedSDG->id] = $category->id;
+
+            if ($this->command) {
+                $this->command->info("SDG category seeded: {$titles['de']} (Number: {$number}, ID: {$category->id})");
+            }
+        }
+
+        return $categoryIdMap;
+    }
+
     protected function resolveFieldsGroup(): ?CategoryGroup
     {
         $tenantId = $this->resolveTenantId();
@@ -192,13 +352,38 @@ class CategorySeeder extends Seeder
         );
     }
 
-    /**
-     * Resolve the current tenant ID, preferring the Filament tenant when available and falling back to available tenants.
-     *
-     * Falls back to: 'default' slug -> 'stadt-regensburg' slug -> first available tenant.
-     *
-     * @return int|null The resolved tenant ID, or `null` if no tenant could be determined.
-     */
+    protected function resolveDimensionsGroup(): ?CategoryGroup
+    {
+        $tenantId = $this->resolveTenantId();
+
+        return CategoryGroup::updateOrCreate(
+            ['tenant_id' => $tenantId, 'key' => 'dimensions'],
+            [
+                'title' => ['de' => 'Handlungsdimensionen', 'en' => 'Action Dimensions'],
+                'position' => 1,
+                'is_filterable' => true,
+                'is_color_source' => true,
+                'selection_type' => 'single',
+            ]
+        );
+    }
+
+    protected function resolveSdgGroup(): ?CategoryGroup
+    {
+        $tenantId = $this->resolveTenantId();
+
+        return CategoryGroup::updateOrCreate(
+            ['tenant_id' => $tenantId, 'key' => 'sdg'],
+            [
+                'title' => ['de' => 'SDG-Ziele', 'en' => 'SDG Goals'],
+                'position' => 2,
+                'is_filterable' => true,
+                'is_color_source' => false,
+                'selection_type' => 'multi',
+            ]
+        );
+    }
+
     protected function resolveTenantId(): ?int
     {
         if (class_exists(\Filament\Facades\Filament::class) && \Filament\Facades\Filament::getTenant()) {
@@ -210,41 +395,22 @@ class CategorySeeder extends Seeder
             ?? Tenant::first()?->id;
     }
 
-    /**
-     * Generate a slug from the category title.
-     */
     protected function generateSlug(string $title): string
     {
         return Str::slug($title);
     }
 
-    /**
-     * Generate icon slug from category title.
-     * Converts "Umwelt und Ressourcenschutz" to "umwelt_ressourcenschutz"
-     */
     protected function generateIconSlug(string $title): string
     {
-        // Remove trailing spaces
         $title = trim($title);
-
-        // Convert to lowercase
         $slug = mb_strtolower($title, 'UTF-8');
-
-        // Remove "und" (and) as it's not in the icon filenames
         $slug = preg_replace('/\s+und\s+/u', '_', $slug);
-
-        // Replace spaces and special characters with underscores
         $slug = preg_replace('/[^a-z0-9äöüß]+/u', '_', $slug);
-
-        // Remove leading/trailing underscores
         $slug = trim($slug, '_');
 
         return $slug;
     }
 
-    /**
-     * Calculate SHA256 hash of the source data for change detection.
-     */
     protected function calculateSourceHash(\App\Services\ParsedCategory $category): string
     {
         $dataToHash = [

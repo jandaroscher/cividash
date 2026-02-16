@@ -121,18 +121,30 @@ class TenantResolutionApiTest extends TestCase
     }
 
     // ========== Domain Resolution Tests ==========
-    // Note: Domain resolution in tests requires special setup as Laravel's test
-    // framework doesn't properly forward HTTP_HOST to getHost(). The middleware
-    // is tested manually and in production environments.
+    // Note: Full URLs are used because Laravel's test framework converts relative
+    // URIs to http://localhost/... which overrides any HTTP_HOST server variable.
+    // Using full URLs ensures $request->getHost() returns the correct domain.
 
     public function test_domain_resolves_correct_tenant(): void
     {
-        $this->markTestSkipped('Domain resolution requires production-like environment testing');
+        $response = $this->getJson('http://tenant-a.example.com/api/tiles');
+
+        $response->assertStatus(200);
+
+        $tiles = $response->json('data');
+        $this->assertCount(1, $tiles);
+        $this->assertEquals('Tile A', $tiles[0]['title']['de']);
     }
 
     public function test_www_prefix_is_stripped_from_domain(): void
     {
-        $this->markTestSkipped('Domain resolution requires production-like environment testing');
+        $response = $this->getJson('http://www.tenant-b.example.com/api/tiles');
+
+        $response->assertStatus(200);
+
+        $tiles = $response->json('data');
+        $this->assertCount(1, $tiles);
+        $this->assertEquals('Tile B', $tiles[0]['title']['de']);
     }
 
     // ========== Default Fallback Tests ==========
@@ -199,7 +211,17 @@ class TenantResolutionApiTest extends TestCase
 
     public function test_config_tenant_returns_domain_resolution_info(): void
     {
-        $this->markTestSkipped('Domain resolution requires production-like environment testing');
+        $response = $this->getJson('http://tenant-a.example.com/api/config/tenant');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'slug' => 'tenant-a',
+                    'name' => 'Tenant A',
+                    'domain' => 'tenant-a.example.com',
+                    'resolved_by' => 'domain',
+                ],
+            ]);
     }
 
     public function test_config_tenant_returns_default_resolution_info(): void

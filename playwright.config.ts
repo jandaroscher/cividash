@@ -1,14 +1,14 @@
 import { defineConfig } from '@playwright/test';
 
 /**
- * Playwright configuration for E2E API tests.
+ * Playwright configuration for E2E tests.
  *
- * These tests verify domain-based tenant resolution by making HTTP requests
- * to a running ddev environment. No browser UI is used - only API calls.
+ * Tests cover: tenant resolution, multi-tenant data isolation,
+ * API key lifecycle, and admin panel smoke tests.
  *
  * Prerequisites:
  * - ddev must be running: `ddev start`
- * - Test data must be seeded: `npm run test:e2e:seed` or `ddev php artisan e2e:seed-tenant-resolution`
+ * - Test data must be seeded: `ddev php artisan e2e:seed-full --clean --json`
  * - ddev hostnames configured: a.open-source-dashboard.ddev.site, b.open-source-dashboard.ddev.site
  */
 export default defineConfig({
@@ -53,6 +53,18 @@ export default defineConfig({
     {
       name: 'tenant-resolution',
       testMatch: /tenant-resolution\.spec\.ts/,
+    },
+    {
+      name: 'data-isolation',
+      testMatch: /data-isolation\.spec\.ts/,
+    },
+    {
+      name: 'api-key-lifecycle',
+      testMatch: /api-key-lifecycle\.spec\.ts/,
+    },
+    {
+      name: 'admin-smoke',
+      testMatch: /smoke-test\.spec\.ts/,
     },
   ],
 });
