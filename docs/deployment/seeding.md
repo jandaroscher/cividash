@@ -142,6 +142,11 @@ Seeded Tiles, Categories, Metrics, SDG-Ziele und deren Beziehungen aus einer `da
   - Standard: `storage/app/seeds/regensburg/dashboard.json`
   - Kann auch als relativer Pfad angegeben werden (z.B. `dashboard.json` im Root)
 
+- `--url=` : URL, von der `dashboard.json` heruntergeladen wird
+  - Lädt die Datei herunter und speichert sie lokal unter `storage/app/seeds/regensburg/dashboard.json`
+  - Danach wird wie gewohnt mit der lokalen Datei geseedet
+  - Beispiel: `--url=https://zukunft.regensburg.de/dashboard.json`
+
 - `--tenant=` : Tenant-Identifier (für zukünftige Multi-Tenant-Unterstützung)
   - Aktuell noch nicht implementiert
 
@@ -160,6 +165,9 @@ php artisan dashboard:seed --path=dashboard.json
 # Mit absolutem Pfad
 php artisan dashboard:seed --path=/var/www/dashboard.json
 
+# Von URL herunterladen und seeden
+php artisan dashboard:seed --url=https://zukunft.regensburg.de/dashboard.json
+
 # Mit Standard-Pfad (storage/app/seeds/regensburg/dashboard.json)
 php artisan dashboard:seed
 
@@ -173,6 +181,8 @@ Die Seeding-Konfiguration befindet sich in `config/seeding.php`:
 
 - `default_json_path` : Standard-Pfad zur dashboard.json
   - Kann über `.env` Variable `SEED_DASHBOARD_JSON` überschrieben werden
+- `dashboard_json_url` : URL zum Herunterladen der dashboard.json (für `dashboard:reset`)
+  - `.env` Variable: `SEED_DASHBOARD_JSON_URL` (Standard: `https://zukunft.regensburg.de/dashboard.json`)
 - `media_download_enabled` : Aktiviert/Deaktiviert das Herunterladen von Medien-Dateien
   - `.env` Variable: `SEED_MEDIA_DOWNLOAD` (Standard: `true`)
 - `media_base_url` : Basis-URL für Medien-Downloads
@@ -185,6 +195,50 @@ Dieser Befehl ruft die folgenden Seeder auf (in dieser Reihenfolge):
 3. `SDGZielSeeder` - SDG-Ziele
 4. `TileSeeder` - Tiles
 5. `MetricSeeder` - Metrics
+
+---
+
+### 4. Demo-Daten Reset (`dashboard:reset`)
+
+**Befehl:**
+```bash
+php artisan dashboard:reset
+php artisan dashboard:reset --force
+```
+
+**Beschreibung:**
+Setzt die Demo-Tenants für die öffentliche Testphase zurück:
+- **Regensburg** (`stadt-regensburg`): Wird auf den aktuellen Stand von `zukunft.regensburg.de` zurückgesetzt (Daten löschen + neu seeden)
+- **Demo City** (`demo-city`): Wird auf einen leeren Zustand zurückgesetzt (Daten löschen, leere Sandbox für Tester)
+
+Domain- und User-Zuordnungen der Tenants bleiben erhalten.
+
+**Ablauf:**
+1. Aktuelle `dashboard.json` von der konfigurierten URL herunterladen (`SEED_DASHBOARD_JSON_URL`)
+2. **Regensburg zurücksetzen:**
+   - Alle Inhalte des Tenants löschen (FK-sichere Reihenfolge)
+   - Neu seeden: `dashboard:seed` + `pages:seed` + `tenancy:backfill`
+3. **Demo City zurücksetzen:**
+   - Alle Inhalte des Tenants löschen → leere Sandbox
+
+**Löschreihenfolge** (respektiert Foreign-Key-Constraints):
+MetricValue → Metric → TileYear → MetricDefinition → BackgroundPage → category_tile (Pivot) → Tile → Category → CategoryGroup → Navigation → FooterNavigation → Page
+
+**Optionen:**
+- `--force` : Überspringt die Bestätigungsabfrage (für Cron-Einsatz)
+
+**Beispiele:**
+```bash
+# Interaktiv mit Bestätigung
+php artisan dashboard:reset
+
+# Ohne Bestätigung (für Cron/Automatisierung)
+php artisan dashboard:reset --force
+```
+
+**Automatische Ausführung (Nightly Cron):**
+
+Der Command ist als nächtlicher Cron-Job konfiguriert (siehe [Scheduler & Cron-Setup](#scheduler--cron-setup)).
 
 ---
 
@@ -254,6 +308,62 @@ php artisan dashboard:seed --path=dashboard.json
 - Prüfe Datenbank-Verbindung in `.env`
 - Prüfe Logs: `storage/logs/laravel.log`
 - Führe Seeding mit `--dry-run` aus, um Probleme zu identifizieren
+
+---
+
+## Scheduler & Cron-Setup
+
+### Überblick
+
+Der Laravel Scheduler führt `dashboard:reset --force` jede Nacht um 03:00 Uhr aus – aber **nur wenn `APP_ENV=production`** in der `.env` gesetzt ist. Lokal und auf Staging passiert nichts.
+
+Definiert in `routes/console.php`:
+```php
+Schedule::command('dashboard:reset --force')
+    ->daily()
+    ->at('03:00')
+    ->environments(['production']);
+```
+
+### Cron einrichten (einmalig auf dem Produktionsserver)
+
+Damit der Laravel Scheduler überhaupt läuft, muss **ein einziger System-Cronjob** auf dem Server angelegt werden:
+
+```bash
+# Per SSH auf dem Server einloggen, dann:
+crontab -e
+```
+
+Folgende Zeile hinzufügen:
+```
+* * * * * cd /pfad/zum/projekt && php artisan schedule:run >> /dev/null 2>&1
+```
+
+> **Hinweis:** Der Pfad muss dem tatsächlichen Projektpfad auf dem Server entsprechen (z.B. der Wert aus dem GitHub Secret `PATH_PROD`).
+
+Der Cron läuft jede Minute. Laravel prüft intern, welche Commands fällig sind, und führt nur die geplanten aus.
+
+### Verifizierung
+
+Nach dem Einrichten des Cronjobs kann man prüfen, ob der Scheduler korrekt konfiguriert ist:
+
+```bash
+# Alle geplanten Commands anzeigen
+php artisan schedule:list
+
+# Scheduler einmalig manuell ausführen (zum Testen)
+php artisan schedule:run
+
+# Oder den Reset-Command direkt testen
+php artisan dashboard:reset
+```
+
+### Umgebungsvariablen
+
+| Variable | Standard | Beschreibung |
+|----------|----------|-------------|
+| `SEED_DASHBOARD_JSON_URL` | `https://zukunft.regensburg.de/dashboard.json` | URL für den nächtlichen Download der `dashboard.json` |
+| `SEED_DASHBOARD_JSON` | `storage/app/seeds/regensburg/dashboard.json` | Lokaler Speicherpfad |
 
 ---
 

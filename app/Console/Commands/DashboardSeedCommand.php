@@ -8,6 +8,7 @@ use Database\Seeders\CategorySeeder;
 use Database\Seeders\MetricSeeder;
 use Database\Seeders\TileSeeder;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -21,6 +22,7 @@ class DashboardSeedCommand extends Command
 {
     protected $signature = 'dashboard:seed
                             {--path= : Path to dashboard.json file}
+                            {--url= : URL to fetch dashboard.json from}
                             {--only= : Seed only a subset (categories|handlungsfelder)}
                             {--dry-run : Run without persisting data}';
 
@@ -28,6 +30,28 @@ class DashboardSeedCommand extends Command
 
     public function handle(): int
     {
+        if ($url = $this->option('url')) {
+            $this->info("Fetching dashboard.json from {$url}...");
+
+            $response = Http::timeout(30)->get($url);
+
+            if ($response->failed()) {
+                $this->error("Failed to fetch dashboard.json from {$url} (HTTP {$response->status()})");
+
+                return Command::FAILURE;
+            }
+
+            $storagePath = config('seeding.default_json_path');
+            $directory = dirname($storagePath);
+
+            if (! is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+
+            file_put_contents($storagePath, $response->body());
+            $this->info("Saved dashboard.json to {$storagePath}");
+        }
+
         $jsonPath = $this->option('path') ?? config('seeding.default_json_path');
         $dryRun = $this->option('dry-run');
         $only = $this->normalizeOnlyOption($this->option('only'));

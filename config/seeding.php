@@ -12,6 +12,8 @@ return [
 
     'default_json_path' => env('SEED_DASHBOARD_JSON', storage_path('app/seeds/regensburg/dashboard.json')),
 
+    'dashboard_json_url' => env('SEED_DASHBOARD_JSON_URL'),
+
     /*
     |--------------------------------------------------------------------------
     | JSON Structure Keys
