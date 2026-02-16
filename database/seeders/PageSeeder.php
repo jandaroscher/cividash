@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Page;
+use Filament\Facades\Filament;
 use Illuminate\Database\Seeder;
 
 /**
@@ -31,8 +32,11 @@ class PageSeeder extends Seeder
         foreach ($pages as $pageData) {
             $slugDe = $pageData['slug']['de'];
 
-            // Find existing page by DE slug
-            $page = Page::whereJsonContains('slug->de', $slugDe)->first();
+            // Find existing page by DE slug, scoped to current Filament tenant
+            // (global tenant scope is bypassed in console commands)
+            $page = Page::whereJsonContains('slug->de', $slugDe)
+                ->when(Filament::getTenant(), fn ($q, $t) => $q->where('tenant_id', $t->id))
+                ->first();
 
             if (! $page) {
                 $page = new Page;
