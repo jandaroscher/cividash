@@ -1,6 +1,7 @@
 <?php
 
 use App\Settings\BrandingSettings;
+use App\Settings\ContentSettings;
 use App\Settings\DashboardSettings;
 use App\Settings\GeneralSettings;
 
@@ -14,6 +15,7 @@ return [
         GeneralSettings::class,
         BrandingSettings::class,
         DashboardSettings::class,
+        ContentSettings::class,
     ],
 
     /*
@@ -41,7 +43,7 @@ return [
      */
     'repositories' => [
         'database' => [
-            'type' => Spatie\LaravelSettings\SettingsRepositories\DatabaseSettingsRepository::class,
+            'type' => App\Settings\TenantAwareDatabaseSettingsRepository::class,
             'model' => null,
             'table' => null,
             'connection' => null,

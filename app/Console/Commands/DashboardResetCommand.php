@@ -15,6 +15,10 @@ use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TileYear;
 use App\Models\User;
+use App\Settings\BrandingSettings;
+use App\Settings\ContentSettings;
+use App\Settings\DashboardSettings;
+use App\Settings\GeneralSettings;
 use Filament\Facades\Filament;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -216,5 +220,14 @@ class DashboardResetCommand extends Command
         Navigation::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
         FooterNavigation::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
         Page::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+
+        // Delete tenant-specific settings (falls back to global defaults)
+        DB::table('settings')->where('tenant_id', $tenantId)->delete();
+
+        // Clear cached Spatie settings instances so they re-read from DB
+        app()->forgetInstance(BrandingSettings::class);
+        app()->forgetInstance(GeneralSettings::class);
+        app()->forgetInstance(DashboardSettings::class);
+        app()->forgetInstance(ContentSettings::class);
     }
 }

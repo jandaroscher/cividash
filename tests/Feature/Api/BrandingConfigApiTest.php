@@ -317,4 +317,33 @@ class BrandingConfigApiTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['header_background_color']);
     }
+
+    // ========== Multi-Tenant Isolation Tests ==========
+
+    public function test_branding_changes_for_tenant_a_do_not_affect_tenant_b(): void
+    {
+        $tenantB = Tenant::create(['name' => 'Tenant B', 'slug' => 'tenant-b']);
+        $this->user->tenants()->attach($tenantB->id);
+
+        $tokenA = $this->createTokenForTenant($this->tenant);
+        $tokenB = $this->createTokenForTenant($tenantB);
+
+        // Tenant A sets a custom primary color
+        $this->withHeader('Authorization', "Bearer {$tokenA}")
+            ->postJson('/api/admin/config/branding', [
+                'primary_color' => '#FF0000',
+            ])
+            ->assertStatus(200);
+
+        // Clear cached settings instance
+        app()->forgetInstance(BrandingSettings::class);
+
+        // Tenant B should still see the global default (not Tenant A's color)
+        $responseB = $this->withHeader('Authorization', "Bearer {$tokenB}")
+            ->getJson('/api/config/branding');
+
+        $responseB->assertStatus(200);
+        $this->assertNotEquals('#FF0000', $responseB->json('data.primary_color'));
+        $this->assertEquals('#0d47a1', $responseB->json('data.primary_color'));
+    }
 }
