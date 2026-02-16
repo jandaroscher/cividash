@@ -13,11 +13,21 @@ return [
     // Replace the '*' here with the exact origin of your front-end
     // when you have 'supports_credentials' => true
     //
-    'allowed_origins' => [
-        env('FRONTEND_URL', 'http://localhost:3000'),
-    ],
+    'allowed_origins' => array_filter([
+        env('FRONTEND_URL'),
+    ]),
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => array_filter([
+        (function () {
+            $host = parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST);
+            if (! $host) {
+                return null;
+            }
+            $escaped = preg_quote($host, '#');
+
+            return '#^https?://([a-z0-9-]+\.)?'.$escaped.'$#';
+        })(),
+    ]),
 
     'allowed_headers' => ['*'],
 
