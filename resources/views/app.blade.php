@@ -15,10 +15,6 @@
     <link rel="icon" href="{{ $faviconUrl }}">
     @endif
 
-    <script>
-        window.APP_URL = '{{ config('app.url') }}';
-    </script>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>

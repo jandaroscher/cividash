@@ -1,4 +1,5 @@
 import { computed } from 'vue';
+import { getApiBaseUrl } from '../utils/api';
 
 /**
  * Composable for resolving image URLs
@@ -10,22 +11,19 @@ import { computed } from 'vue';
 export function useImageUrl(imageProp, useStoragePath = true) {
     return computed(() => {
         if (!imageProp.value) return null;
-        
-        const imagePath = Array.isArray(imageProp.value) 
-            ? imageProp.value[0] 
+
+        const imagePath = Array.isArray(imageProp.value)
+            ? imageProp.value[0]
             : imageProp.value;
-        
+
         if (!imagePath) return null;
-        
+
         // If already a full URL, return as-is
         if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
             return imagePath;
         }
-        
-        // Get API URL with SSR guard
-        const apiUrl = typeof window !== 'undefined' && window.APP_URL 
-            ? window.APP_URL 
-            : '';
+
+        const apiUrl = getApiBaseUrl();
         
         // If useStoragePath is true, prepend /storage/, otherwise use path as-is
         if (useStoragePath) {

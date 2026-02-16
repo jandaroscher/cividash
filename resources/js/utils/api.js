@@ -3,5 +3,5 @@
  * @returns {string} API base URL or empty string if not available
  */
 export function getApiBaseUrl() {
-    return typeof window !== 'undefined' && window.APP_URL ? window.APP_URL : '';
+    return typeof window !== 'undefined' ? window.location.origin : '';
 }

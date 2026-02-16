@@ -76,6 +76,7 @@ import { useFilterStore } from '../stores/filter';
 import { useBrandingStore } from '../stores/branding';
 import { useLocale } from '../composables/useLocale';
 import { useHelpContext } from '../composables/useHelpContext';
+import { getApiBaseUrl } from '../utils/api';
 import Tooltip from './help/Tooltip.vue';
 import FilterGroup from './filter/FilterGroup.vue';
 
@@ -115,12 +116,7 @@ const filterLabels = ref({
     header: 'Filter',
 });
 
-const apiUrl = computed(() => {
-    if (typeof window !== 'undefined' && window.APP_URL) {
-        return window.APP_URL;
-    }
-    return '';
-});
+const apiUrl = computed(() => getApiBaseUrl());
 
 function handleSearchInput(event) {
     const value = event.target.value;

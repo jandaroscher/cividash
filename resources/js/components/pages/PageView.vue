@@ -38,6 +38,7 @@ import { computed, watch } from 'vue';
 import BlockRenderer from '../BlockRenderer.vue';
 import { usePagesStore } from '../../stores/pages';
 import { setMetaTags } from '../../composables/useMeta';
+import { getApiBaseUrl } from '../../utils/api';
 
 const props = defineProps({
     pageData: {
@@ -102,9 +103,7 @@ watch(
 );
 
 function updateMetaTags(pageData) {
-    const apiUrl = typeof window !== 'undefined' && window.APP_URL 
-        ? window.APP_URL 
-        : '';
+    const apiUrl = getApiBaseUrl();
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
     
     // Resolve image URL (meta.image might already include /storage/ or be a relative path)
