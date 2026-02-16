@@ -84,14 +84,17 @@ class DashboardResetCommand extends Command
 
     protected function ensureTenantExists(string $slug, string $name): Tenant
     {
-        $baseDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
-
         $tenant = Tenant::firstOrCreate(
             ['slug' => $slug],
             ['name' => $name]
         );
 
-        $tenant->update(['domain' => "{$slug}.{$baseDomain}"]);
+        // Only set domain for newly created tenants (no domain yet).
+        // TenantSeeder is the canonical source for domain mappings.
+        if (! $tenant->domain) {
+            $baseDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
+            $tenant->update(['domain' => "{$slug}.{$baseDomain}"]);
+        }
 
         // Attach all existing users to the tenant
         $userIds = User::pluck('id');

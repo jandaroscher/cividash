@@ -57,10 +57,8 @@ class TenantSeeder extends Seeder
             $demoCity->users()->syncWithoutDetaching($testUser->id);
         }
 
-        // Set demo user's default tenant if null
-        if ($demoUser->default_tenant_id === null) {
-            $demoUser->forceFill(['default_tenant_id' => $regensburg->id])->save();
-        }
+        // Always set demo user's default tenant to Regensburg
+        $demoUser->forceFill(['default_tenant_id' => $regensburg->id])->save();
 
         Artisan::call('tenancy:backfill');
     }
