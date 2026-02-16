@@ -10,31 +10,55 @@ use Illuminate\Support\Facades\Artisan;
 class TenantSeeder extends Seeder
 {
     /**
-     * Ensures a demo admin user and a specific tenant exist, associates them, and backfills tenancy associations.
+     * Seed tenants with domains and associate users.
      *
-     * Creates or reuses a "Demo Admin" user (email demo@example.com) and a tenant with slug "stadt-regensburg" and name "Stadt Regensburg", attaches the user to the tenant without detaching other associations, sets the user's default_tenant_id to the tenant if it is null, and invokes the tenancy backfill command to assign existing records to a tenant.
+     * Creates or reuses demo/test users, configures the default tenant domain,
+     * creates Stadt Regensburg and Demo City tenants with their respective domains,
+     * attaches users to all tenants, and backfills tenancy associations.
      */
     public function run(): void
     {
-        $user = User::where('email', 'demo@example.com')->first() ?? User::factory()->create([
-            'name' => 'Demo Admin',
-            'email' => 'demo@example.com',
-        ]);
+        $demoUser = User::where('email', 'demo@example.com')->first()
+            ?? User::factory()->create([
+                'name' => 'Demo Admin',
+                'email' => 'demo@example.com',
+            ]);
 
-        $tenant = Tenant::firstOrCreate(
-            ['slug' => 'stadt-regensburg'],
-            [
-                'name' => 'Stadt Regensburg',
-            ]
-        );
+        $testUser = User::where('email', 'test@example.com')->first();
 
-        $tenant->users()->syncWithoutDetaching($user->id);
-
-        if ($user->default_tenant_id === null) {
-            $user->forceFill(['default_tenant_id' => $tenant->id])->save();
+        // Default tenant — set the main domain
+        $defaultTenant = Tenant::where('slug', 'default')->first();
+        if ($defaultTenant) {
+            $defaultTenant->update(['domain' => 'open-source-dashboard.ddev.site']);
         }
 
-        // Ensure existing records are assigned to a tenant after seeding.
+        // Stadt Regensburg
+        $regensburg = Tenant::firstOrCreate(
+            ['slug' => 'stadt-regensburg'],
+            ['name' => 'Stadt Regensburg']
+        );
+        $regensburg->update(['domain' => 'regensburg.open-source-dashboard.ddev.site']);
+        $regensburg->users()->syncWithoutDetaching($demoUser->id);
+        if ($testUser) {
+            $regensburg->users()->syncWithoutDetaching($testUser->id);
+        }
+
+        // Demo City
+        $demoCity = Tenant::firstOrCreate(
+            ['slug' => 'demo-city'],
+            ['name' => 'Demo City']
+        );
+        $demoCity->update(['domain' => 'demo-city.open-source-dashboard.ddev.site']);
+        $demoCity->users()->syncWithoutDetaching($demoUser->id);
+        if ($testUser) {
+            $demoCity->users()->syncWithoutDetaching($testUser->id);
+        }
+
+        // Set demo user's default tenant if null
+        if ($demoUser->default_tenant_id === null) {
+            $demoUser->forceFill(['default_tenant_id' => $regensburg->id])->save();
+        }
+
         Artisan::call('tenancy:backfill');
     }
 }

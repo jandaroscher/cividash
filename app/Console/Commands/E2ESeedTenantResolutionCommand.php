@@ -47,6 +47,12 @@ class E2ESeedTenantResolutionCommand extends Command
                 ['name' => 'Default Tenant']
             );
 
+            // Remove any non-matching tenants holding the domains we need
+            Tenant::whereIn('domain', [
+                'a.open-source-dashboard.ddev.site',
+                'b.open-source-dashboard.ddev.site',
+            ])->whereNotIn('slug', ['tenant-a', 'tenant-b'])->delete();
+
             // Create tenant A with domain
             // ddev additional_hostnames: a.open-source-dashboard -> a.open-source-dashboard.ddev.site
             $tenantA = Tenant::updateOrCreate(
@@ -163,8 +169,10 @@ class E2ESeedTenantResolutionCommand extends Command
             $user->tokens()->where('name', 'like', 'e2e-%')->delete();
         }
 
-        // Note: We don't delete tenants as they might have associated data
-        // Instead, we update them with updateOrCreate
-        $this->info('Cleaned existing E2E tokens.');
+        // Remove any tenants that hold the domains we need (e.g. from e2e:seed-full)
+        Tenant::whereIn('domain', [
+            'a.open-source-dashboard.ddev.site',
+            'b.open-source-dashboard.ddev.site',
+        ])->whereNotIn('slug', ['tenant-a', 'tenant-b'])->delete();
     }
 }

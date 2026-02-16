@@ -151,31 +151,31 @@ test.describe('Domain-based Tenant Resolution', () => {
   });
 
   test.describe('Default Fallback', () => {
-    test('falls back to default tenant when no token and unknown domain', async ({ request }) => {
+    test('resolves default tenant from its configured domain', async ({ request }) => {
       // Request default domain without token
-      // No domain match -> resolved_by = 'default'
+      // Default tenant has domain open-source-dashboard.ddev.site -> resolved_by = 'domain'
       const response = await request.get(`${BASE_URLS.default}/api/config/tenant`);
-      
+
       expect(response.ok()).toBeTruthy();
-      
+
       const data = await response.json();
-      
+
       expect(data.data).toMatchObject({
         slug: 'default',
-        resolved_by: 'default',
+        resolved_by: 'domain',
       });
     });
 
-    test('default domain without token falls back to default tenant', async ({ request }) => {
-      // Request default domain without token - should fall back to default tenant
+    test('default domain without token resolves via domain match', async ({ request }) => {
+      // Request default domain without token - resolved by domain mapping
       const response = await request.get(`${BASE_URLS.default}/api/config/tenant`);
-      
+
       expect(response.ok()).toBeTruthy();
-      
+
       const data = await response.json();
-      
-      // Without token or domain match, should fall back to default
-      expect(data.data.resolved_by).toBe('default');
+
+      // Default tenant now has a domain configured, so resolved_by = 'domain'
+      expect(data.data.resolved_by).toBe('domain');
     });
   });
 

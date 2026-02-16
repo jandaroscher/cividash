@@ -125,4 +125,165 @@ class SetFilamentDefaultTenantTest extends TestCase
 
         $this->assertTrue($called);
     }
+
+    public function test_domain_matching_tenant_is_preferred_over_default(): void
+    {
+        $defaultTenant = Tenant::where('slug', 'default')->first();
+        $demoCityTenant = Tenant::create([
+            'name' => 'Demo City',
+            'slug' => 'demo-city',
+            'domain' => 'demo-city.example.com',
+        ]);
+
+        $user = User::factory()->create();
+        $user->tenants()->syncWithoutDetaching($demoCityTenant->id);
+        // User is already attached to default tenant via User::booted()
+
+        $this->actingAs($user);
+        Filament::auth()->login($user);
+        Filament::setTenant(null);
+
+        $request = Request::create('https://demo-city.example.com/admin', 'GET');
+
+        $this->middleware->handle($request, fn () => response('ok'));
+
+        $this->assertNotNull(Filament::getTenant());
+        $this->assertEquals($demoCityTenant->id, Filament::getTenant()->id);
+        $this->assertNotEquals($defaultTenant->id, Filament::getTenant()->id);
+    }
+
+    public function test_domain_matching_requires_user_access(): void
+    {
+        $demoCityTenant = Tenant::create([
+            'name' => 'Demo City',
+            'slug' => 'demo-city',
+            'domain' => 'demo-city.example.com',
+        ]);
+
+        $user = User::factory()->create();
+        // User is NOT attached to demo-city tenant
+
+        $this->actingAs($user);
+        Filament::auth()->login($user);
+        Filament::setTenant(null);
+
+        $request = Request::create('https://demo-city.example.com/admin', 'GET');
+
+        $this->middleware->handle($request, fn () => response('ok'));
+
+        // Should fall back to default tenant (user's default), not demo-city
+        $this->assertNotNull(Filament::getTenant());
+        $this->assertNotEquals($demoCityTenant->id, Filament::getTenant()->id);
+        $this->assertEquals('default', Filament::getTenant()->slug);
+    }
+
+    public function test_domain_with_no_match_falls_back_to_default(): void
+    {
+        $defaultTenant = Tenant::where('slug', 'default')->first();
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+        Filament::auth()->login($user);
+        Filament::setTenant(null);
+
+        $request = Request::create('https://unknown.example.com/admin', 'GET');
+
+        $this->middleware->handle($request, fn () => response('ok'));
+
+        $this->assertNotNull(Filament::getTenant());
+        $this->assertEquals($defaultTenant->id, Filament::getTenant()->id);
+    }
+
+    public function test_domain_matching_normalizes_www_and_case(): void
+    {
+        $demoCityTenant = Tenant::create([
+            'name' => 'Demo City',
+            'slug' => 'demo-city',
+            'domain' => 'demo-city.example.com',
+        ]);
+
+        $user = User::factory()->create();
+        $user->tenants()->syncWithoutDetaching($demoCityTenant->id);
+
+        $this->actingAs($user);
+        Filament::auth()->login($user);
+        Filament::setTenant(null);
+
+        // Host with WWW prefix and mixed case
+        $request = Request::create('https://WWW.Demo-City.Example.COM/admin', 'GET');
+
+        $this->middleware->handle($request, fn () => response('ok'));
+
+        $this->assertNotNull(Filament::getTenant());
+        $this->assertEquals($demoCityTenant->id, Filament::getTenant()->id);
+    }
+
+    public function test_query_param_tenant_overrides_default(): void
+    {
+        $demoCityTenant = Tenant::create([
+            'name' => 'Demo City',
+            'slug' => 'demo-city',
+        ]);
+
+        $user = User::factory()->create();
+        $user->tenants()->syncWithoutDetaching($demoCityTenant->id);
+
+        $this->actingAs($user);
+        Filament::auth()->login($user);
+        Filament::setTenant(null);
+
+        $request = Request::create('/admin?tenant=demo-city', 'GET');
+
+        $this->middleware->handle($request, fn () => response('ok'));
+
+        $this->assertNotNull(Filament::getTenant());
+        $this->assertEquals($demoCityTenant->id, Filament::getTenant()->id);
+    }
+
+    public function test_x_tenant_header_overrides_default(): void
+    {
+        $demoCityTenant = Tenant::create([
+            'name' => 'Demo City',
+            'slug' => 'demo-city',
+        ]);
+
+        $user = User::factory()->create();
+        $user->tenants()->syncWithoutDetaching($demoCityTenant->id);
+
+        $this->actingAs($user);
+        Filament::auth()->login($user);
+        Filament::setTenant(null);
+
+        $request = Request::create('/admin', 'GET');
+        $request->headers->set('X-Tenant', 'demo-city');
+
+        $this->middleware->handle($request, fn () => response('ok'));
+
+        $this->assertNotNull(Filament::getTenant());
+        $this->assertEquals($demoCityTenant->id, Filament::getTenant()->id);
+    }
+
+    public function test_query_param_requires_user_access(): void
+    {
+        $demoCityTenant = Tenant::create([
+            'name' => 'Demo City',
+            'slug' => 'demo-city',
+        ]);
+
+        $user = User::factory()->create();
+        // User is NOT attached to demo-city tenant
+
+        $this->actingAs($user);
+        Filament::auth()->login($user);
+        Filament::setTenant(null);
+
+        $request = Request::create('/admin?tenant=demo-city', 'GET');
+
+        $this->middleware->handle($request, fn () => response('ok'));
+
+        // Should fall back to default tenant, not demo-city
+        $this->assertNotNull(Filament::getTenant());
+        $this->assertNotEquals($demoCityTenant->id, Filament::getTenant()->id);
+        $this->assertEquals('default', Filament::getTenant()->slug);
+    }
 }

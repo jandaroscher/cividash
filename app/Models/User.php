@@ -112,7 +112,13 @@ class User extends Authenticatable implements FilamentUser, HasDefaultTenant, Ha
      */
     public function getDefaultTenant(Panel $panel): ?Tenant
     {
-        // First, try to get the configured default tenant
+        // Priority 1: Match request host against tenant domain
+        $host = $this->resolveHostTenant();
+        if ($host && $this->canAccessTenant($host)) {
+            return $host;
+        }
+
+        // Priority 2: User's configured default tenant
         $defaultTenant = null;
         if ($this->relationLoaded('defaultTenant') && $this->defaultTenant) {
             $defaultTenant = $this->defaultTenant;
@@ -120,15 +126,31 @@ class User extends Authenticatable implements FilamentUser, HasDefaultTenant, Ha
             $defaultTenant = $this->defaultTenant;
         }
 
-        // Validate that the user has access to the default tenant
-        // This prevents unauthorized access if default_tenant_id points to a tenant
-        // the user is not linked to (e.g., after tenant access was revoked)
         if ($defaultTenant && $this->canAccessTenant($defaultTenant)) {
             return $defaultTenant;
         }
 
-        // Fallback to first tenant the user has access to
+        // Priority 3: First tenant the user has access to
         return $this->tenants()->orderBy('name')->first();
+    }
+
+    /**
+     * Resolve a tenant by matching the current request host against tenant domains.
+     */
+    protected function resolveHostTenant(): ?Tenant
+    {
+        $request = request();
+        $host = $request->getHost();
+        if (! $host) {
+            return null;
+        }
+
+        $host = strtolower($host);
+        if (str_starts_with($host, 'www.')) {
+            $host = substr($host, 4);
+        }
+
+        return Tenant::where('domain', $host)->first();
     }
 
     /**

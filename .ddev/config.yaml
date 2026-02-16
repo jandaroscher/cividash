@@ -7,6 +7,8 @@ xdebug_enabled: false
 additional_hostnames:
   - a.open-source-dashboard
   - b.open-source-dashboard
+  - demo-city.open-source-dashboard
+  - regensburg.open-source-dashboard
 additional_fqdns: []
 database:
     type: mariadb

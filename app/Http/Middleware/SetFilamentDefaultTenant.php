@@ -26,23 +26,45 @@ class SetFilamentDefaultTenant
     {
         if (Filament::hasTenancy() && Filament::getTenant() === null && Schema::hasTable('tenants')) {
             $user = Filament::auth()->user();
+            $tenant = null;
 
-            if ($user instanceof HasDefaultTenantContract) {
-                $panel = Filament::getCurrentPanel();
-                $tenant = $user->getDefaultTenant($panel);
-
-                if ($tenant) {
-                    Filament::setTenant($tenant);
-                    if ($request->hasSession()) {
-                        $request->session()->put('filament.tenant', $tenant->getKey());
+            // Priority 1: Match request host against tenant domain
+            if ($user) {
+                $host = $this->normalizeHost($request);
+                if ($host) {
+                    $domainTenant = \App\Models\Tenant::where('domain', $host)->first();
+                    if ($domainTenant && $user->canAccessTenant($domainTenant)) {
+                        $tenant = $domainTenant;
                     }
                 }
-            } elseif (app()->runningUnitTests()) {
+            }
+
+            // Priority 2: Query param (?tenant=slug) or X-Tenant header
+            if (! $tenant && $user) {
+                $slug = $request->query('tenant') ?? $request->header('X-Tenant');
+                if ($slug) {
+                    $slugTenant = \App\Models\Tenant::where('slug', $slug)->first();
+                    if ($slugTenant && $user->canAccessTenant($slugTenant)) {
+                        $tenant = $slugTenant;
+                    }
+                }
+            }
+
+            // Priority 3: User's configured default tenant
+            if (! $tenant && $user instanceof HasDefaultTenantContract) {
+                $panel = Filament::getCurrentPanel();
+                $tenant = $user->getDefaultTenant($panel);
+            }
+
+            // Priority 4: Test fallback
+            if (! $tenant && app()->runningUnitTests()) {
                 $tenant = \App\Models\Tenant::firstOrCreate(
                     ['slug' => 'default'],
                     ['name' => 'Default Tenant']
                 );
+            }
 
+            if ($tenant) {
                 Filament::setTenant($tenant);
                 if ($request->hasSession()) {
                     $request->session()->put('filament.tenant', $tenant->getKey());
@@ -51,5 +73,19 @@ class SetFilamentDefaultTenant
         }
 
         return $next($request);
+    }
+
+    protected function normalizeHost(Request $request): ?string
+    {
+        $host = $request->getHost();
+        if (! $host) {
+            return null;
+        }
+        $host = strtolower($host);
+        if (str_starts_with($host, 'www.')) {
+            $host = substr($host, 4);
+        }
+
+        return $host;
     }
 }

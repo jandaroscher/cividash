@@ -211,8 +211,13 @@ class E2ESeedFullCommand extends Command
             Tile::whereIn('tenant_id', $tenantIds)->delete();
             Category::whereIn('tenant_id', $tenantIds)->delete();
             CategoryGroup::whereIn('tenant_id', $tenantIds)->delete();
+            Tenant::whereIn('id', $tenantIds)->delete();
         }
 
-        $this->info('Cleaned existing E2E full test data.');
+        // Also remove any tenants that hold the domains we need (e.g. from tenant-resolution spec)
+        Tenant::whereIn('domain', [
+            'a.open-source-dashboard.ddev.site',
+            'b.open-source-dashboard.ddev.site',
+        ])->delete();
     }
 }
