@@ -15,6 +15,7 @@ use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TileYear;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
@@ -26,7 +27,7 @@ class DashboardResetCommand extends Command
     protected $signature = 'dashboard:reset
                             {--force : Skip confirmation (for cron)}';
 
-    protected $description = 'Reset demo tenants: Regensburg to current state, Demo City to empty sandbox.';
+    protected $description = 'Reset demo tenants: Default cleaned, Regensburg re-seeded, Demo City emptied.';
 
     public function handle(): int
     {
@@ -38,6 +39,7 @@ class DashboardResetCommand extends Command
 
         try {
             $this->fetchDashboardJson();
+            $this->resetDefault();
             $this->resetRegensburg();
             $this->resetDemoCity();
 
@@ -117,9 +119,14 @@ class DashboardResetCommand extends Command
 
         $this->info('Re-seeding Regensburg...');
 
-        Artisan::call('dashboard:seed', [], $this->output);
-        Artisan::call('pages:seed', [], $this->output);
-        Artisan::call('tenancy:backfill', ['--default-tenant' => 'stadt-regensburg'], $this->output);
+        Filament::setTenant($tenant, isQuiet: true);
+        try {
+            Artisan::call('dashboard:seed', [], $this->output);
+            Artisan::call('pages:seed', [], $this->output);
+            Artisan::call('tenancy:backfill', ['--default-tenant' => 'stadt-regensburg'], $this->output);
+        } finally {
+            Filament::setTenant(null, isQuiet: true);
+        }
 
         $tileCount = Tile::withoutGlobalScope('tenant')->where('tenant_id', $tenant->id)->count();
         $this->info("Regensburg reset complete: {$tileCount} tiles seeded.");
@@ -136,6 +143,23 @@ class DashboardResetCommand extends Command
         });
 
         $this->info('Demo City reset to empty sandbox.');
+    }
+
+    protected function resetDefault(): void
+    {
+        $tenant = Tenant::where('slug', 'default')->first();
+
+        if (! $tenant) {
+            return;
+        }
+
+        $this->info("Resetting Default tenant (tenant #{$tenant->id})...");
+
+        DB::transaction(function () use ($tenant) {
+            $this->deleteTenantContent($tenant);
+        });
+
+        $this->info('Default tenant reset to clean state.');
     }
 
     protected function deleteTenantContent(Tenant $tenant): void
