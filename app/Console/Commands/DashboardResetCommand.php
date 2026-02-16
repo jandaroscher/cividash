@@ -14,6 +14,7 @@ use App\Models\Page;
 use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TileYear;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
@@ -81,15 +82,29 @@ class DashboardResetCommand extends Command
         $this->info("Saved dashboard.json to {$storagePath}");
     }
 
+    protected function ensureTenantExists(string $slug, string $name): Tenant
+    {
+        $baseDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
+
+        $tenant = Tenant::firstOrCreate(
+            ['slug' => $slug],
+            ['name' => $name]
+        );
+
+        $tenant->update(['domain' => "{$slug}.{$baseDomain}"]);
+
+        // Attach all existing users to the tenant
+        $userIds = User::pluck('id');
+        if ($userIds->isNotEmpty()) {
+            $tenant->users()->syncWithoutDetaching($userIds);
+        }
+
+        return $tenant;
+    }
+
     protected function resetRegensburg(): void
     {
-        $tenant = Tenant::where('slug', 'stadt-regensburg')->first();
-
-        if (! $tenant) {
-            $this->warn('Tenant "stadt-regensburg" not found, skipping Regensburg reset.');
-
-            return;
-        }
+        $tenant = $this->ensureTenantExists('stadt-regensburg', 'Stadt Regensburg');
 
         $this->info("Resetting Regensburg (tenant #{$tenant->id})...");
 
@@ -109,13 +124,7 @@ class DashboardResetCommand extends Command
 
     protected function resetDemoCity(): void
     {
-        $tenant = Tenant::where('slug', 'demo-city')->first();
-
-        if (! $tenant) {
-            $this->warn('Tenant "demo-city" not found, skipping Demo City reset.');
-
-            return;
-        }
+        $tenant = $this->ensureTenantExists('demo-city', 'Demo City');
 
         $this->info("Resetting Demo City (tenant #{$tenant->id})...");
 
