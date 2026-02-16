@@ -26,10 +26,13 @@ class TenantSeeder extends Seeder
 
         $testUser = User::where('email', 'test@example.com')->first();
 
+        // Derive base domain from APP_URL so the seeder works in any environment
+        $baseDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
+
         // Default tenant — set the main domain
         $defaultTenant = Tenant::where('slug', 'default')->first();
         if ($defaultTenant) {
-            $defaultTenant->update(['domain' => 'open-source-dashboard.ddev.site']);
+            $defaultTenant->update(['domain' => $baseDomain]);
         }
 
         // Stadt Regensburg
@@ -37,7 +40,7 @@ class TenantSeeder extends Seeder
             ['slug' => 'stadt-regensburg'],
             ['name' => 'Stadt Regensburg']
         );
-        $regensburg->update(['domain' => 'regensburg.open-source-dashboard.ddev.site']);
+        $regensburg->update(['domain' => "regensburg.{$baseDomain}"]);
         $regensburg->users()->syncWithoutDetaching($demoUser->id);
         if ($testUser) {
             $regensburg->users()->syncWithoutDetaching($testUser->id);
@@ -48,7 +51,7 @@ class TenantSeeder extends Seeder
             ['slug' => 'demo-city'],
             ['name' => 'Demo City']
         );
-        $demoCity->update(['domain' => 'demo-city.open-source-dashboard.ddev.site']);
+        $demoCity->update(['domain' => "demo-city.{$baseDomain}"]);
         $demoCity->users()->syncWithoutDetaching($demoUser->id);
         if ($testUser) {
             $demoCity->users()->syncWithoutDetaching($testUser->id);
