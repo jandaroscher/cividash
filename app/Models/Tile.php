@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -11,6 +12,7 @@ use Spatie\Translatable\HasTranslations;
 class Tile extends Model
 {
     use BelongsToTenant;
+    use HasFactory;
     use HasTranslations;
 
     protected static function booted(): void
@@ -46,7 +48,6 @@ class Tile extends Model
         'meta_image',
         'last_synced_at',
         'source_hash',
-        'handlungsdimension_id',
         'tenant_id',
     ];
 
@@ -78,22 +79,6 @@ class Tile extends Model
     public function handlungsfelder()
     {
         return $this->belongsToMany(Category::class);
-    }
-
-    /**
-     * Get the SDG goals that belong to this tile.
-     */
-    public function sdgZiele()
-    {
-        return $this->belongsToMany(SDGZiel::class, 'tile_sdg_ziel', 'tile_id', 'sdg_ziel_id');
-    }
-
-    /**
-     * Get the handlungsdimension that belongs to this tile.
-     */
-    public function handlungsdimension()
-    {
-        return $this->belongsTo(Handlungsdimension::class);
     }
 
     // Background blocks are now embedded directly in the tile model

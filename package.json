@@ -6,6 +6,7 @@
         "dev": "vite",
         "lint": "eslint resources/js/**/*.js",
         "lint:fix": "eslint resources/js/**/*.js --fix",
+        "test:unit": "vitest run",
         "test:e2e": "playwright test",
         "test:e2e:seed": "ddev exec php artisan e2e:seed-tenant-resolution --json"
     },
@@ -24,18 +25,22 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.17.0",
+        "@pinia/testing": "^1.0.3",
         "@playwright/test": "^1.49.1",
         "@tailwindcss/vite": "^4.0.0",
         "@types/dompurify": "^3.2.0",
         "@vitejs/plugin-vue": "^6.0.1",
+        "@vue/test-utils": "^2.4.6",
         "axios": "^1.8.2",
         "concurrently": "^9.0.1",
         "eslint": "^9.17.0",
         "eslint-plugin-vue": "^9.32.0",
         "globals": "^15.14.0",
+        "happy-dom": "^20.6.1",
         "laravel-vite-plugin": "^1.2.0",
         "sass-embedded": "^1.93.3",
         "tailwindcss": "^4.0.0",
-        "vite": "^6.2.4"
+        "vite": "^6.2.4",
+        "vitest": "^4.0.18"
     }
 }

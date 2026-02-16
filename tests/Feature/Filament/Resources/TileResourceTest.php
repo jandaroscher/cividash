@@ -1,0 +1,211 @@
+<?php
+
+namespace Tests\Feature\Filament\Resources;
+
+use App\Filament\Resources\TileResource\Pages\CreateTile;
+use App\Filament\Resources\TileResource\Pages\EditTile;
+use App\Filament\Resources\TileResource\Pages\ListTiles;
+use App\Models\Tenant;
+use App\Models\Tile;
+use App\Models\User;
+use Filament\Facades\Filament;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\TestCase;
+
+class TileResourceTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected Tenant $tenant;
+
+    protected User $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
+        $this->user = User::factory()->create();
+        $this->user->tenants()->attach($this->tenant->id);
+
+        $this->actingAs($this->user);
+        Filament::setTenant($this->tenant);
+    }
+
+    protected function tearDown(): void
+    {
+        Filament::setTenant(null);
+        parent::tearDown();
+    }
+
+    // ========== List Page ==========
+
+    public function test_list_page_renders(): void
+    {
+        Livewire::test(ListTiles::class)
+            ->assertSuccessful();
+    }
+
+    public function test_list_page_shows_tiles(): void
+    {
+        $tile = Tile::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Testkachel', 'en' => 'Test Tile'],
+        ]);
+
+        Livewire::test(ListTiles::class)
+            ->assertCanSeeTableRecords([$tile]);
+    }
+
+    public function test_list_page_search_works(): void
+    {
+        $tile = Tile::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Einzigartig', 'en' => 'Unique'],
+        ]);
+
+        $otherTile = Tile::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Andere Kachel', 'en' => 'Other Tile'],
+        ]);
+
+        Livewire::test(ListTiles::class)
+            ->searchTable('Einzigartig')
+            ->assertCanSeeTableRecords([$tile])
+            ->assertCanNotSeeTableRecords([$otherTile]);
+    }
+
+    // ========== Create Page ==========
+
+    public function test_create_page_renders(): void
+    {
+        Livewire::test(CreateTile::class)
+            ->assertSuccessful();
+    }
+
+    public function test_create_tile_title_is_required(): void
+    {
+        Livewire::test(CreateTile::class)
+            ->fillForm([
+                'title' => '',
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['title' => 'required']);
+    }
+
+    public function test_create_tile_form_accepts_valid_data(): void
+    {
+        $component = Livewire::test(CreateTile::class)
+            ->fillForm([
+                'title' => 'Neue Kachel',
+                'slug' => 'neue-kachel',
+                'description' => '<p>Beschreibung</p>',
+                'position' => 5,
+                'is_public' => true,
+            ]);
+
+        // Verify the form state was set correctly
+        $component->assertFormSet([
+            'title' => 'Neue Kachel',
+            'position' => 5,
+            'is_public' => true,
+        ]);
+    }
+
+    public function test_create_tile_is_public_defaults_to_true(): void
+    {
+        Livewire::test(CreateTile::class)
+            ->assertFormSet([
+                'is_public' => true,
+            ]);
+    }
+
+    public function test_create_tile_position_defaults_to_zero(): void
+    {
+        Livewire::test(CreateTile::class)
+            ->assertFormSet([
+                'position' => 0,
+            ]);
+    }
+
+    // ========== Edit Page ==========
+
+    public function test_edit_page_renders(): void
+    {
+        $tile = Tile::factory()->forTenant($this->tenant)->create();
+
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->assertSuccessful();
+    }
+
+    public function test_edit_page_loads_existing_data(): void
+    {
+        $tile = Tile::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Originaltitel', 'en' => 'Original Title'],
+            'position' => 42,
+            'is_public' => true,
+        ]);
+
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->assertFormSet([
+                'title' => 'Originaltitel',
+                'position' => 42,
+                'is_public' => true,
+            ]);
+    }
+
+    public function test_edit_page_saves_changes(): void
+    {
+        $tile = Tile::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Alt', 'en' => 'Old'],
+        ]);
+
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->fillForm([
+                'title' => 'Aktualisiert',
+                'position' => 99,
+                'is_public' => false,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $tile->refresh();
+        $this->assertEquals('Aktualisiert', $tile->getTranslation('title', 'de'));
+        $this->assertEquals(99, $tile->position);
+        $this->assertFalse($tile->is_public);
+    }
+
+    public function test_edit_page_title_is_required(): void
+    {
+        $tile = Tile::factory()->forTenant($this->tenant)->create();
+
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->fillForm([
+                'title' => '',
+            ])
+            ->call('save')
+            ->assertHasFormErrors(['title' => 'required']);
+    }
+
+    public function test_edit_page_preserves_is_public_flag(): void
+    {
+        $tile = Tile::factory()->forTenant($this->tenant)->private()->create([
+            'title' => ['de' => 'Privat', 'en' => 'Private'],
+        ]);
+
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->assertFormSet([
+                'is_public' => false,
+            ]);
+    }
+
+    // ========== Delete ==========
+
+    public function test_can_delete_tile_from_list(): void
+    {
+        $tile = Tile::factory()->forTenant($this->tenant)->create();
+
+        Livewire::test(ListTiles::class)
+            ->callTableAction('delete', $tile);
+
+        $this->assertDatabaseMissing('tiles', ['id' => $tile->id]);
+    }
+}

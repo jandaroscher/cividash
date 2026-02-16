@@ -5,13 +5,11 @@ namespace App\Console\Commands;
 use App\Models\BackgroundPage;
 use App\Models\Category;
 use App\Models\FooterNavigation;
-use App\Models\Handlungsdimension;
 use App\Models\Metric;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Navigation;
 use App\Models\Page;
-use App\Models\SDGZiel;
 use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TileYear;
@@ -84,8 +82,6 @@ class TenancyBackfillCommand extends Command
             Category::class,
             Tile::class,
             TileYear::class,
-            SDGZiel::class,
-            Handlungsdimension::class,
             Navigation::class,
             FooterNavigation::class,
             MetricDefinition::class,

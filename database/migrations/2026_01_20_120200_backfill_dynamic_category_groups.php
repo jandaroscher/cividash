@@ -1,32 +1,31 @@
 <?php
 
 use App\Models\Category;
-use App\Models\CategoryGroup;
-use App\Models\Handlungsdimension;
-use App\Models\SDGZiel;
 use App\Models\Tile;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Backfills default category groups, creates category records for dimensions and SDGs, and links tiles to those categories per tenant.
-     *
-     * For each tenant (including null), ensures default CategoryGroup records exist, assigns uncategorized Categories to the "fields" group, creates or updates child Categories for Handlungsdimensionen and SDG-Ziele, and inserts/updates category_tile pivot rows to link tiles to the newly created categories.
-     */
     public function up(): void
     {
         if (! Schema::hasTable('category_groups')) {
             return;
         }
 
+        // Use raw DB queries instead of Eloquent models to avoid dependency
+        // on models that may be removed in the future
         $tenantIds = collect()
-            ->merge(Category::query()->distinct()->pluck('tenant_id'))
-            ->merge(Handlungsdimension::query()->distinct()->pluck('tenant_id'))
-            ->merge(SDGZiel::query()->distinct()->pluck('tenant_id'))
-            ->unique()
-            ->values();
+            ->merge(Category::query()->distinct()->pluck('tenant_id'));
+
+        if (Schema::hasTable('handlungsdimensionen')) {
+            $tenantIds = $tenantIds->merge(DB::table('handlungsdimensionen')->distinct()->pluck('tenant_id'));
+        }
+        if (Schema::hasTable('sdg_ziele')) {
+            $tenantIds = $tenantIds->merge(DB::table('sdg_ziele')->distinct()->pluck('tenant_id'));
+        }
+
+        $tenantIds = $tenantIds->unique()->values();
 
         if ($tenantIds->isEmpty()) {
             $tenantIds = collect([null]);
@@ -35,47 +34,29 @@ return new class extends Migration
         foreach ($tenantIds as $tenantId) {
             $groups = $this->ensureDefaultGroups($tenantId);
 
-            // Assign existing categories (handlungsfelder) to fields group
             Category::query()
                 ->where('tenant_id', $tenantId)
                 ->whereNull('category_group_id')
                 ->update(['category_group_id' => $groups['fields']->id]);
 
-            // Create categories for handlungsdimensionen
             $dimensionCategoryMap = $this->backfillDimensionCategories($tenantId, $groups['dimensions']);
-
-            // Create categories for SDG-Ziele
             $sdgCategoryMap = $this->backfillSdgCategories($tenantId, $groups['sdg']);
 
-            // Link tiles to dimension categories via category_tile
             $this->backfillTileDimensionLinks($tenantId, $dimensionCategoryMap);
-
-            // Link tiles to SDG categories via category_tile
             $this->backfillTileSdgLinks($tenantId, $sdgCategoryMap);
         }
     }
 
-    /**
-     * No-op rollback: this migration does not revert the data backfill.
-     */
     public function down(): void
     {
         // No automatic rollback for data backfill
     }
 
-    /**
-     * Ensure the default category groups ("fields", "dimensions", "sdg") exist for the given tenant.
-     * Uses raw DB queries to avoid BelongsToTenant trait issues during migrations.
-     *
-     * @param  int|null  $tenantId  Tenant id to scope groups to, or null for global groups.
-     * @return array<string, object> Associative array mapping group keys ('fields', 'dimensions', 'sdg') to objects with id property.
-     */
     protected function ensureDefaultGroups(?int $tenantId): array
     {
         $now = now();
         $hasIsActive = Schema::hasColumn('category_groups', 'is_active');
 
-        // Use raw DB queries to avoid BelongsToTenant trait issues
         $fieldsData = [
             'tenant_id' => $tenantId,
             'key' => 'fields',
@@ -157,8 +138,6 @@ return new class extends Migration
             DB::table('category_groups')->where('id', $sdgId)->update($sdgData);
         }
 
-        // Return simple objects with id property instead of Eloquent models
-        // to avoid BelongsToTenant global scope issues
         return [
             'fields' => (object) ['id' => $fieldsId],
             'dimensions' => (object) ['id' => $dimensionsId],
@@ -166,27 +145,23 @@ return new class extends Migration
         ];
     }
 
-    /**
-     * Ensure a Category exists under the given group for each Handlungsdimension of the tenant,
-     * creating or updating categories and applying title translations, icon, color, position, and key.
-     *
-     * @param  int|null  $tenantId  The tenant id to operate on, or null for global records.
-     * @param  object  $group  The parent category group object with id property.
-     * @return array<int,int> Map of Handlungsdimension id => created or updated Category id.
-     */
     protected function backfillDimensionCategories(?int $tenantId, object $group): array
     {
         $map = [];
-        $dimensions = Handlungsdimension::query()
+
+        if (! Schema::hasTable('handlungsdimensionen')) {
+            return $map;
+        }
+
+        $dimensions = DB::table('handlungsdimensionen')
             ->where('tenant_id', $tenantId)
             ->orderBy('position')
             ->get();
 
         foreach ($dimensions as $dimension) {
-            $titleDe = $dimension->getTranslation('title', 'de', false)
-                ?: $dimension->getTranslation('title', 'en', false)
-                ?: 'Dimension';
-            $translations = $dimension->getTranslations('title');
+            $title = json_decode($dimension->title, true);
+            $titleDe = $title['de'] ?? $title['en'] ?? 'Dimension';
+            $translations = is_array($title) ? $title : ['de' => $titleDe];
 
             $category = Category::query()
                 ->where('category_group_id', $group->id)
@@ -199,11 +174,11 @@ return new class extends Migration
                 $category->tenant_id = $tenantId;
             }
 
-            $category->slug = $translations ?: ['de' => $titleDe];
+            $category->slug = $translations;
             $category->icon = $dimension->icon;
-            $category->color = $dimension->color;
+            $category->color = $dimension->color ?? null;
             $category->position = $dimension->position ?? 0;
-            $category->key = $dimension->key;
+            $category->key = $dimension->key ?? null;
             $category->save();
 
             $map[$dimension->id] = $category->id;
@@ -212,26 +187,23 @@ return new class extends Migration
         return $map;
     }
 
-    /**
-     * Create or update category records for SDG‑Ziele under the given category group.
-     *
-     * @param  int|null  $tenantId  Tenant id used to scope which SDG‑Ziele are processed, or null for global entries.
-     * @param  object  $group  The category group object with id property.
-     * @return array<int,int> Map where each key is an SDGZiel id and each value is the corresponding Category id.
-     */
     protected function backfillSdgCategories(?int $tenantId, object $group): array
     {
         $map = [];
-        $sdgZiele = SDGZiel::query()
+
+        if (! Schema::hasTable('sdg_ziele')) {
+            return $map;
+        }
+
+        $sdgZiele = DB::table('sdg_ziele')
             ->where('tenant_id', $tenantId)
             ->orderBy('position')
             ->get();
 
         foreach ($sdgZiele as $sdg) {
-            $titleDe = $sdg->getTranslation('title', 'de', false)
-                ?: $sdg->getTranslation('title', 'en', false)
-                ?: 'SDG';
-            $translations = $sdg->getTranslations('title');
+            $title = json_decode($sdg->title, true);
+            $titleDe = $title['de'] ?? $title['en'] ?? 'SDG';
+            $translations = is_array($title) ? $title : ['de' => $titleDe];
 
             $category = Category::query()
                 ->where('category_group_id', $group->id)
@@ -245,11 +217,14 @@ return new class extends Migration
             }
 
             $iconValue = $sdg->icon;
-            if (is_array($iconValue)) {
-                $iconValue = json_encode($iconValue, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            if (is_string($iconValue)) {
+                $decoded = json_decode($iconValue, true);
+                if (is_array($decoded)) {
+                    $iconValue = json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                }
             }
 
-            $category->slug = $translations ?: ['de' => $titleDe];
+            $category->slug = $translations;
             $category->icon = $iconValue;
             $category->position = $sdg->position ?? 0;
             $category->save();
@@ -260,17 +235,13 @@ return new class extends Migration
         return $map;
     }
 
-    /**
-     * Link tiles that reference Handlungsdimensionen to their corresponding categories in the category_tile pivot.
-     *
-     * Processes tiles scoped to the given tenant (or global when null) that have a non-null handlungsdimension_id and inserts or updates category_tile rows using the provided mapping.
-     *
-     * @param  int|null  $tenantId  The tenant ID to scope the backfill, or null to operate on global (no-tenant) records.
-     * @param  array<int,int>  $dimensionCategoryMap  Map of handlungsdimension_id => category_id used to create or update pivot entries.
-     */
     protected function backfillTileDimensionLinks(?int $tenantId, array $dimensionCategoryMap): void
     {
         if ($dimensionCategoryMap === []) {
+            return;
+        }
+
+        if (! Schema::hasColumn('tiles', 'handlungsdimension_id')) {
             return;
         }
 
@@ -292,16 +263,13 @@ return new class extends Migration
         }
     }
 
-    /**
-     * Link tiles' SDG relations to their corresponding categories in the category_tile pivot for the given tenant.
-     *
-     * Inserts or updates pivot rows so each tile referenced in tile_sdg_ziel is associated with the mapped category.
-     *
-     * @param  array<int,int>  $sdgCategoryMap  Map of SDG Ziel IDs to category IDs used when creating/updating pivot rows.
-     */
     protected function backfillTileSdgLinks(?int $tenantId, array $sdgCategoryMap): void
     {
         if ($sdgCategoryMap === []) {
+            return;
+        }
+
+        if (! Schema::hasTable('tile_sdg_ziel')) {
             return;
         }
 

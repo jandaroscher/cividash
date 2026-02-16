@@ -25,38 +25,27 @@ class TileSeeder extends Seeder
     }
 
     /**
-     * Create or update Tile records from parsed tile data and synchronize their category and SDG relations.
-     *
-     * Processes each ParsedTile: finds or creates a Tile by German title, updates localized titles/descriptions,
-     * downloads and sets media, transforms background blocks, assigns handlungsdimension, syncs categories (including
-     * handlungsdimension- and SDG-derived category mappings) and legacy SDG relations, and returns a mapping of
-     * original tile IDs to database IDs.
+     * Create or update Tile records from parsed tile data and synchronize their category relations.
      *
      * @param  Collection<int, \App\Services\ParsedTile>  $tiles  Collection of parsed tiles to seed.
-     * @param  array<string, int>  $categoryIdMap  Map of original category ID to database ID.
-     * @param  array<string, int>  $handlungsdimensionCategoryMap  Map of handlungsdimension key to category ID to attach.
-     * @param  array<int, int>  $sdgZielCategoryMap  Map of original SDG ID to category ID to attach.
-     * @param  array<string, int>  $handlungsdimensionIdMap  Map of handlungsdimension key to database ID.
-     * @param  array<int, int>  $sdgZielIdMap  Map of original SDG ID to database ID for legacy SDG relation syncing.
+     * @param  array<string, int>  $categoryIdMap  Map of original category ID to database ID (Handlungsfelder).
+     * @param  array<string, int>  $dimensionCategoryMap  Map of dimension key to category ID.
+     * @param  array<int, int>  $sdgCategoryMap  Map of original SDG ID to category ID.
      * @return array<string, int> Map of original tile ID to database ID.
      */
     public function run(
         Collection $tiles,
         array $categoryIdMap,
-        array $handlungsdimensionCategoryMap = [],
-        array $sdgZielCategoryMap = [],
-        array $handlungsdimensionIdMap = [],
-        array $sdgZielIdMap = []
+        array $dimensionCategoryMap = [],
+        array $sdgCategoryMap = [],
     ): array {
         $tileIdMap = [];
 
         foreach ($tiles as $parsedTile) {
             $titleDe = $parsedTile->title;
 
-            // For translatable fields, search by DE value
             $tile = Tile::whereJsonContains('title->de', $titleDe)->first();
 
-            // Calculate source hash from parsed tile data
             $sourceHash = $this->calculateSourceHash($parsedTile);
 
             if (! $tile) {
@@ -69,23 +58,16 @@ class TileSeeder extends Seeder
                     'de' => $parsedTile->description,
                     'en' => $parsedTile->descriptionEn,
                 ];
-                // Download icon if available
                 $iconPath = $this->downloadIcon($parsedTile->icon);
                 $tile->icon = $iconPath;
                 $tile->position = $parsedTile->position ?? 0;
                 $tile->background_blocks = $this->transformBackgroundBlocks($parsedTile);
-                // Set handlungsdimension_id if available
-                if ($parsedTile->handlungsdimension && isset($handlungsdimensionIdMap[$parsedTile->handlungsdimension])) {
-                    $tile->handlungsdimension_id = $handlungsdimensionIdMap[$parsedTile->handlungsdimension];
-                }
                 $tile->last_synced_at = now();
                 $tile->source_hash = $sourceHash;
                 $tile->save();
             } else {
-                // Update only if values changed (idempotent)
                 $needsUpdate = false;
 
-                // Update title (preserve EN if new is null)
                 if ($tile->getTranslation('title', 'de') !== $parsedTile->title) {
                     $tile->setTranslation('title', 'de', $parsedTile->title);
                     $needsUpdate = true;
@@ -95,7 +77,6 @@ class TileSeeder extends Seeder
                     $needsUpdate = true;
                 }
 
-                // Update description (preserve EN if new is null)
                 if ($parsedTile->description !== null && $tile->getTranslation('description', 'de') !== $parsedTile->description) {
                     $tile->setTranslation('description', 'de', $parsedTile->description);
                     $needsUpdate = true;
@@ -105,7 +86,6 @@ class TileSeeder extends Seeder
                     $needsUpdate = true;
                 }
 
-                // Update other fields
                 $newIcon = $this->downloadIcon($parsedTile->icon);
                 if ($tile->icon !== $newIcon) {
                     $tile->icon = $newIcon;
@@ -122,17 +102,6 @@ class TileSeeder extends Seeder
                     $needsUpdate = true;
                 }
 
-                // Update handlungsdimension_id if changed
-                $newHandlungsdimensionId = null;
-                if ($parsedTile->handlungsdimension && isset($handlungsdimensionIdMap[$parsedTile->handlungsdimension])) {
-                    $newHandlungsdimensionId = $handlungsdimensionIdMap[$parsedTile->handlungsdimension];
-                }
-                if ($tile->handlungsdimension_id !== $newHandlungsdimensionId) {
-                    $tile->handlungsdimension_id = $newHandlungsdimensionId;
-                    $needsUpdate = true;
-                }
-
-                // Update source hash and last_synced_at if data changed
                 if ($tile->source_hash !== $sourceHash) {
                     $tile->source_hash = $sourceHash;
                     $tile->last_synced_at = now();
@@ -147,27 +116,20 @@ class TileSeeder extends Seeder
             // Attach categories across all groups
             $categoryIds = $this->mapCategoryIds($parsedTile->categoryIds, $categoryIdMap);
 
-            if (! empty($handlungsdimensionCategoryMap) && $parsedTile->handlungsdimension) {
-                $dimensionCategoryId = $handlungsdimensionCategoryMap[$parsedTile->handlungsdimension] ?? null;
+            if (! empty($dimensionCategoryMap) && $parsedTile->handlungsdimension) {
+                $dimensionCategoryId = $dimensionCategoryMap[$parsedTile->handlungsdimension] ?? null;
                 if ($dimensionCategoryId) {
                     $categoryIds[] = $dimensionCategoryId;
                 }
             }
 
-            if (! empty($sdgZielCategoryMap)) {
-                $sdgZielIds = $this->mapSDGZielIds($parsedTile->sdgZielIds, $sdgZielCategoryMap);
-                $categoryIds = array_merge($categoryIds, $sdgZielIds);
+            if (! empty($sdgCategoryMap)) {
+                $sdgCategoryIds = $this->mapSDGZielIds($parsedTile->sdgZielIds, $sdgCategoryMap);
+                $categoryIds = array_merge($categoryIds, $sdgCategoryIds);
             }
 
             $tile->categories()->sync(array_unique($categoryIds));
 
-            // Keep legacy SDG relations in sync for backwards compatibility
-            if (! empty($sdgZielIdMap)) {
-                $sdgZielIds = $this->mapSDGZielIds($parsedTile->sdgZielIds, $sdgZielIdMap);
-                $tile->sdgZiele()->sync($sdgZielIds);
-            }
-
-            // Store mapping of original ID to database ID
             $tileIdMap[$parsedTile->id] = $tile->id;
 
             if ($this->command) {
@@ -178,9 +140,6 @@ class TileSeeder extends Seeder
         return $tileIdMap;
     }
 
-    /**
-     * Generate a slug from the tile title.
-     */
     protected function generateSlug(string $title): string
     {
         return Str::slug($title);
@@ -188,15 +147,12 @@ class TileSeeder extends Seeder
 
     /**
      * Transform tile content into Fabricator background blocks.
-     * Validates blocks against the registry and falls back to IntroTextBlock if needed.
-     * Includes both German (DE) and English (EN) translations when available.
      */
     protected function transformBackgroundBlocks(\App\Services\ParsedTile $tile): ?array
     {
         $blocks = [];
         $validBlockTypes = $this->getValidBlockTypes();
 
-        // Transform background_text into IntroTextBlock
         if (! empty($tile->backgroundText)) {
             $blockType = $this->validateBlockType('intro-text', $validBlockTypes);
             $blockData = [
@@ -204,7 +160,6 @@ class TileSeeder extends Seeder
                 'text' => $tile->backgroundText,
             ];
 
-            // Add English translations if available
             if (! empty($tile->titleEn)) {
                 $blockData['heading_en'] = $tile->titleEn;
             }
@@ -212,7 +167,6 @@ class TileSeeder extends Seeder
                 $blockData['text_en'] = $tile->backgroundTextEn;
             }
 
-            // Remove null values to keep the array clean
             $blockData = array_filter($blockData, fn ($value) => $value !== null);
 
             if (! empty($blockData)) {
@@ -223,11 +177,9 @@ class TileSeeder extends Seeder
             }
         }
 
-        // Transform slider data into SliderBlock
         if (! empty($tile->sliderData)) {
             $sliderItems = [];
             foreach ($tile->sliderData as $sliderItem) {
-                // Download slider image if available
                 $sliderImagePath = $this->downloadSliderImage($sliderItem['image'] ?? null);
                 $item = [
                     'title' => $sliderItem['title'] ?? null,
@@ -237,8 +189,6 @@ class TileSeeder extends Seeder
                     'link_text' => null,
                 ];
 
-                // Add English translations for slider items if available
-                // Note: Slider data structure may vary, check for _en suffix fields
                 if (isset($sliderItem['title_en']) && ! empty($sliderItem['title_en'])) {
                     $item['title_en'] = $sliderItem['title_en'];
                 }
@@ -246,7 +196,6 @@ class TileSeeder extends Seeder
                     $item['description_en'] = $sliderItem['text_en'];
                 }
 
-                // Remove null values to keep the array clean
                 $item = array_filter($item, fn ($value) => $value !== null);
 
                 if (! empty($item)) {
@@ -265,7 +214,6 @@ class TileSeeder extends Seeder
             }
         }
 
-        // Transform contribution_text into IntroTextBlock
         if (! empty($tile->contributionText)) {
             $blockType = $this->validateBlockType('intro-text', $validBlockTypes);
             $blockData = [
@@ -273,13 +221,11 @@ class TileSeeder extends Seeder
                 'text' => $tile->contributionText,
             ];
 
-            // Add English translations if available
             if (! empty($tile->contributionTextEn)) {
                 $blockData['heading_en'] = 'Contribution';
                 $blockData['text_en'] = $tile->contributionTextEn;
             }
 
-            // Remove null values to keep the array clean
             $blockData = array_filter($blockData, fn ($value) => $value !== null);
 
             if (! empty($blockData)) {
@@ -294,8 +240,6 @@ class TileSeeder extends Seeder
     }
 
     /**
-     * Get list of valid block types from Fabricator registry.
-     *
      * @return array<string>
      */
     protected function getValidBlockTypes(): array
@@ -311,7 +255,6 @@ class TileSeeder extends Seeder
                         $validTypes[] = $schema->getName();
                     }
                 } catch (\Exception $e) {
-                    // Skip invalid blocks
                     continue;
                 }
             }
@@ -321,8 +264,6 @@ class TileSeeder extends Seeder
     }
 
     /**
-     * Validate block type against registry, fallback to safe option if invalid.
-     *
      * @param  array<string>  $validTypes
      */
     protected function validateBlockType(string $blockType, array $validTypes): string
@@ -331,7 +272,6 @@ class TileSeeder extends Seeder
             return $blockType;
         }
 
-        // Check if default fallback 'intro-text' exists in valid types
         $fallbackType = 'intro-text';
         if (in_array($fallbackType, $validTypes)) {
             if ($this->command) {
@@ -341,9 +281,7 @@ class TileSeeder extends Seeder
             return $fallbackType;
         }
 
-        // Fallback 'intro-text' is also not registered, use first valid type as safe fallback
         if (empty($validTypes)) {
-            // No valid types available - this is a critical error
             $errorMessage = "No valid block types registered. Cannot validate block type '{$blockType}'.";
             Log::error($errorMessage, [
                 'invalid_block_type' => $blockType,
@@ -355,7 +293,6 @@ class TileSeeder extends Seeder
             throw new \RuntimeException($errorMessage);
         }
 
-        // Use first valid type as safe fallback
         $safeFallback = $validTypes[0];
         Log::error("Block type '{$blockType}' and fallback '{$fallbackType}' are not registered, using '{$safeFallback}'", [
             'invalid_block_type' => $blockType,
@@ -370,9 +307,6 @@ class TileSeeder extends Seeder
         return $safeFallback;
     }
 
-    /**
-     * Calculate SHA256 hash of the source data for change detection.
-     */
     protected function calculateSourceHash(\App\Services\ParsedTile $tile): string
     {
         $dataToHash = [
@@ -396,9 +330,6 @@ class TileSeeder extends Seeder
         return hash('sha256', json_encode($dataToHash, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 
-    /**
-     * Download icon and return local path.
-     */
     protected function downloadIcon(mixed $iconData): ?string
     {
         $systemUrl = $this->mediaDownloadService->extractSystemUrl($iconData);
@@ -416,9 +347,6 @@ class TileSeeder extends Seeder
         return $downloadedPath;
     }
 
-    /**
-     * Download slider image and return local path.
-     */
     protected function downloadSliderImage(mixed $imageData): ?string
     {
         $systemUrl = $this->mediaDownloadService->extractSystemUrl($imageData);
@@ -437,8 +365,6 @@ class TileSeeder extends Seeder
     }
 
     /**
-     * Map original category IDs to database IDs.
-     *
      * @param  array<int>  $originalIds
      * @param  array<string, int>  $idMap
      * @return array<int>
@@ -453,8 +379,6 @@ class TileSeeder extends Seeder
     }
 
     /**
-     * Map original SDG-Ziel IDs to database IDs.
-     *
      * @param  array<int>  $originalIds
      * @param  array<int, int>  $idMap
      * @return array<int>

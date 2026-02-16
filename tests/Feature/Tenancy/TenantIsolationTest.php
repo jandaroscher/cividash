@@ -108,13 +108,25 @@ class TenantIsolationTest extends TestCase
 
     /**
      * Test that console commands bypass the tenant scope.
+     *
+     * The BelongsToTenant global scope is skipped when:
+     *   app()->runningInConsole() && !app()->runningUnitTests()
+     *
+     * Since PHPUnit runs in console + unit-test mode, the scope stays active.
+     * Console commands use withoutGlobalScope('tenant') to access all data.
+     * This test verifies that pattern works correctly.
      */
     public function test_console_commands_bypass_tenant_scope(): void
     {
+        $defaultTenant = Tenant::firstOrCreate(
+            ['slug' => 'default'],
+            ['name' => 'Default Tenant']
+        );
+
         $tenantA = Tenant::create(['name' => 'Tenant A', 'slug' => 'tenant-a']);
         $tenantB = Tenant::create(['name' => 'Tenant B', 'slug' => 'tenant-b']);
 
-        // Create tiles for different tenants
+        // Create tiles for different tenants (bypassing scope)
         Tile::withoutGlobalScope('tenant')->create([
             'title' => ['de' => 'Tile A', 'en' => 'Tile A'],
             'description' => ['de' => 'desc', 'en' => 'desc'],
@@ -127,9 +139,28 @@ class TenantIsolationTest extends TestCase
             'tenant_id' => $tenantB->id,
         ]);
 
-        // Console context should bypass tenant scope - verify all tiles are visible
-        // when running in console mode
-        // This is tested indirectly by the backfill command which uses withoutGlobalScope
-        $this->markTestIncomplete('TODO: Implement console scope bypass verification');
+        Tile::withoutGlobalScope('tenant')->create([
+            'title' => ['de' => 'Tile Default', 'en' => 'Tile Default'],
+            'description' => ['de' => 'desc', 'en' => 'desc'],
+            'tenant_id' => $defaultTenant->id,
+        ]);
+
+        // Verify the scope condition: tests run in console + unit-test mode
+        $this->assertTrue(app()->runningInConsole(), 'Tests should run in console context');
+        $this->assertTrue(app()->runningUnitTests(), 'Tests should be detected as unit tests');
+
+        // With scope active (unit test mode), only default tenant's data visible
+        $this->assertEquals(1, Tile::count());
+
+        // Console commands use withoutGlobalScope('tenant') to see all data
+        $allTiles = Tile::withoutGlobalScope('tenant')->get();
+        $this->assertCount(3, $allTiles);
+
+        // Verify all tenants' tiles are accessible without the scope
+        $tenantIds = $allTiles->pluck('tenant_id')->unique()->sort()->values();
+        $this->assertCount(3, $tenantIds);
+        $this->assertTrue($tenantIds->contains($tenantA->id));
+        $this->assertTrue($tenantIds->contains($tenantB->id));
+        $this->assertTrue($tenantIds->contains($defaultTenant->id));
     }
 }
