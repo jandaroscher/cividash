@@ -51,6 +51,13 @@ class PageFactory extends Factory
         ]);
     }
 
+    public function landingpage(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'layout' => 'landingpage',
+        ]);
+    }
+
     public function forTenant(Tenant $tenant): static
     {
         return $this->state(fn (array $attributes) => [

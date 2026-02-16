@@ -118,10 +118,11 @@ class ContentPagesApiEdgeCasesTest extends TestCase
     public function test_show_root_falls_back_to_de_when_en_missing(): void
     {
         // Create a root page that only has a DE root slug (no EN root slug)
+        // Use layout 'subpage' to avoid the model event forcing slug to '/' for all locales
         Page::factory()->forTenant($this->tenant)->create([
             'title' => ['de' => 'Startseite', 'en' => 'Home'],
             'slug' => ['de' => '/', 'en' => 'not-a-root'],
-            'layout' => 'landingpage',
+            'layout' => 'subpage',
         ]);
 
         // Requesting EN root should fall back to DE root page
@@ -129,6 +130,28 @@ class ContentPagesApiEdgeCasesTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('title', 'Home');
+    }
+
+    public function test_show_root_finds_landingpage_regardless_of_initial_slug(): void
+    {
+        // Factory creates page with slug 'homepage', but model saving event
+        // overrides it to '/' because layout is 'landingpage'
+        $page = Page::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Startseite', 'en' => 'Homepage'],
+            'slug' => ['de' => 'homepage', 'en' => 'homepage'],
+            'layout' => 'landingpage',
+        ]);
+
+        // The slug should have been overridden to '/' by the model event
+        $page->refresh();
+        $this->assertEquals('/', $page->getTranslation('slug', 'de'));
+        $this->assertEquals('/', $page->getTranslation('slug', 'en'));
+
+        // API should find this page as root
+        $response = $this->getJson('/api/content/pages/root?locale=de');
+
+        $response->assertOk()
+            ->assertJsonPath('title', 'Startseite');
     }
 
     public function test_show_root_returns_404_when_no_root_page(): void

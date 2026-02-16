@@ -142,6 +142,8 @@ class DashboardResetCommand extends Command
             $this->deleteTenantContent($tenant);
         });
 
+        $this->seedMinimalRootPage($tenant);
+
         $this->info('Demo City reset to empty sandbox.');
     }
 
@@ -159,7 +161,32 @@ class DashboardResetCommand extends Command
             $this->deleteTenantContent($tenant);
         });
 
+        $this->seedMinimalRootPage($tenant);
+
         $this->info('Default tenant reset to clean state.');
+    }
+
+    protected function seedMinimalRootPage(Tenant $tenant): void
+    {
+        $exists = Page::withoutGlobalScope('tenant')
+            ->where('tenant_id', $tenant->id)
+            ->where('layout', 'landingpage')
+            ->exists();
+
+        if ($exists) {
+            return;
+        }
+
+        Page::create([
+            'title' => ['de' => 'Dashboard', 'en' => 'Dashboard'],
+            'slug' => ['de' => '/', 'en' => '/'],
+            'blocks' => ['de' => [], 'en' => []],
+            'layout' => 'landingpage',
+            'is_public' => true,
+            'tenant_id' => $tenant->id,
+        ]);
+
+        $this->info("Seeded root page for tenant '{$tenant->slug}'.");
     }
 
     protected function deleteTenantContent(Tenant $tenant): void

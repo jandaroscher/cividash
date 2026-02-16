@@ -19,7 +19,7 @@ class FabricatorContentApiTest extends TestCase
         $page = Page::create([
             'title' => ['de' => 'API Test Page', 'en' => ''],
             'slug' => ['de' => 'api-test-page', 'en' => ''],
-            'layout' => LandingpageLayout::getName(),
+            'layout' => 'default',
             'meta_title' => ['de' => 'SEO Titel', 'en' => ''],
             'meta_description' => ['de' => 'SEO Beschreibung', 'en' => ''],
             'blocks' => [
@@ -158,14 +158,15 @@ class FabricatorContentApiTest extends TestCase
 
     public function test_content_api_prioritizes_root_slug_over_home(): void
     {
-        // Create both pages
+        // Create a page with slug 'home' (use subpage layout to avoid slug override)
         $homePage = Page::create([
             'title' => ['de' => 'Home Page', 'en' => ''],
             'slug' => ['de' => 'home', 'en' => ''],
-            'layout' => LandingpageLayout::getName(),
+            'layout' => 'subpage',
             'blocks' => ['de' => [], 'en' => []],
         ]);
 
+        // Create a root page with landingpage layout (slug forced to '/')
         $rootPage = Page::create([
             'title' => ['de' => 'Root Page', 'en' => ''],
             'slug' => ['de' => '/', 'en' => ''],
@@ -185,25 +186,25 @@ class FabricatorContentApiTest extends TestCase
 
     public function test_content_api_index_returns_all_pages(): void
     {
-        // Create multiple pages
+        // Create multiple pages (use 'default' layout so slugs are preserved)
         $page1 = Page::create([
             'title' => ['de' => 'Page One', 'en' => ''],
             'slug' => ['de' => 'page-one', 'en' => ''],
-            'layout' => LandingpageLayout::getName(),
+            'layout' => 'default',
             'blocks' => ['de' => [], 'en' => []],
         ]);
 
         $page2 = Page::create([
             'title' => ['de' => 'Page Two', 'en' => ''],
             'slug' => ['de' => 'page-two', 'en' => ''],
-            'layout' => LandingpageLayout::getName(),
+            'layout' => 'default',
             'blocks' => ['de' => [], 'en' => []],
         ]);
 
         Page::create([
             'title' => ['de' => 'Hidden Page', 'en' => ''],
             'slug' => ['de' => 'hidden-page', 'en' => ''],
-            'layout' => LandingpageLayout::getName(),
+            'layout' => 'default',
             'blocks' => ['de' => [], 'en' => []],
             'is_public' => false,
         ]);

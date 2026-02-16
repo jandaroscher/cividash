@@ -20,6 +20,17 @@ class Page extends FabricatorPage implements PageContract
 
     protected static function booted(): void
     {
+        static::saving(function (self $page) {
+            if ($page->layout === 'landingpage') {
+                $locales = config('app.available_locales', ['de', 'en']);
+                $rootSlug = [];
+                foreach ($locales as $locale) {
+                    $rootSlug[$locale] = '/';
+                }
+                $page->slug = $rootSlug;
+            }
+        });
+
         static::saved(function (self $page) {
             $page->flushContentCache();
         });

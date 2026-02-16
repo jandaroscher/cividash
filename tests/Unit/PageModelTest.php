@@ -91,4 +91,48 @@ class PageModelTest extends TestCase
         $this->assertContains(['locale' => 'de'], $args);
         $this->assertContains(['locale' => 'en'], $args);
     }
+
+    public function test_saving_landingpage_forces_root_slug(): void
+    {
+        $page = Page::create([
+            'title' => ['de' => 'Startseite', 'en' => 'Homepage'],
+            'slug' => ['de' => 'homepage', 'en' => 'homepage'],
+            'blocks' => ['de' => [], 'en' => []],
+            'layout' => 'landingpage',
+        ]);
+
+        $this->assertEquals('/', $page->getTranslation('slug', 'de'));
+        $this->assertEquals('/', $page->getTranslation('slug', 'en'));
+    }
+
+    public function test_saving_subpage_does_not_force_root_slug(): void
+    {
+        $page = Page::create([
+            'title' => ['de' => 'Impressum', 'en' => 'Imprint'],
+            'slug' => ['de' => 'impressum', 'en' => 'imprint'],
+            'blocks' => ['de' => [], 'en' => []],
+            'layout' => 'subpage',
+        ]);
+
+        $this->assertEquals('impressum', $page->getTranslation('slug', 'de'));
+        $this->assertEquals('imprint', $page->getTranslation('slug', 'en'));
+    }
+
+    public function test_updating_page_to_landingpage_forces_root_slug(): void
+    {
+        $page = Page::create([
+            'title' => ['de' => 'Testseite', 'en' => 'Test Page'],
+            'slug' => ['de' => 'testseite', 'en' => 'test-page'],
+            'blocks' => ['de' => [], 'en' => []],
+            'layout' => 'default',
+        ]);
+
+        $this->assertEquals('testseite', $page->getTranslation('slug', 'de'));
+
+        $page->layout = 'landingpage';
+        $page->save();
+
+        $this->assertEquals('/', $page->getTranslation('slug', 'de'));
+        $this->assertEquals('/', $page->getTranslation('slug', 'en'));
+    }
 }
