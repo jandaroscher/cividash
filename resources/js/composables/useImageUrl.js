@@ -24,6 +24,11 @@ export function useImageUrl(imageProp, useStoragePath = true) {
         }
 
         const apiUrl = getApiBaseUrl();
+
+        // If already an absolute path (e.g. /storage/...), resolve against current origin
+        if (imagePath.startsWith('/')) {
+            return `${apiUrl}${imagePath}`;
+        }
         
         // If useStoragePath is true, prepend /storage/, otherwise use path as-is
         if (useStoragePath) {
