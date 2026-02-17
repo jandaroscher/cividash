@@ -19,18 +19,18 @@ class FAQBlock extends PageBlock
     public static function getBlockSchema(): Block
     {
         return Block::make('faq')
-            ->label('FAQ')
+            ->label(__('filament.blocks.faq.label'))
             ->icon('heroicon-o-question-mark-circle')
             ->schema([
                 Repeater::make('items')
-                    ->label('FAQ-Einträge')
+                    ->label(__('filament.blocks.faq.items'))
                     ->schema([
                         TextInput::make('question')
-                            ->label('Frage')
+                            ->label(__('filament.blocks.faq.question'))
                             ->required()
                             ->maxLength(255),
                         RichEditorConfig::make('answer')
-                            ->label('Antwort')
+                            ->label(__('filament.blocks.faq.answer'))
                             ->required(),
                     ])
                     ->defaultItems(1)

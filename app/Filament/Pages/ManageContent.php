@@ -16,7 +16,10 @@ class ManageContent extends SettingsPage
 
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static ?string $title = 'Inhaltsbereich';
+    public function getTitle(): string
+    {
+        return __('filament.pages.manage_content.title');
+    }
 
     /**
      * Prevent the page from being added to the navigation menu.

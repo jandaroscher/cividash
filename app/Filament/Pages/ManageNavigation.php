@@ -34,13 +34,21 @@ class ManageNavigation extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-bars-3';
 
-    protected static ?string $navigationLabel = 'Header / Navigation';
-
     protected static ?int $navigationSort = 22;
 
     protected static string $view = 'filament.pages.manage-navigation';
 
     protected static ?string $slug = 'navigation';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.pages.manage_header.title');
+    }
+
+    public function getTitle(): string
+    {
+        return __('filament.pages.manage_header.title');
+    }
 
     public static function getNavigationGroup(): ?string
     {

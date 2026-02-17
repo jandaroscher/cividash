@@ -22,14 +22,14 @@ class TileAppBlock extends PageBlock
     public static function getBlockSchema(): Block
     {
         return Block::make('tile-app')
-            ->label('Kacheln')
+            ->label(__('filament.blocks.tile_app.label'))
             ->icon('heroicon-o-squares-2x2')
             ->schema([
                 Toggle::make('show_search')
-                    ->label('Suche anzeigen')
+                    ->label(__('filament.blocks.tile_app.show_search'))
                     ->default(true),
                 Toggle::make('show_filter')
-                    ->label('Filter anzeigen')
+                    ->label(__('filament.blocks.tile_app.show_filter'))
                     ->default(true),
                 Hidden::make('is_active')
                     ->default(true)

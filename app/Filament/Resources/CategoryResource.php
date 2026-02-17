@@ -63,6 +63,7 @@ class CategoryResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+            ->columns(1)
             ->schema([
                 Forms\Components\Select::make('category_group_id')
                     ->label(__('filament.resources.category.group'))
@@ -86,7 +87,8 @@ class CategoryResource extends Resource
                 Forms\Components\TextInput::make('slug')
                     ->label(__('filament.resources.category.title'))
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->columnSpanFull(),
                 Forms\Components\FileUpload::make('icon')
                     ->label(__('filament.resources.category.icon'))
                     ->disk('public')
@@ -94,6 +96,7 @@ class CategoryResource extends Resource
                     ->image()
                     ->preserveFilenames()
                     ->required(false)
+                    ->columnSpanFull()
                     ->formatStateUsing(function ($state) {
                         $iconPath = null;
 
@@ -150,7 +153,8 @@ class CategoryResource extends Resource
                     ->label(__('filament.resources.category.position'))
                     ->required()
                     ->numeric()
-                    ->default(0),
+                    ->default(0)
+                    ->columnSpanFull(),
             ]);
     }
 

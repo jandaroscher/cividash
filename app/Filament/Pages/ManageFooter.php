@@ -36,13 +36,21 @@ class ManageFooter extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
-    protected static ?string $navigationLabel = 'Footer';
-
     protected static ?int $navigationSort = 23;
 
     protected static string $view = 'filament.pages.manage-footer';
 
     protected static ?string $slug = 'footer';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.pages.manage_footer.title');
+    }
+
+    public function getTitle(): string
+    {
+        return __('filament.pages.manage_footer.title');
+    }
 
     public static function getNavigationGroup(): ?string
     {

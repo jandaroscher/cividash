@@ -45,6 +45,11 @@ class EditTile extends EditRecord
         ];
     }
 
+    public function getFormMaxWidth(): ?string
+    {
+        return '7xl';
+    }
+
     public function updatedActiveLocale(): void
     {
         if (blank($this->oldActiveLocale)) {

@@ -14,18 +14,18 @@ class HeroBlock extends PageBlock
     public static function getBlockSchema(): Block
     {
         return Block::make('hero')
-            ->label('Hero Section')
+            ->label(__('filament.blocks.hero.label'))
             ->icon('heroicon-o-photo')
             ->schema([
                 TextInput::make('title')
-                    ->label('Titel')
+                    ->label(__('filament.blocks.hero.title'))
                     ->required()
                     ->maxLength(255),
                 Textarea::make('subtitle')
-                    ->label('Untertitel')
+                    ->label(__('filament.blocks.hero.subtitle'))
                     ->rows(3),
                 FileUpload::make('image')
-                    ->label('Bild')
+                    ->label(__('filament.blocks.hero.image'))
                     ->image()
                     ->directory('hero-images')
                     ->disk('public')
@@ -35,14 +35,14 @@ class HeroBlock extends PageBlock
                         '21:9',
                     ]),
                 TextInput::make('image_alt')
-                    ->label('Image Alt Text')
-                    ->helperText('Describe the image for screen reader users')
+                    ->label(__('filament.blocks.hero.image_alt'))
+                    ->helperText(__('filament.blocks.hero.image_alt_helper'))
                     ->maxLength(255),
                 TextInput::make('cta_text')
-                    ->label('CTA Button Text')
+                    ->label(__('filament.blocks.hero.cta_text'))
                     ->maxLength(50),
                 TextInput::make('cta_url')
-                    ->label('CTA Button URL')
+                    ->label(__('filament.blocks.hero.cta_url'))
                     ->url()
                     ->maxLength(255),
                 Hidden::make('is_active')

@@ -31,32 +31,33 @@ class SliderBlock extends PageBlock
     public static function getBlockSchema(): Block
     {
         return Block::make('slider')
-            ->label('Slider')
+            ->label(__('filament.blocks.slider.label'))
             ->icon('heroicon-o-arrows-right-left')
             ->schema([
                 Repeater::make('items')
-                    ->label('Slider Items')
+                    ->label(__('filament.blocks.slider.items'))
+                    ->addActionLabel(__('filament.actions.add_to_slider_items'))
                     ->extraItemActions([
                         static::getBlockActiveToggleAction(),
                     ])
                     ->schema([
                         TextInput::make('title')
-                            ->label('Titel')
+                            ->label(__('filament.blocks.slider.title'))
                             ->maxLength(255),
                         RichEditorConfig::make('description')
-                            ->label('Beschreibung'),
+                            ->label(__('filament.blocks.slider.description')),
                         FileUpload::make('image')
-                            ->label('Bild')
+                            ->label(__('filament.blocks.slider.image'))
                             ->image()
                             ->directory('slider-images')
                             ->disk('public')
                             ->imageEditor(),
                         TextInput::make('link_url')
-                            ->label('Link URL')
+                            ->label(__('filament.blocks.slider.link_url'))
                             ->url()
                             ->maxLength(255),
                         TextInput::make('link_text')
-                            ->label('Link Text')
+                            ->label(__('filament.blocks.slider.link_text'))
                             ->maxLength(50),
                         Hidden::make('is_active')
                             ->default(true)

@@ -22,14 +22,14 @@ class TextImageBlock extends PageBlock
     public static function getBlockSchema(): Block
     {
         return Block::make('text-image')
-            ->label('Text & Bild')
+            ->label(__('filament.blocks.text_image.label'))
             ->icon('heroicon-o-photo')
             ->schema([
                 RichEditorConfig::make('text')
-                    ->label('Text')
+                    ->label(__('filament.blocks.text_image.text'))
                     ->required(),
                 FileUpload::make('image')
-                    ->label('Bild')
+                    ->label(__('filament.blocks.text_image.image'))
                     ->image()
                     ->directory('text-images')
                     ->disk('public')
@@ -40,14 +40,14 @@ class TextImageBlock extends PageBlock
                         '1:1',
                     ]),
                 TextInput::make('image_alt')
-                    ->label('Alt-Text für Bild')
-                    ->helperText('Beschreibung des Bildes für Barrierefreiheit (WCAG)')
+                    ->label(__('filament.blocks.text_image.image_alt'))
+                    ->helperText(__('filament.blocks.text_image.image_alt_helper'))
                     ->maxLength(255),
                 Radio::make('image_position')
-                    ->label('Bildposition')
+                    ->label(__('filament.blocks.text_image.image_position'))
                     ->options([
-                        'left' => 'Links',
-                        'right' => 'Rechts',
+                        'left' => __('filament.blocks.text_image.position_left'),
+                        'right' => __('filament.blocks.text_image.position_right'),
                     ])
                     ->default('left')
                     ->required(),

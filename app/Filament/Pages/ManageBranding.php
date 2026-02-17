@@ -17,13 +17,19 @@ class ManageBranding extends SettingsPage
 {
     protected static ?string $navigationIcon = 'heroicon-o-paint-brush';
 
-    protected static ?string $title = 'Theme';
-
-    protected static ?string $navigationLabel = 'Theme';
-
     protected static ?int $navigationSort = 21;
 
     protected static string $settings = BrandingSettings::class;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.pages.manage_branding.title');
+    }
+
+    public function getTitle(): string
+    {
+        return __('filament.pages.manage_branding.title');
+    }
 
     public static function getNavigationGroup(): ?string
     {
@@ -163,8 +169,7 @@ class ManageBranding extends SettingsPage
                         ])
                             ->columns(2)
                             ->hidden(fn ($get) => empty($get('typography_font_family')) && empty($get('typography_custom_font_file'))),
-                    ])
-                    ->columns(2),
+                    ]),
 
                 Forms\Components\Section::make(__('filament.pages.manage_branding.font_sizes_section'))
                     ->schema([

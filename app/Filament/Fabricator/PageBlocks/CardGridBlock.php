@@ -13,11 +13,11 @@ class CardGridBlock extends PageBlock
     public static function getBlockSchema(): Block
     {
         return Block::make('card-grid')
-            ->label('Tile Grid')
+            ->label(__('filament.blocks.card_grid.label'))
             ->icon('heroicon-o-rectangle-stack')
             ->schema([
                 Select::make('tiles')
-                    ->label('Tiles')
+                    ->label(__('filament.blocks.card_grid.tiles'))
                     ->multiple()
                     ->options(function () {
                         return Tile::query()
@@ -29,7 +29,7 @@ class CardGridBlock extends PageBlock
                     })
                     ->searchable()
                     ->preload()
-                    ->helperText('Leer lassen, um alle Tiles anzuzeigen. Auswählen, um nur bestimmte Tiles anzuzeigen.'),
+                    ->helperText(__('filament.blocks.card_grid.tiles_helper')),
                 Hidden::make('is_active')
                     ->default(true)
                     ->afterStateHydrated(function (Hidden $component, $state): void {

@@ -82,10 +82,11 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName('Nachhaltigkeits-Dashboard')
+            ->brandName(__('filament.brand_name'))
             ->favicon($faviconUrl)
             ->sidebarCollapsibleOnDesktop()
             ->login()
+            ->globalSearch(false)
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -97,7 +98,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationItems([
                 NavigationItem::make('tenant-profile')
                     ->label(fn (): string => __('filament.pages.edit_tenant_profile.title'))
-                    ->group('Einstellungen')
+                    ->group(fn (): string => __('filament.navigation.groups.settings'))
                     ->icon('heroicon-o-building-office-2')
                     ->sort(24)
                     ->url(fn (): string => Filament::getTenant()
