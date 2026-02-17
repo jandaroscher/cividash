@@ -13,14 +13,14 @@ class SectionBlock extends PageBlock
     public static function getBlockSchema(): Block
     {
         return Block::make('section')
-            ->label('Section')
+            ->label(__('filament.blocks.section.label'))
             ->icon('heroicon-o-rectangle-stack')
             ->schema([
                 TextInput::make('title')
-                    ->label('Titel')
+                    ->label(__('filament.blocks.section.title'))
                     ->maxLength(255),
                 ColorPicker::make('background_color')
-                    ->label('Hintergrundfarbe')
+                    ->label(__('filament.blocks.section.background_color'))
                     ->default('#ffffff'),
                 Hidden::make('is_active')
                     ->default(true)

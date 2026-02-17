@@ -51,4 +51,9 @@ class EditCategory extends EditRecord
             ->action('save')
             ->keyBindings(['mod+s']);
     }
+
+    public function getFormMaxWidth(): ?string
+    {
+        return '7xl';
+    }
 }

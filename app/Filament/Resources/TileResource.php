@@ -84,10 +84,12 @@ class TileResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+            ->columns(1)
             ->schema([
                 Grid::make()
                     ->schema([
                         Tabs::make(__('filament.tabs.contents'))
+                            ->columnSpanFull()
                             ->tabs([
                                 // Tab 1: tile
                                 Tabs\Tab::make(__('filament.tabs.tile'))
@@ -117,7 +119,7 @@ class TileResource extends Resource
                                     ->schema([
                                         Builder::make('background_blocks')
                                             ->label(__('filament.resources.tile.background_blocks'))
-                                            ->addActionLabel(__('filament.resources.tile.background_blocks_add'))
+                                            ->addActionLabel(__('filament.actions.add_to_background_blocks'))
                                             ->blocks(static::getBackgroundBlockSchemas())
                                             ->extraItemActions([
                                                 static::getBlockActiveToggleAction(),
@@ -132,6 +134,7 @@ class TileResource extends Resource
                                         Repeater::make('metricDefinitions')
                                             ->relationship('metricDefinitions')
                                             ->label(__('filament.resources.tile.metrics_label'))
+                                            ->addActionLabel(__('filament.actions.add_to_metrics'))
                                             ->itemLabel(fn (array $state): ?string => $state['label'] ?? null)
                                             ->extraItemActions([
                                                 static::getBlockActiveToggleAction(),
@@ -170,6 +173,7 @@ class TileResource extends Resource
                                                 Repeater::make('metricValues')
                                                     ->relationship('metricValues')
                                                     ->label(__('filament.resources.tile.metric_values'))
+                                                    ->addActionLabel(__('filament.actions.add_to_metric_values'))
                                                     ->itemLabel(function (array $state, $record): ?string {
                                                         // Display the year as label for each metric value entry
                                                         // Prefer loaded relationship to avoid N+1 queries

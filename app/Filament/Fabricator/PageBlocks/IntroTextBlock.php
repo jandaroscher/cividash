@@ -27,21 +27,21 @@ class IntroTextBlock extends PageBlock
     public static function getBlockSchema(): Block
     {
         return Block::make('intro-text')
-            ->label('Intro Text')
+            ->label(__('filament.blocks.intro_text.label'))
             ->icon('heroicon-o-document-text')
             ->schema([
                 TextInput::make('heading')
-                    ->label('Überschrift')
+                    ->label(__('filament.blocks.intro_text.heading'))
                     ->required()
                     ->maxLength(255),
                 TextInput::make('subheading')
-                    ->label('Unterüberschrift')
+                    ->label(__('filament.blocks.intro_text.subheading'))
                     ->maxLength(255),
                 RichEditorConfig::make('text')
-                    ->label('Text')
+                    ->label(__('filament.blocks.intro_text.text'))
                     ->required(),
                 FileUpload::make('image')
-                    ->label('Bild')
+                    ->label(__('filament.blocks.intro_text.image'))
                     ->image()
                     ->directory('intro-images')
                     ->disk('public')
@@ -52,11 +52,11 @@ class IntroTextBlock extends PageBlock
                         '1:1',
                     ]),
                 TextInput::make('image_alt')
-                    ->label('Alt-Text für Bild')
-                    ->helperText('Beschreibung des Bildes für Barrierefreiheit')
+                    ->label(__('filament.blocks.intro_text.image_alt'))
+                    ->helperText(__('filament.blocks.intro_text.image_alt_helper'))
                     ->maxLength(255),
                 FileUpload::make('image_secondary')
-                    ->label('Zweites Bild (optional)')
+                    ->label(__('filament.blocks.intro_text.image_secondary'))
                     ->image()
                     ->directory('intro-images')
                     ->disk('public')
@@ -67,8 +67,8 @@ class IntroTextBlock extends PageBlock
                         '1:1',
                     ]),
                 TextInput::make('image_secondary_alt')
-                    ->label('Alt-Text für zweites Bild')
-                    ->helperText('Beschreibung des zweiten Bildes für Barrierefreiheit')
+                    ->label(__('filament.blocks.intro_text.image_secondary_alt'))
+                    ->helperText(__('filament.blocks.intro_text.image_secondary_alt_helper'))
                     ->maxLength(255),
                 Hidden::make('is_active')
                     ->default(true)

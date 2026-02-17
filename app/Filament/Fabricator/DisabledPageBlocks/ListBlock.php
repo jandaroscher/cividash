@@ -14,23 +14,23 @@ class ListBlock extends PageBlock
     public static function getBlockSchema(): Block
     {
         return Block::make('list')
-            ->label('Liste')
+            ->label(__('filament.blocks.list.label'))
             ->icon('heroicon-o-list-bullet')
             ->schema([
                 Repeater::make('items')
-                    ->label('Listeneinträge')
+                    ->label(__('filament.blocks.list.items'))
                     ->schema([
                         TextInput::make('text')
-                            ->label('Text')
+                            ->label(__('filament.blocks.list.text'))
                             ->required(),
                     ])
                     ->defaultItems(1)
                     ->collapsible(),
                 Radio::make('list_type')
-                    ->label('Listentyp')
+                    ->label(__('filament.blocks.list.list_type'))
                     ->options([
-                        'bullet' => 'Aufzählung',
-                        'numbered' => 'Nummeriert',
+                        'bullet' => __('filament.blocks.list.type_bullet'),
+                        'numbered' => __('filament.blocks.list.type_numbered'),
                     ])
                     ->default('bullet')
                     ->required(),
