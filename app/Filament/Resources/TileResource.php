@@ -230,7 +230,7 @@ class TileResource extends Resource
                                                                         ->filter(fn ($item) => isset($item['tile_year_id']) && (int) $item['tile_year_id'] === (int) $value)
                                                                         ->count();
                                                                     if ($count > 1) {
-                                                                        $fail(__('validation.distinct', ['attribute' => __('filament.resources.tile.year')]));
+                                                                        $fail(__('filament.resources.tile.duplicate_year'));
                                                                     }
                                                                 };
                                                             })

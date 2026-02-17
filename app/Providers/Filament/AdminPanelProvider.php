@@ -71,7 +71,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName(__('filament.brand_name'))
+            ->brandName(fn (): string => __('filament.brand_name'))
             ->favicon(function () {
                 try {
                     $settings = app(GeneralSettings::class);

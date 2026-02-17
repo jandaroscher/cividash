@@ -320,6 +320,7 @@ return [
             ],
             'lottie_preview' => 'Lottie-Vorschau',
             'no_lottie_file' => 'Keine Lottie-Animation (nur .json oder .lottie Dateien)',
+            'duplicate_year' => 'Dieses Jahr wurde bereits in dieser Kennzahl verwendet.',
         ],
         'page' => [
             'navigation_label' => 'Seiten',

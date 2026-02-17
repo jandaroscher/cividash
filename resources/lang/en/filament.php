@@ -341,6 +341,7 @@ return [
             ],
             'lottie_preview' => 'Lottie Preview',
             'no_lottie_file' => 'No Lottie animation (only .json or .lottie files)',
+            'duplicate_year' => 'This year has already been used in this metric.',
         ],
     ],
     'tabs' => [
