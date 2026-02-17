@@ -264,7 +264,7 @@ class PageResource extends FabricatorPageResource
                     ->url(function (Page $record, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
 
-                        return $record->getUrl(['locale' => $locale]);
+                        return $record->getFrontendUrl(['locale' => $locale]);
                     })
                     ->openUrlInNewTab(),
                 Tables\Actions\DeleteAction::make(),

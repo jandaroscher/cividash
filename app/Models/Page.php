@@ -170,6 +170,29 @@ class Page extends FabricatorPage implements PageContract
     }
 
     /**
+     * Get the full frontend URL including the tenant's domain.
+     *
+     * If the page's tenant has a configured domain, returns an absolute URL
+     * (e.g., https://regensburg.open-source-dashboard.ddev.site/).
+     * Otherwise, falls back to the relative path from getUrl().
+     *
+     * @param  array<string, mixed>  $args
+     */
+    public function getFrontendUrl(array $args = []): string
+    {
+        $path = $this->getUrl($args);
+        $tenant = $this->tenant;
+
+        if ($tenant && $tenant->domain) {
+            $scheme = request()->getScheme();
+
+            return "{$scheme}://{$tenant->domain}{$path}";
+        }
+
+        return $path;
+    }
+
+    /**
      * Provide argument sets used to build cache keys for all supported page URL locales.
      *
      * Each entry is an associative array with a 'locale' key; this method returns entries for 'de' and 'en'.

@@ -31,6 +31,12 @@ class EditPage extends FabricatorEditPage
 
             if (in_array($name, ['visit', 'view'], true)) {
                 $action->label(__('filament.resources.page.actions.view_frontend'));
+                $action->url(function () {
+                    $page = $this->getRecord();
+                    $locale = $this->activeLocale ?? app()->getLocale();
+
+                    return $page->getFrontendUrl(['locale' => $locale]);
+                })->openUrlInNewTab();
             }
         }
 
