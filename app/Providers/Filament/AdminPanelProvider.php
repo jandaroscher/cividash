@@ -67,23 +67,23 @@ class AdminPanelProvider extends PanelProvider
             ->tenantRegistration(RegisterTenant::class)
             ->tenantProfile(EditTenantProfile::class);
 
-        // Resolve favicon from settings
-        $faviconUrl = null;
-        try {
-            $settings = app(GeneralSettings::class);
-            if ($settings->favicon) {
-                $faviconUrl = Storage::disk('public')->url($settings->favicon);
-            }
-        } catch (\Throwable $e) {
-            // Settings might not be migrated yet
-        }
-
         return $panel
             ->default()
             ->id('admin')
             ->path('admin')
             ->brandName('Nachhaltigkeits-Dashboard')
-            ->favicon($faviconUrl)
+            ->favicon(function () {
+                try {
+                    $settings = app(GeneralSettings::class);
+                    if ($settings->favicon) {
+                        return Storage::disk('public')->url($settings->favicon);
+                    }
+                } catch (\Throwable $e) {
+                    // Settings might not be migrated yet
+                }
+
+                return null;
+            })
             ->sidebarCollapsibleOnDesktop()
             ->login()
             ->colors([

@@ -66,6 +66,16 @@ class SetFilamentDefaultTenant
 
             if ($tenant) {
                 Filament::setTenant($tenant);
+
+                // Clear cached scoped settings instances so they reload
+                // with the correct tenant context. Without this, any settings
+                // resolved before this middleware (e.g. during panel registration)
+                // would retain stale global data for the entire request.
+                app()->forgetInstance(\App\Settings\GeneralSettings::class);
+                app()->forgetInstance(\App\Settings\BrandingSettings::class);
+                app()->forgetInstance(\App\Settings\DashboardSettings::class);
+                app()->forgetInstance(\App\Settings\ContentSettings::class);
+
                 if ($request->hasSession()) {
                     $request->session()->put('filament.tenant', $tenant->getKey());
                 }

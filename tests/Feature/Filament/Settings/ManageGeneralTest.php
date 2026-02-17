@@ -76,6 +76,21 @@ class ManageGeneralTest extends TestCase
             ]);
     }
 
+    public function test_form_loads_tenant_specific_settings_not_global(): void
+    {
+        // Write a tenant-specific site_name
+        $settings = app(GeneralSettings::class);
+        $settings->site_name = 'Tenant-Specific Name';
+        $settings->save();
+        app()->forgetInstance(GeneralSettings::class);
+
+        // Verify form loads the tenant-specific value
+        Livewire::test(ManageGeneral::class)
+            ->assertFormSet([
+                'site_name' => 'Tenant-Specific Name',
+            ]);
+    }
+
     public function test_save_updates_existing_settings(): void
     {
         // First save
