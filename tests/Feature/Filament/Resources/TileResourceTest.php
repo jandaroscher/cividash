@@ -197,6 +197,33 @@ class TileResourceTest extends TestCase
             ]);
     }
 
+    // ========== Metrics Validation ==========
+
+    public function test_duplicate_year_in_metric_values_shows_validation_error(): void
+    {
+        $tile = Tile::factory()->forTenant($this->tenant)->create();
+
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->fillForm([
+                'metricDefinitions' => [
+                    [
+                        'metric_key' => 'test-metric',
+                        'label' => 'Test Metric',
+                        'unit' => '%',
+                        'indicator_type' => 'small',
+                        'is_active' => true,
+                        'metricValues' => [
+                            ['tile_year_id' => 2024, 'value' => 100, 'is_active' => true],
+                            ['tile_year_id' => 2024, 'value' => 200, 'is_active' => true],
+                        ],
+                    ],
+                ],
+            ])
+            ->call('save')
+            ->assertHasFormErrors(['metricDefinitions.0.metricValues.0.tile_year_id'])
+            ->assertHasFormErrors(['metricDefinitions.0.metricValues.1.tile_year_id']);
+    }
+
     // ========== Delete ==========
 
     public function test_can_delete_tile_from_list(): void

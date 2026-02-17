@@ -133,6 +133,20 @@ class Tile extends Model
         return '/tiles'.$suffix;
     }
 
+    public function getFrontendUrl(array $args = []): string
+    {
+        $path = $this->getUrl($args);
+        $tenant = $this->tenant;
+
+        if ($tenant && $tenant->domain) {
+            $scheme = request()->getScheme();
+
+            return "{$scheme}://{$tenant->domain}{$path}";
+        }
+
+        return $path;
+    }
+
     protected static function buildSlugs(self $tile): array
     {
         $slugs = $tile->getTranslations('slug');

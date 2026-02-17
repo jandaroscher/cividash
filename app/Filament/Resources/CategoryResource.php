@@ -259,7 +259,11 @@ class CategoryResource extends Resource
                     ->preload(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->url(fn (Category $record, $livewire) => static::getUrl('edit', [
+                        'record' => $record,
+                        'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
+                    ])),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

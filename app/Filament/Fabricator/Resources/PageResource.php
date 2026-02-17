@@ -254,9 +254,16 @@ class PageResource extends FabricatorPageResource
                 Tables\Filters\TernaryFilter::make('is_public')
                     ->label(__('filament.resources.page.is_public')),
             ])
-            ->recordUrl(fn (Page $record) => static::getUrl('edit', ['record' => $record]))
+            ->recordUrl(fn (Page $record, $livewire) => static::getUrl('edit', [
+                'record' => $record,
+                'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
+            ]))
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->url(fn (Page $record, $livewire) => static::getUrl('edit', [
+                        'record' => $record,
+                        'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
+                    ])),
                 Tables\Actions\Action::make('view_frontend')
                     ->label(__('filament.resources.page.actions.view_frontend'))
                     ->icon('heroicon-o-arrow-top-right-on-square')

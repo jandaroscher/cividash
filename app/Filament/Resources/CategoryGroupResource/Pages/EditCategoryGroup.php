@@ -13,6 +13,17 @@ class EditCategoryGroup extends EditRecord
 
     protected static string $resource = CategoryGroupResource::class;
 
+    public function mount(int|string $record): void
+    {
+        parent::mount($record);
+
+        $locale = request()->query('activeLocale');
+
+        if ($locale && in_array($locale, $this->getTranslatableLocales()) && $locale !== $this->activeLocale) {
+            $this->setActiveLocale($locale);
+        }
+    }
+
     /**
      * Assemble the header action buttons for the edit page.
      *

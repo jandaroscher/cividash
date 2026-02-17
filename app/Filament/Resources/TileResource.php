@@ -15,6 +15,7 @@ use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tile;
 use App\Models\TileYear;
+use Closure;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -29,6 +30,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -214,6 +216,24 @@ class TileResource extends Resource
                                                             ->label(__('filament.resources.tile.year'))
                                                             ->numeric()
                                                             ->rule('integer')
+                                                            ->rule(function (Get $get) {
+                                                                return function (string $attribute, $value, Closure $fail) use ($get) {
+                                                                    if (! is_numeric($value)) {
+                                                                        return;
+                                                                    }
+                                                                    $parent = $get('../../');
+                                                                    $siblings = is_array($parent) ? ($parent['metricValues'] ?? []) : [];
+                                                                    if (! is_array($siblings)) {
+                                                                        return;
+                                                                    }
+                                                                    $count = collect($siblings)
+                                                                        ->filter(fn ($item) => isset($item['tile_year_id']) && (int) $item['tile_year_id'] === (int) $value)
+                                                                        ->count();
+                                                                    if ($count > 1) {
+                                                                        $fail(__('validation.distinct', ['attribute' => __('filament.resources.tile.year')]));
+                                                                    }
+                                                                };
+                                                            })
                                                             ->afterStateHydrated(function (TextInput $component, $state, $record): void {
                                                                 if ($record && $record->relationLoaded('tileYear') && $record->tileYear) {
                                                                     $component->state($record->tileYear->year);
@@ -414,9 +434,16 @@ class TileResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_public')
                     ->label(__('filament.resources.tile.is_public')),
             ])
-            ->recordUrl(fn (Tile $record) => static::getUrl('edit', ['record' => $record]))
+            ->recordUrl(fn (Tile $record, $livewire) => static::getUrl('edit', [
+                'record' => $record,
+                'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
+            ]))
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->url(fn (Tile $record, $livewire) => static::getUrl('edit', [
+                        'record' => $record,
+                        'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
+                    ])),
                 Tables\Actions\Action::make('view_frontend')
                     ->label(__('filament.resources.tile.actions.view_frontend'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
@@ -424,7 +451,7 @@ class TileResource extends Resource
                     ->url(function (Tile $record, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
 
-                        return $record->getUrl(['locale' => $locale]);
+                        return $record->getFrontendUrl(['locale' => $locale]);
                     })
                     ->openUrlInNewTab(),
                 Tables\Actions\DeleteAction::make(),

@@ -15,6 +15,17 @@ class EditPage extends FabricatorEditPage
 
     protected static string $resource = PageResource::class;
 
+    public function mount(int|string $record): void
+    {
+        parent::mount($record);
+
+        $locale = request()->query('activeLocale');
+
+        if ($locale && in_array($locale, $this->getTranslatableLocales()) && $locale !== $this->activeLocale) {
+            $this->setActiveLocale($locale);
+        }
+    }
+
     protected function getHeaderActions(): array
     {
         $actions = array_values(array_filter(

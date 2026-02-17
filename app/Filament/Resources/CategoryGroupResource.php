@@ -203,7 +203,11 @@ class CategoryGroupResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->url(fn (CategoryGroup $record, $livewire) => static::getUrl('edit', [
+                        'record' => $record,
+                        'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
+                    ])),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

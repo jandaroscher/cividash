@@ -16,6 +16,17 @@ class EditTile extends EditRecord
 
     protected array $categoryGroupState = [];
 
+    public function mount(int|string $record): void
+    {
+        parent::mount($record);
+
+        $locale = request()->query('activeLocale');
+
+        if ($locale && in_array($locale, $this->getTranslatableLocales()) && $locale !== $this->activeLocale) {
+            $this->setActiveLocale($locale);
+        }
+    }
+
     /****
      * Assemble the header action buttons for the edit page.
      *
@@ -36,7 +47,7 @@ class EditTile extends EditRecord
                 ->url(function () {
                     $locale = $this->activeLocale ?? app()->getLocale();
 
-                    return $this->record->getUrl(['locale' => $locale]);
+                    return $this->record->getFrontendUrl(['locale' => $locale]);
                 })
                 ->openUrlInNewTab(),
             Action::make('save_header')
