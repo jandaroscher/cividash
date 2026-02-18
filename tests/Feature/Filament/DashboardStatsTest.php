@@ -27,7 +27,7 @@ class DashboardStatsTest extends TestCase
 
         $this->tenant = Tenant::firstOrCreate(
             ['slug' => 'default'],
-            ['name' => 'Default Tenant']
+            ['name' => 'Default Dashboard']
         );
 
         $this->user = User::factory()->create();

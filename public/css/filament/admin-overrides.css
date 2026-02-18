@@ -41,3 +41,10 @@
 .dark .prose ol > li::marker {
     color: #f3f4f6 !important;
 }
+
+/**
+ * Tenant menu dropdown: auto-size to content
+ */
+.fi-tenant-menu .fi-dropdown-panel {
+    max-width: max-content !important;
+}

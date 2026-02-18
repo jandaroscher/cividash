@@ -69,7 +69,7 @@ class User extends Authenticatable implements FilamentUser, HasDefaultTenant, Ha
         static::created(function (User $user) {
             $tenant = Tenant::firstOrCreate(
                 ['slug' => 'default'],
-                ['name' => 'Default Tenant']
+                ['name' => 'Default Dashboard']
             );
 
             $user->tenants()->syncWithoutDetaching($tenant->id);

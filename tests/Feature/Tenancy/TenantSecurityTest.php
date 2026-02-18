@@ -157,7 +157,7 @@ class TenantSecurityTest extends TestCase
         // is implicitly verified by the fact that unauthorized access is blocked.
 
         // Create default tenant to prevent fallback to empty result
-        Tenant::firstOrCreate(['slug' => 'default'], ['name' => 'Default Tenant']);
+        Tenant::firstOrCreate(['slug' => 'default'], ['name' => 'Default Dashboard']);
 
         $user = User::factory()->create();
         $tenant = Tenant::create(['name' => 'Authorized Tenant', 'slug' => 'authorized']);

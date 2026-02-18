@@ -44,7 +44,7 @@ class E2ESeedTenantResolutionCommand extends Command
             // Create default tenant
             $defaultTenant = Tenant::firstOrCreate(
                 ['slug' => 'default'],
-                ['name' => 'Default Tenant']
+                ['name' => 'Default Dashboard']
             );
 
             // Remove any non-matching tenants holding the domains we need

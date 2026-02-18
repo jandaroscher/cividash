@@ -60,7 +60,7 @@ class SetFilamentDefaultTenant
             if (! $tenant && app()->runningUnitTests()) {
                 $tenant = \App\Models\Tenant::firstOrCreate(
                     ['slug' => 'default'],
-                    ['name' => 'Default Tenant']
+                    ['name' => 'Default Dashboard']
                 );
             }
 

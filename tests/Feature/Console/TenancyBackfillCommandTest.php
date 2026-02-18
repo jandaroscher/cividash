@@ -130,7 +130,7 @@ class TenancyBackfillCommandTest extends TestCase
 
         $tenant = Tenant::where('slug', 'my-org')->first();
         $this->assertNotNull($tenant);
-        $this->assertEquals('Default Tenant', $tenant->name);
+        $this->assertEquals('Default Dashboard', $tenant->name);
 
         $user->refresh();
         $this->assertEquals($tenant->id, $user->default_tenant_id);

@@ -125,36 +125,48 @@ return [
             'profile_url' => 'Profile URL',
             'tooltip_text' => 'Tooltip Text',
         ],
-        'edit_tenant_profile' => [
-            'title' => 'Tenant profile',
+        'edit_dashboard_config' => [
+            'title' => 'Dashboard Configuration',
             'form' => [
                 'sections' => [
                     'basic_information' => 'Basic Information',
                     'domain_frontend' => 'Domain & Frontend',
-                    'domain_frontend_description' => 'Configure how this tenant is resolved for API requests.',
+                    'domain_frontend_description' => 'Configure how this dashboard is resolved for API requests.',
                 ],
                 'fields' => [
                     'name' => [
-                        'label' => 'Tenant name',
+                        'label' => 'Dashboard name',
+                    ],
+                    'description' => [
+                        'label' => 'Additional info',
+                        'helper' => 'Optional additional information (e.g., client, company). Displayed in the dashboard selector.',
                     ],
                     'slug' => [
                         'label' => 'Slug',
-                        'helper' => 'The slug is used for API tenant identification (e.g., ?tenant=slug, X-Tenant header). The default tenant has the slug "default". Changes could break existing integrations.',
+                        'helper' => 'The slug is used for API dashboard identification (e.g., ?tenant=slug, X-Tenant header). The default dashboard has the slug "default". Changes could break existing integrations.',
                     ],
                     'domain' => [
                         'label' => 'Domain',
-                        'placeholder' => 'my-tenant.example.com',
-                        'helper' => 'Host/domain for tenant resolution (e.g., "my-tenant.example.com"). Resolution priority: Token > Domain > Default. The domain is normalized: lowercase, "www." prefix is stripped.',
+                        'placeholder' => 'my-dashboard.example.com',
+                        'helper' => 'Host/domain for dashboard resolution (e.g., "my-dashboard.example.com"). Resolution priority: Token > Domain > Default. The domain is normalized: lowercase, "www." prefix is stripped.',
                         'validation' => [
                             'invalid_format' => 'The domain must be a valid hostname without scheme or path (e.g., "example.com" or "sub.example.com").',
-                            'not_unique' => 'This domain is already in use by another tenant.',
+                            'not_unique' => 'This domain is already in use by another dashboard.',
                         ],
                     ],
                     'frontend_base_url' => [
                         'label' => 'Frontend Base URL',
-                        'placeholder' => 'https://my-tenant.example.com',
-                        'helper' => 'Full URL to the frontend application (e.g., "https://my-tenant.example.com"). Used for CORS and API responses. HTTPS is recommended for production.',
+                        'placeholder' => 'https://my-dashboard.example.com',
+                        'helper' => 'Full URL to the frontend application (e.g., "https://my-dashboard.example.com"). Used for CORS and API responses. HTTPS is recommended for production.',
                     ],
+                ],
+            ],
+        ],
+        'register_dashboard' => [
+            'title' => 'New Dashboard',
+            'fields' => [
+                'name' => [
+                    'label' => 'Dashboard name',
                 ],
             ],
         ],

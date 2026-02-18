@@ -13,6 +13,7 @@ class Tenant extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'slug',
         'domain',
         'frontend_base_url',

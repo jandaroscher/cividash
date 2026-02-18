@@ -197,36 +197,48 @@ return [
             'column_last_used' => 'Zuletzt verwendet',
             'never' => 'Nie',
         ],
-        'edit_tenant_profile' => [
-            'title' => 'Tenant-Profil',
+        'edit_dashboard_config' => [
+            'title' => 'Dashboard-Konfiguration',
             'form' => [
                 'sections' => [
                     'basic_information' => 'Basisinformationen',
                     'domain_frontend' => 'Domain & Frontend',
-                    'domain_frontend_description' => 'Konfigurieren Sie, wie dieser Tenant für API-Anfragen aufgelöst wird.',
+                    'domain_frontend_description' => 'Konfigurieren Sie, wie dieses Dashboard für API-Anfragen aufgelöst wird.',
                 ],
                 'fields' => [
                     'name' => [
-                        'label' => 'Tenant-Name',
+                        'label' => 'Dashboard-Name',
+                    ],
+                    'description' => [
+                        'label' => 'Zusatzinfo',
+                        'helper' => 'Optionale Zusatzinformation (z.B. Kunde, Firma). Wird im Dashboard-Auswahl-Menü angezeigt.',
                     ],
                     'slug' => [
                         'label' => 'Slug',
-                        'helper' => 'Der Slug wird für die API-Tenant-Identifikation verwendet (z.B. ?tenant=slug, X-Tenant Header). Der Default-Tenant hat den Slug "default". Änderungen könnten bestehende Integrationen brechen.',
+                        'helper' => 'Der Slug wird für die API-Dashboard-Identifikation verwendet (z.B. ?tenant=slug, X-Tenant Header). Das Standard-Dashboard hat den Slug "default". Änderungen könnten bestehende Integrationen brechen.',
                     ],
                     'domain' => [
                         'label' => 'Domain',
-                        'placeholder' => 'mein-tenant.example.com',
-                        'helper' => 'Host/Domain für Tenant-Auflösung (z.B. "mein-tenant.example.com"). Auflösungs-Priorität: Token > Domain > Standard. Die Domain wird normalisiert: Kleinbuchstaben, "www."-Präfix wird entfernt.',
+                        'placeholder' => 'mein-dashboard.example.com',
+                        'helper' => 'Host/Domain für Dashboard-Auflösung (z.B. "mein-dashboard.example.com"). Auflösungs-Priorität: Token > Domain > Standard. Die Domain wird normalisiert: Kleinbuchstaben, "www."-Präfix wird entfernt.',
                         'validation' => [
                             'invalid_format' => 'Die Domain muss ein gültiger Hostname ohne Schema oder Pfad sein (z.B. "example.com" oder "sub.example.com").',
-                            'not_unique' => 'Diese Domain wird bereits von einem anderen Tenant verwendet.',
+                            'not_unique' => 'Diese Domain wird bereits von einem anderen Dashboard verwendet.',
                         ],
                     ],
                     'frontend_base_url' => [
                         'label' => 'Frontend Base URL',
-                        'placeholder' => 'https://mein-tenant.example.com',
-                        'helper' => 'Vollständige URL zur Frontend-Anwendung (z.B. "https://mein-tenant.example.com"). Wird für CORS und API-Antworten verwendet. HTTPS wird für die Produktion empfohlen.',
+                        'placeholder' => 'https://mein-dashboard.example.com',
+                        'helper' => 'Vollständige URL zur Frontend-Anwendung (z.B. "https://mein-dashboard.example.com"). Wird für CORS und API-Antworten verwendet. HTTPS wird für die Produktion empfohlen.',
                     ],
+                ],
+            ],
+        ],
+        'register_dashboard' => [
+            'title' => 'Neues Dashboard anlegen',
+            'fields' => [
+                'name' => [
+                    'label' => 'Dashboard-Name',
                 ],
             ],
         ],

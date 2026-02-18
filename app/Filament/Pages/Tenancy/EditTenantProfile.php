@@ -18,7 +18,7 @@ class EditTenantProfile extends BaseEditTenantProfile
      */
     public static function getLabel(): string
     {
-        return __('filament.pages.edit_tenant_profile.title');
+        return __('filament.pages.edit_dashboard_config.title');
     }
 
     /**
@@ -43,26 +43,30 @@ class EditTenantProfile extends BaseEditTenantProfile
     public function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\Section::make(__('filament.pages.edit_tenant_profile.form.sections.basic_information'))
+            Forms\Components\Section::make(__('filament.pages.edit_dashboard_config.form.sections.basic_information'))
                 ->schema([
                     Forms\Components\TextInput::make('name')
-                        ->label(__('filament.pages.edit_tenant_profile.form.fields.name.label'))
+                        ->label(__('filament.pages.edit_dashboard_config.form.fields.name.label'))
                         ->required()
                         ->maxLength(255),
+                    Forms\Components\TextInput::make('description')
+                        ->label(__('filament.pages.edit_dashboard_config.form.fields.description.label'))
+                        ->helperText(__('filament.pages.edit_dashboard_config.form.fields.description.helper'))
+                        ->maxLength(255),
                     Forms\Components\TextInput::make('slug')
-                        ->label(__('filament.pages.edit_tenant_profile.form.fields.slug.label'))
-                        ->helperText(__('filament.pages.edit_tenant_profile.form.fields.slug.helper'))
+                        ->label(__('filament.pages.edit_dashboard_config.form.fields.slug.label'))
+                        ->helperText(__('filament.pages.edit_dashboard_config.form.fields.slug.helper'))
                         ->disabled()
                         ->dehydrated(false),
                 ]),
 
-            Forms\Components\Section::make(__('filament.pages.edit_tenant_profile.form.sections.domain_frontend'))
-                ->description(__('filament.pages.edit_tenant_profile.form.sections.domain_frontend_description'))
+            Forms\Components\Section::make(__('filament.pages.edit_dashboard_config.form.sections.domain_frontend'))
+                ->description(__('filament.pages.edit_dashboard_config.form.sections.domain_frontend_description'))
                 ->schema([
                     Forms\Components\TextInput::make('domain')
-                        ->label(__('filament.pages.edit_tenant_profile.form.fields.domain.label'))
-                        ->helperText(__('filament.pages.edit_tenant_profile.form.fields.domain.helper'))
-                        ->placeholder(__('filament.pages.edit_tenant_profile.form.fields.domain.placeholder'))
+                        ->label(__('filament.pages.edit_dashboard_config.form.fields.domain.label'))
+                        ->helperText(__('filament.pages.edit_dashboard_config.form.fields.domain.helper'))
+                        ->placeholder(__('filament.pages.edit_dashboard_config.form.fields.domain.placeholder'))
                         ->nullable()
                         ->maxLength(255)
                         ->dehydrateStateUsing(fn (?string $state): ?string => $this->normalizeDomain($state))
@@ -76,7 +80,7 @@ class EditTenantProfile extends BaseEditTenantProfile
 
                                 // Validate domain format (no scheme, no path, valid hostname)
                                 if (! $this->isValidDomain($normalized)) {
-                                    $fail(__('filament.pages.edit_tenant_profile.form.fields.domain.validation.invalid_format'));
+                                    $fail(__('filament.pages.edit_dashboard_config.form.fields.domain.validation.invalid_format'));
                                 }
 
                                 // Check uniqueness against normalized value
@@ -85,14 +89,14 @@ class EditTenantProfile extends BaseEditTenantProfile
                                     ->first();
 
                                 if ($existingTenant) {
-                                    $fail(__('filament.pages.edit_tenant_profile.form.fields.domain.validation.not_unique'));
+                                    $fail(__('filament.pages.edit_dashboard_config.form.fields.domain.validation.not_unique'));
                                 }
                             },
                         ]),
                     Forms\Components\TextInput::make('frontend_base_url')
-                        ->label(__('filament.pages.edit_tenant_profile.form.fields.frontend_base_url.label'))
-                        ->helperText(__('filament.pages.edit_tenant_profile.form.fields.frontend_base_url.helper'))
-                        ->placeholder(__('filament.pages.edit_tenant_profile.form.fields.frontend_base_url.placeholder'))
+                        ->label(__('filament.pages.edit_dashboard_config.form.fields.frontend_base_url.label'))
+                        ->helperText(__('filament.pages.edit_dashboard_config.form.fields.frontend_base_url.helper'))
+                        ->placeholder(__('filament.pages.edit_dashboard_config.form.fields.frontend_base_url.placeholder'))
                         ->nullable()
                         ->maxLength(255)
                         ->url(),

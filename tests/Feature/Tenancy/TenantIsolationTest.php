@@ -29,7 +29,7 @@ class TenantIsolationTest extends TestCase
         // Create default tenant first
         $defaultTenant = Tenant::firstOrCreate(
             ['slug' => 'default'],
-            ['name' => 'Default Tenant']
+            ['name' => 'Default Dashboard']
         );
 
         $tenantA = Tenant::create(['name' => 'Tenant A', 'slug' => 'tenant-a']);
@@ -120,7 +120,7 @@ class TenantIsolationTest extends TestCase
     {
         $defaultTenant = Tenant::firstOrCreate(
             ['slug' => 'default'],
-            ['name' => 'Default Tenant']
+            ['name' => 'Default Dashboard']
         );
 
         $tenantA = Tenant::create(['name' => 'Tenant A', 'slug' => 'tenant-a']);

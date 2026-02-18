@@ -22,7 +22,7 @@ class TenantBackfillScopeTest extends TestCase
         // Create multiple tenants
         $defaultTenant = Tenant::firstOrCreate(
             ['slug' => 'default'],
-            ['name' => 'Default Tenant']
+            ['name' => 'Default Dashboard']
         );
         $tenantA = Tenant::create(['name' => 'Tenant A', 'slug' => 'tenant-a']);
         $tenantB = Tenant::create(['name' => 'Tenant B', 'slug' => 'tenant-b']);
@@ -72,7 +72,7 @@ class TenantBackfillScopeTest extends TestCase
 
         $defaultTenant = Tenant::firstOrCreate(
             ['slug' => 'default'],
-            ['name' => 'Default Tenant']
+            ['name' => 'Default Dashboard']
         );
 
         // Create records with null tenant_id

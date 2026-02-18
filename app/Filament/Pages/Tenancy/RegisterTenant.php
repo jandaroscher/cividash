@@ -18,7 +18,7 @@ class RegisterTenant extends BaseRegisterTenant
      */
     public static function getLabel(): string
     {
-        return __('Register tenant');
+        return __('filament.pages.register_dashboard.title');
     }
 
     /**
@@ -45,7 +45,7 @@ class RegisterTenant extends BaseRegisterTenant
     {
         return $form->schema([
             Forms\Components\TextInput::make('name')
-                ->label(__('Tenant name'))
+                ->label(__('filament.pages.register_dashboard.fields.name.label'))
                 ->required()
                 ->maxLength(255)
                 ->live(onBlur: true)

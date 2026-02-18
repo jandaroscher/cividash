@@ -96,8 +96,8 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->navigationItems([
-                NavigationItem::make('tenant-profile')
-                    ->label(fn (): string => __('filament.pages.edit_tenant_profile.title'))
+                NavigationItem::make('dashboard-config')
+                    ->label(fn (): string => __('filament.pages.edit_dashboard_config.title'))
                     ->group(fn (): string => __('filament.navigation.groups.settings'))
                     ->icon('heroicon-o-building-office-2')
                     ->sort(24)

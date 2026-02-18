@@ -16,6 +16,7 @@ class TenantFactory extends Factory
     {
         return [
             'name' => fake()->company(),
+            'description' => fake()->optional(0.5)->company(),
             'slug' => fake()->unique()->slug(2),
         ];
     }

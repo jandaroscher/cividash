@@ -13,7 +13,7 @@ abstract class TestCase extends BaseTestCase
      * Prepare the test environment and ensure a default tenant exists for tenant-scoped tests.
      *
      * If the test uses the database (RefreshDatabase trait) and the `tenants` table exists,
-     * creates a Tenant with name "Default Tenant" and slug "default" when one is not present.
+     * creates a Tenant with name "Default Dashboard" and slug "default" when one is not present.
      * Database-related errors are ignored so tests can run without a full database setup.
      */
     protected function setUp(): void
@@ -26,7 +26,7 @@ abstract class TestCase extends BaseTestCase
                 // Check if tenants table exists before trying to create a tenant
                 if (Schema::hasTable('tenants') && ! Tenant::where('slug', 'default')->exists()) {
                     Tenant::create([
-                        'name' => 'Default Tenant',
+                        'name' => 'Default Dashboard',
                         'slug' => 'default',
                     ]);
                 }

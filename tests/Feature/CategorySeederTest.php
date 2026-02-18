@@ -23,7 +23,7 @@ class CategorySeederTest extends TestCase
         parent::setUp();
         $defaultTenant = Tenant::firstOrCreate(
             ['slug' => 'default'],
-            ['name' => 'Default Tenant']
+            ['name' => 'Default Dashboard']
         );
 
         // Create user and authenticate for Filament tenant context

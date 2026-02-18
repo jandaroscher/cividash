@@ -37,7 +37,7 @@ class TenancyBackfillCommand extends Command
         DB::transaction(function () use ($slug) {
             $tenant = Tenant::firstOrCreate(
                 ['slug' => $slug],
-                ['name' => 'Default Tenant']
+                ['name' => 'Default Dashboard']
             );
 
             $this->backfillUsers($tenant);
