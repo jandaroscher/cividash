@@ -396,6 +396,13 @@ class ConfigController extends Controller
      */
     protected function resolveTenantFromRequest(\Illuminate\Http\Request $request): ?Tenant
     {
+        // Priority 1: Use tenant already resolved by ResolveTenantFromRequest middleware
+        // (handles Bearer Token > Domain matching > Default fallback)
+        $resolvedTenant = $request->attributes->get('resolved_tenant');
+        if ($resolvedTenant) {
+            return $resolvedTenant;
+        }
+
         // Try query parameter first
         if ($request->has('tenant')) {
             $tenantIdentifier = $request->input('tenant');
