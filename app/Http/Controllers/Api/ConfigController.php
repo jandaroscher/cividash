@@ -3,11 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateContentRequest;
+use App\Http\Requests\Admin\UpdateDashboardRequest;
+use App\Http\Requests\Admin\UpdateFooterRequest;
+use App\Http\Requests\Admin\UpdateGeneralRequest;
+use App\Http\Requests\Admin\UpdateNavigationRequest;
 use App\Http\Requests\UpdateBrandingRequest;
 use App\Models\FooterNavigation;
 use App\Models\Navigation;
 use App\Models\Tenant;
 use App\Settings\BrandingSettings;
+use App\Settings\ContentSettings;
+use App\Settings\DashboardSettings;
 use App\Settings\GeneralSettings;
 use Filament\Facades\Filament;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -382,6 +389,272 @@ class ConfigController extends Controller
             'domain' => $tenant?->domain,
             'frontend_base_url' => $tenant?->frontend_base_url,
             'resolved_by' => $resolvedBy,
+        ]);
+    }
+
+    /**
+     * Retrieve dashboard meta configuration.
+     *
+     * Returns contact details, documentation URLs, and display preferences.
+     *
+     * @group Public API - Configuration
+     *
+     * @unauthenticated
+     *
+     * @response 200 scenario="Dashboard config" {"data": {"open_source_docs_url": "https://example.com/docs", "user_manual_url": null, "contact_name": "Max Mustermann", "contact_email": "max@example.com", "contact_url": null, "made_with_text": "Made with love", "show_server_time": false}}
+     */
+    public function dashboard(): JsonResource
+    {
+        $settings = app(DashboardSettings::class);
+
+        return new JsonResource([
+            'open_source_docs_url' => $settings->open_source_docs_url,
+            'user_manual_url' => $settings->user_manual_url,
+            'contact_name' => $settings->contact_name,
+            'contact_email' => $settings->contact_email,
+            'contact_url' => $settings->contact_url,
+            'made_with_text' => $settings->made_with_text,
+            'show_server_time' => $settings->show_server_time,
+        ]);
+    }
+
+    /**
+     * Retrieve hero content blocks.
+     *
+     * Returns content settings including hero section blocks.
+     *
+     * @group Public API - Configuration
+     *
+     * @unauthenticated
+     *
+     * @response 200 scenario="Content config" {"data": {"hero_content": []}}
+     */
+    public function content(): JsonResource
+    {
+        $settings = app(ContentSettings::class);
+
+        return new JsonResource([
+            'hero_content' => $settings->hero_content,
+        ]);
+    }
+
+    /**
+     * Partially update navigation settings.
+     *
+     * Only provided fields are updated. Requires admin-api permission and an explicit tenant context.
+     *
+     * @group Admin API - Navigation Configuration
+     *
+     * @authenticated
+     *
+     * @bodyParam navigation_items object Navigation items per locale. Example: {"de": [{"label": "Start", "url": "/"}], "en": [{"label": "Home", "url": "/en"}]}
+     * @bodyParam show_language_switcher boolean Show language switcher toggle. Example: true
+     * @bodyParam dropdown_enabled boolean Enable dropdown menus. Example: false
+     *
+     * @response 200 scenario="Navigation updated" {"data": {"navigation_items": {"de": [], "en": []}, "show_language_switcher": true, "dropdown_enabled": false}}
+     */
+    public function updateNavigation(UpdateNavigationRequest $request): JsonResource
+    {
+        $navigation = Navigation::getOrCreateInstance();
+        $validated = $request->validated();
+
+        if (array_key_exists('navigation_items', $validated)) {
+            $navigation->navigation_items = $validated['navigation_items'];
+        }
+
+        if (array_key_exists('show_language_switcher', $validated)) {
+            $navigation->show_language_switcher = $validated['show_language_switcher'];
+        }
+
+        if (array_key_exists('dropdown_enabled', $validated)) {
+            $navigation->dropdown_enabled = $validated['dropdown_enabled'];
+        }
+
+        $navigation->save();
+
+        return new JsonResource([
+            'navigation_items' => $navigation->getTranslations('navigation_items'),
+            'show_language_switcher' => $navigation->show_language_switcher,
+            'dropdown_enabled' => $navigation->dropdown_enabled,
+        ]);
+    }
+
+    /**
+     * Partially update footer configuration.
+     *
+     * Only provided fields are updated. Requires admin-api permission and an explicit tenant context.
+     *
+     * @group Admin API - Footer Configuration
+     *
+     * @authenticated
+     *
+     * @bodyParam footer_navigation_items object Footer navigation items per locale. Example: {"de": [], "en": []}
+     * @bodyParam social_links object Social links per locale. Example: {"de": [], "en": []}
+     * @bodyParam layout_type string Footer layout type. Example: single-row
+     * @bodyParam columns integer Number of footer columns (1-6). Example: 3
+     * @bodyParam social_links_enabled boolean Enable social links display. Example: true
+     * @bodyParam copyright_text object Copyright text per locale. Example: {"de": "© 2025", "en": "© 2025"}
+     *
+     * @response 200 scenario="Footer updated" {"data": {"footer_navigation_items": {"de": [], "en": []}, "social_links": {"de": [], "en": []}, "layout_type": "single-row", "columns": 3, "social_links_enabled": true, "copyright_text": {"de": "", "en": ""}}}
+     */
+    public function updateFooter(UpdateFooterRequest $request): JsonResource
+    {
+        $footer = FooterNavigation::getOrCreateInstance();
+        $validated = $request->validated();
+
+        if (array_key_exists('footer_navigation_items', $validated)) {
+            $footer->footer_navigation_items = $validated['footer_navigation_items'];
+        }
+
+        if (array_key_exists('social_links', $validated)) {
+            $footer->social_links = $validated['social_links'];
+        }
+
+        if (array_key_exists('layout_type', $validated)) {
+            $footer->layout_type = $validated['layout_type'];
+        }
+
+        if (array_key_exists('columns', $validated)) {
+            $footer->columns = $validated['columns'];
+        }
+
+        if (array_key_exists('social_links_enabled', $validated)) {
+            $footer->social_links_enabled = $validated['social_links_enabled'];
+        }
+
+        if (array_key_exists('copyright_text', $validated)) {
+            $footer->copyright_text = $validated['copyright_text'];
+        }
+
+        $footer->save();
+
+        return new JsonResource([
+            'footer_navigation_items' => $footer->getTranslations('footer_navigation_items'),
+            'social_links' => $footer->getTranslations('social_links'),
+            'layout_type' => $footer->layout_type,
+            'columns' => $footer->columns,
+            'social_links_enabled' => $footer->social_links_enabled,
+            'copyright_text' => $footer->getTranslations('copyright_text'),
+        ]);
+    }
+
+    /**
+     * Partially update general site settings.
+     *
+     * Only provided fields are updated. Requires admin-api permission and an explicit tenant context.
+     *
+     * @group Admin API - General Configuration
+     *
+     * @authenticated
+     *
+     * @bodyParam site_name string Site name. Example: Zukunftsbarometer Regensburg
+     * @bodyParam site_active boolean Whether the site is active. Example: true
+     * @bodyParam favicon string Favicon file path. Example: branding/favicon.png
+     *
+     * @response 200 scenario="General settings updated" {"data": {"site_name": "Zukunftsbarometer Regensburg", "site_active": true, "favicon_url": "https://example.com/storage/branding/favicon.png"}}
+     */
+    public function updateGeneral(UpdateGeneralRequest $request): JsonResource
+    {
+        $settings = app(GeneralSettings::class);
+        $validated = $request->validated();
+
+        foreach ($validated as $key => $value) {
+            if (property_exists($settings, $key)) {
+                $settings->$key = $value;
+            }
+        }
+
+        $settings->save();
+
+        // Reload settings to get updated values
+        $settings = app(GeneralSettings::class);
+
+        return new JsonResource([
+            'site_name' => $settings->site_name,
+            'site_active' => $settings->site_active,
+            'favicon_url' => $settings->favicon
+                ? Storage::disk('public')->url($settings->favicon)
+                : null,
+        ]);
+    }
+
+    /**
+     * Partially update dashboard meta settings.
+     *
+     * Only provided fields are updated. Requires admin-api permission and an explicit tenant context.
+     *
+     * @group Admin API - Dashboard Configuration
+     *
+     * @authenticated
+     *
+     * @bodyParam open_source_docs_url string URL to open source documentation. Example: https://example.com/docs
+     * @bodyParam user_manual_url string URL to user manual. Example: https://example.com/manual
+     * @bodyParam contact_name string Contact person name. Example: Max Mustermann
+     * @bodyParam contact_email string Contact email address. Example: max@example.com
+     * @bodyParam contact_url string Contact URL. Example: https://example.com/contact
+     * @bodyParam made_with_text string Made-with attribution text. Example: Made with love
+     * @bodyParam show_server_time boolean Show server time in dashboard. Example: false
+     *
+     * @response 200 scenario="Dashboard settings updated" {"data": {"open_source_docs_url": "https://example.com/docs", "user_manual_url": null, "contact_name": "Max Mustermann", "contact_email": "max@example.com", "contact_url": null, "made_with_text": "Made with love", "show_server_time": false}}
+     */
+    public function updateDashboard(UpdateDashboardRequest $request): JsonResource
+    {
+        $settings = app(DashboardSettings::class);
+        $validated = $request->validated();
+
+        foreach ($validated as $key => $value) {
+            if (property_exists($settings, $key)) {
+                $settings->$key = $value;
+            }
+        }
+
+        $settings->save();
+
+        // Reload settings to get updated values
+        $settings = app(DashboardSettings::class);
+
+        return new JsonResource([
+            'open_source_docs_url' => $settings->open_source_docs_url,
+            'user_manual_url' => $settings->user_manual_url,
+            'contact_name' => $settings->contact_name,
+            'contact_email' => $settings->contact_email,
+            'contact_url' => $settings->contact_url,
+            'made_with_text' => $settings->made_with_text,
+            'show_server_time' => $settings->show_server_time,
+        ]);
+    }
+
+    /**
+     * Partially update hero content settings.
+     *
+     * Only provided fields are updated. Requires admin-api permission and an explicit tenant context.
+     *
+     * @group Admin API - Content Configuration
+     *
+     * @authenticated
+     *
+     * @bodyParam hero_content array Hero content blocks. Example: [{"type": "text", "content": "Welcome"}]
+     *
+     * @response 200 scenario="Content settings updated" {"data": {"hero_content": []}}
+     */
+    public function updateContent(UpdateContentRequest $request): JsonResource
+    {
+        $settings = app(ContentSettings::class);
+        $validated = $request->validated();
+
+        foreach ($validated as $key => $value) {
+            if (property_exists($settings, $key)) {
+                $settings->$key = $value;
+            }
+        }
+
+        $settings->save();
+
+        // Reload settings to get updated values
+        $settings = app(ContentSettings::class);
+
+        return new JsonResource([
+            'hero_content' => $settings->hero_content,
         ]);
     }
 

@@ -360,18 +360,14 @@ class PageController extends Controller
      */
     protected function getTenantMeta(): array
     {
-        if (function_exists('tenant')) {
-            try {
-                $tenant = tenant();
-                if ($tenant) {
-                    return [
-                        'id' => $tenant->id ?? $tenant->getKey() ?? null,
-                        'slug' => $tenant->slug ?? null,
-                    ];
-                }
-            } catch (\Throwable $e) {
-                // fall through to null values
-            }
+        $request = request();
+        $tenant = $request->attributes->get('resolved_tenant');
+
+        if ($tenant) {
+            return [
+                'id' => $tenant->id ?? $tenant->getKey() ?? null,
+                'slug' => $tenant->slug ?? null,
+            ];
         }
 
         return [

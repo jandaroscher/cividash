@@ -121,6 +121,7 @@ return [
         'order' => [
             'Public API - Tiles',
             'Public API - Filters',
+            'Public API - Categories',
             'Public API - Configuration',
             'Public API - Content Pages',
             'Admin API - Tiles',

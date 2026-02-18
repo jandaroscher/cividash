@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTileRequest;
+use App\Http\Requests\Admin\SyncTileCategoriesRequest;
 use App\Http\Requests\Admin\UpdateTileRequest;
 use App\Models\Tile;
 use Illuminate\Http\JsonResponse;
@@ -134,5 +135,37 @@ class AdminTileController extends Controller
         $tile->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * Sync tile categories
+     *
+     * Replaces all category associations for a tile with the provided category IDs.
+     * Only tiles and categories belonging to the authenticated user's tenant can be synced.
+     *
+     * @authenticated
+     *
+     * @urlParam id integer required The ID of the tile. Example: 42
+     *
+     * @bodyParam category_ids integer[] required Array of category IDs to associate. Example: [1, 2, 3]
+     *
+     * @response 200 scenario="Categories synced" {"data": {"tile_id": 42, "category_ids": [1, 2, 3]}}
+     * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
+     * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
+     * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
+     * @response 404 scenario="Tile not found" {"message": "No query results for model [App\\Models\\Tile] 999"}
+     * @response 422 scenario="Validation error" {"message": "The category ids field is required.", "errors": {"category_ids": ["The category ids field is required."]}}
+     */
+    public function syncCategories(SyncTileCategoriesRequest $request, int $id): JsonResponse
+    {
+        $tile = Tile::findOrFail($id);
+        $tile->categories()->sync($request->validated()['category_ids']);
+
+        return response()->json([
+            'data' => [
+                'tile_id' => $tile->id,
+                'category_ids' => $tile->categories()->pluck('categories.id')->toArray(),
+            ],
+        ]);
     }
 }

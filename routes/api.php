@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminCategoryController;
+use App\Http\Controllers\Api\Admin\AdminCategoryGroupController;
 use App\Http\Controllers\Api\Admin\AdminMetricDefinitionController;
 use App\Http\Controllers\Api\Admin\AdminMetricValueController;
+use App\Http\Controllers\Api\Admin\AdminPageController;
 use App\Http\Controllers\Api\Admin\AdminTileController;
 use App\Http\Controllers\Api\Admin\AdminTileYearController;
 use App\Http\Controllers\Api\CategoryController;
@@ -27,6 +30,8 @@ Route::middleware('resolve.tenant')->group(function () {
     Route::get('/config/header', [ConfigController::class, 'header']);
     Route::get('/config/footer', [ConfigController::class, 'footer']);
     Route::get('/config/tenant', [ConfigController::class, 'tenant']);
+    Route::get('/config/dashboard', [ConfigController::class, 'dashboard']);
+    Route::get('/config/content', [ConfigController::class, 'content']);
 
     // Content pages
     Route::get('/content/pages', [ContentPageController::class, 'index']);
@@ -64,4 +69,29 @@ Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant'
     Route::post('/metric-values', [AdminMetricValueController::class, 'store']);
     Route::patch('/metric-values/{id}', [AdminMetricValueController::class, 'update']);
     Route::delete('/metric-values/{id}', [AdminMetricValueController::class, 'destroy']);
+
+    // Category group management
+    Route::post('/category-groups', [AdminCategoryGroupController::class, 'store']);
+    Route::patch('/category-groups/{id}', [AdminCategoryGroupController::class, 'update']);
+    Route::delete('/category-groups/{id}', [AdminCategoryGroupController::class, 'destroy']);
+
+    // Category management
+    Route::post('/categories', [AdminCategoryController::class, 'store']);
+    Route::patch('/categories/{id}', [AdminCategoryController::class, 'update']);
+    Route::delete('/categories/{id}', [AdminCategoryController::class, 'destroy']);
+
+    // Tile-Category sync
+    Route::post('/tiles/{id}/categories', [AdminTileController::class, 'syncCategories']);
+
+    // Page management
+    Route::post('/pages', [AdminPageController::class, 'store']);
+    Route::patch('/pages/{id}', [AdminPageController::class, 'update']);
+    Route::delete('/pages/{id}', [AdminPageController::class, 'destroy']);
+
+    // Settings updates
+    Route::patch('/config/navigation', [ConfigController::class, 'updateNavigation']);
+    Route::patch('/config/footer', [ConfigController::class, 'updateFooter']);
+    Route::patch('/config/general', [ConfigController::class, 'updateGeneral']);
+    Route::patch('/config/dashboard', [ConfigController::class, 'updateDashboard']);
+    Route::patch('/config/content', [ConfigController::class, 'updateContent']);
 });
