@@ -17,7 +17,8 @@ class TenantSeederTest extends TestCase
 
         $this->assertDatabaseHas('users', [
             'email' => 'demo@example.com',
-            'name' => 'Demo Admin',
+            'first_name' => 'Demo',
+            'last_name' => 'Admin',
         ]);
 
         $this->assertDatabaseHas('tenants', [
@@ -60,7 +61,8 @@ class TenantSeederTest extends TestCase
     {
         // Pre-create the user (User::booted() auto-attaches to default tenant)
         $user = User::factory()->create([
-            'name' => 'Demo Admin',
+            'first_name' => 'Demo',
+            'last_name' => 'Admin',
             'email' => 'demo@example.com',
         ]);
 

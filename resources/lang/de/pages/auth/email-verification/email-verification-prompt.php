@@ -2,32 +2,32 @@
 
 return [
 
-    'title' => 'Verify your email address',
+    'title' => 'E-Mail-Adresse bestätigen',
 
-    'heading' => 'Verify your email address',
+    'heading' => 'E-Mail-Adresse bestätigen',
 
     'actions' => [
 
         'resend_notification' => [
-            'label' => 'Resend it',
+            'label' => 'Erneut senden',
         ],
 
     ],
 
     'messages' => [
-        'notification_not_received' => 'Not received the email we sent?',
-        'notification_sent' => 'We\'ve sent an email to :email containing instructions on how to verify your email address.',
+        'notification_not_received' => 'Keine E-Mail erhalten?',
+        'notification_sent' => 'Wir haben eine E-Mail mit Anweisungen zur Bestätigung des Kontos an :email gesendet.',
     ],
 
     'notifications' => [
 
         'notification_resent' => [
-            'title' => 'We\'ve resent the email.',
+            'title' => 'E-Mail erneut gesendet.',
         ],
 
         'notification_resend_throttled' => [
-            'title' => 'Too many resend attempts',
-            'body' => 'Please try again in :seconds seconds.',
+            'title' => 'Zu viele Versuche.',
+            'body' => 'Versuchen Sie es bitte in :seconds Sekunden nochmal.',
         ],
 
     ],

@@ -5,14 +5,15 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class LocaleDetector
 {
     /**
      * Handle an incoming request.
-     * Detects locale from URI prefix (/en/) and sets it via App::setLocale().
-     * Excludes admin routes to avoid interfering with Filament's locale handling.
+     * Detects locale from URI prefix (/en/) for public routes.
+     * For admin routes, uses the authenticated user's locale preference.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
@@ -20,9 +21,14 @@ class LocaleDetector
     {
         $path = $request->path();
 
-        // Ensure admin uses German UI labels by default
+        // For admin routes, respect language switcher (session/cookie), fall back to user's DB locale
         if (str_starts_with($path, 'admin')) {
-            App::setLocale('de');
+            $user = Auth::user();
+            $locale = session('locale')
+                ?? request()->cookie('filament_language_switch_locale')
+                ?? $user?->locale
+                ?? 'de';
+            App::setLocale($locale);
 
             return $next($request);
         }

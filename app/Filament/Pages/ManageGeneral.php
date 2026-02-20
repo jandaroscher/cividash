@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Settings\GeneralSettings;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
@@ -31,6 +32,11 @@ class ManageGeneral extends SettingsPage
     public static function getNavigationGroup(): ?string
     {
         return __('filament.navigation.groups.settings');
+    }
+
+    public static function canAccess(): bool
+    {
+        return (bool) Filament::auth()->user()?->is_admin;
     }
 
     /**

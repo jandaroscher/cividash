@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ConfigController;
 use App\Http\Controllers\Api\Content\PageController as ContentPageController;
 use App\Http\Controllers\Api\FilterController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\Tenant\TenantUserController;
 use App\Http\Controllers\Api\TileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +20,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+// Authenticated user profile endpoints
+Route::middleware('auth:sanctum')->prefix('me')->group(function () {
+    Route::get('/', [ProfileController::class, 'show']);
+    Route::patch('/', [ProfileController::class, 'update']);
+    Route::put('/password', [ProfileController::class, 'updatePassword']);
+});
 
 // Public API routes with tenant resolution (Token > Domain > Default)
 Route::middleware('resolve.tenant')->group(function () {
@@ -94,4 +103,11 @@ Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant'
     Route::patch('/config/general', [ConfigController::class, 'updateGeneral']);
     Route::patch('/config/dashboard', [ConfigController::class, 'updateDashboard']);
     Route::patch('/config/content', [ConfigController::class, 'updateContent']);
+});
+
+// Tenant user management routes (requires auth, role-based authorization inside controller)
+Route::middleware(['auth:sanctum', 'resolve.tenant'])->prefix('tenants/{tenant:slug}')->group(function () {
+    Route::get('/users', [TenantUserController::class, 'index']);
+    Route::patch('/users/{user}', [TenantUserController::class, 'update']);
+    Route::delete('/users/{user}', [TenantUserController::class, 'destroy']);
 });

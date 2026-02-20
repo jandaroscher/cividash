@@ -4,7 +4,10 @@ namespace App\Providers;
 
 use App\Models\Page;
 use App\Observers\PageObserver;
+use BezhanSalleh\FilamentLanguageSwitch\Events\LocaleChanged;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Z3d0X\FilamentFabricator\Forms\Components\PageBuilder;
 
@@ -38,6 +41,13 @@ class AppServiceProvider extends ServiceProvider
         // Configure PageBuilder to make blocks collapsible
         PageBuilder::configureUsing(function (PageBuilder $builder) {
             $builder->collapsible();
+        });
+
+        // Persist language switcher changes to user's DB locale
+        Event::listen(LocaleChanged::class, function (LocaleChanged $event) {
+            if ($user = Auth::user()) {
+                $user->update(['locale' => $event->locale]);
+            }
         });
 
         // Register Page observer for cache invalidation

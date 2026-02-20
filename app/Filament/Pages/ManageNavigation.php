@@ -7,6 +7,7 @@ use App\Filament\Concerns\HasNavigationItemSchema;
 use App\Models\Navigation;
 use Filament\Actions\Action;
 use Filament\Actions\LocaleSwitcher;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -53,6 +54,11 @@ class ManageNavigation extends Page implements HasForms
     public static function getNavigationGroup(): ?string
     {
         return __('filament.navigation.groups.settings');
+    }
+
+    public static function canAccess(): bool
+    {
+        return (bool) Filament::auth()->user()?->is_admin;
     }
 
     public ?array $data = [];

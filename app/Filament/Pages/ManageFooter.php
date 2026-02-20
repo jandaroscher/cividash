@@ -7,6 +7,7 @@ use App\Models\FooterNavigation;
 use App\Models\Page as PageModel;
 use Filament\Actions\Action;
 use Filament\Actions\LocaleSwitcher;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -55,6 +56,11 @@ class ManageFooter extends Page implements HasForms
     public static function getNavigationGroup(): ?string
     {
         return __('filament.navigation.groups.settings');
+    }
+
+    public static function canAccess(): bool
+    {
+        return (bool) Filament::auth()->user()?->is_admin;
     }
 
     public ?array $data = [];

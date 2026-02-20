@@ -2,29 +2,29 @@
 
 return [
 
-    'title' => 'Reset your password',
+    'title' => 'Passwort zurücksetzen',
 
-    'heading' => 'Reset your password',
+    'heading' => 'Passwort zurücksetzen',
 
     'form' => [
 
         'email' => [
-            'label' => 'Email address',
+            'label' => 'E-Mail-Adresse',
         ],
 
         'password' => [
-            'label' => 'Password',
-            'validation_attribute' => 'password',
+            'label' => 'Passwort',
+            'validation_attribute' => 'Passwort',
         ],
 
         'password_confirmation' => [
-            'label' => 'Confirm password',
+            'label' => 'Passwort bestätigen',
         ],
 
         'actions' => [
 
             'reset' => [
-                'label' => 'Reset password',
+                'label' => 'Passwort zurücksetzen',
             ],
 
         ],
@@ -34,8 +34,8 @@ return [
     'notifications' => [
 
         'throttled' => [
-            'title' => 'Too many reset attempts',
-            'body' => 'Please try again in :seconds seconds.',
+            'title' => 'Zu viele Versuche.',
+            'body' => 'Bitte in :seconds Sekunden nochmal versuchen.',
         ],
 
     ],

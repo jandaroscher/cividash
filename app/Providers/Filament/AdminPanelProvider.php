@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\Tenancy\EditTenantProfile;
 use App\Filament\Pages\Tenancy\RegisterTenant;
 use App\Http\Middleware\SetFilamentDefaultTenant;
@@ -13,6 +14,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -27,6 +29,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Z3d0X\FilamentFabricator\Enums\BlockPickerStyle;
@@ -36,8 +39,6 @@ class AdminPanelProvider extends PanelProvider
 {
     /**
      * Registers frontend assets used by the Filament admin panel.
-     *
-     * Registers the "dotlottie-player" JavaScript (built via Vite) and the local "admin-overrides" CSS file with Filament's asset registry so they are available in the admin UI.
      */
     public function boot(): void
     {
@@ -49,20 +50,13 @@ class AdminPanelProvider extends PanelProvider
 
     /**
      * Configure the Filament admin panel with tenancy, tenant pages, navigation, resources, widgets, middleware, plugins, and authentication middleware.
-     *
-     * Binds the Tenant model, registers tenant-specific UI pages and navigation (including an optional favicon resolved from GeneralSettings), discovers resources/pages/widgets, sets panel identifiers and UI options, and returns the configured Panel.
-     *
-     * @param  Panel  $panel  The Panel instance to configure.
-     * @return Panel The configured Panel instance.
      */
     public function panel(Panel $panel): Panel
     {
         // Enable tenancy on the panel to allow Filament::getTenant() to work in tests
-        // This ensures that setTenant()/getTenant() work reliably even in test contexts
         $panel->tenant(Tenant::class);
 
-        // Register tenant UI pages so route-based navigation works in all environments,
-        // including tests that render the panel navigation.
+        // Register tenant UI pages so route-based navigation works in all environments
         $panel
             ->tenantRegistration(RegisterTenant::class)
             ->tenantProfile(EditTenantProfile::class);
@@ -87,6 +81,15 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->login()
             ->globalSearch(false)
+            ->userMenuItems([
+                'profile' => MenuItem::make()
+                    ->label(fn (): string => __('filament.pages.edit_profile.title'))
+                    ->icon('heroicon-o-user-circle')
+                    ->url(fn (): string => Filament::getTenant()
+                        ? EditProfile::getUrl(tenant: Filament::getTenant())
+                        : '#'
+                    ),
+            ])
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -106,7 +109,7 @@ class AdminPanelProvider extends PanelProvider
                         : '#'
                     )
                     ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.tenant.profile'))
-                    ->visible(fn (): bool => Filament::getTenant() !== null),
+                    ->visible(fn (): bool => (bool) Auth::user()?->is_admin),
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -114,7 +117,6 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
-                \App\Http\Middleware\LocaleDetector::class,
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
@@ -124,6 +126,8 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                // LocaleDetector must run after session is started so Auth::user() works
+                \App\Http\Middleware\LocaleDetector::class,
             ])
             ->plugins([
                 SpatieLaravelTranslatablePlugin::make()

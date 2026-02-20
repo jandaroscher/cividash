@@ -23,8 +23,7 @@ class ManageGeneralTest extends TestCase
     {
         parent::setUp();
         $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
-        $this->user = User::factory()->create();
-        $this->user->tenants()->attach($this->tenant->id);
+        $this->user = User::factory()->admin()->create();
         $this->actingAs($this->user);
         Filament::setTenant($this->tenant);
     }

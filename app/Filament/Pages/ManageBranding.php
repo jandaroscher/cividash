@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Settings\BrandingSettings;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
@@ -34,6 +35,11 @@ class ManageBranding extends SettingsPage
     public static function getNavigationGroup(): ?string
     {
         return __('filament.navigation.groups.settings');
+    }
+
+    public static function canAccess(): bool
+    {
+        return (bool) Filament::auth()->user()?->is_admin;
     }
 
     /**

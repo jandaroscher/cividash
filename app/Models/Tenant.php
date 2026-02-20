@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\RoleService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -20,9 +21,19 @@ class Tenant extends Model
     ];
 
     /**
-     * Get the users associated with the tenant.
+     * Bootstrap model events.
      *
-     * @return BelongsToMany The many-to-many relationship for User models; pivot records include `created_at` and `updated_at`.
+     * Creates default roles when a tenant is created.
+     */
+    protected static function booted(): void
+    {
+        static::created(function (Tenant $tenant) {
+            app(RoleService::class)->createDefaultRolesForTenant($tenant);
+        });
+    }
+
+    /**
+     * Get the users associated with the tenant.
      */
     public function users(): BelongsToMany
     {

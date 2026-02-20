@@ -38,6 +38,11 @@ class ManageApiKeys extends Page implements HasForms, HasTable
         return __('filament.navigation.groups.settings');
     }
 
+    public static function canAccess(): bool
+    {
+        return (bool) Filament::auth()->user()?->is_admin;
+    }
+
     /**
      * The newly created token's plain text value (shown once after creation).
      */

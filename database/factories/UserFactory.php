@@ -17,24 +17,18 @@ class UserFactory extends Factory
     protected static ?string $password;
 
     /**
-     * Provide default attribute values for creating a User model.
+     * Define the model's default state.
      *
-     * Attributes:
-     * - name: a generated full name.
-     * - email: a unique, safe email address.
-     * - email_verified_at: the current timestamp.
-     * - password: a hashed default password (caches the hashed value in the factory).
-     * - remember_token: a random 10-character string.
-     * - admin_api_enabled: `false` by default.
-     *
-     * @return array<string, mixed> An associative array of model attributes and their default values.
+     * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'is_active' => true,
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'admin_api_enabled' => false,
@@ -43,10 +37,6 @@ class UserFactory extends Factory
 
     /**
      * Indicate that the model's email address should be unverified.
-     *
-     * Sets the `email_verified_at` attribute to null.
-     *
-     * @return static The factory instance with the unverified state applied.
      */
     public function unverified(): static
     {
@@ -57,13 +47,31 @@ class UserFactory extends Factory
 
     /**
      * Configure the factory to create users with admin API access.
-     *
-     * @return static A factory state that sets `admin_api_enabled` to `true`.
      */
     public function withAdminApiAccess(): static
     {
         return $this->state(fn (array $attributes) => [
             'admin_api_enabled' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is inactive.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is an admin.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_admin' => true,
         ]);
     }
 }

@@ -2,14 +2,14 @@
 
 return [
 
-    'title' => 'Reset your password',
+    'title' => 'Passwort zurücksetzen',
 
-    'heading' => 'Forgot password?',
+    'heading' => 'Passwort vergessen?',
 
     'actions' => [
 
         'login' => [
-            'label' => 'back to login',
+            'label' => 'zurück zum Login',
         ],
 
     ],
@@ -17,13 +17,13 @@ return [
     'form' => [
 
         'email' => [
-            'label' => 'Email address',
+            'label' => 'E-Mail-Adresse',
         ],
 
         'actions' => [
 
             'request' => [
-                'label' => 'Send email',
+                'label' => 'E-Mail zusenden',
             ],
 
         ],
@@ -33,8 +33,8 @@ return [
     'notifications' => [
 
         'throttled' => [
-            'title' => 'Too many requests',
-            'body' => 'Please try again in :seconds seconds.',
+            'title' => 'Zu viele Versuche.',
+            'body' => 'Versuchen Sie es bitte in :seconds Sekunden nochmal.',
         ],
 
     ],

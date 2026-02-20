@@ -11,16 +11,13 @@ class TenantSeeder extends Seeder
 {
     /**
      * Seed tenants with domains and associate users.
-     *
-     * Creates or reuses demo/test users, configures the default tenant domain,
-     * creates Stadt Regensburg and Demo City tenants with their respective domains,
-     * attaches users to all tenants, and backfills tenancy associations.
      */
     public function run(): void
     {
         $demoUser = User::where('email', 'demo@example.com')->first()
-            ?? User::factory()->create([
-                'name' => 'Demo Admin',
+            ?? User::factory()->admin()->create([
+                'first_name' => 'Demo',
+                'last_name' => 'Admin',
                 'email' => 'demo@example.com',
             ]);
 
