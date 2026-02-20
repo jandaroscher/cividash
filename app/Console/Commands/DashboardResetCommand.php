@@ -46,6 +46,7 @@ class DashboardResetCommand extends Command
             $this->resetDefault();
             $this->resetRegensburg();
             $this->resetDemoCity();
+            $this->ensureAdminExists();
 
             $this->info('Demo data reset completed successfully.');
             Log::info('dashboard:reset completed successfully');
@@ -128,6 +129,13 @@ class DashboardResetCommand extends Command
             Artisan::call('dashboard:seed', [], $this->output);
             Artisan::call('pages:seed', [], $this->output);
             Artisan::call('tenancy:backfill', ['--default-tenant' => 'stadt-regensburg'], $this->output);
+
+            $branding = app(BrandingSettings::class);
+            $branding->primary_color = '#e30613';
+            $branding->secondary_color = '#e30613';
+            $branding->save();
+            app()->forgetInstance(BrandingSettings::class);
+            $this->info('Regensburg branding colors set.');
         } finally {
             Filament::setTenant(null, isQuiet: true);
         }
@@ -191,6 +199,29 @@ class DashboardResetCommand extends Command
         ]);
 
         $this->info("Seeded root page for tenant '{$tenant->slug}'.");
+    }
+
+    protected function ensureAdminExists(): void
+    {
+        $defaultAdmins = ['test@example.com', 'demo@example.com'];
+
+        $updated = User::whereIn('email', $defaultAdmins)->update([
+            'is_admin' => true,
+            'is_active' => true,
+        ]);
+
+        if ($updated > 0) {
+            $this->info("Ensured {$updated} default admin(s).");
+        }
+
+        // Fallback: if none of the default admins exist, promote the first user
+        if (! User::where('is_admin', true)->where('is_active', true)->exists()) {
+            $user = User::orderBy('id')->first();
+            if ($user) {
+                $user->forceFill(['is_admin' => true, 'is_active' => true])->save();
+                $this->info("Fallback admin: {$user->email}");
+            }
+        }
     }
 
     protected function deleteTenantContent(Tenant $tenant): void
