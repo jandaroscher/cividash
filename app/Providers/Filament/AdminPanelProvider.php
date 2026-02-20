@@ -59,7 +59,15 @@ class AdminPanelProvider extends PanelProvider
         // Register tenant UI pages so route-based navigation works in all environments
         $panel
             ->tenantRegistration(RegisterTenant::class)
-            ->tenantProfile(EditTenantProfile::class);
+            ->tenantProfile(EditTenantProfile::class)
+            ->tenantMenuItems([
+                'register' => MenuItem::make()
+                    ->label(fn (): string => __('filament.pages.register_dashboard.title'))
+                    ->visible(fn (): bool => (bool) Auth::user()?->is_admin),
+                'profile' => MenuItem::make()
+                    ->label(fn (): string => __('filament.pages.edit_dashboard_config.title'))
+                    ->visible(fn (): bool => (bool) Auth::user()?->is_admin),
+            ]);
 
         return $panel
             ->default()
