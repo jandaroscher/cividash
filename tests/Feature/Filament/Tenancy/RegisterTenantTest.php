@@ -23,8 +23,10 @@ class RegisterTenantTest extends TestCase
         parent::setUp();
 
         $this->tenant = Tenant::where('slug', 'default')->first();
+        // Create as non-admin so User::booted() attaches to default tenant,
+        // then promote to admin for canAccess() checks
         $this->user = User::factory()->create();
-        // User is already attached to default tenant via User::booted()
+        $this->user->forceFill(['is_admin' => true])->save();
 
         $this->actingAs($this->user);
         Filament::setTenant($this->tenant);
@@ -40,6 +42,14 @@ class RegisterTenantTest extends TestCase
     {
         Livewire::test(RegisterTenant::class)
             ->assertSuccessful();
+    }
+
+    public function test_non_admin_cannot_access_registration(): void
+    {
+        $nonAdmin = User::factory()->create(['is_admin' => false]);
+        $this->actingAs($nonAdmin);
+
+        $this->assertFalse(RegisterTenant::canAccess());
     }
 
     public function test_registration_creates_tenant_and_attaches_user(): void

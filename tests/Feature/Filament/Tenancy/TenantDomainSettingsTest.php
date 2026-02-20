@@ -35,8 +35,8 @@ class TenantDomainSettingsTest extends TestCase
             'domain' => 'tenant-b.example.com',
         ]);
 
-        // Create user and attach to tenants
-        $this->user = User::factory()->create();
+        // Create admin user and attach to tenants
+        $this->user = User::factory()->create(['is_admin' => true]);
         $this->user->tenants()->attach([$this->tenantA->id, $this->tenantB->id]);
 
         // Authenticate the user in Filament context
@@ -47,6 +47,18 @@ class TenantDomainSettingsTest extends TestCase
     {
         Filament::setTenant(null);
         parent::tearDown();
+    }
+
+    // ========== Access Control Tests ==========
+
+    public function test_non_admin_cannot_access_edit_tenant_profile(): void
+    {
+        $nonAdmin = User::factory()->create(['is_admin' => false]);
+        $nonAdmin->tenants()->attach($this->tenantA->id);
+        $this->actingAs($nonAdmin);
+        Filament::setTenant($this->tenantA);
+
+        $this->assertFalse(EditTenantProfile::canAccess());
     }
 
     // ========== Persistence Tests ==========

@@ -11,6 +11,11 @@ use Filament\Pages\Tenancy\EditTenantProfile as BaseEditTenantProfile;
 
 class EditTenantProfile extends BaseEditTenantProfile
 {
+    public static function canAccess(): bool
+    {
+        return (bool) Filament::auth()->user()?->is_admin;
+    }
+
     /**
      * Page label displayed for the tenant profile page.
      *

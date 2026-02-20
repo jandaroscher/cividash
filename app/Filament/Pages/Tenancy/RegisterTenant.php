@@ -11,6 +11,11 @@ use Illuminate\Support\Str;
 
 class RegisterTenant extends BaseRegisterTenant
 {
+    public static function canAccess(): bool
+    {
+        return (bool) Filament::auth()->user()?->is_admin;
+    }
+
     /**
      * Get the page label displayed in the UI.
      *
