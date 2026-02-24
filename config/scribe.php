@@ -23,7 +23,6 @@ return [
         3. Default tenant fallback
 
         **Admin API (POST/PATCH/DELETE endpoints):** Requires Bearer Token authentication with:
-        - User must have `admin_api_enabled = true`
         - Token must have `admin-api` or `*` ability
         - Token must have explicit `tenant_id` (no default fallback)
 
@@ -89,7 +88,6 @@ return [
         'placeholder' => '{YOUR_AUTH_TOKEN}',
         'extra_info' => <<<'AUTH'
             **Admin API** (`/api/admin/*`): Requires a Bearer token with:
-            - User flag `admin_api_enabled = true`
             - Token ability `admin-api` or `*`
             - Token must have `tenant_id` set (no default fallback)
 

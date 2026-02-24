@@ -66,10 +66,6 @@ class E2ESeedFullCommand extends Command
                 ]
             );
 
-            if (! $user->admin_api_enabled) {
-                $user->forceFill(['admin_api_enabled' => true])->save();
-            }
-
             // Associate user with both tenants
             $user->tenants()->syncWithoutDetaching([
                 $tenantA->id,

@@ -168,7 +168,6 @@ return [
             'token_name_helper' => 'Ein beschreibender Name, um diesen Token später zu identifizieren.',
             'abilities' => 'Berechtigungen',
             'abilities_helper' => 'Wählen Sie die Berechtigungen für diesen Token.',
-            'abilities_helper_no_admin' => 'Wählen Sie die Berechtigungen für diesen Token. Admin API Zugriff erfordert das admin_api_enabled Flag auf Ihrem Benutzerkonto.',
             'ability_public_read' => 'Public Read (nur Lesezugriff auf öffentliche API-Endpunkte)',
             'ability_admin_api' => 'Admin API (vollständiger CRUD-Zugriff auf Admin-Endpunkte)',
             'token_warning' => 'Wichtig: Der Token wird nur einmal nach der Erstellung angezeigt. Stellen Sie sicher, dass Sie ihn kopieren und sicher aufbewahren.',

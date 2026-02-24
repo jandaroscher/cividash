@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
             'first_name' => 'Test',
             'last_name' => 'User',
             'email' => 'test@example.com',
-            'admin_api_enabled' => true,
         ]);
 
         $this->call(TenantSeeder::class);

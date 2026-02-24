@@ -33,11 +33,11 @@ class ApiKeysManagementTest extends TestCase
         $this->tenantA = Tenant::create(['name' => 'Tenant A', 'slug' => 'tenant-a']);
         $this->tenantB = Tenant::create(['name' => 'Tenant B', 'slug' => 'tenant-b']);
 
-        // Create users with different permissions
-        $this->adminUser = User::factory()->create(['admin_api_enabled' => true]);
+        // Create users
+        $this->adminUser = User::factory()->create();
         $this->adminUser->tenants()->attach([$this->tenantA->id, $this->tenantB->id]);
 
-        $this->regularUser = User::factory()->create(['admin_api_enabled' => false]);
+        $this->regularUser = User::factory()->create();
         $this->regularUser->tenants()->attach([$this->tenantA->id, $this->tenantB->id]);
 
         // Instantiate the service
@@ -151,22 +151,8 @@ class ApiKeysManagementTest extends TestCase
         $this->assertContains('public-read', $token3->accessToken->abilities);
     }
 
-    public function test_create_admin_api_token_requires_admin_api_enabled_flag(): void
+    public function test_create_admin_api_token_succeeds(): void
     {
-        // Regular user (admin_api_enabled = false) should NOT be able to create admin-api token
-        $this->expectException(ValidationException::class);
-
-        $this->tokenService->createForTenant(
-            $this->regularUser,
-            $this->tenantA,
-            'Admin Token',
-            ['admin-api']
-        );
-    }
-
-    public function test_create_admin_api_token_succeeds_with_admin_api_enabled_flag(): void
-    {
-        // Admin user (admin_api_enabled = true) CAN create admin-api token
         $token = $this->tokenService->createForTenant(
             $this->adminUser,
             $this->tenantA,

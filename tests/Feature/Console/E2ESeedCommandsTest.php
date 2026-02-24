@@ -129,7 +129,6 @@ class E2ESeedCommandsTest extends TestCase
 
         $user = User::where('email', 'e2e-test@example.com')->first();
         $this->assertNotNull($user);
-        $this->assertTrue((bool) $user->admin_api_enabled);
     }
 
     public function test_seed_tenant_resolution_json_outputs_valid_json(): void

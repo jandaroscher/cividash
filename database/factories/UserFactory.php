@@ -31,7 +31,6 @@ class UserFactory extends Factory
             'is_active' => true,
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'admin_api_enabled' => false,
         ];
     }
 
@@ -42,16 +41,6 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
-        ]);
-    }
-
-    /**
-     * Configure the factory to create users with admin API access.
-     */
-    public function withAdminApiAccess(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'admin_api_enabled' => true,
         ]);
     }
 

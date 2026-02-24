@@ -25,7 +25,7 @@ class BrandingConfigApiTest extends TestCase
 
         // Create tenant and user for Admin API tests
         $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
-        $this->user = User::factory()->withAdminApiAccess()->create();
+        $this->user = User::factory()->create();
         $this->user->tenants()->attach($this->tenant->id);
     }
 

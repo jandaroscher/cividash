@@ -54,7 +54,6 @@ return [
             'token_name_helper' => 'A descriptive name to help you identify this token later.',
             'abilities' => 'Abilities',
             'abilities_helper' => 'Select the permissions this token should have.',
-            'abilities_helper_no_admin' => 'Select the permissions this token should have. Admin API access requires the admin_api_enabled flag on your user account.',
             'ability_public_read' => 'Public Read (read-only access to public API endpoints)',
             'ability_admin_api' => 'Admin API (full CRUD access to admin endpoints)',
             'token_warning' => 'Important: The token will only be shown once after creation. Make sure to copy it and store it securely.',

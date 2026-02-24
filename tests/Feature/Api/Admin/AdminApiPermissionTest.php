@@ -16,19 +16,14 @@ class AdminApiPermissionTest extends TestCase
 
     protected User $adminUser;
 
-    protected User $regularUser;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
 
-        $this->adminUser = User::factory()->create(['admin_api_enabled' => true]);
+        $this->adminUser = User::factory()->create();
         $this->adminUser->tenants()->attach($this->tenant->id);
-
-        $this->regularUser = User::factory()->create(['admin_api_enabled' => false]);
-        $this->regularUser->tenants()->attach($this->tenant->id);
     }
 
     protected function tearDown(): void
@@ -49,22 +44,9 @@ class AdminApiPermissionTest extends TestCase
         return $token->plainTextToken;
     }
 
-    // ========== User Flag Tests ==========
+    // ========== Token Ability Tests ==========
 
-    public function test_user_without_admin_api_enabled_gets_403(): void
-    {
-        $token = $this->createTokenForTenant($this->regularUser, $this->tenant, ['admin-api']);
-
-        $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', [
-                'title' => ['de' => 'Test', 'en' => 'Test'],
-            ]);
-
-        $response->assertStatus(403)
-            ->assertJson(['message' => 'Admin API access not enabled for this user.']);
-    }
-
-    public function test_user_with_admin_api_enabled_can_access(): void
+    public function test_user_with_admin_api_token_can_access(): void
     {
         $token = $this->createTokenForTenant($this->adminUser, $this->tenant, ['admin-api']);
 
@@ -75,8 +57,6 @@ class AdminApiPermissionTest extends TestCase
 
         $response->assertStatus(201);
     }
-
-    // ========== Token Ability Tests ==========
 
     public function test_token_without_admin_api_ability_gets_403(): void
     {
@@ -115,42 +95,5 @@ class AdminApiPermissionTest extends TestCase
             ]);
 
         $response->assertStatus(201);
-    }
-
-    // ========== Combination Tests ==========
-
-    public function test_regular_user_with_admin_api_token_still_gets_403(): void
-    {
-        // User has token with admin-api ability but user flag is false
-        $token = $this->createTokenForTenant($this->regularUser, $this->tenant, ['admin-api']);
-
-        $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', [
-                'title' => ['de' => 'Test', 'en' => 'Test'],
-            ]);
-
-        // User flag is checked first, so 403 with user message
-        $response->assertStatus(403)
-            ->assertJson(['message' => 'Admin API access not enabled for this user.']);
-    }
-
-    public function test_permission_check_applies_to_all_methods(): void
-    {
-        $token = $this->createTokenForTenant($this->regularUser, $this->tenant, ['admin-api']);
-
-        // POST
-        $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', ['title' => ['de' => 'Test']])
-            ->assertStatus(403);
-
-        // PATCH
-        $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson('/api/admin/tiles/1', ['title' => ['de' => 'Test']])
-            ->assertStatus(403);
-
-        // DELETE
-        $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson('/api/admin/tiles/1')
-            ->assertStatus(403);
     }
 }

@@ -41,7 +41,7 @@ class TenantResolutionApiTest extends TestCase
             'domain' => 'tenant-b.example.com',
         ]);
 
-        $this->user = User::factory()->create(['admin_api_enabled' => true]);
+        $this->user = User::factory()->create();
         $this->user->tenants()->syncWithoutDetaching([
             $this->tenantA->id,
             $this->tenantB->id,

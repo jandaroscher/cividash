@@ -59,7 +59,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             'password' => 'hashed',
             'is_active' => 'boolean',
             'is_admin' => 'boolean',
-            'admin_api_enabled' => 'boolean',
         ];
     }
 

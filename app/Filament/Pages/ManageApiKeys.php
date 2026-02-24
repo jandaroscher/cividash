@@ -194,8 +194,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
      */
     protected function getHeaderActions(): array
     {
-        $user = Filament::auth()->user();
-        $availableAbilities = $this->getAvailableAbilitiesTranslated($user);
+        $availableAbilities = $this->getAvailableAbilitiesTranslated();
 
         return [
             Action::make('create')
@@ -213,11 +212,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                         ->label(__('filament.pages.manage_api_keys.abilities'))
                         ->options($availableAbilities)
                         ->required()
-                        ->helperText(
-                            $user->admin_api_enabled
-                                ? __('filament.pages.manage_api_keys.abilities_helper')
-                                : __('filament.pages.manage_api_keys.abilities_helper_no_admin')
-                        )
+                        ->helperText(__('filament.pages.manage_api_keys.abilities_helper'))
                         ->columns(1),
 
                     Placeholder::make('warning')
@@ -260,22 +255,16 @@ class ManageApiKeys extends Page implements HasForms, HasTable
     }
 
     /**
-     * Build a map of available API abilities to their translated labels for the given user.
+     * Build a map of available API abilities to their translated labels.
      *
-     * @param  object  $user  The current user; inclusion of the `admin-api` ability depends on `$user->admin_api_enabled`.
      * @return array<string,string> Associative array where keys are ability identifiers (e.g., `public-read`, `admin-api`) and values are their translated labels.
      */
-    protected function getAvailableAbilitiesTranslated($user): array
+    protected function getAvailableAbilitiesTranslated(): array
     {
-        $abilities = [
+        return [
             'public-read' => __('filament.pages.manage_api_keys.ability_public_read'),
+            'admin-api' => __('filament.pages.manage_api_keys.ability_admin_api'),
         ];
-
-        if ($user->admin_api_enabled) {
-            $abilities['admin-api'] = __('filament.pages.manage_api_keys.ability_admin_api');
-        }
-
-        return $abilities;
     }
 
     /**

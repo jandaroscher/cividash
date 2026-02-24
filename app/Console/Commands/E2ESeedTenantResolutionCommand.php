@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Seed deterministic test data for E2E tenant resolution tests.
@@ -80,11 +81,6 @@ class E2ESeedTenantResolutionCommand extends Command
                     'password' => bcrypt('e2e-test-password'),
                 ]
             );
-
-            // Ensure user has admin_api_enabled
-            if (! $user->admin_api_enabled) {
-                $user->forceFill(['admin_api_enabled' => true])->save();
-            }
 
             // Associate user with all tenants
             $user->tenants()->syncWithoutDetaching([

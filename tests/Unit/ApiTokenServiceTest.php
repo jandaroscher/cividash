@@ -95,22 +95,9 @@ class ApiTokenServiceTest extends TestCase
         $this->service->revokeForTenant($token, $this->tenant);
     }
 
-    public function test_available_abilities_without_admin(): void
+    public function test_available_abilities_returns_all(): void
     {
-        $user = User::factory()->create(['admin_api_enabled' => false]);
-
-        $abilities = $this->service->getAvailableAbilitiesForUser($user);
-
-        $this->assertArrayHasKey('public-read', $abilities);
-        $this->assertArrayNotHasKey('admin-api', $abilities);
-        $this->assertCount(1, $abilities);
-    }
-
-    public function test_available_abilities_with_admin(): void
-    {
-        $user = User::factory()->withAdminApiAccess()->create();
-
-        $abilities = $this->service->getAvailableAbilitiesForUser($user);
+        $abilities = $this->service->getAvailableAbilities();
 
         $this->assertArrayHasKey('public-read', $abilities);
         $this->assertArrayHasKey('admin-api', $abilities);
@@ -135,18 +122,9 @@ class ApiTokenServiceTest extends TestCase
         $this->service->createForTenant($user, $this->tenant, 'Test Token', ['invalid']);
     }
 
-    public function test_create_requires_admin_enabled_for_admin_api(): void
-    {
-        $user = User::factory()->create(['admin_api_enabled' => false]);
-
-        $this->expectException(ValidationException::class);
-
-        $this->service->createForTenant($user, $this->tenant, 'Test Token', ['admin-api']);
-    }
-
     public function test_create_for_tenant_succeeds_with_valid_abilities(): void
     {
-        $user = User::factory()->withAdminApiAccess()->create();
+        $user = User::factory()->create();
 
         $newToken = $this->service->createForTenant($user, $this->tenant, 'Valid Token', ['public-read', 'admin-api']);
 

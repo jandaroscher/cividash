@@ -30,7 +30,7 @@ Die Dokumentation wird automatisch im CI bei jedem Deployment neu generiert.
 Die Admin API ermöglicht das programmgesteuerte Management von Tiles, Jahren, Metriken und Konfigurationen. Alle Endpoints sind:
 
 - **Authentifiziert** via Laravel Sanctum (Bearer Token)
-- **Autorisiert** via `admin_api_enabled` User-Flag + Token-Ability
+- **Autorisiert** via Token-Ability (`admin-api` oder `*`)
 - **Tenant-scoped** – Operationen sind automatisch auf den aktiven Tenant beschränkt
 
 ---
@@ -39,15 +39,14 @@ Die Admin API ermöglicht das programmgesteuerte Management von Tiles, Jahren, M
 
 ### Voraussetzungen für API-Zugriff
 
-1. **User-Flag**: `admin_api_enabled = true` auf dem User-Model
-2. **Token-Ability**: Token muss `admin-api` oder `*` Ability haben
+1. **Token-Ability**: Token muss `admin-api` oder `*` Ability haben
+2. **Tenant-Kontext**: Token muss eine `tenant_id` haben
 
 ### Token erstellen (Code-Beispiel)
 
 ```php
 // Im Filament Admin oder via Tinker
 $user = User::find(1);
-$user->forceFill(['admin_api_enabled' => true])->save();
 
 // Token MIT Tenant-Kontext erstellen (ERFORDERLICH für Admin API)
 $tenant = Tenant::find(1); // oder $user->tenants()->first()
@@ -266,7 +265,6 @@ Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant'
 
 1. **auth:sanctum** – Verifiziert Bearer Token → 401 bei fehlendem/ungültigem Token
 2. **admin.api** (`EnsureAdminApiAccess`) – Prüft:
-   - `$user->admin_api_enabled === true`
    - Token hat `admin-api` oder `*` Ability
    - → 403 bei fehlender Berechtigung
 3. **resolve.tenant** (`ResolveTenantFromRequest`) – Löst Tenant auf:

@@ -26,7 +26,7 @@ class AdminTileApiTest extends TestCase
         $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
         $this->otherTenant = Tenant::create(['name' => 'Other Tenant', 'slug' => 'other-tenant']);
 
-        $this->user = User::factory()->create(['admin_api_enabled' => true]);
+        $this->user = User::factory()->create();
         $this->user->tenants()->attach([$this->tenant->id, $this->otherTenant->id]);
     }
 

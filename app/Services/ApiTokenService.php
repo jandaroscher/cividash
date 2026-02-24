@@ -37,9 +37,8 @@ class ApiTokenService
     /**
      * Create a new API token for a user scoped to a tenant.
      *
-     * Validates that at least one ability is provided, that all abilities are listed
-     * in ALLOWED_ABILITIES, and that the user has admin_api_enabled when requesting
-     * the `admin-api` ability.
+     * Validates that at least one ability is provided and that all abilities are listed
+     * in ALLOWED_ABILITIES.
      *
      * @param  User  $user  The user who will own the token.
      * @param  Tenant  $tenant  The tenant context to scope the token to.
@@ -47,7 +46,7 @@ class ApiTokenService
      * @param  array  $abilities  Array of abilities for the token; must contain at least one entry and only values from ALLOWED_ABILITIES.
      * @return NewAccessToken The newly created access token (includes `plainTextToken`).
      *
-     * @throws ValidationException When abilities are empty, contain invalid entries, or `admin-api` is requested but the user lacks admin_api_enabled.
+     * @throws ValidationException When abilities are empty or contain invalid entries.
      */
     public function createForTenant(User $user, Tenant $tenant, string $name, array $abilities): NewAccessToken
     {
@@ -63,13 +62,6 @@ class ApiTokenService
         if (! empty($invalidAbilities)) {
             throw ValidationException::withMessages([
                 'abilities' => ['Invalid abilities: '.implode(', ', $invalidAbilities).'. Allowed: '.implode(', ', self::ALLOWED_ABILITIES)],
-            ]);
-        }
-
-        // Check admin_api_enabled requirement for admin-api ability
-        if (in_array('admin-api', $abilities) && ! $user->admin_api_enabled) {
-            throw ValidationException::withMessages([
-                'abilities' => ['The admin-api ability requires admin_api_enabled to be true on the user account.'],
             ]);
         }
 
@@ -104,24 +96,17 @@ class ApiTokenService
     }
 
     /**
-     * Get available abilities for a user.
+     * Get available abilities for token creation.
      *
-     * Returns the abilities that the user is allowed to select when creating tokens.
-     * Users without admin_api_enabled cannot create admin-api tokens.
+     * Returns all abilities that can be selected when creating tokens.
      *
-     * @param  User  $user  The user to check abilities for
      * @return array Available abilities with labels
      */
-    public function getAvailableAbilitiesForUser(User $user): array
+    public function getAvailableAbilities(): array
     {
-        $abilities = [
+        return [
             'public-read' => 'Public Read (read-only access to public API endpoints)',
+            'admin-api' => 'Admin API (full CRUD access to admin endpoints)',
         ];
-
-        if ($user->admin_api_enabled) {
-            $abilities['admin-api'] = 'Admin API (full CRUD access to admin endpoints)';
-        }
-
-        return $abilities;
     }
 }
