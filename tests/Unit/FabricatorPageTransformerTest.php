@@ -199,6 +199,46 @@ class FabricatorPageTransformerTest extends TestCase
         $this->assertStringContainsString('T', $result['updated_at']);
     }
 
+    public function test_title_and_meta_title_are_distinct_in_response(): void
+    {
+        app()->setLocale('de');
+
+        $page = Page::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Seitentitel', 'en' => 'Page Title'],
+            'slug' => ['de' => 'test-seite', 'en' => 'test-page'],
+            'blocks' => ['de' => [], 'en' => []],
+            'layout' => 'default',
+            'meta_title' => ['de' => 'SEO Titel', 'en' => 'SEO Title'],
+        ]);
+
+        $result = $this->transformer->transform($page);
+
+        // title and meta.title must be independent fields
+        $this->assertEquals('Seitentitel', $result['title']);
+        $this->assertEquals('SEO Titel', $result['meta']['title']);
+        $this->assertNotEquals($result['title'], $result['meta']['title']);
+    }
+
+    public function test_meta_title_does_not_fall_back_to_title_when_empty(): void
+    {
+        app()->setLocale('de');
+
+        $page = Page::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Seitentitel', 'en' => 'Page Title'],
+            'slug' => ['de' => 'test-seite', 'en' => 'test-page'],
+            'blocks' => ['de' => [], 'en' => []],
+            'layout' => 'default',
+            'meta_title' => null,
+        ]);
+
+        $result = $this->transformer->transform($page);
+
+        // When meta_title is not set, meta.title should be null/empty — not fall back to title
+        // The fallback logic belongs to the frontend, not the API
+        $this->assertEquals('Seitentitel', $result['title']);
+        $this->assertEmpty($result['meta']['title']);
+    }
+
     public function test_transform_all_locales_filters_inactive_blocks(): void
     {
         $page = Page::factory()->forTenant($this->tenant)->create([

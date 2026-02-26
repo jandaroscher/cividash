@@ -17,11 +17,6 @@
         
         <!-- Page content -->
         <div v-else-if="pageData" class="page-content">
-            <!-- Page title (if not in blocks) -->
-            <h1 v-if="effectiveTitle && !hasTitleBlock" class="page-title container py-6">
-                {{ effectiveTitle }}
-            </h1>
-            
             <!-- Render blocks via BlockRenderer -->
             <BlockRenderer v-if="pageData.blocks && pageData.blocks.length > 0" :blocks="transformedBlocks" />
             
@@ -77,20 +72,6 @@ const transformedBlocks = computed(() => {
         });
 });
 
-// Check if blocks contain a title/hero block that would render the title
-const hasTitleBlock = computed(() => {
-    if (!props.pageData?.blocks) {
-        return false;
-    }
-    return props.pageData.blocks.some(
-        (block) => block.type === 'hero' || block.type === 'intro-text'
-    );
-});
-
-const effectiveTitle = computed(() => {
-    return props.pageData?.meta?.title || props.pageData?.title || '';
-});
-
 // Update meta tags when page data changes
 watch(
     () => props.pageData,
@@ -142,9 +123,4 @@ function updateMetaTags(pageData) {
     min-height: 50vh;
 }
 
-.page-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-bottom: 2rem;
-}
 </style>
