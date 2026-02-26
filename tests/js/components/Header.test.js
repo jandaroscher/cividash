@@ -124,14 +124,35 @@ describe('Header', () => {
         expect(navLinks[2].text()).toBe('Kontakt');
     });
 
-    it('does not render navigation when there are no navigation items', async () => {
-        const wrapper = createWrapper({ navigation_items: [] });
+    it('does not render navigation when there are no navigation items and no language switcher', async () => {
+        const wrapper = createWrapper({ navigation_items: [], show_language_switcher: false });
         await vi.dynamicImportSettled();
         await wrapper.vm.$nextTick();
 
         // Desktop nav should not exist
         const desktopNav = wrapper.find('.desktop-nav');
         expect(desktopNav.exists()).toBe(false);
+    });
+
+    it('renders language switcher even without navigation items', async () => {
+        const wrapper = createWrapper({
+            navigation_items: [],
+            show_language_switcher: true,
+        });
+
+        await vi.dynamicImportSettled();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // Desktop nav should exist (for language switcher)
+        const desktopNav = wrapper.find('.desktop-nav');
+        expect(desktopNav.exists()).toBe(true);
+
+        // Should find DE and EN switcher buttons
+        const deSwitcher = wrapper.find('.language-switcher-desktop');
+        expect(deSwitcher.exists()).toBe(true);
+        expect(deSwitcher.text()).toContain('DE');
+        expect(deSwitcher.text()).toContain('EN');
     });
 
     it('renders language switcher when showLanguageSwitcher is enabled', async () => {

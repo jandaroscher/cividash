@@ -28,10 +28,10 @@
             </RouterLink>
 
             <!-- Mobile Menu Toggle -->
-            <button 
-                v-if="headerStore.navigationItems.length > 0"
+            <button
+                v-if="headerStore.navigationItems.length > 0 || headerStore.showLanguageSwitcher"
                 ref="mobileMenuToggle"
-                class="mobile-menu-toggle md:hidden ml-auto" 
+                class="mobile-menu-toggle md:hidden ml-auto"
                 @click="openMobileMenu"
                 :aria-label="locale === 'en' ? 'Open menu' : 'Menü öffnen'"
                 style="color: var(--nav-text-color);"
@@ -43,8 +43,8 @@
             </button>
 
             <!-- Desktop Navigation -->
-            <nav 
-                v-if="headerStore.navigationItems.length > 0"
+            <nav
+                v-if="headerStore.navigationItems.length > 0 || headerStore.showLanguageSwitcher"
                 class="desktop-nav ml-auto mt-10 md:mt-0 md:mb-12 flex space-x-2 sm:space-x-6 md:space-x-8 items-end"
             >
                 <template v-for="(item, index) in headerStore.navigationItems" :key="index">
@@ -119,8 +119,8 @@
             </nav>
 
             <!-- Mobile Menu -->
-            <div 
-                v-if="headerStore.navigationItems.length > 0"
+            <div
+                v-if="headerStore.navigationItems.length > 0 || headerStore.showLanguageSwitcher"
                 id="mobile-menu"
                 :class="['mobile-menu', 'fixed', 'top-0', 'left-0', 'w-full', 'h-full', 'bg-white', 'z-50', 'pt-20', 'px-4', { 'open': mobileMenuOpen }]"
                 @keydown="handleMenuKeydown"
