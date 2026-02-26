@@ -466,9 +466,9 @@ return [
             'position_right' => 'Rechts',
         ],
         'card_grid' => [
-            'label' => 'Tile Grid',
-            'tiles' => 'Tiles',
-            'tiles_helper' => 'Leer lassen, um alle Tiles anzuzeigen. Auswählen, um nur bestimmte Tiles anzuzeigen.',
+            'label' => 'Kacheln',
+            'tiles' => 'Kacheln',
+            'tiles_helper' => 'Leer lassen, um alle Kacheln anzuzeigen. Auswählen, um nur bestimmte Kacheln anzuzeigen.',
         ],
         'hero' => [
             'label' => 'Hero Section',

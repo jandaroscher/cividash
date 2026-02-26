@@ -154,8 +154,10 @@ const header = computed(() => {
 
 const subheader = computed(() => {
     const desc = props.tile.description?.[currentLocale.value] || props.tile.description?.de || props.tile.description || '';
+    // Strip HTML tags since description comes from a rich text editor
+    const plainText = desc.replace(/<[^>]*>/g, '').trim();
     // Extract first sentence or first 100 chars as subheader
-    const firstSentence = desc.split('.')[0];
+    const firstSentence = plainText.split('.')[0];
     return firstSentence.length > 100 ? firstSentence.slice(0, 100) + '…' : firstSentence;
 });
 

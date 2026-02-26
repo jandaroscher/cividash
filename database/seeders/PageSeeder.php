@@ -164,10 +164,10 @@ class PageSeeder extends Seeder
                         ],
                     ],
                     [
-                        'type' => 'tile-app',
+                        'type' => 'card-grid',
                         'data' => [
-                            'show_search' => true,
-                            'show_filter' => true,
+                            'tiles' => [],
+                            'is_active' => true,
                         ],
                     ],
                 ],
@@ -181,10 +181,10 @@ class PageSeeder extends Seeder
                         ],
                     ],
                     [
-                        'type' => 'tile-app',
+                        'type' => 'card-grid',
                         'data' => [
-                            'show_search' => true,
-                            'show_filter' => true,
+                            'tiles' => [],
+                            'is_active' => true,
                         ],
                     ],
                 ],

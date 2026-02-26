@@ -169,6 +169,27 @@ class CategoryGroupResourceTest extends TestCase
             ]);
     }
 
+    public function test_create_category_group_completes_successfully(): void
+    {
+        Livewire::test(CreateCategoryGroup::class)
+            ->fillForm([
+                'key' => 'new-group',
+                'title' => 'Neue Gruppe',
+                'selection_type' => 'multi',
+                'is_filterable' => false,
+                'is_color_source' => false,
+                'is_active' => true,
+                'position' => 0,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('category_groups', [
+            'key' => 'new-group',
+            'tenant_id' => $this->tenant->id,
+        ]);
+    }
+
     public function test_create_selection_type_defaults_to_multi(): void
     {
         Livewire::test(CreateCategoryGroup::class)

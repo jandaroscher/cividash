@@ -110,6 +110,25 @@ class TileResourceTest extends TestCase
         ]);
     }
 
+    public function test_create_tile_completes_successfully(): void
+    {
+        Livewire::test(CreateTile::class)
+            ->fillForm([
+                'title' => 'Erstellte Kachel',
+                'slug' => 'erstellte-kachel',
+                'description' => '<p>Beschreibung</p>',
+                'position' => 3,
+                'is_public' => true,
+                'metricDefinitions' => [],
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $tile = Tile::where('tenant_id', $this->tenant->id)->latest()->first();
+        $this->assertNotNull($tile);
+        $this->assertEquals('erstellte-kachel', $tile->getTranslation('slug', 'de'));
+    }
+
     public function test_create_tile_is_public_defaults_to_true(): void
     {
         Livewire::test(CreateTile::class)

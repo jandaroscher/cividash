@@ -44,4 +44,19 @@ class Tenant extends Model
     {
         return $this->hasMany(Page::class);
     }
+
+    public function tiles(): HasMany
+    {
+        return $this->hasMany(Tile::class);
+    }
+
+    public function categoryGroups(): HasMany
+    {
+        return $this->hasMany(CategoryGroup::class);
+    }
+
+    public function categories(): HasMany
+    {
+        return $this->hasMany(Category::class);
+    }
 }

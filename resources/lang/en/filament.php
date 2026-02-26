@@ -466,7 +466,7 @@ return [
             'position_right' => 'Right',
         ],
         'card_grid' => [
-            'label' => 'Tile Grid',
+            'label' => 'Tiles',
             'tiles' => 'Tiles',
             'tiles_helper' => 'Leave empty to show all tiles. Select to show only specific tiles.',
         ],

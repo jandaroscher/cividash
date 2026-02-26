@@ -42,6 +42,7 @@ const blockComponentMap = {
     link: LinkBlock,
     slider: SliderBlock,
     'tile-app': TileAppBlock,
+    'card-grid': TileAppBlock,
 };
 
 function getBlockComponent(blockType) {
