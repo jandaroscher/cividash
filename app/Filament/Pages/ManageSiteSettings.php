@@ -240,12 +240,6 @@ class ManageSiteSettings extends Page implements HasForms
                             ->label(__('filament.pages.manage_footer.social_links_enabled'))
                             ->default(true),
 
-                        TextInput::make('copyright_text')
-                            ->label(__('filament.pages.manage_footer.copyright_text'))
-                            ->helperText(__('filament.pages.manage_footer.copyright_text_helper'))
-                            ->placeholder('© {year} {site_name}')
-                            ->nullable(),
-
                         Repeater::make('social_links')
                             ->label(__('filament.pages.manage_footer.social_media_links'))
                             ->addActionLabel(__('filament.actions.add_to_social_media_links'))
@@ -267,6 +261,12 @@ class ManageSiteSettings extends Page implements HasForms
                             ->extraItemActions([
                                 static::getBlockActiveToggleAction(),
                             ]),
+
+                        TextInput::make('copyright_text')
+                            ->label(__('filament.pages.manage_footer.copyright_text'))
+                            ->helperText(__('filament.pages.manage_footer.copyright_text_helper'))
+                            ->placeholder('© {year} {site_name}')
+                            ->nullable(),
                     ]),
             ])
             ->statePath('data');
