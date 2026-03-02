@@ -120,7 +120,11 @@ class PageResource extends FabricatorPageResource
                                     TextInput::make('slug')
                                         ->label(__('filament.resources.page.slug'))
                                         ->required()
-                                        ->maxLength(255),
+                                        ->maxLength(255)
+                                        ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
+                                        ->validationMessages([
+                                            'regex' => __('filament.resources.page.slug_validation'),
+                                        ]),
                                     Select::make('layout')
                                         ->label(__('filament.resources.page.layout'))
                                         ->options(static::getLayoutOptions())

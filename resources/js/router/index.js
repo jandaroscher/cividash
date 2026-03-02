@@ -44,13 +44,13 @@ const routes = [
         meta: { locale: 'en' },
     },
     {
-        path: '/en/:slug',
+        path: '/en/:slug+',
         name: 'page-en',
         component: DynamicPage,
         meta: { locale: 'en' },
     },
     {
-        path: '/:slug',
+        path: '/:slug+',
         name: 'page',
         component: DynamicPage,
         meta: { locale: 'de' },

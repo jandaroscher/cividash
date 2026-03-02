@@ -55,21 +55,35 @@ export function useLocale() {
     }, { immediate: true });
     
     /**
-     * Helper function to build locale path from page data
+     * Build the full hierarchical path for a page by walking up its parent chain
      * @param {Object} pageData - Page metadata object
+     * @param {Array} allPages - All page metadata objects for the locale
      * @param {string} targetLocale - Target locale ('de' or 'en')
-     * @returns {string|null} Locale path or null if slug not found
+     * @returns {string|null} Full locale path (e.g. "/kontakt/testseite") or null
      */
-    const buildLocalePath = (pageData, targetLocale) => {
-        const translatedSlug = typeof pageData.slug === 'string' 
-            ? pageData.slug 
-            : pageData.slug?.[targetLocale];
-        
-        if (!translatedSlug) {
-            return null;
+    const buildLocalePath = (pageData, targetLocale, allPages = []) => {
+        const getSlug = (page) =>
+            typeof page.slug === 'string' ? page.slug : page.slug?.[targetLocale];
+
+        // Build path segments by walking up the parent chain,
+        // skipping root pages (slug "/" or "") which don't appear in the URL.
+        const segments = [];
+        let current = pageData;
+        while (current) {
+            const slug = getSlug(current);
+            if (!slug) return null;
+            if (slug !== '/' && slug !== '') {
+                segments.unshift(slug);
+            }
+            current = current.parent_id
+                ? allPages.find((p) => p.id === current.parent_id)
+                : null;
         }
-        
-        return targetLocale === 'en' ? `/en/${translatedSlug}` : `/${translatedSlug}`;
+
+        if (segments.length === 0) return null;
+
+        const fullSlug = segments.join('/');
+        return targetLocale === 'en' ? `/en/${fullSlug}` : `/${fullSlug}`;
     };
     
     /**
@@ -91,46 +105,35 @@ export function useLocale() {
             
             // Get current page ID from pagesStore
             const currentPage = pagesStore.currentPage;
-            if (!currentPage || !currentPage.id) {
-                // Try to find page by current slug
+            let pageId = currentPage?.id;
+
+            if (!pageId) {
+                // Try to find page by current slug using hierarchical resolution
                 const rawSlug = route.params.slug;
                 const currentSlug = Array.isArray(rawSlug) ? rawSlug.join('/') : rawSlug;
                 if (!currentSlug) {
                     return targetLocale === 'en' ? '/en' : '/';
                 }
-                
-                // Fetch page list for current locale to find page ID
+
                 const locale = getLocale();
                 const pages = (await pagesStore.fetchPageList(locale)) || [];
-                const pageMeta = pages.find((page) => {
-                    const pageSlug = typeof page.slug === 'string' ? page.slug : page.slug?.[locale];
-                    return pageSlug === currentSlug;
-                });
-                
+                const pageMeta = pagesStore.resolvePageByPath(currentSlug, locale, pages);
+
                 if (!pageMeta || !pageMeta.id) {
                     return null;
                 }
-                
-                // Fetch page list for target locale to find translated slug
-                const targetPages = (await pagesStore.fetchPageList(targetLocale)) || [];
-                const targetPageMeta = targetPages.find((page) => page.id === pageMeta.id);
-                
-                if (!targetPageMeta) {
-                    return null;
-                }
-                
-                return buildLocalePath(targetPageMeta, targetLocale);
+                pageId = pageMeta.id;
             }
-            
-            // We have current page ID, fetch translated slug
+
+            // Fetch page list for target locale and build hierarchical path
             const targetPages = (await pagesStore.fetchPageList(targetLocale)) || [];
-            const targetPageMeta = targetPages.find((page) => page.id === currentPage.id);
-            
+            const targetPageMeta = targetPages.find((page) => page.id === pageId);
+
             if (!targetPageMeta) {
                 return null;
             }
-            
-            return buildLocalePath(targetPageMeta, targetLocale);
+
+            return buildLocalePath(targetPageMeta, targetLocale, targetPages);
         } catch (error) {
             logError('Failed to resolve translated slug:', error);
             return null;
@@ -175,20 +178,10 @@ export function useLocale() {
                 // Use translated path
                 newPath = translatedPath;
             } else {
-                // Fallback: build path with locale prefix
-                if (effectiveLocale === 'de') {
-                    // Remove /en prefix if present
-                    newPath = currentPath.replace(/^\/en/, '') || '/';
-                } else {
-                    // Add /en prefix
-                    if (currentPath === '/' || currentPath === '') {
-                        newPath = '/en';
-                    } else if (currentPath.startsWith('/en')) {
-                        newPath = currentPath; // Already has /en
-                    } else {
-                        newPath = `/en${currentPath}`;
-                    }
-                }
+                // Fallback: go to home page of target locale.
+                // Don't prefix the current path — the slugs are likely
+                // untranslated and would produce a broken URL.
+                newPath = effectiveLocale === 'en' ? '/en' : '/';
             }
             
             // Only navigate if path actually changed

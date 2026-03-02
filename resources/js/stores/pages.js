@@ -153,9 +153,49 @@ export const usePagesStore = defineStore('pages', {
         },
         
         /**
-         * Fetch a page by slug
-         * First fetches the page list, finds the page by slug, then fetches full page data
-         * @param {string} slug - Page slug
+         * Resolve a page by walking a hierarchical slug path.
+         * E.g. "kontakt/testseite" → find root page with slug "kontakt",
+         * then child with slug "testseite" and parent_id matching.
+         * @param {string} slug - Page slug (may contain "/" for nested pages)
+         * @param {string} locale - Locale ('de' or 'en')
+         * @param {Array} pages - Page list from API
+         * @returns {Object|null} Matched page metadata or null
+         */
+        resolvePageByPath(slug, locale, pages) {
+            const segments = slug.split('/');
+            const getSlug = (page) =>
+                typeof page.slug === 'string' ? page.slug : page.slug?.[locale];
+
+            // Collect IDs of root pages (slug "/" or similar) — their children
+            // appear as top-level URL segments despite having a non-null parent_id.
+            const rootPageIds = pages
+                .filter((p) => getSlug(p) === '/' || getSlug(p) === '')
+                .map((p) => p.id);
+
+            let parentId = null;
+            let matched = null;
+
+            for (let i = 0; i < segments.length; i++) {
+                const segment = segments[i];
+                matched = pages.find((page) => {
+                    if (getSlug(page) !== segment) return false;
+                    if (i === 0) {
+                        // First segment: accept parent_id null OR root page children
+                        return page.parent_id === null || rootPageIds.includes(page.parent_id);
+                    }
+                    return page.parent_id === parentId;
+                });
+                if (!matched) return null;
+                parentId = matched.id;
+            }
+
+            return matched;
+        },
+
+        /**
+         * Fetch a page by slug (supports hierarchical paths like "kontakt/testseite")
+         * First fetches the page list, resolves the page by walking the path, then fetches full page data
+         * @param {string} slug - Page slug (may contain "/" for nested pages)
          * @param {string} locale - Locale ('de' or 'en')
          * @param {boolean} force - Bypass local cache
          * @returns {Promise<Object>} Page data
@@ -168,10 +208,10 @@ export const usePagesStore = defineStore('pages', {
                 this.currentPage = cachedPage;
                 return cachedPage;
             }
-            
+
             this.loading = true;
             this.error = null;
-            
+
             try {
                 // Inline fetch to avoid loading state conflicts
                 const apiUrl = getApiBaseUrl();
@@ -179,31 +219,28 @@ export const usePagesStore = defineStore('pages', {
                     `${apiUrl}/api/content/pages?locale=${locale}`,
                     { credentials: 'include', cache: 'no-store' }
                 );
-                
+
                 if (!res.ok) {
                     throw new Error(`Failed to fetch page list: ${res.status} ${res.statusText}`);
                 }
-                
+
                 const json = await res.json();
                 const pages = json.data || [];
-                
-                // Find page by slug
-                const pageMeta = pages.find(page => {
-                    const pageSlug = typeof page.slug === 'string' ? page.slug : page.slug?.[locale];
-                    return pageSlug === slug;
-                });
-                
+
+                // Resolve page by walking hierarchical path
+                const pageMeta = this.resolvePageByPath(slug, locale, pages);
+
                 if (!pageMeta || !pageMeta.id) {
                     this.error = { message: 'Page not found', status: 404 };
                     return null;
                 }
-                
+
                 // Inline fetch full page data by ID to avoid loading state conflicts
                 const pageRes = await fetch(
                     `${apiUrl}/api/content/pages/${pageMeta.id}?locale=${locale}`,
                     { credentials: 'include', cache: 'no-store' }
                 );
-                
+
                 if (!pageRes.ok) {
                     if (pageRes.status === 404) {
                         this.error = { message: 'Page not found', status: 404 };
@@ -211,15 +248,15 @@ export const usePagesStore = defineStore('pages', {
                     }
                     throw new Error(`Failed to fetch page: ${pageRes.status} ${pageRes.statusText}`);
                 }
-                
+
                 const pageJson = await pageRes.json();
                 const pageData = pageJson.data || pageJson;
-                
+
                 // Cache the page by both ID and slug
                 const idCacheKey = `${locale}:${pageData.id}`;
                 this.cache.set(idCacheKey, pageData);
                 this.cache.set(cacheKey, pageData);
-                
+
                 this.currentPage = pageData;
                 return pageData;
             } catch (err) {

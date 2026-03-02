@@ -402,6 +402,7 @@ return [
             'plural_model_label' => 'Seiten',
             'title' => 'Titel',
             'slug' => 'URL-Slug',
+            'slug_validation' => 'Der Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten (keine Schrägstriche oder Sonderzeichen).',
             'layout' => 'Layout',
             'parent' => 'Übergeordnete Seite',
             'url_preview' => 'URL-Vorschau',

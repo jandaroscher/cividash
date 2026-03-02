@@ -321,6 +321,7 @@ return [
             'plural_model_label' => 'Pages',
             'title' => 'Title',
             'slug' => 'Slug',
+            'slug_validation' => 'The slug may only contain lowercase letters, numbers and hyphens (no slashes or special characters).',
             'layout' => 'Layout',
             'parent' => 'Parent',
             'url_preview' => 'URL preview',

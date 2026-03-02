@@ -43,11 +43,11 @@ const messages = computed(() => ({
     errorPrefix: locale.value === 'en' ? 'Error loading page:' : 'Fehler beim Laden der Seite:',
 }));
 
-// Get slug from route params
+// Get slug from route params (with /:slug+ it's an array of segments)
 const slug = computed(() => {
-    // For /en/:slug routes, slug is in params.slug
-    // For /:slug routes, slug is also in params.slug
-    return route.params.slug || null;
+    const rawSlug = route.params.slug;
+    if (!rawSlug) return null;
+    return Array.isArray(rawSlug) ? rawSlug.join('/') : rawSlug;
 });
 
 const pageData = ref(null);
@@ -91,9 +91,9 @@ onMounted(() => {
     loadPage();
 });
 
-// Reload page when route changes (e.g., locale switch)
+// Reload page when slug or locale changes
 watch(
-    () => [route.params.slug, route.meta?.locale],
+    () => [slug.value, route.meta?.locale],
     () => {
         loadPage();
     }
