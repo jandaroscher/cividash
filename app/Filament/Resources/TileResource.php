@@ -48,6 +48,8 @@ class TileResource extends Resource
 
     protected static ?string $model = Tile::class;
 
+    protected static ?string $recordTitleAttribute = 'title';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?int $navigationSort = 2;

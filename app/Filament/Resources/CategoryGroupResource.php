@@ -22,6 +22,8 @@ class CategoryGroupResource extends Resource
 
     protected static ?string $model = CategoryGroup::class;
 
+    protected static ?string $recordTitleAttribute = 'title';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?int $navigationSort = 9;
