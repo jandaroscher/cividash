@@ -222,7 +222,6 @@ class ManageSiteSettings extends Page implements HasForms
                             ->options([
                                 'single-row' => __('filament.pages.manage_footer.layout_single_row'),
                                 'multi-column' => __('filament.pages.manage_footer.layout_multi_column'),
-                                'grid' => __('filament.pages.manage_footer.layout_grid'),
                             ])
                             ->default('single-row')
                             ->required()
@@ -234,8 +233,8 @@ class ManageSiteSettings extends Page implements HasForms
                             ->minValue(1)
                             ->maxValue(12)
                             ->default(3)
-                            ->required(fn ($get) => in_array($get('layout_type'), ['multi-column', 'grid']))
-                            ->visible(fn ($get) => in_array($get('layout_type'), ['multi-column', 'grid'])),
+                            ->required(fn ($get) => $get('layout_type') === 'multi-column')
+                            ->visible(fn ($get) => $get('layout_type') === 'multi-column'),
 
                         Toggle::make('social_links_enabled')
                             ->label(__('filament.pages.manage_footer.social_links_enabled'))
