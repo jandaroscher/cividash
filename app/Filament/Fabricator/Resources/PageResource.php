@@ -166,6 +166,16 @@ class PageResource extends FabricatorPageResource
                                     $name = method_exists($component, 'getName') ? $component->getName() : null;
 
                                     if ($name && in_array($name, $existingNames, true)) {
+                                        // Replace vendor parent_id with our locale-aware version
+                                        if ($name === 'parent_id') {
+                                            foreach ($sectionChildren as $k => $existing) {
+                                                if (method_exists($existing, 'getName') && $existing->getName() === 'parent_id') {
+                                                    $sectionChildren[$k] = $component;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
                                         continue;
                                     }
 
