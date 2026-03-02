@@ -504,6 +504,7 @@ class TileResource extends Resource
     protected static function makeCategoryGroupField(CategoryGroup $group): Select
     {
         $fieldName = static::getCategoryGroupFieldName($group->id);
+        $groupId = $group->id;
         $options = $group->categories
             ->mapWithKeys(fn ($category) => [
                 $category->id => $category->getTranslation('slug', app()->getLocale()),
@@ -514,6 +515,27 @@ class TileResource extends Resource
             ->label($group->getTranslation('title', app()->getLocale()))
             ->options($options)
             ->searchable()
+            ->getSearchResultsUsing(function (string $search) use ($groupId): array {
+                $locale = app()->getLocale();
+                $loweredSearch = mb_strtolower($search);
+
+                return \App\Models\Category::query()
+                    ->where('category_group_id', $groupId)
+                    ->orderBy('position')
+                    ->get()
+                    ->filter(fn ($cat) => str_contains(
+                        mb_strtolower(
+                            $cat->getTranslation('slug', $locale, false)
+                                ?: $cat->getTranslation('slug', 'de', false)
+                        ),
+                        $loweredSearch
+                    ))
+                    ->mapWithKeys(fn ($cat) => [
+                        $cat->id => $cat->getTranslation('slug', $locale, false)
+                            ?: $cat->getTranslation('slug', 'de', false),
+                    ])
+                    ->toArray();
+            })
             ->preload()
             ->afterStateHydrated(function (Select $component, $state, $record) use ($group): void {
                 if (! $record) {
