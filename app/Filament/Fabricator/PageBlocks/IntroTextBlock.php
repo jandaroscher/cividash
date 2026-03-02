@@ -44,13 +44,7 @@ class IntroTextBlock extends PageBlock
                     ->label(__('filament.blocks.intro_text.image'))
                     ->image()
                     ->directory('intro-images')
-                    ->disk('public')
-                    ->imageEditor()
-                    ->imageEditorAspectRatios([
-                        '4:3',
-                        '16:9',
-                        '1:1',
-                    ]),
+                    ->disk('public'),
                 TextInput::make('image_alt')
                     ->label(__('filament.blocks.intro_text.image_alt'))
                     ->helperText(__('filament.blocks.intro_text.image_alt_helper'))
@@ -59,13 +53,7 @@ class IntroTextBlock extends PageBlock
                     ->label(__('filament.blocks.intro_text.image_secondary'))
                     ->image()
                     ->directory('intro-images')
-                    ->disk('public')
-                    ->imageEditor()
-                    ->imageEditorAspectRatios([
-                        '4:3',
-                        '16:9',
-                        '1:1',
-                    ]),
+                    ->disk('public'),
                 TextInput::make('image_secondary_alt')
                     ->label(__('filament.blocks.intro_text.image_secondary_alt'))
                     ->helperText(__('filament.blocks.intro_text.image_secondary_alt_helper'))

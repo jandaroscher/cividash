@@ -32,13 +32,7 @@ class TextImageBlock extends PageBlock
                     ->label(__('filament.blocks.text_image.image'))
                     ->image()
                     ->directory('text-images')
-                    ->disk('public')
-                    ->imageEditor()
-                    ->imageEditorAspectRatios([
-                        '4:3',
-                        '16:9',
-                        '1:1',
-                    ]),
+                    ->disk('public'),
                 TextInput::make('image_alt')
                     ->label(__('filament.blocks.text_image.image_alt'))
                     ->helperText(__('filament.blocks.text_image.image_alt_helper'))
