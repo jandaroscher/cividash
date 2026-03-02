@@ -27,6 +27,16 @@ class CategoriesRelationManager extends RelationManager
         return __('filament.resources.category.plural_model_label');
     }
 
+    protected static function getModelLabel(): ?string
+    {
+        return __('filament.resources.category.model_label');
+    }
+
+    protected static function getPluralModelLabel(): ?string
+    {
+        return __('filament.resources.category.plural_model_label');
+    }
+
     /**
      * Builds the Filament form schema for creating and editing Category records related to the current CategoryGroup.
      *
