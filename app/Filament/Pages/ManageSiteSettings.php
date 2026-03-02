@@ -249,6 +249,7 @@ class ManageSiteSettings extends Page implements HasForms
 
                         Repeater::make('social_links')
                             ->label(__('filament.pages.manage_footer.social_media_links'))
+                            ->addActionLabel(__('filament.actions.add_to_social_media_links'))
                             ->schema([
                                 FileUpload::make('icon')
                                     ->label(__('filament.pages.manage_footer.icon'))

@@ -529,5 +529,8 @@ return [
         'add_to_metrics' => 'Add to Metrics',
         'add_to_slider_items' => 'Add to Slider Items',
         'add_to_background_blocks' => 'Add to Background Blocks',
+        'add_to_social_media_links' => 'Add to Social Media Links',
+        'add_to_faq_items' => 'Add to FAQ Items',
+        'add_to_blocks' => 'Add to Blocks',
     ],
 ];

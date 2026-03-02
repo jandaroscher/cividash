@@ -24,6 +24,7 @@ class FAQBlock extends PageBlock
             ->schema([
                 Repeater::make('items')
                     ->label(__('filament.blocks.faq.items'))
+                    ->addActionLabel(__('filament.actions.add_to_faq_items'))
                     ->schema([
                         TextInput::make('question')
                             ->label(__('filament.blocks.faq.question'))

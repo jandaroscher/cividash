@@ -290,9 +290,11 @@ class PageResource extends FabricatorPageResource
     {
         foreach ($components as $component) {
             if ($component instanceof PageBuilder) {
-                $component->extraItemActions([
-                    static::getBlockActiveToggleAction(),
-                ]);
+                $component
+                    ->addActionLabel(__('filament.actions.add_to_blocks'))
+                    ->extraItemActions([
+                        static::getBlockActiveToggleAction(),
+                    ]);
 
                 continue;
             }

@@ -529,5 +529,8 @@ return [
         'add_to_metrics' => 'Zu Kennzahlen hinzufügen',
         'add_to_slider_items' => 'Zu Slider-Items hinzufügen',
         'add_to_background_blocks' => 'Zu Hintergrund-Blöcken hinzufügen',
+        'add_to_social_media_links' => 'Zu Social Media Links hinzufügen',
+        'add_to_faq_items' => 'Zu FAQ-Einträgen hinzufügen',
+        'add_to_blocks' => 'Zu Blöcke hinzufügen',
     ],
 ];

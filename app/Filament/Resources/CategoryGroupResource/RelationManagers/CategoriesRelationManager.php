@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class CategoriesRelationManager extends RelationManager
 {
@@ -20,6 +21,11 @@ class CategoriesRelationManager extends RelationManager
     protected static string $relationship = 'categories';
 
     protected static ?string $recordTitleAttribute = 'id';
+
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return __('filament.resources.category.plural_model_label');
+    }
 
     /**
      * Builds the Filament form schema for creating and editing Category records related to the current CategoryGroup.
