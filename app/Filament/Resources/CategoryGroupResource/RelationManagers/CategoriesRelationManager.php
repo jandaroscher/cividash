@@ -145,7 +145,7 @@ class CategoriesRelationManager extends RelationManager
                             ?: $record->getTranslation('slug', 'de', false)
                             ?: $state;
                     })
-                    ->searchable()
+                    ->searchable(query: static::getSearchableTranslationClosure('slug'))
                     ->sortable(query: function (Builder $query, string $direction) {
                         $expression = static::getSortableTranslationExpression('slug', app()->getLocale());
                         $query->orderByRaw("{$expression} {$direction}");

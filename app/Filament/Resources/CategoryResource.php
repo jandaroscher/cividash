@@ -177,7 +177,7 @@ class CategoryResource extends Resource
                             ?: $record->getTranslation('slug', 'de', false)
                             ?: $state;
                     })
-                    ->searchable()
+                    ->searchable(query: static::getSearchableTranslationClosure('slug'))
                     ->sortable(query: function (Builder $query, string $direction, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
                         $expression = static::getSortableTranslationExpression('slug', $locale);
@@ -249,14 +249,18 @@ class CategoryResource extends Resource
                     ->label(__('filament.resources.category.is_active')),
                 Tables\Filters\SelectFilter::make('category_group_id')
                     ->label(__('filament.resources.category.group'))
-                    ->relationship('group', 'title')
-                    ->getOptionLabelFromRecordUsing(function ($record, $livewire) {
-                        $locale = $livewire->activeLocale ?? app()->getLocale();
+                    ->options(function () {
+                        $locale = app()->getLocale();
 
-                        return $record->getTranslation('title', $locale);
+                        return \App\Models\CategoryGroup::query()
+                            ->orderBy('position')
+                            ->get()
+                            ->mapWithKeys(fn ($group) => [
+                                $group->id => $group->getTranslation('title', $locale, false)
+                                    ?: $group->getTranslation('title', 'de', false),
+                            ]);
                     })
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

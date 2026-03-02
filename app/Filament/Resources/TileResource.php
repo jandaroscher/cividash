@@ -375,7 +375,7 @@ class TileResource extends Resource
                             ?: $record->getTranslation('title', 'de', false)
                             ?: $state;
                     })
-                    ->searchable()
+                    ->searchable(query: static::getSearchableTranslationClosure('title'))
                     ->sortable(query: function (EloquentBuilder $query, string $direction, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
                         $expression = static::getSortableTranslationExpression('title', $locale);
@@ -390,7 +390,7 @@ class TileResource extends Resource
                             ?: $record->getTranslation('slug', 'de', false)
                             ?: $state;
                     })
-                    ->searchable()
+                    ->searchable(query: static::getSearchableTranslationClosure('slug'))
                     ->sortable(query: function (EloquentBuilder $query, string $direction, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
                         $expression = static::getSortableTranslationExpression('slug', $locale);
@@ -422,14 +422,22 @@ class TileResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('handlungsfelder')
                     ->label(__('filament.resources.tile.categories'))
-                    ->relationship('handlungsfelder', 'slug')
-                    ->getOptionLabelFromRecordUsing(function ($record, $livewire) {
-                        $locale = $livewire->activeLocale ?? app()->getLocale();
+                    ->options(function () {
+                        $locale = app()->getLocale();
 
-                        return $record->getTranslation('slug', $locale);
+                        return \App\Models\Category::query()
+                            ->whereHas('group', fn ($q) => $q->where('key', 'handlungsfelder'))
+                            ->get()
+                            ->mapWithKeys(fn ($cat) => [
+                                $cat->id => $cat->getTranslation('slug', $locale, false)
+                                    ?: $cat->getTranslation('slug', 'de', false),
+                            ]);
                     })
+                    ->query(fn (EloquentBuilder $query, array $data): EloquentBuilder => $query->when(
+                        $data['values'] ?? null,
+                        fn (EloquentBuilder $q, array $values) => $q->whereHas('handlungsfelder', fn ($q) => $q->whereIn('categories.id', $values))
+                    ))
                     ->searchable()
-                    ->preload()
                     ->multiple(),
                 Tables\Filters\TernaryFilter::make('is_public')
                     ->label(__('filament.resources.tile.is_public')),

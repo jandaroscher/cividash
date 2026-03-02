@@ -152,7 +152,7 @@ class CategoryGroupResource extends Resource
                             ?: $record->getTranslation('title', 'de', false)
                             ?: $state;
                     })
-                    ->searchable()
+                    ->searchable(query: static::getSearchableTranslationClosure('title'))
                     ->sortable(query: function (Builder $query, string $direction, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
                         $expression = static::getSortableTranslationExpression('title', $locale);

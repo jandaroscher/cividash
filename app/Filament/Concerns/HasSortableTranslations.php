@@ -2,6 +2,8 @@
 
 namespace App\Filament\Concerns;
 
+use Closure;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Provides helper methods for sorting by translatable JSON columns in Filament tables.
@@ -68,6 +70,28 @@ trait HasSortableTranslations
             $column,
             $fallbackPath
         );
+    }
+
+    /**
+     * Return a closure for Filament's ->searchable(query: ...) that performs
+     * case-insensitive search on a translatable JSON column across all available locales.
+     *
+     * @param  string  $column  The translatable column name (e.g., 'title', 'slug').
+     * @return Closure A closure compatible with Filament's searchable query parameter.
+     */
+    protected static function getSearchableTranslationClosure(string $column): Closure
+    {
+        return function (Builder $query, string $search) use ($column): void {
+            $locales = config('app.available_locales', ['de', 'en']);
+            $loweredSearch = '%'.mb_strtolower($search).'%';
+
+            $query->where(function (Builder $query) use ($column, $locales, $loweredSearch) {
+                foreach ($locales as $locale) {
+                    $expression = static::getSortableTranslationExpression($column, $locale);
+                    $query->orWhereRaw("LOWER({$expression}) LIKE ?", [$loweredSearch]);
+                }
+            });
+        };
     }
 
     /**
