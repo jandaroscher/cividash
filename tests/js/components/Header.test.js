@@ -59,8 +59,8 @@ describe('Header', () => {
     function createWrapper(fetchData = {}) {
         const defaultData = {
             navigation_items: [],
-            show_language_switcher: false,
             dropdown_enabled: false,
+            english_translation_active: true,
             ...fetchData,
         };
 
@@ -124,8 +124,11 @@ describe('Header', () => {
         expect(navLinks[2].text()).toBe('Kontakt');
     });
 
-    it('does not render navigation when there are no navigation items and no language switcher', async () => {
-        const wrapper = createWrapper({ navigation_items: [], show_language_switcher: false });
+    it('does not render navigation when there are no navigation items and english translation is inactive', async () => {
+        const wrapper = createWrapper({
+            navigation_items: [],
+            english_translation_active: false,
+        });
         await vi.dynamicImportSettled();
         await wrapper.vm.$nextTick();
 
@@ -134,10 +137,10 @@ describe('Header', () => {
         expect(desktopNav.exists()).toBe(false);
     });
 
-    it('renders language switcher even without navigation items', async () => {
+    it('renders language switcher when english translation is active even without navigation items', async () => {
         const wrapper = createWrapper({
             navigation_items: [],
-            show_language_switcher: true,
+            english_translation_active: true,
         });
 
         await vi.dynamicImportSettled();
@@ -155,10 +158,10 @@ describe('Header', () => {
         expect(deSwitcher.text()).toContain('EN');
     });
 
-    it('renders language switcher when showLanguageSwitcher is enabled', async () => {
+    it('renders language switcher when englishTranslationActive is true', async () => {
         const wrapper = createWrapper({
             navigation_items: [{ label: 'Home', url: '/' }],
-            show_language_switcher: true,
+            english_translation_active: true,
         });
 
         await vi.dynamicImportSettled();
@@ -172,10 +175,10 @@ describe('Header', () => {
         expect(deSwitcher.text()).toContain('EN');
     });
 
-    it('does not render language switcher when showLanguageSwitcher is false', async () => {
+    it('does not render language switcher when englishTranslationActive is false', async () => {
         const wrapper = createWrapper({
             navigation_items: [{ label: 'Home', url: '/' }],
-            show_language_switcher: false,
+            english_translation_active: false,
         });
 
         await vi.dynamicImportSettled();

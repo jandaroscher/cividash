@@ -23,7 +23,6 @@ class Navigation extends Model
      */
     protected $fillable = [
         'navigation_items',
-        'show_language_switcher',
         'dropdown_enabled',
         'tenant_id',
     ];
@@ -33,7 +32,6 @@ class Navigation extends Model
      */
     protected $casts = [
         'navigation_items' => 'array',
-        'show_language_switcher' => 'boolean',
         'dropdown_enabled' => 'boolean',
     ];
 
@@ -202,7 +200,6 @@ class Navigation extends Model
                         'de' => [],
                         'en' => [],
                     ],
-                    'show_language_switcher' => true,
                     'dropdown_enabled' => false,
                 ]);
             });

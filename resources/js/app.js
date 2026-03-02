@@ -15,10 +15,12 @@ import '@johanaarstein/dotlottie-player';
 const app = createApp(App);
 const pinia = createPinia();
 app.use(pinia);
-app.use(router);
 app.directive('intersection-observer', vIntersectionObserver);
 
-// Fetch branding, help, header and footer content before mounting
+// Fetch branding, help, header and footer content before mounting.
+// Router is installed AFTER stores are populated so that router guards
+// (e.g. the /en redirect when English is disabled) see the real API values
+// instead of default store state during initial navigation.
 const branding = useBrandingStore();
 const helpStore = useHelpStore();
 const headerStore = useHeaderStore();
@@ -33,9 +35,11 @@ Promise.all([
     footerStore.fetchConfig(defaultLocale),
 ])
     .then(() => {
+        app.use(router);
         app.mount('#app');
     })
     .catch((error) => {
         logError('Failed to fetch settings, mounting app anyway:', error);
+        app.use(router);
         app.mount('#app');
     });

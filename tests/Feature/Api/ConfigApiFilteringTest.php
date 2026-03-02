@@ -52,7 +52,6 @@ class ConfigApiFilteringTest extends TestCase
                     ],
                     'en' => [],
                 ],
-                'show_language_switcher' => true,
                 'dropdown_enabled' => false,
             ]
         );
@@ -119,7 +118,6 @@ class ConfigApiFilteringTest extends TestCase
                     ],
                     'en' => [],
                 ],
-                'show_language_switcher' => true,
                 'dropdown_enabled' => false,
             ]
         );
@@ -154,7 +152,6 @@ class ConfigApiFilteringTest extends TestCase
                     ],
                     'en' => [],
                 ],
-                'show_language_switcher' => true,
                 'dropdown_enabled' => false,
             ]
         );
@@ -203,13 +200,12 @@ class ConfigApiFilteringTest extends TestCase
         $this->assertNotContains('facebook', $platforms);
     }
 
-    public function test_header_returns_language_switcher_and_dropdown_settings(): void
+    public function test_header_returns_dropdown_settings(): void
     {
         Navigation::withoutGlobalScope('tenant')->updateOrCreate(
             ['tenant_id' => $this->tenant->id],
             [
                 'navigation_items' => ['de' => [], 'en' => []],
-                'show_language_switcher' => false,
                 'dropdown_enabled' => true,
             ]
         );
@@ -217,8 +213,8 @@ class ConfigApiFilteringTest extends TestCase
         $response = $this->getJson('/api/config/header?locale=de');
 
         $response->assertOk()
-            ->assertJsonPath('data.show_language_switcher', false)
-            ->assertJsonPath('data.dropdown_enabled', true);
+            ->assertJsonPath('data.dropdown_enabled', true)
+            ->assertJsonMissingPath('data.show_language_switcher');
     }
 
     public function test_footer_returns_layout_and_copyright(): void

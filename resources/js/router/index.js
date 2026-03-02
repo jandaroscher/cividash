@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { supportedLocales, defaultLocale } from '../utils/locale';
+import { useHeaderStore } from '../stores/header';
 
 // Lazy-load page components for better performance
 const HomePage = () => import('../components/pages/HomePage.vue');
@@ -68,18 +69,27 @@ const router = createRouter({
 
 // Router guard for locale handling
 router.beforeEach((to, from, next) => {
+    // Redirect /en/ routes to German equivalent when English translation is disabled
+    if (/^\/en(\/|$)/.test(to.path)) {
+        const headerStore = useHeaderStore();
+        if (!headerStore.englishTranslationActive) {
+            const dePath = to.path.replace(/^\/en\/?/, '/') || '/';
+            return next({ path: dePath, query: to.query, hash: to.hash });
+        }
+    }
+
     // Extract locale from route meta or path
     let locale = to.meta?.locale;
-    
+
     if (!locale) {
         // Try to extract from path
-        if (to.path.startsWith('/en')) {
+        if (/^\/en(\/|$)/.test(to.path)) {
             locale = 'en';
         } else {
             locale = 'de';
         }
     }
-    
+
     // Validate locale
     if (!supportedLocales.includes(locale)) {
         // Try localStorage as fallback
@@ -94,15 +104,15 @@ router.beforeEach((to, from, next) => {
             locale = defaultLocale;
         }
     }
-    
+
     // Store locale in route meta for components to access
     to.meta = { ...to.meta, locale };
-    
+
     // Persist locale in localStorage
     if (typeof window !== 'undefined') {
         localStorage.setItem('locale', locale);
     }
-    
+
     next();
 });
 

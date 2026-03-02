@@ -36,7 +36,7 @@ class NavigationSingletonTest extends TestCase
         Navigation::withoutGlobalScope('tenant')->create([
             'tenant_id' => $this->tenant->id,
             'navigation_items' => ['de' => [['label' => 'Start', 'url' => '/']], 'en' => []],
-            'show_language_switcher' => true,
+
             'dropdown_enabled' => false,
         ]);
 
@@ -66,7 +66,7 @@ class NavigationSingletonTest extends TestCase
         Navigation::withoutGlobalScope('tenant')->create([
             'tenant_id' => $otherTenant->id,
             'navigation_items' => ['de' => [], 'en' => []],
-            'show_language_switcher' => false,
+
             'dropdown_enabled' => false,
         ]);
 
@@ -84,7 +84,6 @@ class NavigationSingletonTest extends TestCase
 
         $this->assertNotNull($instance);
         $this->assertEquals($this->tenant->id, $instance->tenant_id);
-        $this->assertTrue($instance->show_language_switcher);
         $this->assertFalse($instance->dropdown_enabled);
     }
 
@@ -93,14 +92,13 @@ class NavigationSingletonTest extends TestCase
         $existing = Navigation::withoutGlobalScope('tenant')->create([
             'tenant_id' => $this->tenant->id,
             'navigation_items' => ['de' => [['label' => 'Existing', 'url' => '/existing']], 'en' => []],
-            'show_language_switcher' => false,
+
             'dropdown_enabled' => true,
         ]);
 
         $instance = Navigation::getOrCreateInstance();
 
         $this->assertEquals($existing->tenant_id, $instance->tenant_id);
-        $this->assertFalse($instance->show_language_switcher);
         $this->assertTrue($instance->dropdown_enabled);
     }
 
@@ -112,7 +110,7 @@ class NavigationSingletonTest extends TestCase
                 'de' => [['label' => 'Startseite', 'url' => '/']],
                 'en' => [['label' => 'Home', 'url' => '/']],
             ],
-            'show_language_switcher' => true,
+
             'dropdown_enabled' => false,
         ]);
 
@@ -144,7 +142,7 @@ class NavigationSingletonTest extends TestCase
                     ],
                 ],
             ],
-            'show_language_switcher' => true,
+
             'dropdown_enabled' => false,
         ]);
 
@@ -163,7 +161,7 @@ class NavigationSingletonTest extends TestCase
                 'de' => [['label' => 'Startseite', 'url' => '/']],
                 'en' => [],
             ],
-            'show_language_switcher' => true,
+
             'dropdown_enabled' => false,
         ]);
 
@@ -193,7 +191,7 @@ class NavigationSingletonTest extends TestCase
                 ],
                 'en' => [],
             ],
-            'show_language_switcher' => true,
+
             'dropdown_enabled' => false,
         ]);
 
@@ -211,7 +209,7 @@ class NavigationSingletonTest extends TestCase
         $nav = Navigation::withoutGlobalScope('tenant')->create([
             'tenant_id' => $this->tenant->id,
             'navigation_items' => null,
-            'show_language_switcher' => true,
+
             'dropdown_enabled' => false,
         ]);
 

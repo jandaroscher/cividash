@@ -4,9 +4,7 @@ namespace Tests\Feature\Filament;
 
 use App\Filament\Pages\ManageApiKeys;
 use App\Filament\Pages\ManageBranding;
-use App\Filament\Pages\ManageFooter;
-use App\Filament\Pages\ManageGeneral;
-use App\Filament\Pages\ManageNavigation;
+use App\Filament\Pages\ManageSiteSettings;
 use App\Filament\Resources\UserResource;
 use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\Pages\EditUser;
@@ -332,10 +330,8 @@ class UserResourceTest extends TestCase
         $redakteur = $this->createUserWithRoleInTenant($this->tenant, 'Redakteur');
         $this->actingAs($redakteur);
 
-        $this->assertFalse(ManageGeneral::canAccess());
+        $this->assertFalse(ManageSiteSettings::canAccess());
         $this->assertFalse(ManageBranding::canAccess());
-        $this->assertFalse(ManageNavigation::canAccess());
-        $this->assertFalse(ManageFooter::canAccess());
         $this->assertFalse(ManageApiKeys::canAccess());
     }
 
@@ -343,10 +339,8 @@ class UserResourceTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        $this->assertTrue(ManageGeneral::canAccess());
+        $this->assertTrue(ManageSiteSettings::canAccess());
         $this->assertTrue(ManageBranding::canAccess());
-        $this->assertTrue(ManageNavigation::canAccess());
-        $this->assertTrue(ManageFooter::canAccess());
         $this->assertTrue(ManageApiKeys::canAccess());
     }
 
@@ -363,10 +357,8 @@ class UserResourceTest extends TestCase
 
         // Admin should still see settings because is_admin=true
         $this->assertTrue(UserResource::canAccess());
-        $this->assertTrue(ManageGeneral::canAccess());
+        $this->assertTrue(ManageSiteSettings::canAccess());
         $this->assertTrue(ManageBranding::canAccess());
-        $this->assertTrue(ManageNavigation::canAccess());
-        $this->assertTrue(ManageFooter::canAccess());
         $this->assertTrue(ManageApiKeys::canAccess());
     }
 }

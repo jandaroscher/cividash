@@ -4,8 +4,8 @@ import { getApiBaseUrl } from '../utils/api';
 export const useHeaderStore = defineStore('header', {
     state: () => ({
         navigationItems: [],
-        showLanguageSwitcher: false,
         dropdownEnabled: false,
+        englishTranslationActive: true,
         loading: false,
         error: null,
     }),
@@ -34,8 +34,8 @@ export const useHeaderStore = defineStore('header', {
                 const data = json.data || json;
                 
                 this.navigationItems = data.navigation_items || [];
-                this.showLanguageSwitcher = data.show_language_switcher || false;
                 this.dropdownEnabled = data.dropdown_enabled || false;
+                this.englishTranslationActive = data.english_translation_active === true;
                 
                 return data;
             } catch (err) {

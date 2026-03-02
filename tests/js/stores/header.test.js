@@ -13,7 +13,6 @@ describe('headerStore', () => {
         it('has correct default values', () => {
             const store = useHeaderStore();
             expect(store.navigationItems).toEqual([]);
-            expect(store.showLanguageSwitcher).toBe(false);
             expect(store.dropdownEnabled).toBe(false);
             expect(store.loading).toBe(false);
             expect(store.error).toBeNull();
@@ -53,7 +52,6 @@ describe('headerStore', () => {
             globalThis.fetch = mockFetch({
                 data: {
                     navigation_items: navItems,
-                    show_language_switcher: true,
                     dropdown_enabled: true,
                 },
             });
@@ -62,7 +60,6 @@ describe('headerStore', () => {
             const result = await store.fetchConfig('de');
 
             expect(store.navigationItems).toEqual(navItems);
-            expect(store.showLanguageSwitcher).toBe(true);
             expect(store.dropdownEnabled).toBe(true);
             expect(store.error).toBeNull();
             expect(result).toBeTruthy();
@@ -76,7 +73,6 @@ describe('headerStore', () => {
             globalThis.fetch = mockFetch({
                 data: {
                     navigation_items: [],
-                    show_language_switcher: false,
                     dropdown_enabled: false,
                 },
             });
@@ -94,7 +90,6 @@ describe('headerStore', () => {
             globalThis.fetch = mockFetch({
                 data: {
                     navigation_items: [],
-                    show_language_switcher: false,
                     dropdown_enabled: false,
                 },
             });
@@ -152,7 +147,6 @@ describe('headerStore', () => {
                     Promise.resolve({
                         data: {
                             navigation_items: [],
-                            show_language_switcher: false,
                             dropdown_enabled: false,
                         },
                     }),
@@ -169,15 +163,6 @@ describe('headerStore', () => {
             await store.fetchConfig('de');
 
             expect(store.navigationItems).toEqual([]);
-        });
-
-        it('defaults showLanguageSwitcher to false when missing', async () => {
-            globalThis.fetch = mockFetch({ data: {} });
-
-            const store = useHeaderStore();
-            await store.fetchConfig('de');
-
-            expect(store.showLanguageSwitcher).toBe(false);
         });
 
         it('defaults dropdownEnabled to false when missing', async () => {
@@ -202,7 +187,6 @@ describe('headerStore', () => {
             globalThis.fetch = mockFetch({
                 data: {
                     navigation_items: [],
-                    show_language_switcher: false,
                     dropdown_enabled: false,
                 },
             });
@@ -213,7 +197,6 @@ describe('headerStore', () => {
         it('uses json.data when available, falls back to json', async () => {
             const responseData = {
                 navigation_items: [{ id: 1, label: 'Home' }],
-                show_language_switcher: true,
                 dropdown_enabled: false,
             };
             // Response without .data wrapper
@@ -229,7 +212,6 @@ describe('headerStore', () => {
             await store.fetchConfig('de');
 
             expect(store.navigationItems).toEqual([{ id: 1, label: 'Home' }]);
-            expect(store.showLanguageSwitcher).toBe(true);
         });
     });
 });

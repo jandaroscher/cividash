@@ -12,6 +12,8 @@ class GeneralSettings extends Settings
 
     public ?string $favicon = null;
 
+    public bool $english_translation_active = true;
+
     /**
      * Get the settings group name for this settings class.
      *

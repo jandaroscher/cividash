@@ -33,7 +33,6 @@ class NavigationTest extends TestCase
         $this->assertNotNull($navigation);
         $this->assertGreaterThan(0, $navigation->id, 'Navigation should have a valid id');
         $this->assertNotNull($navigation->tenant_id, 'Navigation should be associated with a tenant');
-        $this->assertTrue($navigation->show_language_switcher);
         $this->assertFalse($navigation->dropdown_enabled);
     }
 
@@ -44,7 +43,6 @@ class NavigationTest extends TestCase
         $navigationId = $navigation->id; // Store the id for comparison
 
         // Update the record
-        $navigation->show_language_switcher = false;
         $navigation->dropdown_enabled = true;
         $navigation->save();
 
@@ -53,7 +51,6 @@ class NavigationTest extends TestCase
 
         $this->assertNotNull($retrieved);
         $this->assertEquals($navigationId, $retrieved->id, 'Should return the same instance');
-        $this->assertFalse($retrieved->show_language_switcher, 'show_language_switcher should be false');
         $this->assertTrue($retrieved->dropdown_enabled, 'dropdown_enabled should be true');
     }
 

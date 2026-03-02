@@ -17,7 +17,6 @@ class UpdateNavigationRequest extends FormRequest
             'navigation_items' => ['sometimes', 'array'],
             'navigation_items.de' => ['sometimes', 'nullable', 'array'],
             'navigation_items.en' => ['sometimes', 'nullable', 'array'],
-            'show_language_switcher' => ['sometimes', 'boolean'],
             'dropdown_enabled' => ['sometimes', 'boolean'],
         ];
     }

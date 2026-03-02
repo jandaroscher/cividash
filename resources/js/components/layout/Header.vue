@@ -29,7 +29,7 @@
 
             <!-- Mobile Menu Toggle -->
             <button
-                v-if="headerStore.navigationItems.length > 0 || headerStore.showLanguageSwitcher"
+                v-if="hasVisibleNavigation"
                 ref="mobileMenuToggle"
                 class="mobile-menu-toggle md:hidden ml-auto"
                 @click="openMobileMenu"
@@ -44,7 +44,7 @@
 
             <!-- Desktop Navigation -->
             <nav
-                v-if="headerStore.navigationItems.length > 0 || headerStore.showLanguageSwitcher"
+                v-if="hasVisibleNavigation"
                 class="desktop-nav ml-auto mt-10 md:mt-0 md:mb-12 flex space-x-2 sm:space-x-6 md:space-x-8 items-end"
             >
                 <template v-for="(item, index) in headerStore.navigationItems" :key="index">
@@ -86,7 +86,7 @@
                 </template>
 
                 <!-- Language Switcher -->
-                <template v-if="headerStore.showLanguageSwitcher">
+                <template v-if="headerStore.englishTranslationActive">
                     <select 
                         class="language-switcher-mobile cursor-pointer text-sm sm:text-base md:text-2xl md:font-bold relative bg-transparent" 
                         style="color: var(--nav-text-color); border: none; outline: none;"
@@ -120,7 +120,7 @@
 
             <!-- Mobile Menu -->
             <div
-                v-if="headerStore.navigationItems.length > 0 || headerStore.showLanguageSwitcher"
+                v-if="hasVisibleNavigation"
                 id="mobile-menu"
                 :class="['mobile-menu', 'fixed', 'top-0', 'left-0', 'w-full', 'h-full', 'bg-white', 'z-50', 'pt-20', 'px-4', { 'open': mobileMenuOpen }]"
                 @keydown="handleMenuKeydown"
@@ -166,8 +166,8 @@
                             </div>
                         </div>
                     </template>
-                    <div 
-                        v-if="headerStore.showLanguageSwitcher"
+                    <div
+                        v-if="headerStore.englishTranslationActive"
                         class="pt-4 border-t"
                         :style="{ borderColor: 'var(--divider-color)' }"
                     >
@@ -208,6 +208,11 @@ const pagesStore = usePagesStore();
 const { currentLocale, setLocale, getTranslatedSlug } = useLocale();
 
 const locale = currentLocale;
+
+const hasVisibleNavigation = computed(() => {
+    if (headerStore.navigationItems.length > 0) return true;
+    return headerStore.englishTranslationActive;
+});
 const mobileMenuOpen = ref(false);
 const mobileMenuToggle = ref(null);
 const mobileMenuClose = ref(null);

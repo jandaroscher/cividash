@@ -21,7 +21,6 @@ return [
             'label' => 'Bezeichnung',
             'url' => 'URL',
             'children' => 'Untermenü-Elemente',
-            'show_language_switcher' => 'Sprachmenü anzeigen',
             'dropdown_enabled' => 'Dropdown-Menü aktivieren',
             'dropdown_enabled_helper' => 'Ermöglicht verschachtelte Navigation mit Dropdown-Untermenüs',
         ],
@@ -124,6 +123,14 @@ return [
             'site_name' => 'Seitenname',
             'favicon' => 'Favicon',
             'favicon_helper' => 'Empfohlen: ICO, PNG oder SVG, max. 512 KB',
+        ],
+        'manage_site_settings' => [
+            'title' => 'Seiteneinstellungen',
+            'section_basic' => 'Basisinformationen',
+            'section_header' => 'Header',
+            'section_footer' => 'Footer',
+            'english_translation_active' => 'Übersetzung Englisch',
+            'english_translation_active_helper' => 'Wenn deaktiviert, wird der Sprachumschalter ausgeblendet und englische Routen leiten auf Deutsch um',
         ],
         'manage_dashboard' => [
             'title' => 'Dashboard',

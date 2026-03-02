@@ -118,8 +118,8 @@ class ConfigController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\JsonResource JSON resource with:
      *                                                      - `navigation_items`: array of navigation items (filtered and translated),
-     *                                                      - `show_language_switcher`: boolean,
-     *                                                      - `dropdown_enabled`: boolean
+     *                                                      - `dropdown_enabled`: boolean,
+     *                                                      - `english_translation_active`: boolean
      */
     public function header(\Illuminate\Http\Request $request): JsonResource
     {
@@ -153,10 +153,12 @@ class ConfigController extends Controller
         $filteredItems = $this->filterItemsByActivePages($navigationItems, $activePageIds);
         $filteredItems = $this->filterInactiveItems($filteredItems);
 
+        $settings = app(GeneralSettings::class);
+
         return new JsonResource([
             'navigation_items' => $filteredItems,
-            'show_language_switcher' => $navigation->show_language_switcher,
             'dropdown_enabled' => $navigation->dropdown_enabled,
+            'english_translation_active' => $settings->english_translation_active,
         ]);
     }
 
@@ -448,10 +450,9 @@ class ConfigController extends Controller
      * @authenticated
      *
      * @bodyParam navigation_items object Navigation items per locale. Example: {"de": [{"label": "Start", "url": "/"}], "en": [{"label": "Home", "url": "/en"}]}
-     * @bodyParam show_language_switcher boolean Show language switcher toggle. Example: true
      * @bodyParam dropdown_enabled boolean Enable dropdown menus. Example: false
      *
-     * @response 200 scenario="Navigation updated" {"data": {"navigation_items": {"de": [], "en": []}, "show_language_switcher": true, "dropdown_enabled": false}}
+     * @response 200 scenario="Navigation updated" {"data": {"navigation_items": {"de": [], "en": []}, "dropdown_enabled": false}}
      */
     public function updateNavigation(UpdateNavigationRequest $request): JsonResource
     {
@@ -462,10 +463,6 @@ class ConfigController extends Controller
             $navigation->navigation_items = $validated['navigation_items'];
         }
 
-        if (array_key_exists('show_language_switcher', $validated)) {
-            $navigation->show_language_switcher = $validated['show_language_switcher'];
-        }
-
         if (array_key_exists('dropdown_enabled', $validated)) {
             $navigation->dropdown_enabled = $validated['dropdown_enabled'];
         }
@@ -474,7 +471,6 @@ class ConfigController extends Controller
 
         return new JsonResource([
             'navigation_items' => $navigation->getTranslations('navigation_items'),
-            'show_language_switcher' => $navigation->show_language_switcher,
             'dropdown_enabled' => $navigation->dropdown_enabled,
         ]);
     }

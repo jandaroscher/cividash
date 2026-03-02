@@ -89,6 +89,14 @@ return [
             'favicon' => 'Favicon',
             'favicon_helper' => 'Recommended: ICO, PNG or SVG, max. 512 KB',
         ],
+        'manage_site_settings' => [
+            'title' => 'Site Settings',
+            'section_basic' => 'Basic Information',
+            'section_header' => 'Header',
+            'section_footer' => 'Footer',
+            'english_translation_active' => 'English Translation',
+            'english_translation_active_helper' => 'When disabled, the language switcher is hidden and English routes redirect to German',
+        ],
         'manage_header' => [
             'title' => 'Header / Navigation',
             'navigation_items' => 'Navigation Items',
@@ -99,7 +107,6 @@ return [
             'label' => 'Label',
             'url' => 'URL',
             'children' => 'Submenu Items',
-            'show_language_switcher' => 'Show language switcher',
             'dropdown_enabled' => 'Enable dropdown menu',
             'dropdown_enabled_helper' => 'Enables nested navigation with dropdown submenus',
         ],
