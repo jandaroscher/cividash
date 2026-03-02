@@ -109,11 +109,13 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
 
     public function getTenants(Panel $panel): Collection|array
     {
-        if ($this->is_admin) {
-            return Tenant::orderBy('name')->get();
-        }
+        $tenants = $this->is_admin
+            ? Tenant::orderBy('name')->get()
+            : $this->tenants()->orderBy('name')->get();
 
-        return $this->tenants()->orderBy('name')->get();
+        Tenant::loadAvatarColors($tenants);
+
+        return $tenants;
     }
 
     /**
