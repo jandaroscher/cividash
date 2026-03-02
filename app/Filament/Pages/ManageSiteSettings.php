@@ -264,7 +264,6 @@ class ManageSiteSettings extends Page implements HasForms
                                     ->label(__('filament.pages.manage_footer.tooltip_text')),
                             ])
                             ->reorderable()
-                            ->columns(3)
                             ->extraItemActions([
                                 static::getBlockActiveToggleAction(),
                             ]),
