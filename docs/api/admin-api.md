@@ -9,7 +9,7 @@
 
 Die vollständige, interaktive API-Dokumentation ist verfügbar unter:
 
-- **HTML-Docs:** `/docs/` (z.B. `https://example.com/docs/`)
+- **HTML-Docs:** `/docs/` (z. B. `https://example.com/docs/`)
 - **OpenAPI 3.0 Spec:** `/docs/openapi.yaml`
 - **Postman Collection:** `/docs/collection.json`
 

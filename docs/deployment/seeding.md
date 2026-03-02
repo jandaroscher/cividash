@@ -140,7 +140,7 @@ Seeded Tiles, Categories, Metrics, SDG-Ziele und deren Beziehungen aus einer `da
 - `--path=` : Pfad zur `dashboard.json` Datei
   - Optional: Wenn nicht angegeben, wird der Standard-Pfad verwendet
   - Standard: `storage/app/seeds/regensburg/dashboard.json`
-  - Kann auch als relativer Pfad angegeben werden (z.B. `dashboard.json` im Root)
+  - Kann auch als relativer Pfad angegeben werden (z. B. `dashboard.json` im Root)
 
 - `--url=` : URL, von der `dashboard.json` heruntergeladen wird
   - Lädt die Datei herunter und speichert sie lokal unter `storage/app/seeds/regensburg/dashboard.json`
@@ -339,7 +339,7 @@ Folgende Zeile hinzufügen:
 * * * * * cd /pfad/zum/projekt && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-> **Hinweis:** Der Pfad muss dem tatsächlichen Projektpfad auf dem Server entsprechen (z.B. der Wert aus dem GitHub Secret `PATH_PROD`).
+> **Hinweis:** Der Pfad muss dem tatsächlichen Projektpfad auf dem Server entsprechen (z. B. der Wert aus dem GitHub Secret `PATH_PROD`).
 
 Der Cron läuft jede Minute. Laravel prüft intern, welche Commands fällig sind, und führt nur die geplanten aus.
 
