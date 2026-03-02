@@ -22,6 +22,7 @@ class MetricDefinitionFactory extends Factory
             'unit' => ['de' => fake()->randomElement(['%', 'kg', 'kWh', 't CO₂']), 'en' => fake()->randomElement(['%', 'kg', 'kWh', 't CO₂'])],
             'indicator_type' => fake()->randomElement(['small', 'big']),
             'is_active' => true,
+            'sort_order' => 0,
             'tenant_id' => fn (array $attributes) => Tile::find($attributes['tile_id'])->tenant_id,
         ];
     }

@@ -99,7 +99,7 @@ class Tile extends Model
      */
     public function metricDefinitions()
     {
-        return $this->hasMany(MetricDefinition::class);
+        return $this->hasMany(MetricDefinition::class)->orderBy('sort_order');
     }
 
     /**

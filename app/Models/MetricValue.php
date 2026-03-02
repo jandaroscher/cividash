@@ -16,6 +16,7 @@ class MetricValue extends Model
         'tile_year_id',
         'value',
         'is_active',
+        'sort_order',
         'tenant_id',
     ];
 

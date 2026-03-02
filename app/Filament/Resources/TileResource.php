@@ -135,6 +135,7 @@ class TileResource extends Resource
                                     ->schema([
                                         Repeater::make('metricDefinitions')
                                             ->relationship('metricDefinitions')
+                                            ->orderColumn('sort_order')
                                             ->label(__('filament.resources.tile.metrics_label'))
                                             ->addActionLabel(__('filament.actions.add_to_metrics'))
                                             ->itemLabel(fn (array $state): ?string => $state['label'] ?? null)
@@ -174,6 +175,7 @@ class TileResource extends Resource
                                                     ->required(false),
                                                 Repeater::make('metricValues')
                                                     ->relationship('metricValues')
+                                                    ->orderColumn('sort_order')
                                                     ->label(__('filament.resources.tile.metric_values'))
                                                     ->addActionLabel(__('filament.actions.add_to_metric_values'))
                                                     ->itemLabel(function (array $state, $record): ?string {

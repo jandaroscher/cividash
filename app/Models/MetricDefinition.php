@@ -26,6 +26,7 @@ class MetricDefinition extends Model
         'icon',
         'indicator_type',
         'is_active',
+        'sort_order',
         'tenant_id',
     ];
 
@@ -47,7 +48,7 @@ class MetricDefinition extends Model
      */
     public function metricValues()
     {
-        return $this->hasMany(MetricValue::class);
+        return $this->hasMany(MetricValue::class)->orderBy('sort_order');
     }
 
     /**

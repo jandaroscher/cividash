@@ -22,6 +22,7 @@ class MetricValueFactory extends Factory
             'tile_year_id' => TileYear::factory(),
             'value' => fake()->randomFloat(2, 0, 1000),
             'is_active' => true,
+            'sort_order' => 0,
             'tenant_id' => Tenant::factory(),
         ];
     }
