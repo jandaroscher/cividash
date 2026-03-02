@@ -48,3 +48,18 @@
 .fi-tenant-menu .fi-dropdown-panel {
     max-width: max-content !important;
 }
+
+/**
+ * Hide non-functional cancel button and "abbrechen" text during file upload
+ * Filament's Livewire upload doesn't support aborting, so the FilePond cancel
+ * controls are misleading. Hide abort button + status sub-text during processing.
+ */
+.fi-fo-file-upload [data-filepond-item-state~="processing"] .filepond--action-abort-item-processing {
+    visibility: hidden !important;
+}
+
+.fi-fo-file-upload [data-filepond-item-state~="processing"] .filepond--action-abort-item-processing ~ .filepond--file-status .filepond--file-status-sub,
+.fi-fo-file-upload [data-filepond-item-state="processing-complete"] .filepond--action-abort-item-processing ~ .filepond--file-status .filepond--file-status-sub,
+.fi-fo-file-upload [data-filepond-item-state="processing-complete"] .filepond--file-status-sub {
+    opacity: 0 !important;
+}
