@@ -168,6 +168,7 @@ class ManageSiteSettings extends Page implements HasForms
 
                                 Repeater::make('children')
                                     ->label(__('filament.pages.manage_header.children'))
+                                    ->addActionLabel(__('filament.actions.add_to_children'))
                                     ->schema($this->navigationItemSchema())
                                     ->collapsible()
                                     ->itemLabel(function (array $state): ?string {
