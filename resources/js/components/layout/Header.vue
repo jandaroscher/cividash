@@ -97,19 +97,19 @@
                         <option :value="enUrl">EN</option>
                     </select>
                     <div class="language-switcher-desktop text-base sm:text-base md:text-2xl md:font-bold relative flex items-center">
-                        <button 
-                            type="button" 
+                        <button
+                            type="button"
                             @click="switchLocale('de')"
-                            class="hover:opacity-70 transition-colors duration-200"
+                            class="transition-colors duration-200 lang-switch-btn"
                             :style="{ color: locale === 'de' ? 'var(--nav-text-color)' : 'var(--nav-text-color-inactive)' }"
                         >
                             DE
                         </button>
                         <span style="color: var(--nav-text-color-inactive);">&nbsp;/&nbsp;</span>
-                        <button 
+                        <button
                             type="button"
                             @click="switchLocale('en')"
-                            class="hover:opacity-70 transition-colors duration-200"
+                            class="transition-colors duration-200 lang-switch-btn"
                             :style="{ color: locale === 'en' ? 'var(--nav-text-color)' : 'var(--nav-text-color-inactive)' }"
                         >
                             EN
@@ -391,6 +391,10 @@ watch(
 
 /* Navigation hover styles */
 .nav-item .nav-link:hover {
+    color: var(--nav-hover-color) !important;
+}
+
+.lang-switch-btn:hover {
     color: var(--nav-hover-color) !important;
 }
 
