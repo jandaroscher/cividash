@@ -138,10 +138,10 @@ return [
         'edit_profile' => [
             'title' => 'Profile',
             'profile_information' => 'Profile Information',
-            'profile_information_description' => 'Update your profile information and email address.',
+            'profile_information_description' => 'Update your profile information and email address (= username).',
             'first_name' => 'First Name',
             'last_name' => 'Last Name',
-            'email' => 'Email',
+            'email' => 'Email / Username',
             'phone' => 'Phone',
             'avatar' => 'Avatar',
             'locale' => 'Backend Language',
@@ -351,7 +351,7 @@ return [
             'fields' => [
                 'first_name' => 'First Name',
                 'last_name' => 'Last Name',
-                'email' => 'Email',
+                'email' => 'Email / Username',
                 'phone' => 'Phone',
                 'locale' => 'Language',
                 'password' => 'Password',

@@ -210,10 +210,10 @@ return [
         'edit_profile' => [
             'title' => 'Profil',
             'profile_information' => 'Profilinformationen',
-            'profile_information_description' => 'Aktualisieren Sie Ihre Profilinformationen und E-Mail-Adresse.',
+            'profile_information_description' => 'Aktualisieren Sie Ihre Profilinformationen und E-Mail-Adresse (= Benutzername).',
             'first_name' => 'Vorname',
             'last_name' => 'Nachname',
-            'email' => 'E-Mail',
+            'email' => 'E-Mail / Benutzername',
             'phone' => 'Telefon',
             'avatar' => 'Profilbild',
             'locale' => 'Backend-Sprache',
@@ -329,7 +329,7 @@ return [
             'fields' => [
                 'first_name' => 'Vorname',
                 'last_name' => 'Nachname',
-                'email' => 'E-Mail',
+                'email' => 'E-Mail / Benutzername',
                 'phone' => 'Telefon',
                 'locale' => 'Sprache',
                 'password' => 'Passwort',
