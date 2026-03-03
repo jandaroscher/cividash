@@ -148,6 +148,8 @@ return [
             'made_with_text' => 'Made-with-Text',
         ],
         'dashboard_overview' => [
+            'title' => 'Übersicht',
+            'navigation_label' => 'Übersicht',
             'content_links' => 'Dokumentation',
             'open_source_docs' => 'Open-Source-Dokumentation',
             'user_manual' => 'Nutzerhandbuch',
@@ -155,14 +157,15 @@ return [
             'contact_heading' => 'Kontakt',
             'server_time_heading' => 'Server',
             'server_time_label' => 'Serverzeit',
+            'local_time_label' => 'Lokale Zeit',
             'server_php_version' => 'PHP-Version',
             'server_laravel_version' => 'Laravel-Version',
             'server_db_info' => 'Datenbank',
             'server_app_env' => 'Umgebung',
-            'server_timezone' => 'Zeitzone',
             'stats_heading' => 'Statistiken',
             'active_tiles' => ':count aktive Kacheln',
             'year_data' => ':count Jahresdaten',
+            'active_categories' => ':count Kategorien',
         ],
         'manage_api_keys' => [
             'title' => 'API Keys',
@@ -534,5 +537,10 @@ return [
         'add_to_social_media_links' => 'Zu Social Media Links hinzufügen',
         'add_to_faq_items' => 'Zu FAQ-Einträgen hinzufügen',
         'add_to_blocks' => 'Zu Blöcke hinzufügen',
+        'insert_page_link' => 'Seiten-Link einfügen',
+    ],
+    'fields' => [
+        'select_page' => 'Seite auswählen',
+        'link_text' => 'Link-Text',
     ],
 ];

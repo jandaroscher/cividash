@@ -27,6 +27,8 @@ return [
             'made_with_text' => 'Made with text',
         ],
         'dashboard_overview' => [
+            'title' => 'Overview',
+            'navigation_label' => 'Overview',
             'content_links' => 'Documentation',
             'open_source_docs' => 'Open-source documentation',
             'user_manual' => 'User manual',
@@ -34,14 +36,15 @@ return [
             'contact_heading' => 'Contact',
             'server_time_heading' => 'Server',
             'server_time_label' => 'Server time',
+            'local_time_label' => 'Local time',
             'server_php_version' => 'PHP version',
             'server_laravel_version' => 'Laravel version',
             'server_db_info' => 'Database',
             'server_app_env' => 'Environment',
-            'server_timezone' => 'Timezone',
             'stats_heading' => 'Statistics',
             'active_tiles' => ':count active tiles',
             'year_data' => ':count yearly data',
+            'active_categories' => ':count categories',
         ],
         'manage_api_keys' => [
             'title' => 'API Keys',
@@ -534,5 +537,10 @@ return [
         'add_to_social_media_links' => 'Add to Social Media Links',
         'add_to_faq_items' => 'Add to FAQ Items',
         'add_to_blocks' => 'Add to Blocks',
+        'insert_page_link' => 'Insert page link',
+    ],
+    'fields' => [
+        'select_page' => 'Select page',
+        'link_text' => 'Link text',
     ],
 ];

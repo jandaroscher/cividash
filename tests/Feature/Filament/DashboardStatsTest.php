@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Models\Category;
+use App\Models\CategoryGroup;
 use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TileYear;
@@ -63,6 +65,9 @@ class DashboardStatsTest extends TestCase
             'year' => 2025,
         ]);
 
+        $group = CategoryGroup::factory()->forTenant($this->tenant)->create();
+        Category::factory()->forGroup($group)->count(3)->create();
+
         $settings = app(DashboardSettings::class);
         $settings->made_with_text = 'Made with ❤️ in Demo City';
         $settings->save();
@@ -73,6 +78,7 @@ class DashboardStatsTest extends TestCase
         $response->assertSee('Statistiken', false);
         $response->assertSee('2 aktive Kacheln', false);
         $response->assertSee('3 Jahresdaten', false);
+        $response->assertSee('3 Kategorien', false);
         $response->assertSee('Kontakt', false);
         $response->assertSee('Made with ❤️ in Demo City', false);
     }

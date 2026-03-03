@@ -43,10 +43,9 @@ class DashboardServerTimeTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_dashboard_renders_server_time_when_enabled(): void
+    public function test_server_time_shows_utc_prefix(): void
     {
-        $testNow = Carbon::parse('2026-01-19 10:15:00');
-        Carbon::setTestNow($testNow);
+        Carbon::setTestNow(Carbon::parse('2026-01-19 10:15:00', 'UTC'));
 
         $settings = app(DashboardSettings::class);
         $settings->show_server_time = true;
@@ -55,8 +54,25 @@ class DashboardServerTimeTest extends TestCase
         $response = $this->followingRedirects()->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('Server', false);
         $response->assertSee('Serverzeit', false);
-        $response->assertSee('2026-01-19 10:15:00', false);
+        $response->assertSee('UTC 2026-01-19 10:15:00', false);
+    }
+
+    public function test_local_time_shows_timezone_prefix(): void
+    {
+        config(['app.timezone' => 'Europe/Berlin']);
+        date_default_timezone_set('Europe/Berlin');
+
+        Carbon::setTestNow(Carbon::parse('2026-01-19 11:15:00', 'Europe/Berlin'));
+
+        $settings = app(DashboardSettings::class);
+        $settings->show_server_time = true;
+        $settings->save();
+
+        $response = $this->followingRedirects()->get('/admin');
+
+        $response->assertStatus(200);
+        $response->assertSee('Lokale Zeit', false);
+        $response->assertSee('Europe/Berlin 2026-01-19 11:15:00', false);
     }
 }

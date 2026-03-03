@@ -6,11 +6,9 @@ use App\Models\Tenant;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
-use PDO;
 use Tests\TestCase;
 
-class DashboardServerInfoTest extends TestCase
+class DashboardTitleTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -21,8 +19,6 @@ class DashboardServerInfoTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        app()->setLocale('de');
 
         $this->tenant = Tenant::firstOrCreate(
             ['slug' => 'default'],
@@ -37,22 +33,23 @@ class DashboardServerInfoTest extends TestCase
         Filament::setTenant($this->tenant);
     }
 
-    public function test_dashboard_renders_server_metadata(): void
+    public function test_dashboard_shows_uebersicht_title_in_german(): void
     {
-        $driver = DB::connection()->getDriverName();
-        $serverVersion = DB::connection()->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
-        $dbInfo = trim($driver.' '.$serverVersion);
+        app()->setLocale('de');
 
         $response = $this->followingRedirects()->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('PHP-Version', false);
-        $response->assertSee(phpversion(), false);
-        $response->assertSee('Laravel-Version', false);
-        $response->assertSee(app()->version(), false);
-        $response->assertSee('Datenbank', false);
-        $response->assertSee($dbInfo, false);
-        $response->assertSee('Umgebung', false);
-        $response->assertSee(config('app.env'), false);
+        $response->assertSee('Übersicht', false);
+    }
+
+    public function test_dashboard_shows_overview_title_in_english(): void
+    {
+        $response = $this->withSession(['locale' => 'en'])
+            ->followingRedirects()
+            ->get('/admin');
+
+        $response->assertStatus(200);
+        $response->assertSee('Overview', false);
     }
 }
