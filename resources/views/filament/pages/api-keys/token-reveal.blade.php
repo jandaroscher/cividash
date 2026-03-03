@@ -31,7 +31,7 @@
 
     {{-- Token Input Section --}}
     <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 space-y-3">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">
             {{ __('filament.pages.manage_api_keys.your_api_token') }}
         </label>
 
@@ -46,7 +46,7 @@
             <button
                 type="button"
                 @click="copyToken()"
-                class="inline-flex items-center gap-2 px-4 h-10 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                class="inline-flex items-center gap-2 px-4 h-10 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
                 <template x-if="!copied">
                     <span class="flex items-center gap-2">

@@ -75,6 +75,12 @@
     color: #9ca3af !important; /* gray-400 */
 }
 
+/* Filament table & infolist placeholder text (e.g. "Nie" / "Never") */
+.dark .fi-ta-placeholder,
+.dark .fi-in-placeholder {
+    color: #9ca3af !important; /* gray-400 */
+}
+
 /* Custom dashboard & lottie-preview templates */
 .dashboard-muted {
     color: #6b7280 !important; /* gray-500 */
