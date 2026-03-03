@@ -36,7 +36,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import DOMPurify from 'dompurify';
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 
 const props = defineProps({
     block: {
@@ -58,7 +58,7 @@ const isImageLeft = computed(() => {
 });
 
 const sanitizedText = computed(() => {
-    return props.block.props.text ? DOMPurify.sanitize(props.block.props.text) : '';
+    return props.block.props.text ? sanitizeHtml(props.block.props.text) : '';
 });
 
 const altText = computed(() => {

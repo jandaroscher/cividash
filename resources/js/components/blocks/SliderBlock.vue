@@ -38,9 +38,9 @@
                                 <a
                                     v-if="slide.link_url"
                                     :href="slide.link_url"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    :aria-label="`${slide.link_text || (currentLocale === 'en' ? 'Learn more' : 'Mehr erfahren')} (${currentLocale === 'en' ? 'opens in new tab' : 'öffnet in neuem Tab'})`"
+                                    :target="isExternalUrl(slide.link_url) ? '_blank' : undefined"
+                                    :rel="isExternalUrl(slide.link_url) ? 'noopener noreferrer' : undefined"
+                                    :aria-label="`${slide.link_text || (currentLocale === 'en' ? 'Learn more' : 'Mehr erfahren')}${isExternalUrl(slide.link_url) ? ` (${currentLocale === 'en' ? 'opens in new tab' : 'öffnet in neuem Tab'})` : ''}`"
                                     class="self-start inline-block p-2 text-white mt-6 hover:shadow-info transition-shadow duration-200"
                                     :style="{ backgroundColor: brandingStore.primaryColor }"
                                 >
@@ -90,6 +90,7 @@ import '@egjs/flicking-plugins/dist/arrow.css';
 import '@egjs/flicking-plugins/dist/pagination.css';
 import { useLocale } from '../../composables/useLocale';
 import { useBrandingStore } from '../../stores/branding';
+import { isExternalUrl } from '../../utils/sanitizeHtml';
 
 const brandingStore = useBrandingStore();
 

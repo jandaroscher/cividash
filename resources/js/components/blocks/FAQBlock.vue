@@ -20,8 +20,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import DOMPurify from 'dompurify';
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 
 const props = defineProps({
     block: {
@@ -32,7 +31,7 @@ const props = defineProps({
 
 function getSanitizedAnswer(item, index) {
     if (!item.answer) return '';
-    return DOMPurify.sanitize(item.answer);
+    return sanitizeHtml(item.answer);
 }
 </script>
 

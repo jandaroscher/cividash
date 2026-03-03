@@ -28,6 +28,7 @@
                 <a
                     v-if="block.props.cta_text && block.props.cta_url"
                     :href="ctaUrl"
+                    :target="isExternal ? '_blank' : undefined"
                     :rel="isExternal ? 'noopener noreferrer' : undefined"
                     class="inline-block bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                 >
@@ -39,8 +40,9 @@
 </template>
 
 <script setup lang="ts">
-import { toRef } from 'vue';
+import { computed, toRef } from 'vue';
 import { useImageUrl } from '../../composables/useImageUrl';
+import { isExternalUrl } from '../../utils/sanitizeHtml';
 
 interface HeroBlockProps {
     type: string;
@@ -70,10 +72,6 @@ const ctaUrl = computed(() => {
     return `/${url}`;
 });
 
-const isExternal = computed(() => {
-    const url = props.block.props.cta_url;
-    if (!url) return false;
-    return url.startsWith('http://') || url.startsWith('https://');
-});
+const isExternal = computed(() => isExternalUrl(props.block.props.cta_url));
 </script>
 

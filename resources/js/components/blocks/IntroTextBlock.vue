@@ -53,7 +53,7 @@
 
 <script setup>
 import { computed, toRef } from 'vue';
-import DOMPurify from 'dompurify';
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 import { useImageUrl } from '../../composables/useImageUrl';
 
 const props = defineProps({
@@ -68,7 +68,7 @@ const imageUrl = useImageUrl(toRef(() => props.block.props.image));
 const imageSecondaryUrl = useImageUrl(toRef(() => props.block.props.image_secondary));
 
 const sanitizedText = computed(() => {
-    return props.block.props.text ? DOMPurify.sanitize(props.block.props.text) : '';
+    return props.block.props.text ? sanitizeHtml(props.block.props.text) : '';
 });
 </script>
 

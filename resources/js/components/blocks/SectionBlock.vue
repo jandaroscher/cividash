@@ -13,7 +13,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import DOMPurify from 'dompurify';
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 
 const props = defineProps({
     block: {
@@ -23,7 +23,7 @@ const props = defineProps({
 });
 
 const sanitizedContent = computed(() => {
-    return props.block.props.content ? DOMPurify.sanitize(props.block.props.content) : '';
+    return props.block.props.content ? sanitizeHtml(props.block.props.content) : '';
 });
 </script>
 
