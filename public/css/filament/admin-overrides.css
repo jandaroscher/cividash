@@ -63,19 +63,11 @@
  *    because Filament's Tailwind bundle doesn't compile our dark: utilities.
  */
 
-/* Filament form & infolist helper text */
-.fi-fo-field-wrp-helper-text,
-.fi-in-entry-wrp-helper-text {
-    color: #9ca3af !important; /* gray-400 — !important needed to override .text-gray-500 */
-}
-
-/* Filament form & infolist hint (gray variant) */
-.fi-fo-field-wrp-hint,
-.fi-in-entry-wrp-hint {
-    color: #9ca3af !important; /* gray-400 */
-}
-
-/* Filament table & infolist placeholder text (e.g. "Nie" / "Never") */
+/* Filament helper text, hint labels, and placeholder text — dark mode only */
+.dark .fi-fo-field-wrp-helper-text,
+.dark .fi-in-entry-wrp-helper-text,
+.dark .fi-fo-field-wrp-hint,
+.dark .fi-in-entry-wrp-hint,
 .dark .fi-ta-placeholder,
 .dark .fi-in-placeholder {
     color: #9ca3af !important; /* gray-400 */
