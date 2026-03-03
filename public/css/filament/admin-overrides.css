@@ -54,6 +54,57 @@
  * Filament's Livewire upload doesn't support aborting, so the FilePond cancel
  * controls are misleading. Hide abort button + status sub-text during processing.
  */
+/**
+ * Dark mode text contrast fixes
+ *
+ * 1) Filament's helper-text and hint components ship text-gray-500 without
+ *    a dark: variant, making text nearly invisible on the dark background.
+ * 2) Custom dashboard & lottie-preview templates also need dark overrides
+ *    because Filament's Tailwind bundle doesn't compile our dark: utilities.
+ */
+
+/* Filament form & infolist helper text */
+.fi-fo-field-wrp-helper-text,
+.fi-in-entry-wrp-helper-text {
+    color: #9ca3af !important; /* gray-400 — !important needed to override .text-gray-500 */
+}
+
+/* Filament form & infolist hint (gray variant) */
+.fi-fo-field-wrp-hint,
+.fi-in-entry-wrp-hint {
+    color: #9ca3af !important; /* gray-400 */
+}
+
+/* Custom dashboard & lottie-preview templates */
+.dashboard-muted {
+    color: #6b7280 !important; /* gray-500 */
+}
+
+.dashboard-body {
+    color: #374151 !important; /* gray-700 */
+}
+
+.dashboard-label {
+    color: #4b5563 !important; /* gray-600 */
+}
+
+.dark .dashboard-muted {
+    color: #9ca3af !important; /* gray-400 */
+}
+
+.dark .dashboard-body {
+    color: #d1d5db !important; /* gray-300 */
+}
+
+.dark .dashboard-label {
+    color: #9ca3af !important; /* gray-400 */
+}
+
+/**
+ * Hide non-functional cancel button and "abbrechen" text during file upload
+ * Filament's Livewire upload doesn't support aborting, so the FilePond cancel
+ * controls are misleading. Hide abort button + status sub-text during processing.
+ */
 .fi-fo-file-upload [data-filepond-item-state~="processing"] .filepond--action-abort-item-processing {
     visibility: hidden !important;
 }

@@ -49,7 +49,7 @@
             </ul>
 
             @if(! $safeOpenSourceDocsUrl && ! $safeUserManualUrl)
-                <p class="text-sm text-gray-500">
+                <p class="dashboard-muted text-sm text-gray-500">
                     {{ __('filament.pages.dashboard_overview.no_content_links') }}
                 </p>
             @endif
@@ -62,6 +62,9 @@
                 </li>
                 <li>
                     {{ __('filament.pages.dashboard_overview.year_data', ['count' => $tileYearCount]) }}
+                </li>
+                <li>
+                    {{ __('filament.pages.dashboard_overview.active_categories', ['count' => $categoryCount]) }}
                 </li>
             </ul>
         </x-filament::section>
@@ -96,38 +99,38 @@
                 </ul>
 
                 @if($madeWithText)
-                    <p class="mt-3 text-sm text-gray-700">{{ $madeWithText }}</p>
+                    <p class="dashboard-body mt-3 text-sm text-gray-700">{{ $madeWithText }}</p>
                 @endif
             </x-filament::section>
         @endif
 
         <x-filament::section :heading="__('filament.pages.dashboard_overview.server_time_heading')">
-            <dl class="grid grid-cols-1 gap-3 text-sm text-gray-700">
-                @if($showServerTime && $serverTime)
+            <dl class="dashboard-body grid grid-cols-1 gap-3 text-sm text-gray-700">
+                <div class="flex items-center justify-between">
+                    <dt class="dashboard-label font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.server_app_env') }}</dt>
+                    <dd class="text-right">{{ $serverInfo['app_env'] ?? 'n/a' }}</dd>
+                </div>
+                @if($showServerTime && $serverInfo['server_time'])
                     <div class="flex items-center justify-between">
-                        <dt class="font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.server_time_label') }}</dt>
-                        <dd class="text-right">{{ $serverTime }}</dd>
+                        <dt class="dashboard-label font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.server_time_label') }}</dt>
+                        <dd class="text-right">UTC {{ $serverInfo['server_time'] }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <dt class="dashboard-label font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.local_time_label') }}</dt>
+                        <dd class="text-right">{{ $serverInfo['local_timezone'] }} {{ $serverInfo['local_time'] }}</dd>
                     </div>
                 @endif
                 <div class="flex items-center justify-between">
-                    <dt class="font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.server_php_version') }}</dt>
+                    <dt class="dashboard-label font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.server_php_version') }}</dt>
                     <dd class="text-right">{{ $serverInfo['php_version'] ?? 'n/a' }}</dd>
                 </div>
                 <div class="flex items-center justify-between">
-                    <dt class="font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.server_laravel_version') }}</dt>
+                    <dt class="dashboard-label font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.server_laravel_version') }}</dt>
                     <dd class="text-right">{{ $serverInfo['laravel_version'] ?? 'n/a' }}</dd>
                 </div>
                 <div class="flex items-center justify-between">
-                    <dt class="font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.server_db_info') }}</dt>
+                    <dt class="dashboard-label font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.server_db_info') }}</dt>
                     <dd class="text-right">{{ $serverInfo['db_info'] ?? 'n/a' }}</dd>
-                </div>
-                <div class="flex items-center justify-between">
-                    <dt class="font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.server_app_env') }}</dt>
-                    <dd class="text-right">{{ $serverInfo['app_env'] ?? 'n/a' }}</dd>
-                </div>
-                <div class="flex items-center justify-between">
-                    <dt class="font-medium text-gray-600">{{ __('filament.pages.dashboard_overview.server_timezone') }}</dt>
-                    <dd class="text-right">{{ $serverInfo['timezone'] ?? 'n/a' }}</dd>
                 </div>
             </dl>
         </x-filament::section>
