@@ -63,6 +63,12 @@
  *    because Filament's Tailwind bundle doesn't compile our dark: utilities.
  */
 
+/* Filament placeholder text — light mode: bump from gray-400 to gray-500 for readability */
+.fi-ta-placeholder,
+.fi-in-placeholder {
+    color: #6b7280 !important; /* gray-500 */
+}
+
 /* Filament helper text, hint labels, and placeholder text — dark mode only */
 .dark .fi-fo-field-wrp-helper-text,
 .dark .fi-in-entry-wrp-helper-text,
