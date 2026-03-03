@@ -114,3 +114,14 @@
 .fi-fo-file-upload [data-filepond-item-state="processing-complete"] .filepond--file-status-sub {
     opacity: 0 !important;
 }
+
+/**
+ * Collapse FilePond drop-label area when a file is already uploaded.
+ * FilePond hides the label (visibility:hidden, opacity:0) but it still
+ * reserves layout space, causing a large empty gap above the file indicator.
+ */
+.fi-fo-file-upload .filepond--root:has(.filepond--item) .filepond--drop-label {
+    min-height: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
