@@ -15,7 +15,7 @@
             <div :class="['order-2', isImageLeft ? '' : 'md:order-1']">
                 <div
                     v-if="block.props.text"
-                    class="prose prose-lg max-w-none mb-6 lg:mb-12 [&_a:hover]:text-accent [&_a]:transition-colors [&_a]:duration-300"
+                    class="prose prose-lg max-w-none mb-6 lg:mb-12 [&_a]:transition-colors [&_a]:duration-300"
                     v-html="sanitizedText"
                 />
             </div>

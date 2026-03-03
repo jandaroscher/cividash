@@ -15,6 +15,8 @@
     /* Tailwind Color Tokens - Themeable via CSS variables */
     --color-accent: var(--accent-color, #E30613);
     --color-accent-dark: var(--accent-color-dark, #891F00);
+    --color-link: var(--link-color, var(--accent-color, #E30613));
+    --color-link-hover: var(--link-hover-color, var(--accent-color-dark, #891F00));
     --color-orange-100: var(--dimension-orange-color-100, #FFDEC5);
     --color-orange-200: var(--dimension-orange-color-200, #ea8e05);
     --color-orange-300: var(--dimension-orange-color-300, #e46e38);
@@ -207,5 +209,13 @@
 @layer base {
     button {
         cursor: pointer;
+    }
+
+    /* Prose links: use themed link color with hover transition */
+    .prose a {
+        color: var(--color-link);
+    }
+    .prose a:hover {
+        color: var(--color-link-hover);
     }
 }

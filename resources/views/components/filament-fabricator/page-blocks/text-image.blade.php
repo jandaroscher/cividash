@@ -16,7 +16,7 @@
             @endif
             <div class="order-2 {{ $isImageLeft ? '' : 'md:order-1' }}">
                 @if(isset($text) && $text)
-                    <div class="prose prose-lg max-w-none mb-6 lg:mb-12 [&_a:hover]:text-accent [&_a]:transition-colors [&_a]:duration-300">
+                    <div class="prose prose-lg max-w-none mb-6 lg:mb-12 [&_a]:transition-colors [&_a]:duration-300">
                         {!! \Illuminate\Support\Str::of($text)->sanitizeHtml() !!}
                     </div>
                 @endif
