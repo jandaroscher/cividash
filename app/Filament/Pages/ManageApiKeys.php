@@ -261,10 +261,13 @@ class ManageApiKeys extends Page implements HasForms, HasTable
      */
     protected function getAvailableAbilitiesTranslated(): array
     {
-        return [
-            'public-read' => __('filament.pages.manage_api_keys.ability_public_read'),
-            'admin-api' => __('filament.pages.manage_api_keys.ability_admin_api'),
-        ];
+        $abilities = [];
+        foreach (ApiTokenService::ALLOWED_ABILITIES as $ability) {
+            $key = str_replace('-', '_', $ability);
+            $abilities[$ability] = __("filament.pages.manage_api_keys.ability_{$key}");
+        }
+
+        return $abilities;
     }
 
     /**
