@@ -208,11 +208,11 @@ class CategoryGroupResourceTest extends TestCase
         ]);
     }
 
-    public function test_create_selection_type_defaults_to_multi(): void
+    public function test_create_selection_type_has_no_default(): void
     {
         Livewire::test(CreateCategoryGroup::class)
             ->assertFormSet([
-                'selection_type' => 'multi',
+                'selection_type' => null,
             ]);
     }
 

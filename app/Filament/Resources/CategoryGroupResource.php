@@ -143,8 +143,7 @@ class CategoryGroupResource extends Resource
                                 'multi' => __('filament.resources.category_group.selection_multi'),
                             ])
                             ->required(fn (Get $get): bool => (bool) $get('is_filterable'))
-                            ->visible(fn (Get $get): bool => (bool) $get('is_filterable'))
-                            ->default('multi'),
+                            ->visible(fn (Get $get): bool => (bool) $get('is_filterable')),
                     ]),
             ]);
     }
