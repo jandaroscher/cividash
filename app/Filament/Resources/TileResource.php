@@ -147,7 +147,20 @@ class TileResource extends Resource
                                             ->schema([
                                                 TextInput::make('metric_key')
                                                     ->label(__('filament.resources.tile.metric_key'))
-                                                    ->required(),
+                                                    ->helperText(__('filament.resources.tile.metric_key_helper'))
+                                                    ->regex('/^[a-z][a-z0-9_-]*$/')
+                                                    ->required()
+                                                    ->disabled(fn (?MetricDefinition $record): bool => $record !== null)
+                                                    ->unique(
+                                                        table: MetricDefinition::class,
+                                                        column: 'metric_key',
+                                                        ignorable: fn (?MetricDefinition $record) => $record,
+                                                        modifyRuleUsing: function ($rule, ?MetricDefinition $record, $livewire) {
+                                                            $tileId = $record?->tile_id ?? $livewire->getRecord()?->id;
+
+                                                            return $rule->where('tile_id', $tileId);
+                                                        },
+                                                    ),
                                                 Hidden::make('is_active')
                                                     ->default(true)
                                                     ->afterStateHydrated(function (Hidden $component, $state): void {

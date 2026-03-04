@@ -9,11 +9,13 @@ use App\Models\CategoryGroup;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class CategoryResource extends Resource
 {
@@ -65,98 +67,105 @@ class CategoryResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->columns(1)
             ->schema([
-                Forms\Components\Select::make('category_group_id')
-                    ->label(__('filament.resources.category.group'))
-                    ->options(fn () => CategoryGroup::query()
-                        ->orderBy('position')
-                        ->get()
-                        ->mapWithKeys(fn ($group) => [
-                            $group->id => $group->getTranslation('title', app()->getLocale())
-                                ?: $group->getTranslation('title', 'de'),
-                        ])
-                        ->toArray())
-                    ->default(fn () => request()->query('category_group_id'))
-                    ->required()
-                    ->searchable()
-                    ->live(),
-                Forms\Components\TextInput::make('key')
-                    ->label(__('filament.resources.category.key'))
-                    ->maxLength(255)
-                    ->regex('/^[a-z][a-z0-9_-]*$/')
-                    ->helperText(__('filament.resources.category.key_helper')),
-                Forms\Components\TextInput::make('slug')
-                    ->label(__('filament.resources.category.title'))
-                    ->required()
-                    ->maxLength(255)
-                    ->columnSpanFull(),
-                Forms\Components\FileUpload::make('icon')
-                    ->label(__('filament.resources.category.icon'))
-                    ->disk('public')
-                    ->directory('categories')
-                    ->image()
-                    ->preserveFilenames()
-                    ->required(false)
-                    ->columnSpanFull()
-                    ->formatStateUsing(function ($state) {
-                        $iconPath = null;
+                Forms\Components\Section::make(__('filament.resources.category.section_category'))
+                    ->columns(1)
+                    ->schema([
+                        Forms\Components\Select::make('category_group_id')
+                            ->label(__('filament.resources.category.group'))
+                            ->options(fn () => CategoryGroup::query()
+                                ->orderBy('position')
+                                ->get()
+                                ->mapWithKeys(fn ($group) => [
+                                    $group->id => $group->getTranslation('title', app()->getLocale())
+                                        ?: $group->getTranslation('title', 'de'),
+                                ])
+                                ->toArray())
+                            ->default(fn () => request()->query('category_group_id'))
+                            ->required()
+                            ->searchable()
+                            ->live(),
+                        Forms\Components\TextInput::make('key')
+                            ->label(__('filament.resources.category.key'))
+                            ->maxLength(255)
+                            ->regex('/^[a-z][a-z0-9_-]*$/')
+                            ->helperText(__('filament.resources.category.key_helper'))
+                            ->disabled(fn ($record) => $record !== null && filled($record->key)),
+                        Forms\Components\TextInput::make('slug')
+                            ->label(__('filament.resources.category.title'))
+                            ->required()
+                            ->maxLength(255)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (?string $state, Set $set, $record): void {
+                                if ($record === null && filled($state)) {
+                                    $set('key', Str::slug($state));
+                                }
+                            }),
+                        Forms\Components\FileUpload::make('icon')
+                            ->label(__('filament.resources.category.icon'))
+                            ->disk('public')
+                            ->directory('categories')
+                            ->image()
+                            ->preserveFilenames()
+                            ->required(false)
+                            ->formatStateUsing(function ($state) {
+                                $iconPath = null;
 
-                        if (is_array($state)) {
-                            if (array_is_list($state)) {
-                                $iconPath = $state[0] ?? null;
-                            } else {
-                                $iconPath = $state[app()->getLocale()] ?? $state['de'] ?? $state['en'] ?? null;
-                            }
-                        } elseif (is_string($state)) {
-                            $decoded = json_decode($state, true);
-                            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                                $iconPath = $decoded[app()->getLocale()] ?? $decoded['de'] ?? $decoded['en'] ?? null;
-                            } else {
-                                $iconPath = $state;
-                            }
-                        }
+                                if (is_array($state)) {
+                                    if (array_is_list($state)) {
+                                        $iconPath = $state[0] ?? null;
+                                    } else {
+                                        $iconPath = $state[app()->getLocale()] ?? $state['de'] ?? $state['en'] ?? null;
+                                    }
+                                } elseif (is_string($state)) {
+                                    $decoded = json_decode($state, true);
+                                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                        $iconPath = $decoded[app()->getLocale()] ?? $decoded['de'] ?? $decoded['en'] ?? null;
+                                    } else {
+                                        $iconPath = $state;
+                                    }
+                                }
 
-                        return $iconPath ? [$iconPath] : [];
-                    })
-                    ->dehydrateStateUsing(function ($state, $record) {
-                        $path = is_array($state) ? ($state[0] ?? null) : $state;
+                                return $iconPath ? [$iconPath] : [];
+                            })
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                $path = is_array($state) ? ($state[0] ?? null) : $state;
 
-                        if (! $path) {
-                            return null;
-                        }
+                                if (! $path) {
+                                    return null;
+                                }
 
-                        // New record - create JSON structure with current locale
-                        if (! $record || ! is_string($record->icon)) {
-                            return json_encode([app()->getLocale() => $path], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                        }
+                                // New record - create JSON structure with current locale
+                                if (! $record || ! is_string($record->icon)) {
+                                    return json_encode([app()->getLocale() => $path], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                                }
 
-                        // Existing record with JSON icon - update locale
-                        $decoded = json_decode($record->icon, true);
-                        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                            $locale = app()->getLocale();
-                            $decoded[$locale] = $path;
+                                // Existing record with JSON icon - update locale
+                                $decoded = json_decode($record->icon, true);
+                                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                    $locale = app()->getLocale();
+                                    $decoded[$locale] = $path;
 
-                            return json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                        }
+                                    return json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                                }
 
-                        // Fallback for non-JSON existing icons
-                        return $path;
-                    }),
-                Forms\Components\ColorPicker::make('color')
-                    ->label(__('filament.resources.category.color'))
-                    ->required(false)
-                    ->hex()
-                    ->visible(fn (Get $get): bool => (bool) CategoryGroup::find($get('category_group_id'))?->is_color_source),
-                Forms\Components\Toggle::make('is_active')
-                    ->label(__('filament.resources.category.is_active'))
-                    ->default(true),
-                Forms\Components\TextInput::make('position')
-                    ->label(__('filament.resources.category.position'))
-                    ->required()
-                    ->numeric()
-                    ->default(0)
-                    ->columnSpanFull(),
+                                // Fallback for non-JSON existing icons
+                                return $path;
+                            }),
+                        Forms\Components\ColorPicker::make('color')
+                            ->label(__('filament.resources.category.color'))
+                            ->required(false)
+                            ->hex()
+                            ->visible(fn (Get $get): bool => (bool) CategoryGroup::find($get('category_group_id'))?->is_color_source),
+                        Forms\Components\TextInput::make('position')
+                            ->label(__('filament.resources.category.position'))
+                            ->required()
+                            ->numeric()
+                            ->default(0),
+                        Forms\Components\Toggle::make('is_active')
+                            ->label(__('filament.resources.category.is_active'))
+                            ->default(true),
+                    ]),
             ]);
     }
 

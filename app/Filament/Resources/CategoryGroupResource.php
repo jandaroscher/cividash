@@ -9,6 +9,7 @@ use App\Models\CategoryGroup;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -75,59 +76,76 @@ class CategoryGroupResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('key')
-                    ->label(__('filament.resources.category_group.key'))
-                    ->required()
-                    ->maxLength(255)
-                    ->regex('/^[a-z][a-z0-9_-]*$/')
-                    ->helperText(__('filament.resources.category_group.key_helper'))
-                    ->disabled(fn ($record) => $record !== null),
-                Forms\Components\TextInput::make('title')
-                    ->label(__('filament.resources.category_group.title'))
-                    ->required(),
-                Forms\Components\Select::make('selection_type')
-                    ->label(__('filament.resources.category_group.selection_type'))
-                    ->options([
-                        'single' => __('filament.resources.category_group.selection_single'),
-                        'multi' => __('filament.resources.category_group.selection_multi'),
-                    ])
-                    ->required()
-                    ->default('multi'),
-                Forms\Components\Toggle::make('is_filterable')
-                    ->label(__('filament.resources.category_group.is_filterable'))
-                    ->default(false),
-                Forms\Components\Toggle::make('is_color_source')
-                    ->label(__('filament.resources.category_group.is_color_source'))
-                    ->default(false)
-                    ->rule(function ($record) {
-                        return function (string $attribute, $value, $fail) use ($record): void {
-                            if (! $value) {
-                                return;
-                            }
+                Forms\Components\Section::make(__('filament.resources.category_group.section_group'))
+                    ->columns(1)
+                    ->schema([
+                        Forms\Components\TextInput::make('key')
+                            ->label(__('filament.resources.category_group.key'))
+                            ->required()
+                            ->maxLength(255)
+                            ->regex('/^[a-z][a-z0-9_-]*$/')
+                            ->helperText(__('filament.resources.category_group.key_helper'))
+                            ->disabled(fn ($record) => $record !== null)
+                            ->unique(
+                                table: CategoryGroup::class,
+                                column: 'key',
+                                ignorable: fn ($record) => $record,
+                                modifyRuleUsing: fn ($rule) => $rule->where('tenant_id', Filament::getTenant()?->id),
+                            ),
+                        Forms\Components\TextInput::make('title')
+                            ->label(__('filament.resources.category_group.title'))
+                            ->required(),
+                        Forms\Components\Toggle::make('is_color_source')
+                            ->label(__('filament.resources.category_group.is_color_source'))
+                            ->helperText(__('filament.resources.category_group.is_color_source_description'))
+                            ->default(false)
+                            ->rule(function ($record) {
+                                return function (string $attribute, $value, $fail) use ($record): void {
+                                    if (! $value) {
+                                        return;
+                                    }
 
-                            $tenantId = Filament::getTenant()?->id;
+                                    $tenantId = Filament::getTenant()?->id;
 
-                            $query = CategoryGroup::query()
-                                ->where('is_color_source', true)
-                                ->when($tenantId, fn ($q) => $q->where('tenant_id', $tenantId), fn ($q) => $q->whereNull('tenant_id'));
+                                    $query = CategoryGroup::query()
+                                        ->where('is_color_source', true)
+                                        ->when($tenantId, fn ($q) => $q->where('tenant_id', $tenantId), fn ($q) => $q->whereNull('tenant_id'));
 
-                            if ($record) {
-                                $query->whereKeyNot($record->id);
-                            }
+                                    if ($record) {
+                                        $query->whereKeyNot($record->id);
+                                    }
 
-                            if ($query->exists()) {
-                                $fail(__('filament.resources.category_group.color_source_unique'));
-                            }
-                        };
-                    }),
-                Forms\Components\Toggle::make('is_active')
-                    ->label(__('filament.resources.category_group.is_active'))
-                    ->default(true),
-                Forms\Components\TextInput::make('position')
-                    ->label(__('filament.resources.category_group.position'))
-                    ->required()
-                    ->numeric()
-                    ->default(0),
+                                    if ($query->exists()) {
+                                        $fail(__('filament.resources.category_group.color_source_unique'));
+                                    }
+                                };
+                            }),
+                        Forms\Components\TextInput::make('position')
+                            ->label(__('filament.resources.category_group.position'))
+                            ->required()
+                            ->numeric()
+                            ->default(0),
+                        Forms\Components\Toggle::make('is_active')
+                            ->label(__('filament.resources.category_group.is_active'))
+                            ->default(true),
+                    ]),
+                Forms\Components\Section::make(__('filament.resources.category_group.section_filter'))
+                    ->columns(1)
+                    ->schema([
+                        Forms\Components\Toggle::make('is_filterable')
+                            ->label(__('filament.resources.category_group.is_filterable'))
+                            ->default(false)
+                            ->live(),
+                        Forms\Components\Select::make('selection_type')
+                            ->label(__('filament.resources.category_group.selection_type'))
+                            ->options([
+                                'single' => __('filament.resources.category_group.selection_single'),
+                                'multi' => __('filament.resources.category_group.selection_multi'),
+                            ])
+                            ->required(fn (Get $get): bool => (bool) $get('is_filterable'))
+                            ->visible(fn (Get $get): bool => (bool) $get('is_filterable'))
+                            ->default('multi'),
+                    ]),
             ]);
     }
 

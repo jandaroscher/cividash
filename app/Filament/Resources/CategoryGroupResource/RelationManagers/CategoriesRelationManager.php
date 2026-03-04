@@ -7,12 +7,14 @@ use App\Filament\Resources\CategoryResource;
 use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class CategoriesRelationManager extends RelationManager
 {
@@ -53,11 +55,18 @@ class CategoriesRelationManager extends RelationManager
                     ->maxLength(255)
                     ->nullable()
                     ->regex('/^[a-z][a-z0-9_-]*$/')
-                    ->helperText(__('filament.resources.category_group.items.key_helper')),
+                    ->helperText(__('filament.resources.category_group.items.key_helper'))
+                    ->disabled(fn ($record) => $record !== null && filled($record->key)),
                 Forms\Components\TextInput::make('slug')
                     ->label(__('filament.resources.category_group.items.title'))
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function (?string $state, Set $set, $record): void {
+                        if ($record === null && filled($state)) {
+                            $set('key', Str::slug($state));
+                        }
+                    }),
                 Forms\Components\FileUpload::make('icon')
                     ->label(__('filament.resources.category_group.items.icon'))
                     ->disk('public')

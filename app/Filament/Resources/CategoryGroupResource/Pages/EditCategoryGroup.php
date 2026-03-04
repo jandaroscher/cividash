@@ -13,6 +13,8 @@ class EditCategoryGroup extends EditRecord
 
     protected static string $resource = CategoryGroupResource::class;
 
+    protected static string $view = 'filament.pages.edit-category-group';
+
     public function mount(int|string $record): void
     {
         parent::mount($record);

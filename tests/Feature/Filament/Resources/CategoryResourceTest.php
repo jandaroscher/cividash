@@ -152,6 +152,16 @@ class CategoryResourceTest extends TestCase
             ->assertSuccessful();
     }
 
+    public function test_edit_key_field_is_disabled(): void
+    {
+        $category = Category::factory()->forGroup($this->group)->create([
+            'key' => 'immutable-key',
+        ]);
+
+        Livewire::test(EditCategory::class, ['record' => $category->getRouteKey()])
+            ->assertFormFieldIsDisabled('key');
+    }
+
     public function test_edit_page_loads_existing_data(): void
     {
         $category = Category::factory()->forGroup($this->group)->create([
