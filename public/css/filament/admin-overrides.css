@@ -140,10 +140,6 @@
     background: #e5e7eb !important; /* gray-200 */
 }
 
-.fi-fo-file-upload .filepond--image-preview-overlay-idle {
-    color: #d1d5db; /* gray-300 — controls the gradient base color */
-}
-
 .dark .fi-fo-file-upload .filepond--image-preview {
     background: #1f2937 !important; /* gray-800 */
 }
