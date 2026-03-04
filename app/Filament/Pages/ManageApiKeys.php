@@ -140,12 +140,12 @@ class ManageApiKeys extends Page implements HasForms, HasTable
 
                 TextColumn::make('created_at')
                     ->label(__('filament.pages.manage_api_keys.column_created'))
-                    ->dateTime()
+                    ->dateTime(__('filament.date_time_format'))
                     ->sortable(),
 
                 TextColumn::make('last_used_at')
                     ->label(__('filament.pages.manage_api_keys.column_last_used'))
-                    ->dateTime()
+                    ->dateTime(__('filament.date_time_format'))
                     ->placeholder(__('filament.pages.manage_api_keys.never'))
                     ->sortable()
                     ->toggleable(),

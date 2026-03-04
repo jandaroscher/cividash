@@ -252,12 +252,12 @@ class PageResource extends FabricatorPageResource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('filament.resources.page.created_at'))
-                    ->dateTime()
+                    ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label(__('filament.resources.page.updated_at'))
-                    ->dateTime()
+                    ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

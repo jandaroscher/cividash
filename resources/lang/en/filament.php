@@ -548,4 +548,5 @@ return [
         'select_page' => 'Select page',
         'link_text' => 'Link text',
     ],
+    'date_time_format' => 'm/d/y H:i',
 ];

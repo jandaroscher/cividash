@@ -548,4 +548,5 @@ return [
         'select_page' => 'Seite auswählen',
         'link_text' => 'Link-Text',
     ],
+    'date_time_format' => 'd.m.y H:i',
 ];

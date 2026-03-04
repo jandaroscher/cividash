@@ -427,12 +427,12 @@ class TileResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('filament.resources.tile.created_at'))
-                    ->dateTime()
+                    ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label(__('filament.resources.tile.updated_at'))
-                    ->dateTime()
+                    ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

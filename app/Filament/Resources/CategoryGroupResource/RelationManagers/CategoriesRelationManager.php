@@ -191,12 +191,12 @@ class CategoriesRelationManager extends RelationManager
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('filament.resources.category_group.items.created_at'))
-                    ->dateTime()
+                    ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label(__('filament.resources.category_group.items.updated_at'))
-                    ->dateTime()
+                    ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
