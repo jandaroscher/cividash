@@ -382,7 +382,7 @@ function handleSliderInteractionEnd() {
 
 :deep(.vue-slider-dot-handle) {
     box-shadow: none;
-    background: var(--slider-handle-color, #E30613);
+    background: var(--slider-handle-color, var(--accent-color, #E30613));
     border: 2px solid var(--slider-handle-border-color, #191919);
 }
 
