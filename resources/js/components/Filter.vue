@@ -269,6 +269,12 @@ function getButtonStyles(filter) {
     border-radius: 50%;
     box-shadow: 0px 3px 6px #00000029;
     transition: box-shadow 0.2s;
+    color: var(--accent-color, #E30613);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0;
 }
 
 :deep(.flicking-arrow-prev:hover),
@@ -276,20 +282,9 @@ function getButtonStyles(filter) {
     box-shadow: 0px 1px 10px #707070;
 }
 
-:deep(.flicking-arrow-prev) {
-    background-image: url('/assets/images/arrow-left.svg');
-}
-
-:deep(.flicking-arrow-next) {
-    background-image: url('/assets/images/arrow-right.svg');
-}
-
-:deep(.flicking-arrow-prev.flicking-arrow-disabled) {
-    background-image: url('/assets/images/arrow-left-inactive.svg');
-}
-
+:deep(.flicking-arrow-prev.flicking-arrow-disabled),
 :deep(.flicking-arrow-next.flicking-arrow-disabled) {
-    background-image: url('/assets/images/arrow-right-inactive.svg');
+    color: #e5e5e5;
 }
 
 :deep(.flicking-arrow-disabled:hover) {

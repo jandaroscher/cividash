@@ -59,7 +59,12 @@
             @click="handlePrev"
             @keydown.enter.prevent="handlePrev"
             @keydown.space.prevent="handlePrev"
-        ></span>
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+                <circle cx="18" cy="18" r="18" fill="#fff"/>
+                <path d="M1.061,1.061l9.238,9.5-9.238,9.5" transform="translate(22.806 29.558) rotate(180)" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="3"/>
+            </svg>
+        </span>
         <span
             ref="nextArrowRef"
             class="flicking-arrow-next is-outside cursor-pointer"
@@ -69,7 +74,12 @@
             @click="handleNext"
             @keydown.enter.prevent="handleNext"
             @keydown.space.prevent="handleNext"
-        ></span>
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+                <circle cx="18" cy="18" r="18" fill="#fff"/>
+                <path d="M0,18.995,9.238,9.5,0,0" transform="translate(14.254 9.503)" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="3"/>
+            </svg>
+        </span>
     </div>
 </template>
 

@@ -65,7 +65,12 @@
                 @click="$refs.flicking?.prev()"
                 @keydown.enter.prevent="$refs.flicking?.prev()"
                 @keydown.space.prevent="$refs.flicking?.prev()"
-            ></button>
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+                    <circle cx="18" cy="18" r="18" fill="#fff"/>
+                    <path d="M1.061,1.061l9.238,9.5-9.238,9.5" transform="translate(22.806 29.558) rotate(180)" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="3"/>
+                </svg>
+            </button>
             <button
                 v-show="slides.length > 1"
                 type="button"
@@ -75,7 +80,12 @@
                 @click="$refs.flicking?.next()"
                 @keydown.enter.prevent="$refs.flicking?.next()"
                 @keydown.space.prevent="$refs.flicking?.next()"
-            ></button>
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+                    <circle cx="18" cy="18" r="18" fill="#fff"/>
+                    <path d="M0,18.995,9.238,9.5,0,0" transform="translate(14.254 9.503)" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="3"/>
+                </svg>
+            </button>
         </div>
     </div>
 </template>
@@ -240,23 +250,21 @@ onBeforeUnmount(() => {
     box-shadow: 0px 1px 10px #707070;
     transform: none;
     cursor: pointer;
+    color: var(--accent-color, #E30613);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0;
 }
 
 .flicking-arrow-prev {
     left: -18px;
-    background-image: url('/assets/images/arrow-left.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
     position: absolute;
 }
 
 .flicking-arrow-next {
     right: -18px;
-    background-image: url('/assets/images/arrow-right.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
     position: absolute;
 }
 
@@ -275,12 +283,9 @@ onBeforeUnmount(() => {
     box-shadow: 0px 1px 10px #707070;
 }
 
-.flicking-arrow-prev.flicking-arrow-disabled {
-    background-image: url('/assets/images/arrow-left-inactive.svg');
-}
-
+.flicking-arrow-prev.flicking-arrow-disabled,
 .flicking-arrow-next.flicking-arrow-disabled {
-    background-image: url('/assets/images/arrow-right-inactive.svg');
+    color: #e5e5e5;
 }
 
 .flicking-pagination-bullet-active {

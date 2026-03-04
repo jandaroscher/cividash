@@ -24,7 +24,7 @@ export const useBrandingStore = defineStore('branding', {
         customFontFile: null,
         sliderColors: {
             rail: '#191919',
-            handle: '#E30613',
+            handle: null,
             handleBorder: '#191919',
         },
         backgroundColor: null,
@@ -158,7 +158,7 @@ export const useBrandingStore = defineStore('branding', {
 
                 // Set slider colors as CSS variables
                 document.documentElement.style.setProperty('--slider-rail-color', this.sliderColors.rail || '#191919');
-                document.documentElement.style.setProperty('--slider-handle-color', this.sliderColors.handle || '#E30613');
+                document.documentElement.style.setProperty('--slider-handle-color', this.sliderColors.handle || effectiveAccentColor);
                 document.documentElement.style.setProperty('--slider-handle-border-color', this.sliderColors.handleBorder || '#191919');
 
                 // Set background colors as CSS variables
