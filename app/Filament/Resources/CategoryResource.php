@@ -105,7 +105,7 @@ class CategoryResource extends Resource
                             ->label(__('filament.resources.category.icon'))
                             ->disk('public')
                             ->directory('categories')
-                            ->image()
+                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'])
                             ->preserveFilenames()
                             ->required(false)
                             ->formatStateUsing(function ($state) {
@@ -129,7 +129,7 @@ class CategoryResource extends Resource
                                 return $iconPath ? [$iconPath] : [];
                             })
                             ->dehydrateStateUsing(function ($state, $record) {
-                                $path = is_array($state) ? ($state[0] ?? null) : $state;
+                                $path = is_array($state) ? (array_values($state)[0] ?? null) : $state;
 
                                 if (! $path) {
                                     return null;

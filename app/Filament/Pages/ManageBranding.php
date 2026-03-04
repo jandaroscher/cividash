@@ -11,11 +11,14 @@ use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Actions\Action;
 use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
 
 class ManageBranding extends SettingsPage
 {
+    protected static string $view = 'filament.pages.manage-branding';
+
     protected static ?string $navigationIcon = 'heroicon-o-paint-brush';
 
     protected static ?int $navigationSort = 21;
@@ -40,6 +43,12 @@ class ManageBranding extends SettingsPage
     public static function canAccess(): bool
     {
         return (bool) Filament::auth()->user()?->is_admin;
+    }
+
+    public function getSaveFormAction(): Action
+    {
+        return parent::getSaveFormAction()
+            ->label(__('filament.actions.save'));
     }
 
     /**
