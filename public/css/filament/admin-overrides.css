@@ -129,3 +129,32 @@
     height: 0 !important;
     overflow: hidden !important;
 }
+
+/**
+ * Light-mode background for FilePond image/SVG preview
+ * The default dark (#222) preview clashes with the white form background.
+ * Use a light gray in light mode; dark mode keeps a dark panel.
+ */
+.fi-fo-file-upload .filepond--item-panel {
+    background: #e5e7eb !important; /* gray-200 */
+}
+
+.fi-fo-file-upload .filepond--image-preview {
+    background: #e5e7eb !important; /* gray-200 — overrides default #222 */
+}
+
+.fi-fo-file-upload .filepond--image-preview-overlay-idle {
+    color: #d1d5db; /* gray-300 — controls the gradient base color */
+}
+
+.dark .fi-fo-file-upload .filepond--item-panel {
+    background: #1f2937 !important; /* gray-800 */
+}
+
+.dark .fi-fo-file-upload .filepond--image-preview {
+    background: #1f2937 !important; /* gray-800 */
+}
+
+.dark .fi-fo-file-upload .filepond--image-preview-overlay-idle {
+    color: #374151; /* gray-700 */
+}
