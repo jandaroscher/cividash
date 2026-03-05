@@ -155,20 +155,21 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                         Select::make('abilities')
                             ->label(__('filament.pages.manage_api_keys.abilities'))
                             ->options($availableAbilities)
-                            ->multiple()
+                            ->selectablePlaceholder(false)
                             ->required(),
                         Toggle::make('is_active')
                             ->label(__('filament.pages.manage_api_keys.column_active')),
                     ])
                     ->fillForm(fn (PersonalAccessToken $record) => [
                         'name' => $record->name,
-                        'abilities' => $record->abilities ?? [],
+                        'abilities' => $record->abilities[0] ?? 'public-read',
                         'is_active' => $record->is_active,
                     ])
                     ->modalHeading(__('filament.pages.manage_api_keys.edit_modal_title'))
                     ->modalSubmitActionLabel(__('filament.actions.save'))
                     ->action(function (PersonalAccessToken $record, array $data) {
                         try {
+                            $data['abilities'] = [$data['abilities']];
                             $this->getTokenService()->updateForTenant($record, $this->getTenant(), $data);
 
                             Notification::make()
@@ -277,8 +278,8 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                     Select::make('abilities')
                         ->label(__('filament.pages.manage_api_keys.abilities'))
                         ->options($availableAbilities)
-                        ->multiple()
-                        ->default(['public-read'])
+                        ->default('public-read')
+                        ->selectablePlaceholder(false)
                         ->required()
                         ->helperText(__('filament.pages.manage_api_keys.abilities_helper')),
 
@@ -298,7 +299,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                             $user,
                             $tenant,
                             $data['name'],
-                            (array) $data['abilities']
+                            [$data['abilities']]
                         );
 
                         // Store for one-time display

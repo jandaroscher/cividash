@@ -180,7 +180,7 @@ return [
             'token_name_placeholder' => 'z. B. Produktions-API, CI/CD Pipeline',
             'token_name_helper' => 'Ein beschreibender Name, um diesen Token später zu identifizieren.',
             'abilities' => 'Berechtigungen',
-            'abilities_helper' => 'Wählen Sie die Berechtigungen für diesen Token.',
+            'abilities_helper' => 'Wählen Sie die Berechtigungsstufe für diesen Token.',
             'ability_public_read' => 'Nur Lesen (Lesezugriff auf öffentliche API-Endpunkte)',
             'ability_public_read_short' => 'Lesen',
             'ability_admin_api' => 'Lesen und Schreiben (vollständiger CRUD-Zugriff auf Admin-Endpunkte)',

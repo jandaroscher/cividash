@@ -56,7 +56,7 @@ return [
             'token_name_placeholder' => 'e.g., Production API, CI/CD Pipeline',
             'token_name_helper' => 'A descriptive name to help you identify this token later.',
             'abilities' => 'Abilities',
-            'abilities_helper' => 'Select the permissions this token should have.',
+            'abilities_helper' => 'Select the permission level for this token.',
             'ability_public_read' => 'Read Only (read-only access to public API endpoints)',
             'ability_public_read_short' => 'Read',
             'ability_admin_api' => 'Read and Write (full CRUD access to admin endpoints)',
