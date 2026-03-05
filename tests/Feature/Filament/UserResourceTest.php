@@ -344,6 +344,34 @@ class UserResourceTest extends TestCase
         $this->assertTrue(ManageApiKeys::canAccess());
     }
 
+    public function test_can_sort_by_dashboard_access(): void
+    {
+        $redakteur = $this->createUserWithRoleInTenant($this->tenant, 'Redakteur');
+
+        Livewire::actingAs($this->admin)
+            ->test(ListUsers::class)
+            ->sortTable('dashboard_access')
+            ->assertCanSeeTableRecords([$this->admin, $redakteur])
+            ->assertSuccessful();
+    }
+
+    public function test_filter_by_dashboard_access(): void
+    {
+        $otherTenant = $this->createTenantWithRoles([
+            'name' => 'Other Tenant',
+            'slug' => 'other-tenant',
+        ]);
+
+        $userInOther = $this->createUserWithRoleInTenant($otherTenant, 'Redakteur');
+        $userInCurrent = $this->createUserWithRoleInTenant($this->tenant, 'Redakteur');
+
+        Livewire::actingAs($this->admin)
+            ->test(ListUsers::class)
+            ->filterTable('dashboard_access', $otherTenant->id)
+            ->assertCanSeeTableRecords([$userInOther])
+            ->assertCanNotSeeTableRecords([$userInCurrent]);
+    }
+
     public function test_admin_can_access_settings_in_other_tenant(): void
     {
         $otherTenant = $this->createTenantWithRoles([

@@ -187,6 +187,12 @@ class UserResource extends Resource
 
                         return $record->tenants->pluck('name')->join(', ');
                     })
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query
+                            ->withCount('tenants')
+                            ->orderBy('is_admin', $direction === 'asc' ? 'desc' : 'asc')
+                            ->orderBy('tenants_count', $direction);
+                    })
                     ->wrap(),
 
                 Tables\Columns\ToggleColumn::make('is_active')
@@ -232,6 +238,18 @@ class UserResource extends Resource
 
                         return $query->where('is_admin', $data['value'] === 'Admin');
                     }),
+
+                Tables\Filters\SelectFilter::make('dashboard_access')
+                    ->label(__('filament.resources.user.fields.dashboard_access'))
+                    ->options(fn () => Tenant::pluck('name', 'id'))
+                    ->query(function (Builder $query, array $data) {
+                        if (! $data['value']) {
+                            return $query;
+                        }
+
+                        return $query->whereHas('tenants', fn (Builder $q) => $q->where('tenants.id', $data['value']));
+                    })
+                    ->searchable(),
 
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label(__('filament.resources.user.fields.is_active')),
