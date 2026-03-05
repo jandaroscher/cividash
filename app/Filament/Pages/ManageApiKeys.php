@@ -2,25 +2,30 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\PersonalAccessToken;
 use App\Models\Tenant;
 use App\Services\ApiTokenService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Tables\Actions\Action as TableAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
-use Laravel\Sanctum\PersonalAccessToken;
 
 class ManageApiKeys extends Page implements HasForms, HasTable
 {
@@ -53,41 +58,21 @@ class ManageApiKeys extends Page implements HasForms, HasTable
      */
     public ?string $newTokenName = null;
 
-    /**
-     * Get the localized title for the Manage API Keys page.
-     *
-     * @return string|Htmlable The localized page title.
-     */
     public function getTitle(): string|Htmlable
     {
         return __('filament.pages.manage_api_keys.title');
     }
 
-    /**
-     * Retrieve the localized label used for the page navigation.
-     *
-     * @return string The localized navigation label.
-     */
     public static function getNavigationLabel(): string
     {
         return __('filament.pages.manage_api_keys.navigation_label');
     }
 
-    /**
-     * Resolve and return the application's ApiTokenService instance.
-     *
-     * @return ApiTokenService The service used to create and revoke personal access tokens.
-     */
     protected function getTokenService(): ApiTokenService
     {
         return app(ApiTokenService::class);
     }
 
-    /**
-     * Retrieve the current tenant from Filament and abort with a 403 response if no tenant context exists.
-     *
-     * @return Tenant The current tenant instance.
-     */
     protected function getTenant(): Tenant
     {
         $tenant = Filament::getTenant();
@@ -99,20 +84,15 @@ class ManageApiKeys extends Page implements HasForms, HasTable
         return $tenant;
     }
 
-    /**
-     * Configure and return the table used to display and manage API tokens scoped to the current tenant.
-     *
-     * The table lists PersonalAccessToken records (eager-loading the `tokenable` relation) and provides columns
-     * for name, owner email, abilities (badged and colorized), creation date, and last used date. It supports
-     * searching, sorting, toggleable column visibility, defaults to sorting by newest creation date, includes a
-     * revoke action that revokes a token for the tenant and shows success/error notifications, and defines a
-     * localized empty state.
-     *
-     * @param  Table  $table  The Table instance to configure.
-     * @return Table The configured Table instance for tenant-scoped PersonalAccessToken records.
-     */
     public function table(Table $table): Table
     {
+        $availableAbilities = $this->getAvailableAbilitiesTranslated();
+        $badgeLabels = collect(ApiTokenService::ALLOWED_ABILITIES)
+            ->mapWithKeys(fn (string $key) => [
+                $key => __('filament.pages.manage_api_keys.ability_'.str_replace('-', '_', $key).'_short'),
+            ])
+            ->all();
+
         return $table
             ->query(
                 PersonalAccessToken::query()
@@ -125,8 +105,9 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('tokenable.email')
+                TextColumn::make('tokenable.first_name')
                     ->label(__('filament.pages.manage_api_keys.column_owner'))
+                    ->formatStateUsing(fn ($record) => $record->tokenable?->full_name ?? '-')
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
@@ -134,8 +115,13 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                 TextColumn::make('abilities')
                     ->label(__('filament.pages.manage_api_keys.column_abilities'))
                     ->badge()
-                    ->formatStateUsing(fn ($state) => is_array($state) ? implode(', ', $state) : $state)
-                    ->color(fn ($state) => is_array($state) && in_array('admin-api', $state) ? 'danger' : 'success')
+                    ->formatStateUsing(fn ($state) => $badgeLabels[$state] ?? $state)
+                    ->color(fn ($state) => $state === 'admin-api' ? 'danger' : 'success')
+                    ->toggleable(),
+
+                ToggleColumn::make('is_active')
+                    ->label(__('filament.pages.manage_api_keys.column_active'))
+                    ->sortable()
                     ->toggleable(),
 
                 TextColumn::make('created_at')
@@ -149,24 +135,102 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                     ->placeholder(__('filament.pages.manage_api_keys.never'))
                     ->sortable()
                     ->toggleable(),
+
+                TextColumn::make('updated_at')
+                    ->label(__('filament.pages.manage_api_keys.column_updated'))
+                    ->dateTime(__('filament.date_time_format'))
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
-                TableAction::make('revoke')
-                    ->label(__('filament.pages.manage_api_keys.revoke'))
+                TableAction::make('edit')
+                    ->label(__('filament.pages.manage_api_keys.edit'))
+                    ->icon('heroicon-o-pencil-square')
+                    ->form([
+                        TextInput::make('name')
+                            ->label(__('filament.pages.manage_api_keys.token_name'))
+                            ->required()
+                            ->maxLength(255),
+                        Select::make('abilities')
+                            ->label(__('filament.pages.manage_api_keys.abilities'))
+                            ->options($availableAbilities)
+                            ->multiple()
+                            ->required(),
+                        Toggle::make('is_active')
+                            ->label(__('filament.pages.manage_api_keys.column_active')),
+                    ])
+                    ->fillForm(fn (PersonalAccessToken $record) => [
+                        'name' => $record->name,
+                        'abilities' => $record->abilities ?? [],
+                        'is_active' => $record->is_active,
+                    ])
+                    ->modalHeading(__('filament.pages.manage_api_keys.edit_modal_title'))
+                    ->modalSubmitActionLabel(__('filament.actions.save'))
+                    ->action(function (PersonalAccessToken $record, array $data) {
+                        try {
+                            $this->getTokenService()->updateForTenant($record, $this->getTenant(), $data);
+
+                            Notification::make()
+                                ->title(__('filament.pages.manage_api_keys.token_updated_title'))
+                                ->body(__('filament.pages.manage_api_keys.token_updated_body'))
+                                ->success()
+                                ->send();
+                        } catch (\InvalidArgumentException $e) {
+                            Notification::make()
+                                ->title(__('filament.pages.manage_api_keys.error'))
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        } catch (ValidationException $e) {
+                            Notification::make()
+                                ->title(__('filament.pages.manage_api_keys.validation_error'))
+                                ->body(collect($e->errors())->flatten()->first())
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->extraModalFooterActions([
+                        TableAction::make('deleteFromEdit')
+                            ->label(__('filament.pages.manage_api_keys.delete'))
+                            ->color('danger')
+                            ->requiresConfirmation()
+                            ->modalHeading(__('filament.pages.manage_api_keys.delete_modal_title'))
+                            ->modalDescription(__('filament.pages.manage_api_keys.delete_modal_description'))
+                            ->action(function (PersonalAccessToken $record) {
+                                try {
+                                    $this->getTokenService()->revokeForTenant($record, $this->getTenant());
+
+                                    Notification::make()
+                                        ->title(__('filament.pages.manage_api_keys.token_deleted_title'))
+                                        ->body(__('filament.pages.manage_api_keys.token_deleted_body'))
+                                        ->success()
+                                        ->send();
+                                } catch (\InvalidArgumentException $e) {
+                                    Notification::make()
+                                        ->title(__('filament.pages.manage_api_keys.error'))
+                                        ->body($e->getMessage())
+                                        ->danger()
+                                        ->send();
+                                }
+                            }),
+                    ]),
+
+                TableAction::make('delete')
+                    ->label(__('filament.pages.manage_api_keys.delete'))
                     ->icon('heroicon-o-trash')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->modalHeading(__('filament.pages.manage_api_keys.revoke_modal_title'))
-                    ->modalDescription(__('filament.pages.manage_api_keys.revoke_modal_description'))
-                    ->modalSubmitActionLabel(__('filament.pages.manage_api_keys.revoke_modal_submit'))
+                    ->modalHeading(__('filament.pages.manage_api_keys.delete_modal_title'))
+                    ->modalDescription(__('filament.pages.manage_api_keys.delete_modal_description'))
+                    ->modalSubmitActionLabel(__('filament.pages.manage_api_keys.delete_modal_submit'))
                     ->action(function (PersonalAccessToken $record) {
                         try {
                             $this->getTokenService()->revokeForTenant($record, $this->getTenant());
 
                             Notification::make()
-                                ->title(__('filament.pages.manage_api_keys.token_revoked_title'))
-                                ->body(__('filament.pages.manage_api_keys.token_revoked_body'))
+                                ->title(__('filament.pages.manage_api_keys.token_deleted_title'))
+                                ->body(__('filament.pages.manage_api_keys.token_deleted_body'))
                                 ->success()
                                 ->send();
                         } catch (\InvalidArgumentException $e) {
@@ -178,20 +242,22 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                         }
                     }),
             ])
+            ->filters([
+                SelectFilter::make('abilities')
+                    ->label(__('filament.pages.manage_api_keys.filter_abilities'))
+                    ->options($availableAbilities)
+                    ->query(fn (Builder $query, array $data) => $query->when(
+                        $data['value'],
+                        fn (Builder $q, string $v) => $q->whereJsonContains('abilities', $v)
+                    )),
+                TernaryFilter::make('is_active')
+                    ->label(__('filament.pages.manage_api_keys.column_active')),
+            ])
             ->emptyStateHeading(__('filament.pages.manage_api_keys.no_tokens'))
             ->emptyStateDescription(__('filament.pages.manage_api_keys.no_tokens_description'))
             ->emptyStateIcon('heroicon-o-key');
     }
 
-    /**
-     * Build the page header actions, including a "create token" action that opens a modal for creating tenant-scoped API tokens.
-     *
-     * The create action presents a form for token name and abilities; on submit it creates a token for the current tenant,
-     * stores the new token's plaintext and display name for one-time display, and shows either a success notification or a
-     * validation error notification.
-     *
-     * @return array The header action definitions.
-     */
     protected function getHeaderActions(): array
     {
         $availableAbilities = $this->getAvailableAbilitiesTranslated();
@@ -208,12 +274,13 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                         ->maxLength(255)
                         ->helperText(__('filament.pages.manage_api_keys.token_name_helper')),
 
-                    CheckboxList::make('abilities')
+                    Select::make('abilities')
                         ->label(__('filament.pages.manage_api_keys.abilities'))
                         ->options($availableAbilities)
+                        ->multiple()
+                        ->default(['public-read'])
                         ->required()
-                        ->helperText(__('filament.pages.manage_api_keys.abilities_helper'))
-                        ->columns(1),
+                        ->helperText(__('filament.pages.manage_api_keys.abilities_helper')),
 
                     Placeholder::make('warning')
                         ->label('')
@@ -231,7 +298,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                             $user,
                             $tenant,
                             $data['name'],
-                            $data['abilities']
+                            (array) $data['abilities']
                         );
 
                         // Store for one-time display
@@ -256,24 +323,18 @@ class ManageApiKeys extends Page implements HasForms, HasTable
 
     /**
      * Build a map of available API abilities to their translated labels.
-     *
-     * @return array<string,string> Associative array where keys are ability identifiers (e.g., `public-read`, `admin-api`) and values are their translated labels.
      */
     protected function getAvailableAbilitiesTranslated(): array
     {
-        $abilities = [];
-        foreach (ApiTokenService::ALLOWED_ABILITIES as $ability) {
-            $key = str_replace('-', '_', $ability);
-            $abilities[$ability] = __("filament.pages.manage_api_keys.ability_{$key}");
-        }
-
-        return $abilities;
+        return collect(ApiTokenService::ALLOWED_ABILITIES)
+            ->mapWithKeys(fn (string $key) => [
+                $key => __('filament.pages.manage_api_keys.ability_'.str_replace('-', '_', $key)),
+            ])
+            ->all();
     }
 
     /**
      * Reset the one-time display of a newly created API token.
-     *
-     * Clears the stored plain-text token and its display name so they are no longer shown to the user.
      */
     public function clearTokenDisplay(): void
     {

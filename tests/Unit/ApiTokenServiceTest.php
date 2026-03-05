@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
+use App\Models\PersonalAccessToken;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\ApiTokenService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
-use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 
 class ApiTokenServiceTest extends TestCase
@@ -133,6 +133,15 @@ class ApiTokenServiceTest extends TestCase
         $this->assertEquals('Valid Token', $newToken->accessToken->name);
     }
 
+    public function test_create_for_tenant_sets_is_active_true(): void
+    {
+        $user = User::factory()->create();
+
+        $newToken = $this->service->createForTenant($user, $this->tenant, 'Active Token', ['public-read']);
+
+        $this->assertTrue($newToken->accessToken->is_active);
+    }
+
     public function test_list_for_tenant_orders_by_newest_first(): void
     {
         $user = User::factory()->create();
@@ -152,5 +161,160 @@ class ApiTokenServiceTest extends TestCase
         $this->assertCount(2, $result);
         $this->assertEquals('Second', $result->first()->name);
         $this->assertEquals('First', $result->last()->name);
+    }
+
+    // ========== Update Tests ==========
+
+    public function test_update_for_tenant_updates_name(): void
+    {
+        $user = User::factory()->create();
+        $newToken = $user->createToken('Original', ['public-read']);
+        $newToken->accessToken->tenant_id = $this->tenant->id;
+        $newToken->accessToken->save();
+
+        $token = PersonalAccessToken::find($newToken->accessToken->id);
+
+        $this->service->updateForTenant($token, $this->tenant, ['name' => 'Updated Name']);
+
+        $this->assertEquals('Updated Name', $token->fresh()->name);
+    }
+
+    public function test_update_for_tenant_updates_abilities(): void
+    {
+        $user = User::factory()->create();
+        $newToken = $user->createToken('Token', ['public-read']);
+        $newToken->accessToken->tenant_id = $this->tenant->id;
+        $newToken->accessToken->save();
+
+        $token = PersonalAccessToken::find($newToken->accessToken->id);
+
+        $this->service->updateForTenant($token, $this->tenant, ['abilities' => ['admin-api', 'public-read']]);
+
+        $this->assertEquals(['admin-api', 'public-read'], $token->fresh()->abilities);
+    }
+
+    public function test_update_for_tenant_updates_is_active(): void
+    {
+        $user = User::factory()->create();
+        $newToken = $user->createToken('Token', ['public-read']);
+        $newToken->accessToken->tenant_id = $this->tenant->id;
+        $newToken->accessToken->save();
+
+        $token = PersonalAccessToken::find($newToken->accessToken->id);
+
+        $this->service->updateForTenant($token, $this->tenant, ['is_active' => false]);
+
+        $this->assertFalse($token->fresh()->is_active);
+    }
+
+    public function test_update_for_tenant_validates_abilities(): void
+    {
+        $user = User::factory()->create();
+        $newToken = $user->createToken('Token', ['public-read']);
+        $newToken->accessToken->tenant_id = $this->tenant->id;
+        $newToken->accessToken->save();
+
+        $token = PersonalAccessToken::find($newToken->accessToken->id);
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->updateForTenant($token, $this->tenant, ['abilities' => ['invalid-ability']]);
+    }
+
+    public function test_update_for_tenant_throws_for_cross_tenant_token(): void
+    {
+        $tenantB = Tenant::create(['name' => 'Other Tenant', 'slug' => 'other']);
+
+        $user = User::factory()->create();
+        $newToken = $user->createToken('Token', ['public-read']);
+        $newToken->accessToken->tenant_id = $tenantB->id;
+        $newToken->accessToken->save();
+
+        $token = PersonalAccessToken::find($newToken->accessToken->id);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot update token: Token does not belong to the specified tenant.');
+
+        $this->service->updateForTenant($token, $this->tenant, ['name' => 'Hacked']);
+    }
+
+    // ========== Toggle Active Tests ==========
+
+    public function test_toggle_active_deactivates_token(): void
+    {
+        $user = User::factory()->create();
+        $newToken = $user->createToken('Token', ['public-read']);
+        $newToken->accessToken->tenant_id = $this->tenant->id;
+        $newToken->accessToken->is_active = true;
+        $newToken->accessToken->save();
+
+        $token = PersonalAccessToken::find($newToken->accessToken->id);
+        $this->assertTrue($token->is_active);
+
+        $this->service->toggleActiveForTenant($token, $this->tenant);
+
+        $this->assertFalse($token->fresh()->is_active);
+    }
+
+    public function test_toggle_active_activates_token(): void
+    {
+        $user = User::factory()->create();
+        $newToken = $user->createToken('Token', ['public-read']);
+        $newToken->accessToken->tenant_id = $this->tenant->id;
+        $newToken->accessToken->is_active = false;
+        $newToken->accessToken->save();
+
+        $token = PersonalAccessToken::find($newToken->accessToken->id);
+        $this->assertFalse($token->is_active);
+
+        $this->service->toggleActiveForTenant($token, $this->tenant);
+
+        $this->assertTrue($token->fresh()->is_active);
+    }
+
+    public function test_toggle_active_throws_for_cross_tenant_token(): void
+    {
+        $tenantB = Tenant::create(['name' => 'Other Tenant', 'slug' => 'other']);
+
+        $user = User::factory()->create();
+        $newToken = $user->createToken('Token', ['public-read']);
+        $newToken->accessToken->tenant_id = $tenantB->id;
+        $newToken->accessToken->save();
+
+        $token = PersonalAccessToken::find($newToken->accessToken->id);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot toggle token: Token does not belong to the specified tenant.');
+
+        $this->service->toggleActiveForTenant($token, $this->tenant);
+    }
+
+    // ========== Inactive Token Auth Tests ==========
+
+    public function test_inactive_token_returns_null_from_find_token(): void
+    {
+        $user = User::factory()->create();
+        $newToken = $user->createToken('Token', ['public-read']);
+        $newToken->accessToken->tenant_id = $this->tenant->id;
+        $newToken->accessToken->is_active = false;
+        $newToken->accessToken->save();
+
+        $found = PersonalAccessToken::findToken($newToken->plainTextToken);
+
+        $this->assertNull($found);
+    }
+
+    public function test_active_token_is_found_by_find_token(): void
+    {
+        $user = User::factory()->create();
+        $newToken = $user->createToken('Token', ['public-read']);
+        $newToken->accessToken->tenant_id = $this->tenant->id;
+        $newToken->accessToken->is_active = true;
+        $newToken->accessToken->save();
+
+        $found = PersonalAccessToken::findToken($newToken->plainTextToken);
+
+        $this->assertNotNull($found);
+        $this->assertEquals($newToken->accessToken->id, $found->id);
     }
 }

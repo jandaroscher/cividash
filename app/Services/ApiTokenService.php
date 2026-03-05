@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\PersonalAccessToken;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\NewAccessToken;
-use Laravel\Sanctum\PersonalAccessToken;
 
 class ApiTokenService
 {
@@ -29,7 +29,7 @@ class ApiTokenService
     {
         return PersonalAccessToken::query()
             ->where('tenant_id', $tenant->id)
-            ->with('tokenable') // Eager load owner for display
+            ->with('tokenable')
             ->orderByDesc('created_at')
             ->get();
     }
@@ -50,29 +50,62 @@ class ApiTokenService
      */
     public function createForTenant(User $user, Tenant $tenant, string $name, array $abilities): NewAccessToken
     {
-        // Validate abilities are not empty
-        if (empty($abilities)) {
-            throw ValidationException::withMessages([
-                'abilities' => ['At least one ability must be selected.'],
-            ]);
-        }
-
-        // Validate abilities against allowlist
-        $invalidAbilities = array_diff($abilities, self::ALLOWED_ABILITIES);
-        if (! empty($invalidAbilities)) {
-            throw ValidationException::withMessages([
-                'abilities' => ['Invalid abilities: '.implode(', ', $invalidAbilities).'. Allowed: '.implode(', ', self::ALLOWED_ABILITIES)],
-            ]);
-        }
+        $this->validateAbilities($abilities);
 
         // Create the token
         $newToken = $user->createToken($name, $abilities);
 
         // Associate with tenant (critical for Admin API to work)
         $newToken->accessToken->tenant_id = $tenant->id;
+        $newToken->accessToken->is_active = true;
         $newToken->accessToken->save();
 
         return $newToken;
+    }
+
+    /**
+     * Update a personal access token scoped to the given tenant.
+     *
+     * @param  PersonalAccessToken  $token  The token to update.
+     * @param  Tenant  $tenant  The tenant that must own the token.
+     * @param  array  $data  The data to update (name, abilities, is_active).
+     *
+     * @throws \InvalidArgumentException If the token does not belong to the tenant.
+     * @throws ValidationException When abilities are invalid.
+     */
+    public function updateForTenant(PersonalAccessToken $token, Tenant $tenant, array $data): void
+    {
+        if ($token->tenant_id !== $tenant->id) {
+            throw new \InvalidArgumentException(
+                'Cannot update token: Token does not belong to the specified tenant.'
+            );
+        }
+
+        if (array_key_exists('abilities', $data)) {
+            $this->validateAbilities((array) $data['abilities']);
+            $data['abilities'] = (array) $data['abilities'];
+        }
+
+        $token->update($data);
+    }
+
+    /**
+     * Toggle the is_active status of a token scoped to the given tenant.
+     *
+     * @param  PersonalAccessToken  $token  The token to toggle.
+     * @param  Tenant  $tenant  The tenant that must own the token.
+     *
+     * @throws \InvalidArgumentException If the token does not belong to the tenant.
+     */
+    public function toggleActiveForTenant(PersonalAccessToken $token, Tenant $tenant): void
+    {
+        if ($token->tenant_id !== $tenant->id) {
+            throw new \InvalidArgumentException(
+                'Cannot toggle token: Token does not belong to the specified tenant.'
+            );
+        }
+
+        $token->update(['is_active' => ! $token->is_active]);
     }
 
     /**
@@ -85,7 +118,6 @@ class ApiTokenService
      */
     public function revokeForTenant(PersonalAccessToken $token, Tenant $tenant): void
     {
-        // Security: Ensure token belongs to the specified tenant
         if ($token->tenant_id !== $tenant->id) {
             throw new \InvalidArgumentException(
                 'Cannot revoke token: Token does not belong to the specified tenant.'
@@ -98,8 +130,6 @@ class ApiTokenService
     /**
      * Get available abilities for token creation.
      *
-     * Returns all abilities that can be selected when creating tokens.
-     *
      * @return array Available abilities with labels
      */
     public function getAvailableAbilities(): array
@@ -108,5 +138,29 @@ class ApiTokenService
             'public-read' => 'Public Read (read-only access to public API endpoints)',
             'admin-api' => 'Admin API (full CRUD access to admin endpoints)',
         ];
+    }
+
+    /**
+     * Validate the given abilities array against the allowlist.
+     *
+     * @throws ValidationException When abilities are empty or contain invalid entries.
+     */
+    protected function validateAbilities(array $abilities): void
+    {
+        if (empty($abilities)) {
+            throw ValidationException::withMessages([
+                'abilities' => [__('filament.pages.manage_api_keys.validation.abilities_required')],
+            ]);
+        }
+
+        $invalidAbilities = array_diff($abilities, self::ALLOWED_ABILITIES);
+        if (! empty($invalidAbilities)) {
+            throw ValidationException::withMessages([
+                'abilities' => [__('filament.pages.manage_api_keys.validation.abilities_invalid', [
+                    'invalid' => implode(', ', $invalidAbilities),
+                    'allowed' => implode(', ', self::ALLOWED_ABILITIES),
+                ])],
+            ]);
+        }
     }
 }
