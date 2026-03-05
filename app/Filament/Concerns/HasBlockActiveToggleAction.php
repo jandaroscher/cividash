@@ -84,33 +84,6 @@ trait HasBlockActiveToggleAction
         if (method_exists($component, 'callAfterStateUpdated')) {
             $component->callAfterStateUpdated();
         }
-
-        static::persistBlockStateChange($component);
-    }
-
-    protected static function persistBlockStateChange($component): void
-    {
-        $livewire = method_exists($component, 'getLivewire') ? $component->getLivewire() : null;
-
-        if (! $livewire) {
-            return;
-        }
-
-        $record = null;
-
-        if (method_exists($livewire, 'getRecord')) {
-            $record = $livewire->getRecord();
-        } elseif (property_exists($livewire, 'record')) {
-            $record = $livewire->record ?? null;
-        }
-
-        if (! $record) {
-            return;
-        }
-
-        if (method_exists($livewire, 'save')) {
-            $livewire->save();
-        }
     }
 
     protected static function resolveBlockActive(array $item): bool
