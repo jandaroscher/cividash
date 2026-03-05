@@ -99,6 +99,9 @@ return [
             'section_footer' => 'Footer',
             'english_translation_active' => 'English Translation',
             'english_translation_active_helper' => 'When disabled, the language switcher is hidden and English routes redirect to German',
+            'section_footer_navigation' => 'Footer Navigation',
+            'section_social_media' => 'Social Media Links',
+            'section_copyright' => 'Copyright',
         ],
         'manage_header' => [
             'title' => 'Header / Navigation',

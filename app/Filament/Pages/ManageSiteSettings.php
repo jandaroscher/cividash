@@ -170,6 +170,7 @@ class ManageSiteSettings extends Page implements HasForms
                                     ->label(__('filament.pages.manage_header.children'))
                                     ->addActionLabel(__('filament.actions.add_to_children'))
                                     ->schema($this->navigationItemSchema())
+                                    ->defaultItems(0)
                                     ->collapsible()
                                     ->itemLabel(function (array $state): ?string {
                                         $locale = $this->activeLocale ?? app()->getLocale();
@@ -201,73 +202,82 @@ class ManageSiteSettings extends Page implements HasForms
 
                 Section::make(__('filament.pages.manage_site_settings.section_footer'))
                     ->schema([
-                        Repeater::make('footer_navigation_items')
-                            ->label(__('filament.pages.manage_footer.footer_navigation_items'))
-                            ->schema($this->getFooterNavigationItemSchema())
-                            ->reorderable()
-                            ->collapsible()
-                            ->itemLabel(function (array $state): ?string {
-                                $locale = $this->activeLocale ?? app()->getLocale();
-
-                                return is_array($state['label'] ?? null)
-                                    ? ($state['label'][$locale] ?? $state['label']['de'] ?? '')
-                                    : ($state['label'] ?? null);
-                            })
-                            ->addActionLabel(__('filament.actions.add'))
-                            ->extraItemActions([
-                                static::getBlockActiveToggleAction(),
-                            ]),
-
-                        Select::make('layout_type')
-                            ->label(__('filament.pages.manage_footer.layout_type'))
-                            ->options([
-                                'single-row' => __('filament.pages.manage_footer.layout_single_row'),
-                                'multi-column' => __('filament.pages.manage_footer.layout_multi_column'),
-                            ])
-                            ->default('single-row')
-                            ->required()
-                            ->live(),
-
-                        TextInput::make('columns')
-                            ->label(__('filament.pages.manage_footer.columns'))
-                            ->numeric()
-                            ->minValue(1)
-                            ->maxValue(12)
-                            ->default(3)
-                            ->required(fn ($get) => $get('layout_type') === 'multi-column')
-                            ->visible(fn ($get) => $get('layout_type') === 'multi-column'),
-
-                        Toggle::make('social_links_enabled')
-                            ->label(__('filament.pages.manage_footer.social_links_enabled'))
-                            ->default(true),
-
-                        Repeater::make('social_links')
-                            ->label(__('filament.pages.manage_footer.social_media_links'))
-                            ->addActionLabel(__('filament.actions.add_to_social_media_links'))
+                        Section::make(__('filament.pages.manage_site_settings.section_footer_navigation'))
                             ->schema([
-                                FileUpload::make('icon')
-                                    ->label(__('filament.pages.manage_footer.icon'))
-                                    ->image()
-                                    ->directory('footer-social-icons')
-                                    ->disk('public')
-                                    ->required(),
-                                TextInput::make('link')
-                                    ->label(__('filament.pages.manage_footer.profile_url'))
-                                    ->url()
-                                    ->required(),
-                                TextInput::make('title')
-                                    ->label(__('filament.pages.manage_footer.tooltip_text')),
-                            ])
-                            ->reorderable()
-                            ->extraItemActions([
-                                static::getBlockActiveToggleAction(),
+                                Repeater::make('footer_navigation_items')
+                                    ->label(__('filament.pages.manage_footer.footer_navigation_items'))
+                                    ->schema($this->getFooterNavigationItemSchema())
+                                    ->reorderable()
+                                    ->collapsible()
+                                    ->itemLabel(function (array $state): ?string {
+                                        $locale = $this->activeLocale ?? app()->getLocale();
+
+                                        return is_array($state['label'] ?? null)
+                                            ? ($state['label'][$locale] ?? $state['label']['de'] ?? '')
+                                            : ($state['label'] ?? null);
+                                    })
+                                    ->addActionLabel(__('filament.actions.add'))
+                                    ->extraItemActions([
+                                        static::getBlockActiveToggleAction(),
+                                    ]),
+
+                                Select::make('layout_type')
+                                    ->label(__('filament.pages.manage_footer.layout_type'))
+                                    ->options([
+                                        'single-row' => __('filament.pages.manage_footer.layout_single_row'),
+                                        'multi-column' => __('filament.pages.manage_footer.layout_multi_column'),
+                                    ])
+                                    ->default('single-row')
+                                    ->required()
+                                    ->live(),
+
+                                Select::make('columns')
+                                    ->label(__('filament.pages.manage_footer.columns'))
+                                    ->options([1 => '1', 2 => '2', 3 => '3', 4 => '4', 5 => '5'])
+                                    ->default(3)
+                                    ->required(fn ($get) => $get('layout_type') === 'multi-column')
+                                    ->visible(fn ($get) => $get('layout_type') === 'multi-column'),
                             ]),
 
-                        TextInput::make('copyright_text')
-                            ->label(__('filament.pages.manage_footer.copyright_text'))
-                            ->helperText(__('filament.pages.manage_footer.copyright_text_helper'))
-                            ->placeholder('© {year} {site_name}')
-                            ->nullable(),
+                        Section::make(__('filament.pages.manage_site_settings.section_social_media'))
+                            ->schema([
+                                Toggle::make('social_links_enabled')
+                                    ->label(__('filament.pages.manage_footer.social_links_enabled'))
+                                    ->default(true),
+
+                                Repeater::make('social_links')
+                                    ->label(__('filament.pages.manage_footer.social_media_links'))
+                                    ->addActionLabel(__('filament.actions.add_to_social_media_links'))
+                                    ->schema([
+                                        FileUpload::make('icon')
+                                            ->label(__('filament.pages.manage_footer.icon'))
+                                            ->image()
+                                            ->directory('footer-social-icons')
+                                            ->disk('public')
+                                            ->required(),
+                                        TextInput::make('link')
+                                            ->label(__('filament.pages.manage_footer.profile_url'))
+                                            ->url()
+                                            ->required(),
+                                        TextInput::make('title')
+                                            ->label(__('filament.pages.manage_footer.tooltip_text')),
+                                    ])
+                                    ->reorderable()
+                                    ->collapsible()
+                                    ->itemLabel(fn (array $state): ?string => $state['link'] ?? null)
+                                    ->extraItemActions([
+                                        static::getBlockActiveToggleAction(),
+                                    ]),
+                            ]),
+
+                        Section::make(__('filament.pages.manage_site_settings.section_copyright'))
+                            ->schema([
+                                TextInput::make('copyright_text')
+                                    ->label(__('filament.pages.manage_footer.copyright_text'))
+                                    ->helperText(__('filament.pages.manage_footer.copyright_text_helper'))
+                                    ->placeholder('© {year} {site_name}')
+                                    ->nullable(),
+                            ]),
                     ]),
             ])
             ->statePath('data');
@@ -352,6 +362,9 @@ class ManageSiteSettings extends Page implements HasForms
     {
         return [
             LocaleSwitcher::make(),
+            Action::make('saveFromHeader')
+                ->label(__('filament-panels::resources/pages/edit-record.form.actions.save.label'))
+                ->submit('save'),
         ];
     }
 
