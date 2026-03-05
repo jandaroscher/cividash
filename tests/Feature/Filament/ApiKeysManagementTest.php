@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Filament;
 
+use App\Models\PersonalAccessToken;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\ApiTokenService;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
-use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 
 class ApiKeysManagementTest extends TestCase
@@ -305,5 +305,127 @@ class ApiKeysManagementTest extends TestCase
         $this->assertNotNull($token->created_at);
         $this->assertNotNull($token->last_used_at);
         $this->assertEquals(['public-read'], $token->abilities);
+    }
+
+    // ========== Update Tests ==========
+
+    public function test_update_changes_token_name_and_abilities(): void
+    {
+        $newToken = $this->tokenService->createForTenant(
+            $this->adminUser,
+            $this->tenantA,
+            'Original Name',
+            ['public-read']
+        );
+
+        $this->tokenService->updateForTenant($newToken->accessToken, $this->tenantA, [
+            'name' => 'New Name',
+            'abilities' => ['admin-api', 'public-read'],
+        ]);
+
+        $updated = PersonalAccessToken::find($newToken->accessToken->id);
+        $this->assertEquals('New Name', $updated->name);
+        $this->assertContains('admin-api', $updated->abilities);
+        $this->assertContains('public-read', $updated->abilities);
+    }
+
+    public function test_update_prevents_cross_tenant_modification(): void
+    {
+        $newToken = $this->tokenService->createForTenant(
+            $this->adminUser,
+            $this->tenantB,
+            'Tenant B Token',
+            ['public-read']
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->tokenService->updateForTenant($newToken->accessToken, $this->tenantA, [
+            'name' => 'Hacked',
+        ]);
+    }
+
+    // ========== Toggle Active Tests ==========
+
+    public function test_toggle_deactivates_active_token(): void
+    {
+        $newToken = $this->tokenService->createForTenant(
+            $this->adminUser,
+            $this->tenantA,
+            'Active Token',
+            ['public-read']
+        );
+
+        $token = $newToken->accessToken->fresh();
+        $this->assertTrue($token->is_active);
+
+        $this->tokenService->toggleActiveForTenant($token, $this->tenantA);
+
+        $this->assertFalse($token->fresh()->is_active);
+    }
+
+    public function test_toggle_activates_inactive_token(): void
+    {
+        $newToken = $this->tokenService->createForTenant(
+            $this->adminUser,
+            $this->tenantA,
+            'Inactive Token',
+            ['public-read']
+        );
+
+        $newToken->accessToken->update(['is_active' => false]);
+
+        $this->tokenService->toggleActiveForTenant($newToken->accessToken->fresh(), $this->tenantA);
+
+        $this->assertTrue($newToken->accessToken->fresh()->is_active);
+    }
+
+    // ========== Inactive Token Auth Tests ==========
+
+    public function test_inactive_token_cannot_authenticate_api_requests(): void
+    {
+        $newToken = $this->tokenService->createForTenant(
+            $this->adminUser,
+            $this->tenantA,
+            'API Token',
+            ['admin-api']
+        );
+
+        $plainTextToken = $newToken->plainTextToken;
+
+        // Deactivate the token
+        $newToken->accessToken->update(['is_active' => false]);
+
+        // Inactive token should fail authentication
+        $response = $this->withHeader('Authorization', "Bearer {$plainTextToken}")
+            ->postJson('/api/admin/tiles', [
+                'title' => ['de' => 'Test', 'en' => 'Test'],
+            ]);
+
+        $this->assertContains($response->status(), [400, 401], 'Inactive token should be rejected');
+    }
+
+    public function test_reactivated_token_can_authenticate_api_requests(): void
+    {
+        $newToken = $this->tokenService->createForTenant(
+            $this->adminUser,
+            $this->tenantA,
+            'API Token',
+            ['admin-api']
+        );
+
+        $plainTextToken = $newToken->plainTextToken;
+
+        // Deactivate then reactivate
+        $newToken->accessToken->update(['is_active' => false]);
+        $newToken->accessToken->update(['is_active' => true]);
+
+        // Reactivated token should work
+        $response = $this->withHeader('Authorization', "Bearer {$plainTextToken}")
+            ->postJson('/api/admin/tiles', [
+                'title' => ['de' => 'Test', 'en' => 'Test'],
+            ]);
+
+        $this->assertEquals(201, $response->status());
     }
 }
