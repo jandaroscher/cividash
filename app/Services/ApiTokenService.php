@@ -15,7 +15,7 @@ class ApiTokenService
      * Allowed abilities for API tokens.
      * Deliberately not including '*' to enforce principle of least privilege.
      */
-    public const ALLOWED_ABILITIES = ['admin-api', 'public-read'];
+    public const ALLOWED_ABILITIES = ['public-read', 'admin-api'];
 
     /**
      * Retrieve all personal access tokens belonging to the given tenant.
