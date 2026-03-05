@@ -10,6 +10,7 @@ use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
 use Z3d0X\FilamentFabricator\Forms\Components\PageBuilder;
 
@@ -52,6 +53,11 @@ class AppServiceProvider extends ServiceProvider
             if ($user = Auth::user()) {
                 $user->update(['locale' => $event->locale]);
             }
+        });
+
+        // Configure default password validation rules (min 12, max 64 characters)
+        Password::defaults(function () {
+            return Password::min(12)->max(64);
         });
 
         // Register Page observer for cache invalidation

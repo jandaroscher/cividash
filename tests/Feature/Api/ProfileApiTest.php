@@ -130,12 +130,12 @@ class ProfileApiTest extends TestCase
     public function test_user_can_update_password(): void
     {
         $user = User::factory()->create([
-            'password' => Hash::make('oldpassword'),
+            'password' => Hash::make('oldpassword1!'),
         ]);
 
         $response = $this->actingAs($user)
             ->putJson('/api/me/password', [
-                'current_password' => 'oldpassword',
+                'current_password' => 'oldpassword1!',
                 'password' => 'newpassword123',
                 'password_confirmation' => 'newpassword123',
             ]);
@@ -168,14 +168,31 @@ class ProfileApiTest extends TestCase
     public function test_password_update_requires_confirmation(): void
     {
         $user = User::factory()->create([
-            'password' => Hash::make('oldpassword'),
+            'password' => Hash::make('oldpassword1!'),
         ]);
 
         $response = $this->actingAs($user)
             ->putJson('/api/me/password', [
-                'current_password' => 'oldpassword',
+                'current_password' => 'oldpassword1!',
                 'password' => 'newpassword123',
                 'password_confirmation' => 'differentpassword',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
+
+    public function test_password_update_rejects_too_short_password(): void
+    {
+        $user = User::factory()->create([
+            'password' => Hash::make('oldpassword1!'),
+        ]);
+
+        $response = $this->actingAs($user)
+            ->putJson('/api/me/password', [
+                'current_password' => 'oldpassword1!',
+                'password' => 'short1!',
+                'password_confirmation' => 'short1!',
             ]);
 
         $response->assertStatus(422)

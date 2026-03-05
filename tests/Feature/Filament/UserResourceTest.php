@@ -113,7 +113,7 @@ class UserResourceTest extends TestCase
                 'first_name' => 'Max',
                 'last_name' => 'Mustermann',
                 'email' => 'max@example.com',
-                'password' => 'password123',
+                'password' => 'password12345',
                 'is_active' => true,
                 'role' => 'Redakteur',
                 'dashboard_assignments' => [$this->tenant->id],
@@ -129,6 +129,23 @@ class UserResourceTest extends TestCase
         ]);
     }
 
+    public function test_create_user_rejects_too_short_password(): void
+    {
+        Livewire::actingAs($this->admin)
+            ->test(CreateUser::class)
+            ->fillForm([
+                'first_name' => 'Max',
+                'last_name' => 'Mustermann',
+                'email' => 'max@example.com',
+                'password' => 'short1!',
+                'is_active' => true,
+                'role' => 'Redakteur',
+                'dashboard_assignments' => [$this->tenant->id],
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['password']);
+    }
+
     public function test_can_create_admin_user(): void
     {
         Livewire::actingAs($this->admin)
@@ -137,7 +154,7 @@ class UserResourceTest extends TestCase
                 'first_name' => 'Admin',
                 'last_name' => 'User',
                 'email' => 'admin@example.com',
-                'password' => 'password123',
+                'password' => 'password12345',
                 'is_active' => true,
                 'role' => 'Admin',
             ])
@@ -301,7 +318,7 @@ class UserResourceTest extends TestCase
                 'first_name' => 'Redakteur',
                 'last_name' => 'Test',
                 'email' => 'redakteur@example.com',
-                'password' => 'password123',
+                'password' => 'password12345',
                 'is_active' => true,
                 'role' => 'Redakteur',
                 'dashboard_assignments' => [$otherTenant->id],

@@ -175,7 +175,7 @@ return [
             'update_password_description' => 'Ensure your account is using a long, random password to stay secure.',
             'current_password' => 'Current Password',
             'new_password' => 'New Password',
-            'password_confirmation' => 'Confirm Password',
+            'password_confirmation' => 'Confirm New Password',
             'save_profile' => 'Save Profile',
             'save_password' => 'Save Password',
             'profile_updated' => 'Profile has been updated successfully.',

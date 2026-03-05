@@ -109,7 +109,7 @@ class ProfileController extends Controller
      * @authenticated
      *
      * @bodyParam current_password string required The current password.
-     * @bodyParam password string required The new password (min 8 chars).
+     * @bodyParam password string required The new password (min 12 chars, max 64 chars).
      * @bodyParam password_confirmation string required The new password confirmation.
      *
      * @response 200 {

@@ -15,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class UserResource extends Resource
 {
@@ -120,7 +121,9 @@ class UserResource extends Resource
                             ->required(fn (string $operation): bool => $operation === 'create')
                             ->dehydrated(fn (?string $state): bool => filled($state))
                             ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
-                            ->maxLength(255),
+                            ->rule(Password::defaults())
+                            ->minLength(12)
+                            ->maxLength(64),
 
                         Forms\Components\Toggle::make('is_active')
                             ->label(__('filament.resources.user.fields.is_active'))

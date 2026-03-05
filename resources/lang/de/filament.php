@@ -247,7 +247,7 @@ return [
             'update_password_description' => 'Stellen Sie sicher, dass Ihr Konto ein langes, zufälliges Passwort verwendet.',
             'current_password' => 'Aktuelles Passwort',
             'new_password' => 'Neues Passwort',
-            'password_confirmation' => 'Passwort bestätigen',
+            'password_confirmation' => 'Neues Passwort wiederholen',
             'save_profile' => 'Profil speichern',
             'save_password' => 'Passwort speichern',
             'profile_updated' => 'Profil wurde erfolgreich aktualisiert.',
