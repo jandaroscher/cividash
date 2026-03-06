@@ -147,3 +147,17 @@
 .dark .fi-fo-file-upload .filepond--image-preview-overlay-idle {
     color: #374151; /* gray-700 */
 }
+
+/**
+ * Elevation styling for nested Repeater items
+ * Alternating gray/white backgrounds to visually separate nesting levels.
+ * Level 1 (outer): white (Filament default)
+ * Level 2 (nested): gray-50 / white-10
+ */
+.fi-fo-repeater-item .fi-fo-repeater-item {
+    background-color: #f9fafb !important; /* gray-50 */
+}
+
+.dark .fi-fo-repeater-item .fi-fo-repeater-item {
+    background-color: rgba(255, 255, 255, 0.1) !important; /* white/10 */
+}
