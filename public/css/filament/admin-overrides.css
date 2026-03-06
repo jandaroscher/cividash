@@ -149,15 +149,42 @@
 }
 
 /**
- * Elevation styling for nested Repeater items
- * Alternating gray/white backgrounds to visually separate nesting levels.
- * Level 1 (outer): white (Filament default)
- * Level 2 (nested): gray-50 / white-10
+ * Elevation styling for Repeater & Builder items
+ * Alternating backgrounds to visually separate nesting levels from the white page.
+ * Level 1 (outer): gray-50 / white-5
+ * Level 2 (nested): white / white-10
+ * Level 3+: gray-50 / white-5 (alternating continues)
  */
-.fi-fo-repeater-item .fi-fo-repeater-item {
+.fi-fo-repeater-item,
+.fi-fo-builder-item {
     background-color: #f9fafb !important; /* gray-50 */
 }
 
-.dark .fi-fo-repeater-item .fi-fo-repeater-item {
+.fi-fo-repeater-item .fi-fo-repeater-item,
+.fi-fo-builder-item .fi-fo-repeater-item,
+.fi-fo-repeater-item .fi-fo-builder-item,
+.fi-fo-builder-item .fi-fo-builder-item {
+    background-color: #ffffff !important; /* white */
+}
+
+.fi-fo-repeater-item .fi-fo-repeater-item .fi-fo-repeater-item,
+.fi-fo-builder-item .fi-fo-builder-item .fi-fo-builder-item {
+    background-color: #f9fafb !important; /* gray-50 */
+}
+
+.dark .fi-fo-repeater-item,
+.dark .fi-fo-builder-item {
+    background-color: rgba(255, 255, 255, 0.05) !important; /* white/5 */
+}
+
+.dark .fi-fo-repeater-item .fi-fo-repeater-item,
+.dark .fi-fo-builder-item .fi-fo-repeater-item,
+.dark .fi-fo-repeater-item .fi-fo-builder-item,
+.dark .fi-fo-builder-item .fi-fo-builder-item {
     background-color: rgba(255, 255, 255, 0.1) !important; /* white/10 */
+}
+
+.dark .fi-fo-repeater-item .fi-fo-repeater-item .fi-fo-repeater-item,
+.dark .fi-fo-builder-item .fi-fo-builder-item .fi-fo-builder-item {
+    background-color: rgba(255, 255, 255, 0.05) !important; /* white/5 */
 }
