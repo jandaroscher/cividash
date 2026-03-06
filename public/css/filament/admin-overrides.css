@@ -150,10 +150,10 @@
 
 /**
  * Elevation styling for Repeater & Builder items
- * Alternating backgrounds to visually separate nesting levels from the white page.
+ * Progressive backgrounds to visually separate nesting levels from the white page.
  * Level 1 (outer): gray-50 / white-5
- * Level 2 (nested): white / white-10
- * Level 3+: gray-50 / white-5 (alternating continues)
+ * Level 2 (nested): gray-100 / white-10
+ * Level 3+: gray-200 / white-15
  */
 .fi-fo-repeater-item,
 .fi-fo-builder-item {
@@ -164,12 +164,12 @@
 .fi-fo-builder-item .fi-fo-repeater-item,
 .fi-fo-repeater-item .fi-fo-builder-item,
 .fi-fo-builder-item .fi-fo-builder-item {
-    background-color: #ffffff !important; /* white */
+    background-color: #f3f4f6 !important; /* gray-100 */
 }
 
 .fi-fo-repeater-item .fi-fo-repeater-item .fi-fo-repeater-item,
 .fi-fo-builder-item .fi-fo-builder-item .fi-fo-builder-item {
-    background-color: #f9fafb !important; /* gray-50 */
+    background-color: #e5e7eb !important; /* gray-200 */
 }
 
 .dark .fi-fo-repeater-item,
