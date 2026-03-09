@@ -3,12 +3,13 @@
 namespace App\Console\Commands;
 
 use App\Models\CategoryGroup;
+use App\Models\Tenant;
 use App\Services\DashboardJsonParser;
 use App\Services\MediaDownloadService;
-use App\Settings\BrandingSettings;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\MetricSeeder;
 use Database\Seeders\TileSeeder;
+use Filament\Facades\Filament;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -145,31 +146,51 @@ class DashboardSeedCommand extends Command
 
     protected function seedTileBrandingDefaults(): void
     {
-        $settings = app(BrandingSettings::class);
-        $defaultTenant = \App\Models\Tenant::where('slug', 'default')->first();
-        $tenantId = $defaultTenant?->id;
-
-        if ($settings->tile_color_source_group_id === null && $tenantId) {
-            $dimensionsGroup = CategoryGroup::where('key', 'dimensions')
-                ->where('tenant_id', $tenantId)
-                ->first();
-            if ($dimensionsGroup) {
-                $settings->tile_color_source_group_id = $dimensionsGroup->id;
-                $this->info("Set tile color source to: {$dimensionsGroup->getTranslation('title', 'de')}");
-            }
+        // Prefer Filament tenant (set by DashboardResetCommand), then fallback chain
+        try {
+            $tenant = Filament::getTenant();
+        } catch (\Throwable) {
+            $tenant = null;
         }
 
-        if ($settings->tile_background_category_group_id === null && $tenantId) {
-            $sdgGroup = CategoryGroup::where('key', 'sdg')
-                ->where('tenant_id', $tenantId)
-                ->first();
-            if ($sdgGroup) {
-                $settings->tile_background_category_group_id = $sdgGroup->id;
-                $this->info("Set tile background category group to: {$sdgGroup->getTranslation('title', 'de')}");
-            }
+        $tenant ??= Tenant::where('slug', 'default')->first()
+            ?? Tenant::where('slug', 'stadt-regensburg')->first()
+            ?? Tenant::first();
+
+        if (! $tenant) {
+            return;
         }
 
-        $settings->save();
+        $this->upsertBrandingSetting($tenant, 'tile_color_source_group_id', 'dimensions');
+        $this->upsertBrandingSetting($tenant, 'tile_background_category_group_id', 'sdg');
+    }
+
+    private function upsertBrandingSetting(Tenant $tenant, string $settingName, string $categoryGroupKey): void
+    {
+        $existing = DB::table('settings')
+            ->where('group', 'branding')
+            ->where('name', $settingName)
+            ->where('tenant_id', $tenant->id)
+            ->first();
+
+        if ($existing && json_decode($existing->payload) !== null) {
+            return;
+        }
+
+        $group = CategoryGroup::where('key', $categoryGroupKey)
+            ->where('tenant_id', $tenant->id)
+            ->first();
+
+        if (! $group) {
+            return;
+        }
+
+        DB::table('settings')->updateOrInsert(
+            ['group' => 'branding', 'name' => $settingName, 'tenant_id' => $tenant->id],
+            ['payload' => json_encode($group->id)],
+        );
+
+        $this->info("Set {$settingName} to: {$group->getTranslation('title', 'de')} (tenant: {$tenant->slug})");
     }
 
     protected function displayDryRunSummary(array $parsed): void
