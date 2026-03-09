@@ -127,7 +127,7 @@ class ManageSiteSettingsTest extends TestCase
         $this->assertEquals(4, $footer->columns);
     }
 
-    public function test_footer_single_column_derives_single_row_layout(): void
+    public function test_footer_single_column_derives_multi_column_layout(): void
     {
         Livewire::test(ManageSiteSettings::class)
             ->fillForm([
@@ -140,7 +140,7 @@ class ManageSiteSettingsTest extends TestCase
             ->where('tenant_id', $this->tenant->id)
             ->first();
 
-        $this->assertEquals('single-row', $footer->layout_type);
+        $this->assertEquals('multi-column', $footer->layout_type);
         $this->assertEquals(1, $footer->columns);
     }
 

@@ -217,8 +217,8 @@ class FooterNavigation extends Model
                             'de' => [],
                             'en' => [],
                         ],
-                        'layout_type' => 'single-row',
-                        'columns' => 3,
+                        'layout_type' => 'multi-column',
+                        'columns' => 4,
                         'social_links_enabled' => true,
                         'copyright_text' => [
                             'de' => '',
@@ -241,8 +241,8 @@ class FooterNavigation extends Model
                     'de' => [],
                     'en' => [],
                 ],
-                'layout_type' => 'single-row',
-                'columns' => 3,
+                'layout_type' => 'multi-column',
+                'columns' => 4,
                 'social_links_enabled' => true,
                 'copyright_text' => [
                     'de' => '',
