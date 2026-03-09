@@ -728,10 +728,17 @@ class TileResource extends Resource
                         ->live(onBlur: true),
                     ...$existingSchema,
                 ])->label(function (?array $state) use ($defaultLabel): string {
-                    return $state['jump_mark_label']
-                        ?? $state['heading']
-                        ?? $state['title']
-                        ?? $defaultLabel;
+                    $heading = $state['heading'] ?? $state['title'] ?? null;
+                    $jumpMark = $state['jump_mark_label'] ?? null;
+
+                    if ($heading && $jumpMark) {
+                        return "{$heading} (#{$jumpMark})";
+                    }
+                    if ($jumpMark) {
+                        return "#{$jumpMark}";
+                    }
+
+                    return $heading ?? $defaultLabel;
                 });
                 $blocks[] = $block;
             }
