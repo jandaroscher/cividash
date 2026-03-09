@@ -16,6 +16,7 @@ use App\Models\MetricValue;
 use App\Models\Tile;
 use App\Models\TileYear;
 use Closure;
+use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -712,19 +713,61 @@ class TileResource extends Resource
         foreach ($filteredBlocks as $blockClass) {
             if (class_exists($blockClass) && method_exists($blockClass, 'getBlockSchema')) {
                 $block = $blockClass::getBlockSchema();
+                $defaultLabel = $block->getLabel();
                 $existingSchema = $block->getChildComponents();
+                static::patchFileUploadsForTranslatable($existingSchema);
                 $block->schema([
-                    ...$existingSchema,
                     TextInput::make('jump_mark_label')
                         ->label(__('filament.blocks.jump_mark_label'))
                         ->helperText(__('filament.blocks.jump_mark_label_helper'))
-                        ->maxLength(255),
-                ]);
+                        ->maxLength(255)
+                        ->live(onBlur: true),
+                    ...$existingSchema,
+                ])->label(function (?array $state) use ($defaultLabel): string {
+                    return $state['jump_mark_label']
+                        ?? $state['heading']
+                        ?? $state['title']
+                        ?? $defaultLabel;
+                });
                 $blocks[] = $block;
             }
         }
 
         return $blocks;
+    }
+
+    /**
+     * Patch FileUpload components to handle string state from translatable Builder fields.
+     *
+     * When background_blocks is translatable, the content driver may set FileUpload state
+     * as a raw string instead of an array, causing a TypeError on save. This ensures
+     * FileUpload state is always wrapped in an array before dehydration.
+     *
+     * @param  array  $components  The form components to patch (modified in place via Filament's fluent API).
+     */
+    protected static function patchFileUploadsForTranslatable(array $components): void
+    {
+        foreach ($components as $component) {
+            if ($component instanceof BaseFileUpload) {
+                $component->dehydrateStateUsing(static function (BaseFileUpload $component, string|array|null $state) {
+                    if (is_string($state)) {
+                        $state = filled($state) ? [$state] : [];
+                    }
+
+                    $files = array_values($state ?? []);
+
+                    if ($component->isMultiple()) {
+                        return $files;
+                    }
+
+                    return $files[0] ?? null;
+                });
+            }
+
+            if (method_exists($component, 'getChildComponents')) {
+                static::patchFileUploadsForTranslatable($component->getChildComponents());
+            }
+        }
     }
 
     /**
