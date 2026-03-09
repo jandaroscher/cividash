@@ -308,7 +308,8 @@ class PageResource extends FabricatorPageResource
                     ->addActionLabel(__('filament.actions.add_to_blocks'))
                     ->extraItemActions([
                         static::getBlockActiveToggleAction(),
-                    ]);
+                    ])
+                    ->blockNumbers(false);
 
                 continue;
             }

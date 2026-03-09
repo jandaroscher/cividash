@@ -129,7 +129,8 @@ class TileResource extends Resource
                                                 static::getBlockActiveToggleAction(),
                                             ])
                                             ->collapsible()
-                                            ->collapsed(),
+                                            ->collapsed()
+                                            ->blockNumbers(false),
                                     ]),
 
                                 // Tab 3: metrics
