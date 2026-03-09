@@ -8,6 +8,7 @@ return [
             'categories' => 'Categories',
             'content' => 'Content',
             'user_management' => 'User Management',
+            'installation' => 'Installation',
         ],
     ],
     'pages' => [

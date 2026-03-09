@@ -14,6 +14,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
@@ -86,6 +87,12 @@ class AdminPanelProvider extends PanelProvider
 
                 return null;
             })
+            ->navigationGroups([
+                NavigationGroup::make(fn (): string => __('filament.navigation.groups.content')),
+                NavigationGroup::make(fn (): string => __('filament.navigation.groups.categories')),
+                NavigationGroup::make(fn (): string => __('filament.navigation.groups.settings')),
+                NavigationGroup::make(fn (): string => __('filament.navigation.groups.installation')),
+            ])
             ->sidebarCollapsibleOnDesktop()
             ->login()
             ->globalSearch(false)
