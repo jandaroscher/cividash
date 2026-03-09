@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\CategoryGroup;
 use App\Services\DashboardJsonParser;
 use App\Services\MediaDownloadService;
+use App\Settings\BrandingSettings;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\MetricSeeder;
 use Database\Seeders\TileSeeder;
@@ -100,6 +102,9 @@ class DashboardSeedCommand extends Command
                 // 1c. Seed SDG-Ziele (17 entries from parsed data)
                 $sdgCategoryMap = $categorySeeder->seedSdgZiele($parsed['sdg_ziele']);
 
+                // 1d. Set default branding tile settings
+                $this->seedTileBrandingDefaults();
+
                 // 2. Seed Tiles (with category relations from all groups)
                 $tileSeeder = new TileSeeder;
                 $tileSeeder->setCommand($this);
@@ -136,6 +141,35 @@ class DashboardSeedCommand extends Command
 
             return Command::FAILURE;
         }
+    }
+
+    protected function seedTileBrandingDefaults(): void
+    {
+        $settings = app(BrandingSettings::class);
+        $defaultTenant = \App\Models\Tenant::where('slug', 'default')->first();
+        $tenantId = $defaultTenant?->id;
+
+        if ($settings->tile_color_source_group_id === null && $tenantId) {
+            $dimensionsGroup = CategoryGroup::where('key', 'dimensions')
+                ->where('tenant_id', $tenantId)
+                ->first();
+            if ($dimensionsGroup) {
+                $settings->tile_color_source_group_id = $dimensionsGroup->id;
+                $this->info("Set tile color source to: {$dimensionsGroup->getTranslation('title', 'de')}");
+            }
+        }
+
+        if ($settings->tile_background_category_group_id === null && $tenantId) {
+            $sdgGroup = CategoryGroup::where('key', 'sdg')
+                ->where('tenant_id', $tenantId)
+                ->first();
+            if ($sdgGroup) {
+                $settings->tile_background_category_group_id = $sdgGroup->id;
+                $this->info("Set tile background category group to: {$sdgGroup->getTranslation('title', 'de')}");
+            }
+        }
+
+        $settings->save();
     }
 
     protected function displayDryRunSummary(array $parsed): void

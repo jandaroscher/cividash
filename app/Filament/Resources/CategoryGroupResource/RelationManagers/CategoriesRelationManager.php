@@ -5,6 +5,7 @@ namespace App\Filament\Resources\CategoryGroupResource\RelationManagers;
 use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Resources\CategoryResource;
 use App\Models\Category;
+use App\Settings\BrandingSettings;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
@@ -122,7 +123,7 @@ class CategoriesRelationManager extends RelationManager
                     ->label(__('filament.resources.category_group.items.color'))
                     ->required(false)
                     ->hex()
-                    ->visible(fn (RelationManager $livewire): bool => (bool) $livewire->getOwnerRecord()?->is_color_source),
+                    ->visible(fn (RelationManager $livewire): bool => app(BrandingSettings::class)->tile_color_source_group_id === $livewire->getOwnerRecord()?->id),
                 Forms\Components\Toggle::make('is_active')
                     ->label(__('filament.resources.category_group.items.is_active'))
                     ->default(true),

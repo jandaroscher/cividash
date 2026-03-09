@@ -9,7 +9,6 @@ use App\Models\CategoryGroup;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -67,8 +66,7 @@ class CategoryGroupResource extends Resource
     /**
      * Configure the resource's create/edit form schema.
      *
-     * Contains fields for `key`, `title`, `selection_type`, `is_filterable`, `is_color_source`, `is_active`, and `position`.
-     * The `is_color_source` field enforces that at most one color source exists for the same tenant or globally.
+     * Contains fields for `key`, `title`, `is_active`, and `position`.
      *
      * @return Form The configured form instance with the resource's schema.
      */
@@ -95,31 +93,6 @@ class CategoryGroupResource extends Resource
                         Forms\Components\TextInput::make('title')
                             ->label(__('filament.resources.category_group.title'))
                             ->required(),
-                        Forms\Components\Toggle::make('is_color_source')
-                            ->label(__('filament.resources.category_group.is_color_source'))
-                            ->helperText(__('filament.resources.category_group.is_color_source_description'))
-                            ->default(false)
-                            ->rule(function ($record) {
-                                return function (string $attribute, $value, $fail) use ($record): void {
-                                    if (! $value) {
-                                        return;
-                                    }
-
-                                    $tenantId = Filament::getTenant()?->id;
-
-                                    $query = CategoryGroup::query()
-                                        ->where('is_color_source', true)
-                                        ->when($tenantId, fn ($q) => $q->where('tenant_id', $tenantId), fn ($q) => $q->whereNull('tenant_id'));
-
-                                    if ($record) {
-                                        $query->whereKeyNot($record->id);
-                                    }
-
-                                    if ($query->exists()) {
-                                        $fail(__('filament.resources.category_group.color_source_unique'));
-                                    }
-                                };
-                            }),
                         Forms\Components\TextInput::make('position')
                             ->label(__('filament.resources.category_group.position'))
                             ->required()
@@ -128,22 +101,6 @@ class CategoryGroupResource extends Resource
                         Forms\Components\Toggle::make('is_active')
                             ->label(__('filament.resources.category_group.is_active'))
                             ->default(true),
-                    ]),
-                Forms\Components\Section::make(__('filament.resources.category_group.section_filter'))
-                    ->columns(1)
-                    ->schema([
-                        Forms\Components\Toggle::make('is_filterable')
-                            ->label(__('filament.resources.category_group.is_filterable'))
-                            ->default(false)
-                            ->live(),
-                        Forms\Components\Select::make('selection_type')
-                            ->label(__('filament.resources.category_group.selection_type'))
-                            ->options([
-                                'single' => __('filament.resources.category_group.selection_single'),
-                                'multi' => __('filament.resources.category_group.selection_multi'),
-                            ])
-                            ->required(fn (Get $get): bool => (bool) $get('is_filterable'))
-                            ->visible(fn (Get $get): bool => (bool) $get('is_filterable')),
                     ]),
             ]);
     }
@@ -177,18 +134,6 @@ class CategoryGroupResource extends Resource
                         $expression = static::getSortableTranslationExpression('title', $locale);
                         $query->orderByRaw("{$expression} {$direction}");
                     }),
-                Tables\Columns\TextColumn::make('selection_type')
-                    ->label(__('filament.resources.category_group.selection_type'))
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_filterable')
-                    ->label(__('filament.resources.category_group.is_filterable'))
-                    ->boolean()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_color_source')
-                    ->label(__('filament.resources.category_group.is_color_source'))
-                    ->boolean()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label(__('filament.resources.category_group.is_active'))
                     ->sortable(),
@@ -210,16 +155,6 @@ class CategoryGroupResource extends Resource
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label(__('filament.resources.category_group.is_active')),
-                Tables\Filters\TernaryFilter::make('is_filterable')
-                    ->label(__('filament.resources.category_group.is_filterable')),
-                Tables\Filters\TernaryFilter::make('is_color_source')
-                    ->label(__('filament.resources.category_group.is_color_source')),
-                Tables\Filters\SelectFilter::make('selection_type')
-                    ->label(__('filament.resources.category_group.selection_type'))
-                    ->options([
-                        'single' => __('filament.resources.category_group.selection_single'),
-                        'multi' => __('filament.resources.category_group.selection_multi'),
-                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

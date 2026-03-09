@@ -26,12 +26,9 @@ class AdminCategoryGroupController extends Controller
      * @bodyParam key string required Unique key identifier. Example: sdg-goals
      * @bodyParam title object required Translatable title. Example: {"de": "SDG-Ziele", "en": "SDG Goals"}
      * @bodyParam position integer Display position/order. Example: 1
-     * @bodyParam is_filterable boolean Whether this group is used for filtering. Example: true
-     * @bodyParam is_color_source boolean Whether this group provides tile colors. Example: false
      * @bodyParam is_active boolean Whether the group is active. Example: true
-     * @bodyParam selection_type string Selection mode (single or multi). Example: multi
      *
-     * @response 201 scenario="Category group created" {"data": {"id": 1, "key": "sdg-goals", "title": {"de": "SDG-Ziele", "en": "SDG Goals"}, "position": 1, "is_filterable": true, "is_color_source": false, "is_active": true, "selection_type": "multi", "tenant_id": 1, "created_at": "2025-01-22T10:00:00+00:00"}}
+     * @response 201 scenario="Category group created" {"data": {"id": 1, "key": "sdg-goals", "title": {"de": "SDG-Ziele", "en": "SDG Goals"}, "position": 1, "is_active": true, "tenant_id": 1, "created_at": "2025-01-22T10:00:00+00:00"}}
      * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
      * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
      * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
@@ -47,10 +44,7 @@ class AdminCategoryGroupController extends Controller
                 'key' => $group->key,
                 'title' => $group->getTranslations('title'),
                 'position' => $group->position,
-                'is_filterable' => $group->is_filterable,
-                'is_color_source' => $group->is_color_source,
                 'is_active' => $group->is_active,
-                'selection_type' => $group->selection_type,
                 'tenant_id' => $group->tenant_id,
                 'created_at' => $group->created_at?->toIso8601String(),
             ],
@@ -71,12 +65,9 @@ class AdminCategoryGroupController extends Controller
      * @bodyParam key string Unique key identifier. Example: sdg-goals
      * @bodyParam title object Translatable title. Example: {"de": "Aktualisierter Titel"}
      * @bodyParam position integer Display position/order.
-     * @bodyParam is_filterable boolean Whether this group is used for filtering.
-     * @bodyParam is_color_source boolean Whether this group provides tile colors.
      * @bodyParam is_active boolean Whether the group is active.
-     * @bodyParam selection_type string Selection mode (single or multi).
      *
-     * @response 200 scenario="Category group updated" {"data": {"id": 1, "key": "sdg-goals", "title": {"de": "Aktualisierter Titel", "en": "SDG Goals"}, "position": 1, "is_filterable": true, "is_color_source": false, "is_active": true, "selection_type": "multi", "tenant_id": 1, "updated_at": "2025-01-22T10:30:00+00:00"}}
+     * @response 200 scenario="Category group updated" {"data": {"id": 1, "key": "sdg-goals", "title": {"de": "Aktualisierter Titel", "en": "SDG Goals"}, "position": 1, "is_active": true, "tenant_id": 1, "updated_at": "2025-01-22T10:30:00+00:00"}}
      * @response 400 scenario="Missing tenant context" {"message": "Tenant context required for admin API. Provide a token with tenant_id or use a configured domain.", "error": "missing_tenant_context"}
      * @response 401 scenario="Unauthenticated" {"message": "Unauthenticated."}
      * @response 403 scenario="Missing permission" {"message": "Admin API access denied."}
@@ -95,10 +86,7 @@ class AdminCategoryGroupController extends Controller
                 'key' => $group->key,
                 'title' => $group->getTranslations('title'),
                 'position' => $group->position,
-                'is_filterable' => $group->is_filterable,
-                'is_color_source' => $group->is_color_source,
                 'is_active' => $group->is_active,
-                'selection_type' => $group->selection_type,
                 'tenant_id' => $group->tenant_id,
                 'updated_at' => $group->updated_at?->toIso8601String(),
             ],

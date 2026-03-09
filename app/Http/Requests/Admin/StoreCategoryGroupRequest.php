@@ -22,10 +22,7 @@ class StoreCategoryGroupRequest extends FormRequest
             'title.de' => ['required', 'string', 'max:255'],
             'title.en' => ['nullable', 'string', 'max:255'],
             'position' => ['nullable', 'integer', 'min:0'],
-            'is_filterable' => ['nullable', 'boolean'],
-            'is_color_source' => ['nullable', 'boolean'],
             'is_active' => ['nullable', 'boolean'],
-            'selection_type' => ['nullable', 'string', 'in:single,multi'],
             // tenant_id is explicitly NOT allowed - it comes from context
         ];
     }

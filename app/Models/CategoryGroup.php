@@ -23,17 +23,12 @@ class CategoryGroup extends Model
         'key',
         'title',
         'position',
-        'is_filterable',
-        'is_color_source',
         'is_active',
-        'selection_type',
         'tenant_id',
     ];
 
     protected $casts = [
         'title' => 'array',
-        'is_filterable' => 'boolean',
-        'is_color_source' => 'boolean',
         'is_active' => 'boolean',
     ];
 

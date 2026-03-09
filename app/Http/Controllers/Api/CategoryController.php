@@ -28,7 +28,7 @@ class CategoryController extends Controller
      *
      * @queryParam locale string Locale for translated content (de or en). Example: de
      *
-     * @response 200 scenario="Categories retrieved" {"data": [{"id": 1, "key": "umwelt", "title": {"de": "Umwelt", "en": "Environment"}, "icon": null, "position": 1, "color": "#4CAF50", "group": {"id": 1, "key": "dimensions", "title": {"de": "Dimensionen", "en": "Dimensions"}, "selection_type": "single", "is_color_source": true, "is_filterable": true}}]}
+     * @response 200 scenario="Categories retrieved" {"data": [{"id": 1, "key": "umwelt", "title": {"de": "Umwelt", "en": "Environment"}, "icon": null, "position": 1, "color": "#4CAF50", "group": {"id": 1, "key": "dimensions", "title": {"de": "Dimensionen", "en": "Dimensions"}}}]}
      * @response 200 scenario="Group not found or inactive" {"data": []}
      */
     public function showByGroup(Request $request, string $groupKey): AnonymousResourceCollection

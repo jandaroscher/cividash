@@ -345,9 +345,6 @@ class CategorySeeder extends Seeder
             [
                 'title' => ['de' => 'Handlungsfelder', 'en' => 'Action Fields'],
                 'position' => 0,
-                'is_filterable' => true,
-                'is_color_source' => false,
-                'selection_type' => 'multi',
             ]
         );
     }
@@ -361,9 +358,6 @@ class CategorySeeder extends Seeder
             [
                 'title' => ['de' => 'Handlungsdimensionen', 'en' => 'Action Dimensions'],
                 'position' => 1,
-                'is_filterable' => true,
-                'is_color_source' => true,
-                'selection_type' => 'single',
             ]
         );
     }
@@ -377,9 +371,6 @@ class CategorySeeder extends Seeder
             [
                 'title' => ['de' => 'SDG-Ziele', 'en' => 'SDG Goals'],
                 'position' => 2,
-                'is_filterable' => true,
-                'is_color_source' => false,
-                'selection_type' => 'multi',
             ]
         );
     }

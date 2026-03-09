@@ -60,6 +60,10 @@ class BrandingSettings extends Settings
 
     public ?string $typography_custom_font_file;
 
+    public ?int $tile_color_source_group_id;
+
+    public ?int $tile_background_category_group_id;
+
     /**
      * Get the settings group name for branding.
      *

@@ -22,10 +22,7 @@ class UpdateCategoryGroupRequest extends FormRequest
             'title.de' => ['sometimes', 'string', 'max:255'],
             'title.en' => ['nullable', 'string', 'max:255'],
             'position' => ['sometimes', 'nullable', 'integer', 'min:0'],
-            'is_filterable' => ['sometimes', 'boolean'],
-            'is_color_source' => ['sometimes', 'boolean'],
             'is_active' => ['sometimes', 'boolean'],
-            'selection_type' => ['sometimes', 'nullable', 'string', 'in:single,multi'],
             // tenant_id is explicitly NOT allowed - it comes from context and cannot be changed
         ];
     }

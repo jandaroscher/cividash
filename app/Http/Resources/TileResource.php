@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Services\Content\BlockTransformer;
+use App\Settings\BrandingSettings;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
@@ -97,8 +98,14 @@ class TileResource extends JsonResource
             return null;
         }
 
+        $configuredGroupId = app(BrandingSettings::class)->tile_color_source_group_id;
+
+        if (! $configuredGroupId) {
+            return null;
+        }
+
         foreach ($this->categories as $category) {
-            if ($category->relationLoaded('group') && $category->group?->is_color_source) {
+            if ($category->relationLoaded('group') && $category->group?->id === $configuredGroupId && $category->color !== null) {
                 return $category->color;
             }
         }

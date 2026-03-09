@@ -6,6 +6,7 @@ use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Models\Category;
 use App\Models\CategoryGroup;
+use App\Settings\BrandingSettings;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -156,7 +157,8 @@ class CategoryResource extends Resource
                             ->label(__('filament.resources.category.color'))
                             ->required(false)
                             ->hex()
-                            ->visible(fn (Get $get): bool => (bool) CategoryGroup::find($get('category_group_id'))?->is_color_source),
+                            ->visible(fn (Get $get): bool => app(BrandingSettings::class)->tile_color_source_group_id !== null
+                                && (int) $get('category_group_id') === app(BrandingSettings::class)->tile_color_source_group_id),
                         Forms\Components\TextInput::make('position')
                             ->label(__('filament.resources.category.position'))
                             ->required()

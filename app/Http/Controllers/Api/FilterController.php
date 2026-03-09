@@ -18,8 +18,8 @@ class FilterController extends Controller
     /**
      * Get available filters
      *
-     * Returns locale-specific filter labels and filterable category groups with their categories.
-     * Only active and filterable groups/categories are included, ordered by position.
+     * Returns locale-specific filter labels and active category groups with their categories.
+     * Only active groups/categories are included, ordered by position.
      *
      * @unauthenticated
      *
@@ -47,7 +47,6 @@ class FilterController extends Controller
         ];
 
         $groups = CategoryGroup::query()
-            ->where('is_filterable', true)
             ->where('is_active', true)
             ->with(['categories' => function ($query) {
                 $query->where('is_active', true)

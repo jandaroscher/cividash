@@ -2,7 +2,9 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\CategoryGroup;
 use App\Settings\BrandingSettings;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\ColorPicker;
@@ -11,7 +13,6 @@ use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Actions\Action;
 use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
 
@@ -63,6 +64,24 @@ class ManageBranding extends SettingsPage
     {
         return $form
             ->schema([
+                Forms\Components\Section::make(__('filament.pages.manage_branding.tile_section'))
+                    ->schema([
+                        Select::make('tile_color_source_group_id')
+                            ->label(__('filament.pages.manage_branding.tile_color_source_group'))
+                            ->helperText(__('filament.pages.manage_branding.tile_color_source_group_helper'))
+                            ->options(fn () => $this->getActiveCategoryGroupOptions())
+                            ->searchable()
+                            ->nullable(),
+
+                        Select::make('tile_background_category_group_id')
+                            ->label(__('filament.pages.manage_branding.tile_background_category_group'))
+                            ->helperText(__('filament.pages.manage_branding.tile_background_category_group_helper'))
+                            ->options(fn () => $this->getActiveCategoryGroupOptions())
+                            ->searchable()
+                            ->nullable(),
+                    ])
+                    ->columns(2),
+
                 Forms\Components\Section::make(__('filament.pages.manage_branding.colors_section'))
                     ->schema([
                         ColorPicker::make('primary_color')
@@ -330,5 +349,14 @@ class ManageBranding extends SettingsPage
                     ])
                     ->columns(3),
             ]);
+    }
+
+    private function getActiveCategoryGroupOptions(): array
+    {
+        return CategoryGroup::where('is_active', true)
+            ->orderBy('position')
+            ->get()
+            ->mapWithKeys(fn (CategoryGroup $group) => [$group->id => $group->getTranslation('title', app()->getLocale())])
+            ->toArray();
     }
 }

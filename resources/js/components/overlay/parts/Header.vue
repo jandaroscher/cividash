@@ -80,12 +80,12 @@
                     <span class="px-2 py-0.5">{{ contributionLabel }}</span>
                 </a>
             </div>
-            <div v-if="sdgZiele && sdgZiele.length > 0" class="flex flex-row gap-4">
+            <div v-if="backgroundCategories && backgroundCategories.length > 0" class="flex flex-row gap-4">
                 <img
-                    v-for="sdg in sdgZiele"
-                    :key="sdg.id"
-                    :alt="sdgTitle(sdg)"
-                    :src="sdgIcon(sdg)"
+                    v-for="cat in backgroundCategories"
+                    :key="cat.id"
+                    :alt="categoryTitle(cat)"
+                    :src="categoryIcon(cat)"
                     width="100"
                     loading="lazy"
                 />
@@ -122,9 +122,11 @@ const title = computed(() => {
     );
 });
 
-const sdgZiele = computed(() => {
+const backgroundCategories = computed(() => {
+    const groupKey = brandingStore.tileBackgroundCategoryGroupKey;
+    if (!groupKey) return [];
     const categories = props.tile?.categories || [];
-    return categories.filter(category => category.group?.key === 'sdg');
+    return categories.filter(category => category.group?.key === groupKey);
 });
 
 // Check if sections exist based on background blocks
@@ -163,20 +165,20 @@ const contributionLabel = computed(() => {
     return currentLocale.value === 'en' ? 'Your Contribution' : 'Ihr Beitrag';
 });
 
-function sdgIcon(sdg) {
-    if (!sdg.icon) return '';
-    if (typeof sdg.icon === 'string') {
-        return sdg.icon;
+function categoryIcon(cat) {
+    if (!cat.icon) return '';
+    if (typeof cat.icon === 'string') {
+        return cat.icon;
     }
-    return sdg.icon[currentLocale.value] || sdg.icon.de || sdg.icon.en || '';
+    return cat.icon[currentLocale.value] || cat.icon.de || cat.icon.en || '';
 }
 
-function sdgTitle(sdg) {
-    if (!sdg.title) return 'SDG';
-    if (typeof sdg.title === 'string') {
-        return sdg.title;
+function categoryTitle(cat) {
+    if (!cat.title) return '';
+    if (typeof cat.title === 'string') {
+        return cat.title;
     }
-    return sdg.title[currentLocale.value] || sdg.title.de || sdg.title.en || 'SDG';
+    return cat.title[currentLocale.value] || cat.title.de || cat.title.en || '';
 }
 
 function scrollToSection(sectionId) {

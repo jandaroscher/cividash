@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\UpdateFooterRequest;
 use App\Http\Requests\Admin\UpdateGeneralRequest;
 use App\Http\Requests\Admin\UpdateNavigationRequest;
 use App\Http\Requests\UpdateBrandingRequest;
+use App\Models\CategoryGroup;
 use App\Models\FooterNavigation;
 use App\Models\Navigation;
 use App\Models\Tenant;
@@ -78,6 +79,8 @@ class ConfigController extends Controller
             'typography_custom_font_file' => $settings->typography_custom_font_file
                 ? Storage::disk('public')->url($settings->typography_custom_font_file)
                 : null,
+            'tile_color_source_group_key' => $this->resolveCategoryGroupKey($settings->tile_color_source_group_id),
+            'tile_background_category_group_key' => $this->resolveCategoryGroupKey($settings->tile_background_category_group_id),
         ]);
     }
 
@@ -788,6 +791,13 @@ class ConfigController extends Controller
             'typography_custom_font_file' => $settings->typography_custom_font_file
                 ? Storage::disk('public')->url($settings->typography_custom_font_file)
                 : null,
+            'tile_color_source_group_key' => $this->resolveCategoryGroupKey($settings->tile_color_source_group_id),
+            'tile_background_category_group_key' => $this->resolveCategoryGroupKey($settings->tile_background_category_group_id),
         ]);
+    }
+
+    private function resolveCategoryGroupKey(?int $id): ?string
+    {
+        return $id ? CategoryGroup::find($id)?->key : null;
     }
 }

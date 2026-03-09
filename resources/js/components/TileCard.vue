@@ -170,8 +170,10 @@ const tileColor = computed(() => {
     if (props.tile.tile_color) {
         return props.tile.tile_color;
     }
+    const groupKey = brandingStore.tileColorSourceGroupKey;
+    if (!groupKey) return null;
     const categories = props.tile.categories || [];
-    const colorCategory = categories.find(category => category.group?.is_color_source && category.color);
+    const colorCategory = categories.find(category => category.group?.key === groupKey && category.color);
     return colorCategory?.color || null;
 });
 

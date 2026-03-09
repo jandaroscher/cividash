@@ -56,20 +56,29 @@ return new class extends Migration
     {
         $now = now();
         $hasIsActive = Schema::hasColumn('category_groups', 'is_active');
+        $hasIsColorSource = Schema::hasColumn('category_groups', 'is_color_source');
+        $hasIsFilterable = Schema::hasColumn('category_groups', 'is_filterable');
+        $hasSelectionType = Schema::hasColumn('category_groups', 'selection_type');
 
         $fieldsData = [
             'tenant_id' => $tenantId,
             'key' => 'fields',
             'title' => json_encode(['de' => 'Handlungsfelder', 'en' => 'Action Fields']),
             'position' => 0,
-            'is_filterable' => true,
-            'is_color_source' => false,
-            'selection_type' => 'multi',
             'created_at' => $now,
             'updated_at' => $now,
         ];
+        if ($hasIsFilterable) {
+            $fieldsData['is_filterable'] = true;
+        }
+        if ($hasSelectionType) {
+            $fieldsData['selection_type'] = 'multi';
+        }
         if ($hasIsActive) {
             $fieldsData['is_active'] = true;
+        }
+        if ($hasIsColorSource) {
+            $fieldsData['is_color_source'] = false;
         }
 
         $fieldsId = DB::table('category_groups')
@@ -89,14 +98,20 @@ return new class extends Migration
             'key' => 'dimensions',
             'title' => json_encode(['de' => 'Handlungsdimensionen', 'en' => 'Action Dimensions']),
             'position' => 1,
-            'is_filterable' => true,
-            'is_color_source' => true,
-            'selection_type' => 'single',
             'created_at' => $now,
             'updated_at' => $now,
         ];
+        if ($hasIsFilterable) {
+            $dimensionsData['is_filterable'] = true;
+        }
+        if ($hasSelectionType) {
+            $dimensionsData['selection_type'] = 'single';
+        }
         if ($hasIsActive) {
             $dimensionsData['is_active'] = true;
+        }
+        if ($hasIsColorSource) {
+            $dimensionsData['is_color_source'] = true;
         }
 
         $dimensionsId = DB::table('category_groups')
@@ -116,14 +131,20 @@ return new class extends Migration
             'key' => 'sdg',
             'title' => json_encode(['de' => 'SDG-Ziele', 'en' => 'SDG Goals']),
             'position' => 2,
-            'is_filterable' => true,
-            'is_color_source' => false,
-            'selection_type' => 'multi',
             'created_at' => $now,
             'updated_at' => $now,
         ];
+        if ($hasIsFilterable) {
+            $sdgData['is_filterable'] = true;
+        }
+        if ($hasSelectionType) {
+            $sdgData['selection_type'] = 'multi';
+        }
         if ($hasIsActive) {
             $sdgData['is_active'] = true;
+        }
+        if ($hasIsColorSource) {
+            $sdgData['is_color_source'] = false;
         }
 
         $sdgId = DB::table('category_groups')

@@ -148,7 +148,6 @@ class E2ESeedFullCommand extends Command
             [
                 'title' => ['de' => "Gruppe {$label}", 'en' => "Group {$label}"],
                 'position' => 1,
-                'is_filterable' => true,
                 'is_active' => true,
             ]
         );

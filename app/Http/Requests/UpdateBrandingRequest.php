@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateBrandingRequest extends FormRequest
 {
@@ -56,6 +57,20 @@ class UpdateBrandingRequest extends FormRequest
             'typography_font_sizes.*' => ['string', 'regex:/^[\d.]+(rem|px)$/'],
             'typography_custom_font_name' => ['nullable', 'string', 'max:255'],
             'typography_custom_font_file' => ['nullable', 'string', 'max:500', 'regex:/^(?!.*\.\.)[\w\-\/.:%?&=+~#@]+$/'],
+            'tile_color_source_group_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('category_groups', 'id')
+                    ->where('tenant_id', $this->attributes->get('resolved_tenant')?->id)
+                    ->where('is_active', true),
+            ],
+            'tile_background_category_group_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('category_groups', 'id')
+                    ->where('tenant_id', $this->attributes->get('resolved_tenant')?->id)
+                    ->where('is_active', true),
+            ],
         ];
     }
 }

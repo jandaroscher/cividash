@@ -516,7 +516,7 @@ class TileResource extends Resource
      * configured for search and preload, and hydrated from a record's related categories for this group.
      *
      * @param  CategoryGroup  $group  The category group used to build the field and its options.
-     * @return Select The configured Select field instance (set to allow multiple selection when the group is configured as multi).
+     * @return Select The configured Select field instance (always allows multiple selection).
      */
     protected static function makeCategoryGroupField(CategoryGroup $group): Select
     {
@@ -565,12 +565,9 @@ class TileResource extends Resource
                     ->pluck('id')
                     ->all();
 
-                $component->state($group->selection_type === 'multi' ? $selected : ($selected[0] ?? null));
-            });
-
-        if ($group->selection_type === 'multi') {
-            $field->multiple();
-        }
+                $component->state($selected);
+            })
+            ->multiple();
 
         return $field;
     }
@@ -626,9 +623,8 @@ class TileResource extends Resource
      * Synchronizes a Tile's category relationships from category-group form state.
      *
      * Reads category selections for every CategoryGroup from the provided state (keys produced by
-     * getCategoryGroupFieldName), accumulates selected category IDs (honoring each group's
-     * `selection_type` of `multi` or single), deduplicates them, and syncs the Tile's `categories`
-     * relation to match.
+     * getCategoryGroupFieldName), accumulates selected category IDs, deduplicates them, and syncs
+     * the Tile's `categories` relation to match.
      *
      * @param  Tile  $tile  The Tile model whose categories will be synchronized.
      * @param  array  $state  Associative array of category-group field values keyed by
@@ -638,7 +634,7 @@ class TileResource extends Resource
     public static function syncCategoryGroupSelections(Tile $tile, array $state): void
     {
         $categoryIds = [];
-        $groups = CategoryGroup::query()->get(['id', 'selection_type']);
+        $groups = CategoryGroup::query()->get(['id']);
 
         foreach ($groups as $group) {
             $fieldName = static::getCategoryGroupFieldName($group->id);
@@ -653,16 +649,9 @@ class TileResource extends Resource
                 continue;
             }
 
-            if ($group->selection_type === 'multi') {
-                foreach ((array) $value as $id) {
-                    if (is_numeric($id)) {
-                        $categoryIds[] = (int) $id;
-                    }
-                }
-            } else {
-                // Single select - reject arrays, only accept numeric scalars
-                if (! is_array($value) && is_numeric($value)) {
-                    $categoryIds[] = (int) $value;
+            foreach ((array) $value as $id) {
+                if (is_numeric($id)) {
+                    $categoryIds[] = (int) $id;
                 }
             }
         }

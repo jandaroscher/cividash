@@ -44,6 +44,8 @@ export const useBrandingStore = defineStore('branding', {
         navTextColor: '#374151',
         navTextColorInactive: '#9CA3AF',
         navHoverColor: '#FCA5A5',
+        tileColorSourceGroupKey: null,
+        tileBackgroundCategoryGroupKey: null,
     }),
     actions: {
         async fetch() {
@@ -83,6 +85,8 @@ export const useBrandingStore = defineStore('branding', {
                     nav_text_color,
                     nav_text_color_inactive,
                     nav_hover_color,
+                    tile_color_source_group_key,
+                    tile_background_category_group_key,
                 } = json.data;
 
                 this.primaryColor = primary_color || this.primaryColor;
@@ -126,6 +130,10 @@ export const useBrandingStore = defineStore('branding', {
                 this.navTextColor = nav_text_color !== undefined ? nav_text_color : this.navTextColor;
                 this.navTextColorInactive = nav_text_color_inactive !== undefined ? nav_text_color_inactive : this.navTextColorInactive;
                 this.navHoverColor = nav_hover_color !== undefined ? nav_hover_color : this.navHoverColor;
+
+                // Tile configuration
+                this.tileColorSourceGroupKey = tile_color_source_group_key || null;
+                this.tileBackgroundCategoryGroupKey = tile_background_category_group_key || null;
 
                 // Load font (Google Font or Custom Font)
                 if (this.customFontFile && this.customFontName) {

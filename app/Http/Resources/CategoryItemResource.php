@@ -22,7 +22,7 @@ class CategoryItemResource extends JsonResource
      *                             - `icon`: public URL string, localized set of URLs, or null
      *                             - `position`: resource position
      *                             - `color`: resource color
-     *                             - `group` (when loaded): array with `id`, `key`, `title`, `selection_type`, `is_color_source`, and `is_filterable`
+     *                             - `group` (when loaded): array with `id`, `key`, and `title`
      */
     public function toArray(Request $request): array
     {
@@ -51,9 +51,6 @@ class CategoryItemResource extends JsonResource
                     'id' => $group->id,
                     'key' => $group->key,
                     'title' => $groupTitle,
-                    'selection_type' => $group->selection_type,
-                    'is_color_source' => $group->is_color_source,
-                    'is_filterable' => $group->is_filterable,
                 ];
             }),
         ];

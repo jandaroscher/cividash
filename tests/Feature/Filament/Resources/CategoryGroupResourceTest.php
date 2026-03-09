@@ -74,7 +74,6 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => '',
                 'title' => 'Test',
-                'selection_type' => 'multi',
                 'position' => 0,
             ])
             ->call('create')
@@ -87,7 +86,6 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => 'Invalid Key!',
                 'title' => 'Test',
-                'selection_type' => 'multi',
                 'position' => 0,
             ])
             ->call('create')
@@ -100,7 +98,6 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => 'UpperCase',
                 'title' => 'Test',
-                'selection_type' => 'multi',
                 'position' => 0,
             ])
             ->call('create')
@@ -113,7 +110,6 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => '1invalid',
                 'title' => 'Test',
-                'selection_type' => 'multi',
                 'position' => 0,
             ])
             ->call('create')
@@ -126,43 +122,10 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => 'test-key',
                 'title' => '',
-                'selection_type' => 'multi',
                 'position' => 0,
             ])
             ->call('create')
             ->assertHasFormErrors(['title' => 'required']);
-    }
-
-    public function test_create_selection_type_is_required_when_filterable(): void
-    {
-        Livewire::test(CreateCategoryGroup::class)
-            ->fillForm([
-                'key' => 'test-key',
-                'title' => 'Test',
-                'is_filterable' => true,
-                'selection_type' => null,
-                'position' => 0,
-            ])
-            ->call('create')
-            ->assertHasFormErrors(['selection_type' => 'required']);
-    }
-
-    public function test_selection_type_hidden_when_not_filterable(): void
-    {
-        Livewire::test(CreateCategoryGroup::class)
-            ->fillForm([
-                'is_filterable' => false,
-            ])
-            ->assertFormFieldIsHidden('selection_type');
-    }
-
-    public function test_selection_type_visible_when_filterable(): void
-    {
-        Livewire::test(CreateCategoryGroup::class)
-            ->fillForm([
-                'is_filterable' => true,
-            ])
-            ->assertFormFieldIsVisible('selection_type');
     }
 
     public function test_create_form_accepts_valid_data(): void
@@ -171,18 +134,12 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => 'valid-key-123',
                 'title' => 'Valid Group',
-                'is_filterable' => true,
-                'selection_type' => 'single',
-                'is_color_source' => false,
                 'is_active' => true,
                 'position' => 5,
             ])
             ->assertFormSet([
                 'key' => 'valid-key-123',
                 'title' => 'Valid Group',
-                'is_filterable' => true,
-                'selection_type' => 'single',
-                'is_color_source' => false,
                 'is_active' => true,
                 'position' => 5,
             ]);
@@ -194,8 +151,6 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => 'new-group',
                 'title' => 'Neue Gruppe',
-                'is_filterable' => false,
-                'is_color_source' => false,
                 'is_active' => true,
                 'position' => 0,
             ])
@@ -206,30 +161,6 @@ class CategoryGroupResourceTest extends TestCase
             'key' => 'new-group',
             'tenant_id' => $this->tenant->id,
         ]);
-    }
-
-    public function test_create_selection_type_has_no_default(): void
-    {
-        Livewire::test(CreateCategoryGroup::class)
-            ->assertFormSet([
-                'selection_type' => null,
-            ]);
-    }
-
-    public function test_create_is_filterable_defaults_to_false(): void
-    {
-        Livewire::test(CreateCategoryGroup::class)
-            ->assertFormSet([
-                'is_filterable' => false,
-            ]);
-    }
-
-    public function test_create_is_color_source_defaults_to_false(): void
-    {
-        Livewire::test(CreateCategoryGroup::class)
-            ->assertFormSet([
-                'is_color_source' => false,
-            ]);
     }
 
     // ========== Edit Page ==========
@@ -247,9 +178,6 @@ class CategoryGroupResourceTest extends TestCase
         $group = CategoryGroup::factory()->forTenant($this->tenant)->create([
             'key' => 'loaded-group',
             'title' => ['de' => 'Geladene Gruppe', 'en' => 'Loaded Group'],
-            'selection_type' => 'single',
-            'is_filterable' => true,
-            'is_color_source' => false,
             'is_active' => true,
             'position' => 10,
         ]);
@@ -258,9 +186,6 @@ class CategoryGroupResourceTest extends TestCase
             ->assertFormSet([
                 'key' => 'loaded-group',
                 'title' => 'Geladene Gruppe',
-                'selection_type' => 'single',
-                'is_filterable' => true,
-                'is_color_source' => false,
                 'is_active' => true,
                 'position' => 10,
             ]);
@@ -281,16 +206,12 @@ class CategoryGroupResourceTest extends TestCase
         $group = CategoryGroup::factory()->forTenant($this->tenant)->create([
             'key' => 'edit-test',
             'title' => ['de' => 'Alt', 'en' => 'Old'],
-            'selection_type' => 'multi',
-            'is_filterable' => false,
             'position' => 1,
         ]);
 
         Livewire::test(EditCategoryGroup::class, ['record' => $group->getRouteKey()])
             ->fillForm([
                 'title' => 'Aktualisiert',
-                'is_filterable' => true,
-                'selection_type' => 'single',
                 'position' => 50,
             ])
             ->call('save')
@@ -298,8 +219,6 @@ class CategoryGroupResourceTest extends TestCase
 
         $group->refresh();
         $this->assertEquals('Aktualisiert', $group->getTranslation('title', 'de'));
-        $this->assertEquals('single', $group->selection_type);
-        $this->assertTrue($group->is_filterable);
         $this->assertEquals(50, $group->position);
     }
 

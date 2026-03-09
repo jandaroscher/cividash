@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import TileCard from '@/components/TileCard.vue';
+import { useBrandingStore } from '@/stores/branding';
 
 // Mock composables that use vue-router internally
 vi.mock('@/composables/useLocale', () => ({
@@ -97,6 +98,10 @@ describe('TileCard', () => {
     });
 
     it('applies background color from category color source when tile_color is not set', () => {
+        // Set branding store to use 'dimensions' as color source
+        const brandingStore = useBrandingStore();
+        brandingStore.tileColorSourceGroupKey = 'dimensions';
+
         const tile = createTile({
             tile_color: null,
             categories: [
@@ -104,7 +109,7 @@ describe('TileCard', () => {
                     id: 1,
                     key: 'cat-1',
                     color: '#00AA00',
-                    group: { key: 'dimensions', is_color_source: true },
+                    group: { key: 'dimensions' },
                 },
             ],
         });
