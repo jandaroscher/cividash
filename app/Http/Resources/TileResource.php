@@ -71,7 +71,9 @@ class TileResource extends JsonResource
             // Background blocks: transform from Filament Builder format to API format
             'background_blocks' => $locale
                 ? $blockTransformer->transform($this->getTranslation('background_blocks', $locale) ?? [])
-                : $blockTransformer->transform($this->getTranslation('background_blocks', 'de') ?? []),
+                : collect($this->getTranslations('background_blocks'))
+                    ->map(fn ($blocks) => $blockTransformer->transform($blocks ?? []))
+                    ->all(),
 
             // Metric definitions: new structure (Option B)
             'metric_definitions' => MetricDefinitionResource::collection(
