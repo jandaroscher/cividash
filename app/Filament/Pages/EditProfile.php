@@ -19,6 +19,8 @@ class EditProfile extends Page implements HasForms
 {
     use InteractsWithForms;
 
+    protected static ?string $slug = 'profile';
+
     protected static bool $shouldRegisterNavigation = false;
 
     protected static string $view = 'filament.pages.edit-profile';

@@ -11,6 +11,7 @@ use Filament\Pages\Tenancy\EditTenantProfile as BaseEditTenantProfile;
 
 class EditTenantProfile extends BaseEditTenantProfile
 {
+    protected static ?string $slug = 'dashboard-configuration';
     public static function canAccess(): bool
     {
         return (bool) Filament::auth()->user()?->is_admin;

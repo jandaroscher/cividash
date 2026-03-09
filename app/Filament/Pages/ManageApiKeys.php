@@ -32,6 +32,8 @@ class ManageApiKeys extends Page implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    protected static ?string $slug = 'api-keys';
+
     protected static ?string $navigationIcon = 'heroicon-o-key';
 
     protected static ?int $navigationSort = 25;
