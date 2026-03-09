@@ -91,7 +91,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.content')),
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.categories')),
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.settings')),
-                NavigationGroup::make(fn (): string => __('filament.navigation.groups.installation')),
+                NavigationGroup::make(fn (): string => __('filament.navigation.groups.system')),
             ])
             ->sidebarCollapsibleOnDesktop()
             ->login()

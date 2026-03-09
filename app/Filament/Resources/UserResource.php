@@ -31,7 +31,7 @@ class UserResource extends Resource
 
     public static function getNavigationGroup(): string
     {
-        return __('filament.navigation.groups.installation');
+        return __('filament.navigation.groups.system');
     }
 
     public static function getNavigationLabel(): string

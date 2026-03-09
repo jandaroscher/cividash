@@ -8,7 +8,7 @@ return [
             'categories' => 'Kategorien',
             'content' => 'Inhalte',
             'user_management' => 'Benutzerverwaltung',
-            'installation' => 'Installation',
+            'system' => 'System',
         ],
     ],
     'pages' => [
