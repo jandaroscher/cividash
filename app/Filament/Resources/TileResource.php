@@ -113,10 +113,6 @@ class TileResource extends Resource
                                             ->view('filament.forms.components.lottie-preview')
                                             ->dehydrated(false)
                                             ->afterStateHydrated(fn ($component, $record) => $component->state($record?->icon)),
-                                        TextInput::make('position')
-                                            ->label(__('filament.resources.tile.position'))
-                                            ->numeric()
-                                            ->default(0),
                                     ]),
 
                                 // Tab 2: background page
@@ -485,6 +481,14 @@ class TileResource extends Resource
                     ->openUrlInNewTab(),
                 Tables\Actions\DeleteAction::make(),
             ])
+            ->reorderable('position')
+            ->defaultSort('position')
+            ->reorderRecordsTriggerAction(
+                fn (Tables\Actions\Action $action, bool $isReordering) => $action
+                    ->link()
+                    ->label($isReordering ? __('filament.actions.stop_sorting') : __('filament.actions.start_sorting'))
+                    ->color('primary')
+            )
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

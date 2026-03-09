@@ -569,6 +569,8 @@ return [
         'add_to_faq_items' => 'Zu FAQ-Einträgen hinzufügen',
         'add_to_blocks' => 'Zu Blöcke hinzufügen',
         'insert_page_link' => 'Seiten-Link einfügen',
+        'start_sorting' => 'Einträge sortieren',
+        'stop_sorting' => 'Sortieren beenden',
     ],
     'fields' => [
         'select_page' => 'Seite auswählen',

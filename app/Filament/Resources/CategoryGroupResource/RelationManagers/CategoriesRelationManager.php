@@ -127,11 +127,6 @@ class CategoriesRelationManager extends RelationManager
                 Forms\Components\Toggle::make('is_active')
                     ->label(__('filament.resources.category_group.items.is_active'))
                     ->default(true),
-                Forms\Components\TextInput::make('position')
-                    ->label(__('filament.resources.category_group.items.position'))
-                    ->required()
-                    ->numeric()
-                    ->default(0),
             ]);
     }
 
@@ -220,6 +215,14 @@ class CategoriesRelationManager extends RelationManager
                     ->icon('heroicon-o-pencil-square')
                     ->url(fn ($record) => CategoryResource::getUrl('edit', ['record' => $record])),
             ])
+            ->reorderable('position')
+            ->defaultSort('position')
+            ->reorderRecordsTriggerAction(
+                fn (Tables\Actions\Action $action, bool $isReordering) => $action
+                    ->link()
+                    ->label($isReordering ? __('filament.actions.stop_sorting') : __('filament.actions.start_sorting'))
+                    ->color('primary')
+            )
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

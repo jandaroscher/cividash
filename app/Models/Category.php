@@ -13,6 +13,17 @@ class Category extends Model
     use HasFactory;
     use HasTranslations;
 
+    protected static function booted(): void
+    {
+        static::creating(function (self $category) {
+            if (is_null($category->position)) {
+                DB::transaction(function () use ($category) {
+                    $category->position = (int) static::where('category_group_id', $category->category_group_id)->lockForUpdate()->max('position') + 1;
+                });
+            }
+        });
+    }
+
     public array $translatable = [
         'slug',
     ];

@@ -15,6 +15,17 @@ class CategoryGroup extends Model
     use HasFactory;
     use HasTranslations;
 
+    protected static function booted(): void
+    {
+        static::creating(function (self $group) {
+            if (is_null($group->position)) {
+                DB::transaction(function () use ($group) {
+                    $group->position = (int) static::where('tenant_id', $group->tenant_id)->lockForUpdate()->max('position') + 1;
+                });
+            }
+        });
+    }
+
     public array $translatable = [
         'title',
     ];

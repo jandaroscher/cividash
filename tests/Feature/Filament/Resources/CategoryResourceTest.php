@@ -79,7 +79,6 @@ class CategoryResourceTest extends TestCase
             ->fillForm([
                 'slug' => '',
                 'category_group_id' => $this->group->id,
-                'position' => 0,
             ])
             ->call('create')
             ->assertHasFormErrors(['slug' => 'required']);
@@ -91,22 +90,9 @@ class CategoryResourceTest extends TestCase
             ->fillForm([
                 'slug' => 'Test',
                 'category_group_id' => null,
-                'position' => 0,
             ])
             ->call('create')
             ->assertHasFormErrors(['category_group_id' => 'required']);
-    }
-
-    public function test_create_category_position_is_required(): void
-    {
-        Livewire::test(CreateCategory::class)
-            ->fillForm([
-                'slug' => 'Test',
-                'category_group_id' => $this->group->id,
-                'position' => null,
-            ])
-            ->call('create')
-            ->assertHasFormErrors(['position' => 'required']);
     }
 
     public function test_create_category_form_accepts_valid_data(): void
@@ -115,13 +101,11 @@ class CategoryResourceTest extends TestCase
             ->fillForm([
                 'slug' => 'Neue Kategorie',
                 'category_group_id' => $this->group->id,
-                'position' => 3,
                 'is_active' => true,
             ])
             ->assertFormSet([
                 'slug' => 'Neue Kategorie',
                 'category_group_id' => $this->group->id,
-                'position' => 3,
                 'is_active' => true,
             ]);
     }
@@ -131,14 +115,6 @@ class CategoryResourceTest extends TestCase
         Livewire::test(CreateCategory::class)
             ->assertFormSet([
                 'is_active' => true,
-            ]);
-    }
-
-    public function test_create_category_position_defaults_to_zero(): void
-    {
-        Livewire::test(CreateCategory::class)
-            ->assertFormSet([
-                'position' => 0,
             ]);
     }
 
@@ -166,7 +142,6 @@ class CategoryResourceTest extends TestCase
     {
         $category = Category::factory()->forGroup($this->group)->create([
             'slug' => ['de' => 'Mobilitat', 'en' => 'Mobility'],
-            'position' => 7,
             'is_active' => true,
         ]);
 
@@ -174,7 +149,6 @@ class CategoryResourceTest extends TestCase
             ->assertFormSet([
                 'slug' => 'Mobilitat',
                 'category_group_id' => $this->group->id,
-                'position' => 7,
                 'is_active' => true,
             ]);
     }
@@ -183,13 +157,11 @@ class CategoryResourceTest extends TestCase
     {
         $category = Category::factory()->forGroup($this->group)->create([
             'slug' => ['de' => 'Alt', 'en' => 'Old'],
-            'position' => 1,
         ]);
 
         Livewire::test(EditCategory::class, ['record' => $category->getRouteKey()])
             ->fillForm([
                 'slug' => 'Aktualisiert',
-                'position' => 99,
                 'is_active' => false,
             ])
             ->call('save')
@@ -197,7 +169,6 @@ class CategoryResourceTest extends TestCase
 
         $category->refresh();
         $this->assertEquals('Aktualisiert', $category->getTranslation('slug', 'de'));
-        $this->assertEquals(99, $category->position);
         $this->assertFalse($category->is_active);
     }
 
@@ -211,6 +182,33 @@ class CategoryResourceTest extends TestCase
             ])
             ->call('save')
             ->assertHasFormErrors(['slug' => 'required']);
+    }
+
+    // ========== Auto-Position ==========
+
+    public function test_new_category_gets_auto_incremented_position(): void
+    {
+        Category::factory()->forGroup($this->group)->create(['position' => 5]);
+        $otherGroup = CategoryGroup::factory()->forTenant($this->tenant)->create();
+        Category::factory()->forGroup($otherGroup)->create(['position' => 99]);
+
+        $category = Category::factory()->forGroup($this->group)->create(['position' => null]);
+
+        $this->assertEquals(6, $category->position);
+    }
+
+    public function test_category_with_explicit_position_keeps_it(): void
+    {
+        $category = Category::factory()->forGroup($this->group)->create(['position' => 10]);
+
+        $this->assertEquals(10, $category->position);
+    }
+
+    public function test_category_with_explicit_position_zero_keeps_it(): void
+    {
+        $category = Category::factory()->forGroup($this->group)->create(['position' => 0]);
+
+        $this->assertEquals(0, $category->position);
     }
 
     // ========== Delete ==========

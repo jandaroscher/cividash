@@ -159,11 +159,6 @@ class CategoryResource extends Resource
                             ->hex()
                             ->visible(fn (Get $get): bool => app(BrandingSettings::class)->tile_color_source_group_id !== null
                                 && (int) $get('category_group_id') === app(BrandingSettings::class)->tile_color_source_group_id),
-                        Forms\Components\TextInput::make('position')
-                            ->label(__('filament.resources.category.position'))
-                            ->required()
-                            ->numeric()
-                            ->default(0),
                         Forms\Components\Toggle::make('is_active')
                             ->label(__('filament.resources.category.is_active'))
                             ->default(true),
@@ -283,6 +278,7 @@ class CategoryResource extends Resource
                     ])),
                 Tables\Actions\DeleteAction::make(),
             ])
+            ->defaultSort('position')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

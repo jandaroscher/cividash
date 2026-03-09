@@ -74,7 +74,6 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => '',
                 'title' => 'Test',
-                'position' => 0,
             ])
             ->call('create')
             ->assertHasFormErrors(['key' => 'required']);
@@ -86,7 +85,6 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => 'Invalid Key!',
                 'title' => 'Test',
-                'position' => 0,
             ])
             ->call('create')
             ->assertHasFormErrors(['key']);
@@ -98,7 +96,6 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => 'UpperCase',
                 'title' => 'Test',
-                'position' => 0,
             ])
             ->call('create')
             ->assertHasFormErrors(['key']);
@@ -110,7 +107,6 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => '1invalid',
                 'title' => 'Test',
-                'position' => 0,
             ])
             ->call('create')
             ->assertHasFormErrors(['key']);
@@ -122,7 +118,6 @@ class CategoryGroupResourceTest extends TestCase
             ->fillForm([
                 'key' => 'test-key',
                 'title' => '',
-                'position' => 0,
             ])
             ->call('create')
             ->assertHasFormErrors(['title' => 'required']);
@@ -135,13 +130,11 @@ class CategoryGroupResourceTest extends TestCase
                 'key' => 'valid-key-123',
                 'title' => 'Valid Group',
                 'is_active' => true,
-                'position' => 5,
             ])
             ->assertFormSet([
                 'key' => 'valid-key-123',
                 'title' => 'Valid Group',
                 'is_active' => true,
-                'position' => 5,
             ]);
     }
 
@@ -152,7 +145,6 @@ class CategoryGroupResourceTest extends TestCase
                 'key' => 'new-group',
                 'title' => 'Neue Gruppe',
                 'is_active' => true,
-                'position' => 0,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -179,7 +171,6 @@ class CategoryGroupResourceTest extends TestCase
             'key' => 'loaded-group',
             'title' => ['de' => 'Geladene Gruppe', 'en' => 'Loaded Group'],
             'is_active' => true,
-            'position' => 10,
         ]);
 
         Livewire::test(EditCategoryGroup::class, ['record' => $group->getRouteKey()])
@@ -187,7 +178,6 @@ class CategoryGroupResourceTest extends TestCase
                 'key' => 'loaded-group',
                 'title' => 'Geladene Gruppe',
                 'is_active' => true,
-                'position' => 10,
             ]);
     }
 
@@ -206,20 +196,17 @@ class CategoryGroupResourceTest extends TestCase
         $group = CategoryGroup::factory()->forTenant($this->tenant)->create([
             'key' => 'edit-test',
             'title' => ['de' => 'Alt', 'en' => 'Old'],
-            'position' => 1,
         ]);
 
         Livewire::test(EditCategoryGroup::class, ['record' => $group->getRouteKey()])
             ->fillForm([
                 'title' => 'Aktualisiert',
-                'position' => 50,
             ])
             ->call('save')
             ->assertHasNoFormErrors();
 
         $group->refresh();
         $this->assertEquals('Aktualisiert', $group->getTranslation('title', 'de'));
-        $this->assertEquals(50, $group->position);
     }
 
     public function test_edit_page_title_is_required(): void
@@ -232,6 +219,33 @@ class CategoryGroupResourceTest extends TestCase
             ])
             ->call('save')
             ->assertHasFormErrors(['title' => 'required']);
+    }
+
+    // ========== Auto-Position ==========
+
+    public function test_new_category_group_gets_auto_incremented_position(): void
+    {
+        CategoryGroup::factory()->forTenant($this->tenant)->create(['position' => 3]);
+        $otherTenant = Tenant::create(['name' => 'Other Tenant', 'slug' => 'other-tenant']);
+        CategoryGroup::factory()->forTenant($otherTenant)->create(['position' => 99]);
+
+        $group = CategoryGroup::factory()->forTenant($this->tenant)->create(['position' => null]);
+
+        $this->assertEquals(4, $group->position);
+    }
+
+    public function test_category_group_with_explicit_position_keeps_it(): void
+    {
+        $group = CategoryGroup::factory()->forTenant($this->tenant)->create(['position' => 10]);
+
+        $this->assertEquals(10, $group->position);
+    }
+
+    public function test_category_group_with_explicit_position_zero_keeps_it(): void
+    {
+        $group = CategoryGroup::factory()->forTenant($this->tenant)->create(['position' => 0]);
+
+        $this->assertEquals(0, $group->position);
     }
 
     // ========== Delete ==========

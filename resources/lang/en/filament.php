@@ -569,6 +569,8 @@ return [
         'add_to_faq_items' => 'Add to FAQ Items',
         'add_to_blocks' => 'Add to Blocks',
         'insert_page_link' => 'Insert page link',
+        'start_sorting' => 'Sort entries',
+        'stop_sorting' => 'Stop sorting',
     ],
     'fields' => [
         'select_page' => 'Select page',

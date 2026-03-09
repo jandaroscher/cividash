@@ -98,14 +98,12 @@ class TileResourceTest extends TestCase
                 'title' => 'Neue Kachel',
                 'slug' => 'neue-kachel',
                 'description' => '<p>Beschreibung</p>',
-                'position' => 5,
                 'is_public' => true,
             ]);
 
         // Verify the form state was set correctly
         $component->assertFormSet([
             'title' => 'Neue Kachel',
-            'position' => 5,
             'is_public' => true,
         ]);
     }
@@ -117,7 +115,6 @@ class TileResourceTest extends TestCase
                 'title' => 'Erstellte Kachel',
                 'slug' => 'erstellte-kachel',
                 'description' => '<p>Beschreibung</p>',
-                'position' => 3,
                 'is_public' => true,
                 'metricDefinitions' => [],
             ])
@@ -137,14 +134,6 @@ class TileResourceTest extends TestCase
             ]);
     }
 
-    public function test_create_tile_position_defaults_to_zero(): void
-    {
-        Livewire::test(CreateTile::class)
-            ->assertFormSet([
-                'position' => 0,
-            ]);
-    }
-
     // ========== Edit Page ==========
 
     public function test_edit_page_renders(): void
@@ -159,14 +148,12 @@ class TileResourceTest extends TestCase
     {
         $tile = Tile::factory()->forTenant($this->tenant)->create([
             'title' => ['de' => 'Originaltitel', 'en' => 'Original Title'],
-            'position' => 42,
             'is_public' => true,
         ]);
 
         Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
             ->assertFormSet([
                 'title' => 'Originaltitel',
-                'position' => 42,
                 'is_public' => true,
             ]);
     }
@@ -180,7 +167,6 @@ class TileResourceTest extends TestCase
         Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
             ->fillForm([
                 'title' => 'Aktualisiert',
-                'position' => 99,
                 'is_public' => false,
             ])
             ->call('save')
@@ -188,7 +174,6 @@ class TileResourceTest extends TestCase
 
         $tile->refresh();
         $this->assertEquals('Aktualisiert', $tile->getTranslation('title', 'de'));
-        $this->assertEquals(99, $tile->position);
         $this->assertFalse($tile->is_public);
     }
 
@@ -241,6 +226,33 @@ class TileResourceTest extends TestCase
             ->call('save')
             ->assertHasFormErrors(['metricDefinitions.0.metricValues.0.tile_year_id'])
             ->assertHasFormErrors(['metricDefinitions.0.metricValues.1.tile_year_id']);
+    }
+
+    // ========== Auto-Position ==========
+
+    public function test_new_tile_gets_auto_incremented_position(): void
+    {
+        Tile::factory()->forTenant($this->tenant)->create(['position' => 3]);
+        $otherTenant = Tenant::create(['name' => 'Other Tenant', 'slug' => 'other-tenant']);
+        Tile::factory()->forTenant($otherTenant)->create(['position' => 99]);
+
+        $tile = Tile::factory()->forTenant($this->tenant)->create(['position' => null]);
+
+        $this->assertEquals(4, $tile->position);
+    }
+
+    public function test_tile_with_explicit_position_keeps_it(): void
+    {
+        $tile = Tile::factory()->forTenant($this->tenant)->create(['position' => 10]);
+
+        $this->assertEquals(10, $tile->position);
+    }
+
+    public function test_tile_with_explicit_position_zero_keeps_it(): void
+    {
+        $tile = Tile::factory()->forTenant($this->tenant)->create(['position' => 0]);
+
+        $this->assertEquals(0, $tile->position);
     }
 
     // ========== Delete ==========

@@ -149,6 +149,20 @@
 }
 
 /**
+ * Hide search field and filters while table reorder mode is active
+ * Uses :has() to detect the reorder indicator that Filament renders only during reordering.
+ */
+.fi-ta:has(.fi-ta-reorder-indicator) .fi-ta-search-field,
+.fi-ta:has(.fi-ta-reorder-indicator) .fi-ta-filters-dropdown,
+.fi-ta:has(.fi-ta-reorder-indicator) .fi-ta-filters-modal,
+.fi-ta:has(.fi-ta-reorder-indicator) .fi-ta-filters-above-content-ctn,
+.fi-ta:has(.fi-ta-reorder-indicator) .fi-ta-filters-below-content,
+.fi-ta:has(.fi-ta-reorder-indicator) .fi-ta-filter-indicators,
+.fi-page:has(.fi-ta-reorder-indicator) .fi-header .fi-ac {
+    display: none !important;
+}
+
+/**
  * Elevation styling for Repeater & Builder items
  * Progressive backgrounds to visually separate nesting levels from the white page.
  * Level 1 (outer): gray-50 / white-5

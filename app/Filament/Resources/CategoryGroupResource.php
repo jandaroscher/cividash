@@ -93,11 +93,6 @@ class CategoryGroupResource extends Resource
                         Forms\Components\TextInput::make('title')
                             ->label(__('filament.resources.category_group.title'))
                             ->required(),
-                        Forms\Components\TextInput::make('position')
-                            ->label(__('filament.resources.category_group.position'))
-                            ->required()
-                            ->numeric()
-                            ->default(0),
                         Forms\Components\Toggle::make('is_active')
                             ->label(__('filament.resources.category_group.is_active'))
                             ->default(true),
@@ -164,6 +159,14 @@ class CategoryGroupResource extends Resource
                     ])),
                 Tables\Actions\DeleteAction::make(),
             ])
+            ->reorderable('position')
+            ->defaultSort('position')
+            ->reorderRecordsTriggerAction(
+                fn (Tables\Actions\Action $action, bool $isReordering) => $action
+                    ->link()
+                    ->label($isReordering ? __('filament.actions.stop_sorting') : __('filament.actions.start_sorting'))
+                    ->color('primary')
+            )
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

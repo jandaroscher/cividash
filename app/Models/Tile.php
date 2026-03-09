@@ -17,6 +17,14 @@ class Tile extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (self $tile) {
+            if (is_null($tile->position)) {
+                DB::transaction(function () use ($tile) {
+                    $tile->position = (int) static::where('tenant_id', $tile->tenant_id)->lockForUpdate()->max('position') + 1;
+                });
+            }
+        });
+
         static::saving(function (self $tile) {
             if (! Schema::hasColumn($tile->getTable(), 'slug')) {
                 return;
