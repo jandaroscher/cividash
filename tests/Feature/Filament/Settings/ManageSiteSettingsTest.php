@@ -67,7 +67,6 @@ class ManageSiteSettingsTest extends TestCase
         Livewire::test(ManageSiteSettings::class)
             ->fillForm([
                 'site_name' => 'My Sustainability Dashboard',
-                'layout_type' => 'single-row',
             ])
             ->call('save')
             ->assertHasNoFormErrors();
@@ -82,7 +81,6 @@ class ManageSiteSettingsTest extends TestCase
         Livewire::test(ManageSiteSettings::class)
             ->fillForm([
                 'site_name' => '',
-                'layout_type' => 'single-row',
             ])
             ->call('save')
             ->assertHasFormErrors(['site_name']);
@@ -93,7 +91,6 @@ class ManageSiteSettingsTest extends TestCase
         Livewire::test(ManageSiteSettings::class)
             ->fillForm([
                 'english_translation_active' => false,
-                'layout_type' => 'single-row',
             ])
             ->call('save')
             ->assertHasNoFormErrors();
@@ -113,11 +110,10 @@ class ManageSiteSettingsTest extends TestCase
         $component->assertFormFieldDoesNotExist('show_language_switcher');
     }
 
-    public function test_footer_layout_type_saves(): void
+    public function test_footer_column_count_saves_and_derives_layout_type(): void
     {
         Livewire::test(ManageSiteSettings::class)
             ->fillForm([
-                'layout_type' => 'multi-column',
                 'columns' => 4,
             ])
             ->call('save')
@@ -131,12 +127,28 @@ class ManageSiteSettingsTest extends TestCase
         $this->assertEquals(4, $footer->columns);
     }
 
+    public function test_footer_single_column_derives_single_row_layout(): void
+    {
+        Livewire::test(ManageSiteSettings::class)
+            ->fillForm([
+                'columns' => 1,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $footer = FooterNavigation::withoutGlobalScope('tenant')
+            ->where('tenant_id', $this->tenant->id)
+            ->first();
+
+        $this->assertEquals('single-row', $footer->layout_type);
+        $this->assertEquals(1, $footer->columns);
+    }
+
     public function test_footer_social_links_enabled_saves(): void
     {
         Livewire::test(ManageSiteSettings::class)
             ->fillForm([
                 'social_links_enabled' => false,
-                'layout_type' => 'single-row',
             ])
             ->call('save')
             ->assertHasNoFormErrors();
@@ -153,7 +165,6 @@ class ManageSiteSettingsTest extends TestCase
         Livewire::test(ManageSiteSettings::class)
             ->fillForm([
                 'copyright_text' => '(c) 2025 Test Company',
-                'layout_type' => 'single-row',
             ])
             ->call('save')
             ->assertHasNoFormErrors();
@@ -199,7 +210,6 @@ class ManageSiteSettingsTest extends TestCase
             ->assertFormSet([
                 'site_name' => 'Existing Site',
                 'english_translation_active' => false,
-                'layout_type' => 'grid',
                 'columns' => 4,
                 'social_links_enabled' => false,
             ]);
@@ -221,9 +231,6 @@ class ManageSiteSettingsTest extends TestCase
     public function test_dropdown_enabled_always_saved_as_true(): void
     {
         Livewire::test(ManageSiteSettings::class)
-            ->fillForm([
-                'layout_type' => 'single-row',
-            ])
             ->call('save')
             ->assertHasNoFormErrors();
 

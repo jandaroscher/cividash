@@ -129,7 +129,7 @@ class TileResource extends Resource
                                                 static::getBlockActiveToggleAction(),
                                             ])
                                             ->collapsible()
-                                            ->collapsed(false),
+                                            ->collapsed(),
                                     ]),
 
                                 // Tab 3: metrics
@@ -276,9 +276,11 @@ class TileResource extends Resource
                                                             ->numeric()
                                                             ->required(),
                                                     ])
-                                                    ->collapsible(),
+                                                    ->collapsible()
+                                                    ->collapsed(),
                                             ])
-                                            ->collapsible(),
+                                            ->collapsible()
+                                            ->collapsed(),
                                     ]),
                             ])
                             ->columnSpan(['lg' => 2]),

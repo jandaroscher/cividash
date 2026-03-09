@@ -153,6 +153,7 @@ return [
             'layout_multi_column' => 'Multi-Column',
             'layout_grid' => 'Grid',
             'columns' => 'Columns',
+            'column_count' => 'Column Count',
             'social_links_enabled' => 'Show Social Media Links',
             'copyright_text' => 'Copyright Text',
             'copyright_text_helper' => 'Use {year} for the current year and {site_name} for the site name',

@@ -35,7 +35,8 @@ class FAQBlock extends PageBlock
                             ->required(),
                     ])
                     ->defaultItems(1)
-                    ->collapsible(),
+                    ->collapsible()
+                    ->collapsed(),
                 Hidden::make('is_active')
                     ->default(true)
                     ->afterStateHydrated(function (Hidden $component, $state): void {

@@ -45,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Configure PageBuilder to make blocks collapsible
         PageBuilder::configureUsing(function (PageBuilder $builder) {
-            $builder->collapsible();
+            $builder->collapsible()->collapsed();
         });
 
         // Persist language switcher changes to user's DB locale

@@ -124,8 +124,9 @@ class ManageSiteSettings extends Page implements HasForms
         );
         $data['copyright_text'] = $copyrightText ?? '';
 
-        $data['layout_type'] = $this->footerRecord->layout_type;
-        $data['columns'] = $this->footerRecord->columns;
+        $data['columns'] = $this->footerRecord->layout_type === 'single-row'
+            ? 1
+            : ($this->footerRecord->columns ?? 1);
         $data['social_links_enabled'] = $this->footerRecord->social_links_enabled;
 
         $data = $this->mutateFormDataBeforeFill($data);
@@ -172,6 +173,7 @@ class ManageSiteSettings extends Page implements HasForms
                                     ->schema($this->navigationItemSchema())
                                     ->defaultItems(0)
                                     ->collapsible()
+                                    ->collapsed()
                                     ->itemLabel(function (array $state): ?string {
                                         $locale = $this->activeLocale ?? app()->getLocale();
 
@@ -186,6 +188,7 @@ class ManageSiteSettings extends Page implements HasForms
                             ])
                             ->reorderable()
                             ->collapsible()
+                            ->collapsed()
                             ->itemLabel(function (array $state): ?string {
                                 $locale = $this->activeLocale ?? app()->getLocale();
 
@@ -209,6 +212,7 @@ class ManageSiteSettings extends Page implements HasForms
                                     ->schema($this->getFooterNavigationItemSchema())
                                     ->reorderable()
                                     ->collapsible()
+                                    ->collapsed()
                                     ->itemLabel(function (array $state): ?string {
                                         $locale = $this->activeLocale ?? app()->getLocale();
 
@@ -221,22 +225,11 @@ class ManageSiteSettings extends Page implements HasForms
                                         static::getBlockActiveToggleAction(),
                                     ]),
 
-                                Select::make('layout_type')
-                                    ->label(__('filament.pages.manage_footer.layout_type'))
-                                    ->options([
-                                        'single-row' => __('filament.pages.manage_footer.layout_single_row'),
-                                        'multi-column' => __('filament.pages.manage_footer.layout_multi_column'),
-                                    ])
-                                    ->default('single-row')
-                                    ->required()
-                                    ->live(),
-
                                 Select::make('columns')
-                                    ->label(__('filament.pages.manage_footer.columns'))
+                                    ->label(__('filament.pages.manage_footer.column_count'))
                                     ->options([1 => '1', 2 => '2', 3 => '3', 4 => '4', 5 => '5'])
-                                    ->default(3)
-                                    ->required(fn ($get) => $get('layout_type') === 'multi-column')
-                                    ->visible(fn ($get) => $get('layout_type') === 'multi-column'),
+                                    ->default(1)
+                                    ->required(),
                             ]),
 
                         Section::make(__('filament.pages.manage_site_settings.section_social_media'))
@@ -264,6 +257,7 @@ class ManageSiteSettings extends Page implements HasForms
                                     ])
                                     ->reorderable()
                                     ->collapsible()
+                                    ->collapsed()
                                     ->itemLabel(fn (array $state): ?string => $state['link'] ?? null)
                                     ->extraItemActions([
                                         static::getBlockActiveToggleAction(),
@@ -392,8 +386,8 @@ class ManageSiteSettings extends Page implements HasForms
             'footer_navigation_items' => $data['footer_navigation_items'],
             'social_links' => $data['social_links'] ?? [],
             'copyright_text' => $data['copyright_text'] ?? '',
-            'layout_type' => $data['layout_type'],
-            'columns' => $data['columns'] ?? $this->footerRecord->columns ?? 3,
+            'layout_type' => 'multi-column',
+            'columns' => $data['columns'] ?? 4,
             'social_links_enabled' => $data['social_links_enabled'] ?? true,
         ]);
         $this->footerRecord->save();

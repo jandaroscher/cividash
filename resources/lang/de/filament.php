@@ -38,6 +38,7 @@ return [
             'layout_multi_column' => 'Mehrspaltig',
             'layout_grid' => 'Grid',
             'columns' => 'Spalten',
+            'column_count' => 'Spaltenanzahl',
             'social_links_enabled' => 'Social Media Links anzeigen',
             'copyright_text' => 'Copyright-Text',
             'copyright_text_helper' => 'Verwende {year} für das aktuelle Jahr und {site_name} für den Seitennamen',

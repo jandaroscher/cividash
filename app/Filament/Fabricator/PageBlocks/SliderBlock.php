@@ -68,7 +68,8 @@ class SliderBlock extends PageBlock
                     ])
                     ->itemLabel(fn (array $state): ?string => $state['title'] ?? null)
                     ->defaultItems(1)
-                    ->collapsible(),
+                    ->collapsible()
+                    ->collapsed(),
                 Hidden::make('is_active')
                     ->default(true)
                     ->afterStateHydrated(function (Hidden $component, $state): void {

@@ -149,6 +149,7 @@ class ManageBranding extends SettingsPage
                             ->defaultItems(3)
                             ->itemLabel(fn (array $state): ?string => $state['weight'] ?? null)
                             ->collapsible()
+                            ->collapsed()
                             ->reorderable()
                             ->addActionLabel(__('filament.actions.add'))
                             ->afterStateHydrated(function ($component, $state) {

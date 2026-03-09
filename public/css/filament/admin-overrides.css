@@ -188,3 +188,44 @@
 .dark .fi-fo-builder-item .fi-fo-builder-item .fi-fo-builder-item {
     background-color: rgba(255, 255, 255, 0.05) !important; /* white/5 */
 }
+
+/**
+ * Collapse/Expand all buttons: styled as small outlined buttons
+ * Makes them visually distinct from headings, tabs, and field labels.
+ */
+.fi-fo-repeater > div > span > .fi-ac-action,
+.fi-fo-builder > div > span > .fi-ac-action {
+    font-size: 0.75rem;           /* text-xs */
+    padding: 0.25rem 0.625rem;    /* py-1 px-2.5 */
+    border: 1px solid #d1d5db;    /* gray-300 border */
+    border-radius: 0.375rem;      /* rounded-md */
+    color: #6b7280;               /* gray-500 text */
+    transition: all 150ms;
+}
+
+.fi-fo-repeater > div > span > .fi-ac-action:hover,
+.fi-fo-repeater > div > span > .fi-ac-action:focus-visible,
+.fi-fo-builder > div > span > .fi-ac-action:hover,
+.fi-fo-builder > div > span > .fi-ac-action:focus-visible {
+    background-color: #f3f4f6;    /* gray-100 */
+    border-color: #9ca3af;        /* gray-400 */
+    color: #374151;               /* gray-700 */
+    text-decoration: none;
+}
+
+/* Dark mode */
+.dark .fi-fo-repeater > div > span > .fi-ac-action,
+.dark .fi-fo-builder > div > span > .fi-ac-action {
+    border-color: #4b5563;        /* gray-600 */
+    color: #9ca3af;               /* gray-400 */
+}
+
+.dark .fi-fo-repeater > div > span > .fi-ac-action:hover,
+.dark .fi-fo-repeater > div > span > .fi-ac-action:focus-visible,
+.dark .fi-fo-builder > div > span > .fi-ac-action:hover,
+.dark .fi-fo-builder > div > span > .fi-ac-action:focus-visible {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #6b7280;        /* gray-500 */
+    color: #d1d5db;               /* gray-300 */
+    text-decoration: none;
+}
