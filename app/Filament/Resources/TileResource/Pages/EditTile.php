@@ -6,7 +6,9 @@ use App\Filament\Resources\TileResource;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class EditTile extends EditRecord
 {
@@ -81,6 +83,66 @@ class EditTile extends EditRecord
         // Fix repeater does not work with translations - End
 
         unset($this->otherLocaleData[$this->activeLocale]);
+    }
+
+    /**
+     * Override to normalize FileUpload state in other-locale background_blocks
+     * before validation. The translatable plugin sets $this->data directly with
+     * raw DB values (strings for file paths), but BaseFileUpload's validation
+     * closure requires array values, causing a TypeError.
+     */
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        // Normalize file upload strings in otherLocaleData before parent runs validation
+        foreach ($this->otherLocaleData as $locale => &$localeData) {
+            if (isset($localeData['background_blocks']) && is_array($localeData['background_blocks'])) {
+                $localeData['background_blocks'] = $this->normalizeFileUploadsInBlocks($localeData['background_blocks']);
+            }
+        }
+        unset($localeData);
+
+        return parent::handleRecordUpdate($record, $data);
+    }
+
+    /**
+     * Walk through Builder blocks and wrap any string file-upload values in UUID-keyed arrays.
+     *
+     * File upload fields: image (IntroText, TextImage, Slider items), image_secondary (IntroText).
+     */
+    protected function normalizeFileUploadsInBlocks(array $blocks): array
+    {
+        $fileUploadKeys = ['image', 'image_secondary'];
+
+        foreach ($blocks as &$block) {
+            if (! isset($block['data']) || ! is_array($block['data'])) {
+                continue;
+            }
+
+            // Normalize top-level file upload fields
+            foreach ($fileUploadKeys as $key) {
+                if (isset($block['data'][$key]) && is_string($block['data'][$key]) && filled($block['data'][$key])) {
+                    $block['data'][$key] = [(string) Str::uuid() => $block['data'][$key]];
+                }
+            }
+
+            // Normalize file uploads inside repeater items (e.g., SliderBlock's items)
+            if (isset($block['data']['items']) && is_array($block['data']['items'])) {
+                foreach ($block['data']['items'] as &$item) {
+                    if (! is_array($item)) {
+                        continue;
+                    }
+                    foreach ($fileUploadKeys as $key) {
+                        if (isset($item[$key]) && is_string($item[$key]) && filled($item[$key])) {
+                            $item[$key] = [(string) Str::uuid() => $item[$key]];
+                        }
+                    }
+                }
+                unset($item);
+            }
+        }
+        unset($block);
+
+        return $blocks;
     }
 
     protected function getFormActions(): array
