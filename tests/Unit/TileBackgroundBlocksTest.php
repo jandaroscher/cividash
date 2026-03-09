@@ -10,40 +10,48 @@ class TileBackgroundBlocksTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_tile_can_store_background_blocks(): void
+    public function test_tile_can_store_translatable_background_blocks(): void
     {
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
             'background_blocks' => [
-                [
-                    'type' => 'hero',
-                    'data' => [
-                        'title' => 'Hero Title',
-                        'subtitle' => 'Hero Subtitle',
+                'de' => [
+                    [
+                        'type' => 'hero',
+                        'data' => [
+                            'title' => 'Hero Title',
+                            'subtitle' => 'Hero Subtitle',
+                        ],
                     ],
                 ],
+                'en' => [],
             ],
         ]);
 
-        $this->assertNotNull($tile->background_blocks);
-        $this->assertIsArray($tile->background_blocks);
-        $this->assertCount(1, $tile->background_blocks);
-        $this->assertEquals('hero', $tile->background_blocks[0]['type']);
+        $deBlocks = $tile->getTranslation('background_blocks', 'de');
+        $this->assertNotNull($deBlocks);
+        $this->assertIsArray($deBlocks);
+        $this->assertCount(1, $deBlocks);
+        $this->assertEquals('hero', $deBlocks[0]['type']);
     }
 
-    public function test_tile_background_blocks_can_be_null(): void
+    public function test_tile_background_blocks_can_be_empty_per_locale(): void
     {
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
-            'background_blocks' => null,
+            'background_blocks' => [
+                'de' => [],
+                'en' => [],
+            ],
         ]);
 
-        $this->assertNull($tile->background_blocks);
+        $this->assertEmpty($tile->getTranslation('background_blocks', 'de'));
+        $this->assertEmpty($tile->getTranslation('background_blocks', 'en'));
     }
 
-    public function test_tile_background_blocks_can_store_multiple_blocks(): void
+    public function test_tile_background_blocks_can_store_multiple_blocks_per_locale(): void
     {
-        $blocks = [
+        $deBlocks = [
             [
                 'type' => 'hero',
                 'data' => ['title' => 'Hero Title'],
@@ -56,29 +64,58 @@ class TileBackgroundBlocksTest extends TestCase
 
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
-            'background_blocks' => $blocks,
+            'background_blocks' => [
+                'de' => $deBlocks,
+                'en' => [],
+            ],
         ]);
 
-        $this->assertCount(2, $tile->background_blocks);
-        $this->assertEquals('hero', $tile->background_blocks[0]['type']);
-        $this->assertEquals('text-image', $tile->background_blocks[1]['type']);
+        $blocks = $tile->getTranslation('background_blocks', 'de');
+        $this->assertCount(2, $blocks);
+        $this->assertEquals('hero', $blocks[0]['type']);
+        $this->assertEquals('text-image', $blocks[1]['type']);
     }
 
     public function test_tile_background_blocks_are_casted_to_array(): void
     {
-        $blocks = [
-            ['type' => 'hero', 'data' => ['title' => 'Test']],
-        ];
-
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
-            'background_blocks' => $blocks,
+            'background_blocks' => [
+                'de' => [
+                    ['type' => 'hero', 'data' => ['title' => 'Test']],
+                ],
+                'en' => [],
+            ],
         ]);
 
         // Reload from database to ensure casting works
         $tile->refresh();
 
-        $this->assertIsArray($tile->background_blocks);
-        $this->assertIsArray($tile->background_blocks[0]);
+        $blocks = $tile->getTranslation('background_blocks', 'de');
+        $this->assertIsArray($blocks);
+        $this->assertIsArray($blocks[0]);
+    }
+
+    public function test_tile_background_blocks_supports_different_content_per_locale(): void
+    {
+        $tile = Tile::create([
+            'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'background_blocks' => [
+                'de' => [
+                    ['type' => 'intro-text', 'data' => ['heading' => 'Deutsche Ueberschrift']],
+                ],
+                'en' => [
+                    ['type' => 'intro-text', 'data' => ['heading' => 'English Heading']],
+                ],
+            ],
+        ]);
+
+        $tile->refresh();
+
+        $deBlocks = $tile->getTranslation('background_blocks', 'de');
+        $enBlocks = $tile->getTranslation('background_blocks', 'en');
+
+        $this->assertEquals('Deutsche Ueberschrift', $deBlocks[0]['data']['heading']);
+        $this->assertEquals('English Heading', $enBlocks[0]['data']['heading']);
     }
 }

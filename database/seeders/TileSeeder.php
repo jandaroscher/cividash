@@ -61,7 +61,7 @@ class TileSeeder extends Seeder
                 $iconPath = $this->downloadIcon($parsedTile->icon);
                 $tile->icon = $iconPath;
                 $tile->position = $parsedTile->position ?? 0;
-                $tile->background_blocks = $this->transformBackgroundBlocks($parsedTile);
+                $this->setTranslatableBackgroundBlocks($tile, $parsedTile);
                 $tile->last_synced_at = now();
                 $tile->source_hash = $sourceHash;
                 $tile->save();
@@ -96,9 +96,14 @@ class TileSeeder extends Seeder
                     $needsUpdate = true;
                 }
 
-                $newBackgroundBlocks = $this->transformBackgroundBlocks($parsedTile);
-                if ($tile->background_blocks !== $newBackgroundBlocks) {
-                    $tile->background_blocks = $newBackgroundBlocks;
+                $oldDe = $tile->getTranslation('background_blocks', 'de');
+                $oldEn = $tile->getTranslation('background_blocks', 'en');
+                $newBlocks = $this->transformBackgroundBlocks($parsedTile);
+                $newDeBlocks = $newBlocks['de'] ?? [];
+                $newEnBlocks = $newBlocks['en'] ?? [];
+                if ($oldDe !== $newDeBlocks || $oldEn !== $newEnBlocks) {
+                    $tile->setTranslation('background_blocks', 'de', $newDeBlocks);
+                    $tile->setTranslation('background_blocks', 'en', $newEnBlocks);
                     $needsUpdate = true;
                 }
 
@@ -146,69 +151,94 @@ class TileSeeder extends Seeder
     }
 
     /**
-     * Transform tile content into Fabricator background blocks.
+     * Set translatable background blocks on a tile (for new tiles).
+     */
+    protected function setTranslatableBackgroundBlocks(Tile $tile, \App\Services\ParsedTile $parsedTile): void
+    {
+        $blocks = $this->transformBackgroundBlocks($parsedTile);
+        if ($blocks === null) {
+            return;
+        }
+        $tile->setTranslation('background_blocks', 'de', $blocks['de'] ?? []);
+        $tile->setTranslation('background_blocks', 'en', $blocks['en'] ?? []);
+    }
+
+    /**
+     * Transform tile content into per-locale Fabricator background blocks with jump mark labels.
+     *
+     * @return array{de: array, en: array}|null
      */
     protected function transformBackgroundBlocks(\App\Services\ParsedTile $tile): ?array
     {
-        $blocks = [];
+        $deBlocks = [];
+        $enBlocks = [];
         $validBlockTypes = $this->getValidBlockTypes();
 
         if (! empty($tile->backgroundText)) {
             $blockType = $this->validateBlockType('intro-text', $validBlockTypes);
-            $blockData = [
+
+            $deData = array_filter([
                 'heading' => $tile->title ?? null,
                 'text' => $tile->backgroundText,
-            ];
+                'jump_mark_label' => 'Hintergrund',
+            ], fn ($value) => $value !== null);
 
-            if (! empty($tile->titleEn)) {
-                $blockData['heading_en'] = $tile->titleEn;
-            }
-            if (! empty($tile->backgroundTextEn)) {
-                $blockData['text_en'] = $tile->backgroundTextEn;
-            }
+            $deBlocks[] = ['type' => $blockType, 'data' => $deData];
 
-            $blockData = array_filter($blockData, fn ($value) => $value !== null);
+            $enData = array_filter([
+                'heading' => $tile->titleEn ?? null,
+                'text' => $tile->backgroundTextEn ?? null,
+                'jump_mark_label' => 'Background',
+            ], fn ($value) => $value !== null);
 
-            if (! empty($blockData)) {
-                $blocks[] = [
-                    'type' => $blockType,
-                    'data' => $blockData,
-                ];
-            }
+            $enBlocks[] = ['type' => $blockType, 'data' => $enData];
         }
 
         if (! empty($tile->sliderData)) {
-            $sliderItems = [];
+            $deSliderItems = [];
+            $enSliderItems = [];
             foreach ($tile->sliderData as $sliderItem) {
                 $sliderImagePath = $this->downloadSliderImage($sliderItem['image'] ?? null);
-                $item = [
+
+                $deItem = array_filter([
                     'title' => $sliderItem['title'] ?? null,
                     'description' => $sliderItem['text'] ?? null,
                     'image' => $sliderImagePath,
                     'link_url' => $sliderItem['link'] ?? null,
                     'link_text' => null,
-                ];
+                ], fn ($value) => $value !== null);
 
-                if (isset($sliderItem['title_en']) && ! empty($sliderItem['title_en'])) {
-                    $item['title_en'] = $sliderItem['title_en'];
-                }
-                if (isset($sliderItem['text_en']) && ! empty($sliderItem['text_en'])) {
-                    $item['description_en'] = $sliderItem['text_en'];
+                if (! empty($deItem)) {
+                    $deSliderItems[] = $deItem;
                 }
 
-                $item = array_filter($item, fn ($value) => $value !== null);
+                $enItem = array_filter([
+                    'title' => $sliderItem['title_en'] ?? null,
+                    'description' => $sliderItem['text_en'] ?? null,
+                    'image' => $sliderImagePath,
+                    'link_url' => $sliderItem['link'] ?? null,
+                    'link_text' => null,
+                ], fn ($value) => $value !== null);
 
-                if (! empty($item)) {
-                    $sliderItems[] = $item;
+                if (! empty($enItem)) {
+                    $enSliderItems[] = $enItem;
                 }
             }
 
-            if (! empty($sliderItems)) {
+            if (! empty($deSliderItems)) {
                 $blockType = $this->validateBlockType('slider', $validBlockTypes);
-                $blocks[] = [
+                $deBlocks[] = [
                     'type' => $blockType,
                     'data' => [
-                        'items' => $sliderItems,
+                        'items' => $deSliderItems,
+                        'jump_mark_label' => 'Unser Engagement',
+                    ],
+                ];
+                $enBlocks[] = [
+                    'type' => $blockType,
+                    'data' => [
+                        'items' => $enSliderItems,
+                        'jump_mark_label' => 'Our Commitment',
                     ],
                 ];
             }
@@ -216,27 +246,29 @@ class TileSeeder extends Seeder
 
         if (! empty($tile->contributionText)) {
             $blockType = $this->validateBlockType('intro-text', $validBlockTypes);
-            $blockData = [
+
+            $deData = array_filter([
                 'heading' => 'Beitrag',
                 'text' => $tile->contributionText,
-            ];
+                'jump_mark_label' => 'Ihr Beitrag',
+            ], fn ($value) => $value !== null);
 
-            if (! empty($tile->contributionTextEn)) {
-                $blockData['heading_en'] = 'Contribution';
-                $blockData['text_en'] = $tile->contributionTextEn;
-            }
+            $deBlocks[] = ['type' => $blockType, 'data' => $deData];
 
-            $blockData = array_filter($blockData, fn ($value) => $value !== null);
+            $enData = array_filter([
+                'heading' => 'Contribution',
+                'text' => $tile->contributionTextEn ?? null,
+                'jump_mark_label' => 'Your Contribution',
+            ], fn ($value) => $value !== null);
 
-            if (! empty($blockData)) {
-                $blocks[] = [
-                    'type' => $blockType,
-                    'data' => $blockData,
-                ];
-            }
+            $enBlocks[] = ['type' => $blockType, 'data' => $enData];
         }
 
-        return ! empty($blocks) ? $blocks : null;
+        if (empty($deBlocks) && empty($enBlocks)) {
+            return null;
+        }
+
+        return ['de' => $deBlocks, 'en' => $enBlocks];
     }
 
     /**

@@ -46,7 +46,12 @@ class TileFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'background_blocks' => $blocks ?? [
-                ['type' => 'intro-text', 'data' => ['content' => '<p>Test</p>'], 'is_active' => true],
+                'de' => [
+                    ['type' => 'intro-text', 'data' => ['content' => '<p>Test</p>'], 'is_active' => true],
+                ],
+                'en' => [
+                    ['type' => 'intro-text', 'data' => ['content' => '<p>Test</p>'], 'is_active' => true],
+                ],
             ],
         ]);
     }

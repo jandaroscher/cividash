@@ -56,18 +56,21 @@ class TileBackgroundBlocksTest extends TestCase
     {
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
-            'background_blocks' => null,
+            'background_blocks' => ['de' => [], 'en' => []],
             'tenant_id' => $this->tenant?->id,
         ]);
 
         $blocks = [
-            [
-                'type' => 'hero',
-                'data' => [
-                    'title' => 'Hero Title',
-                    'subtitle' => 'Hero Subtitle',
+            'de' => [
+                [
+                    'type' => 'hero',
+                    'data' => [
+                        'title' => 'Hero Title',
+                        'subtitle' => 'Hero Subtitle',
+                    ],
                 ],
             ],
+            'en' => [],
         ];
 
         // Update tile directly (simulating form submission)
@@ -76,9 +79,10 @@ class TileBackgroundBlocksTest extends TestCase
         ]);
 
         $tile->refresh();
-        $this->assertNotNull($tile->background_blocks);
-        $this->assertCount(1, $tile->background_blocks);
-        $this->assertEquals('hero', $tile->background_blocks[0]['type']);
+        $deBlocks = $tile->getTranslation('background_blocks', 'de');
+        $this->assertNotNull($deBlocks);
+        $this->assertCount(1, $deBlocks);
+        $this->assertEquals('hero', $deBlocks[0]['type']);
     }
 
     public function test_tile_background_blocks_field_is_in_form_schema(): void

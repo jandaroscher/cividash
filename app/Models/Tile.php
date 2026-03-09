@@ -33,6 +33,7 @@ class Tile extends Model
         'slug',
         'meta_title',
         'meta_description',
+        'background_blocks',
     ];
 
     protected $fillable = [

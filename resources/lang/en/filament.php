@@ -550,6 +550,8 @@ return [
             'title' => 'Title',
             'background_color' => 'Background color',
         ],
+        'jump_mark_label' => 'Jump Mark Label',
+        'jump_mark_label_helper' => 'Only when filled, this block will appear as a jump mark in the navigation.',
     ],
     'actions' => [
         'edit' => 'Edit',

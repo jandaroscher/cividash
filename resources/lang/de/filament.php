@@ -550,6 +550,8 @@ return [
             'title' => 'Titel',
             'background_color' => 'Hintergrundfarbe',
         ],
+        'jump_mark_label' => 'Sprungmarken-Label',
+        'jump_mark_label_helper' => 'Nur wenn ausgefuellt, erscheint dieser Block als Sprungmarke in der Navigation.',
     ],
     'actions' => [
         'edit' => 'Bearbeiten',

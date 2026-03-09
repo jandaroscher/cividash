@@ -257,12 +257,13 @@ class TileSeederTest extends TestCase
         $this->seeder->run($tiles, $categoryIdMap, $handlungsdimensionIdMap, $sdgZielIdMap);
 
         $tile = Tile::whereJsonContains('title->de', 'Test Tile')->first();
-        $this->assertNotNull($tile->background_blocks);
-        $this->assertIsArray($tile->background_blocks);
-        $this->assertGreaterThan(0, count($tile->background_blocks));
+        $deBlocks = $tile->getTranslation('background_blocks', 'de');
+        $this->assertNotNull($deBlocks);
+        $this->assertIsArray($deBlocks);
+        $this->assertGreaterThan(0, count($deBlocks));
 
         // Check that blocks have correct structure
-        $firstBlock = $tile->background_blocks[0];
+        $firstBlock = $deBlocks[0];
         $this->assertArrayHasKey('type', $firstBlock);
         $this->assertArrayHasKey('data', $firstBlock);
     }
@@ -299,10 +300,11 @@ class TileSeederTest extends TestCase
         $this->seeder->run($tiles, $categoryIdMap, $handlungsdimensionIdMap, $sdgZielIdMap);
 
         $tile = Tile::whereJsonContains('title->de', 'Test Tile')->first();
-        $this->assertNotNull($tile->background_blocks);
+        $deBlocks = $tile->getTranslation('background_blocks', 'de');
+        $this->assertNotNull($deBlocks);
 
         // Block type should be valid (intro-text or slider)
-        $blockType = $tile->background_blocks[0]['type'] ?? null;
+        $blockType = $deBlocks[0]['type'] ?? null;
         $this->assertNotNull($blockType);
         $this->assertContains($blockType, ['intro-text', 'slider']);
     }
@@ -384,10 +386,11 @@ class TileSeederTest extends TestCase
         $this->seeder->run($tiles, $categoryIdMap, $handlungsdimensionIdMap, $sdgZielIdMap);
 
         $tile = Tile::whereJsonContains('title->de', 'Test Tile')->first();
-        $this->assertNotNull($tile->background_blocks);
+        $deBlocks = $tile->getTranslation('background_blocks', 'de');
+        $this->assertNotNull($deBlocks);
 
         // Find slider block
-        $sliderBlock = collect($tile->background_blocks)->firstWhere('type', 'slider');
+        $sliderBlock = collect($deBlocks)->firstWhere('type', 'slider');
         $this->assertNotNull($sliderBlock);
         $this->assertArrayHasKey('data', $sliderBlock);
         $this->assertArrayHasKey('items', $sliderBlock['data']);

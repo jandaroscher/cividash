@@ -16,13 +16,16 @@ class TileBackgroundBlocksApiTest extends TestCase
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
             'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
             'background_blocks' => [
-                [
-                    'type' => 'hero',
-                    'data' => [
-                        'title' => 'Hero Title',
-                        'subtitle' => 'Hero Subtitle',
+                'de' => [
+                    [
+                        'type' => 'hero',
+                        'data' => [
+                            'title' => 'Hero Title',
+                            'subtitle' => 'Hero Subtitle',
+                        ],
                     ],
                 ],
+                'en' => [],
             ],
         ]);
 
@@ -55,14 +58,17 @@ class TileBackgroundBlocksApiTest extends TestCase
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
             'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
             'background_blocks' => [
-                [
-                    'type' => 'hero',
-                    'data' => ['title' => 'Hero Title'],
+                'de' => [
+                    [
+                        'type' => 'hero',
+                        'data' => ['title' => 'Hero Title'],
+                    ],
+                    [
+                        'type' => 'text-image',
+                        'data' => ['text' => 'Some text', 'image' => 'image.jpg'],
+                    ],
                 ],
-                [
-                    'type' => 'text-image',
-                    'data' => ['text' => 'Some text', 'image' => 'image.jpg'],
-                ],
+                'en' => [],
             ],
         ]);
 
@@ -81,20 +87,23 @@ class TileBackgroundBlocksApiTest extends TestCase
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
             'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
             'background_blocks' => [
-                [
-                    'type' => 'hero',
-                    'data' => [
-                        'title' => 'Hero Title',
-                        'is_active' => true,
+                'de' => [
+                    [
+                        'type' => 'hero',
+                        'data' => [
+                            'title' => 'Hero Title',
+                            'is_active' => true,
+                        ],
+                    ],
+                    [
+                        'type' => 'text-image',
+                        'data' => [
+                            'text' => 'Hidden text',
+                            'is_active' => false,
+                        ],
                     ],
                 ],
-                [
-                    'type' => 'text-image',
-                    'data' => [
-                        'text' => 'Hidden text',
-                        'is_active' => false,
-                    ],
-                ],
+                'en' => [],
             ],
         ]);
 
@@ -107,19 +116,18 @@ class TileBackgroundBlocksApiTest extends TestCase
         $this->assertArrayNotHasKey('is_active', $data['background_blocks'][0]['props']);
     }
 
-    public function test_api_returns_null_when_tile_has_no_background_blocks(): void
+    public function test_api_returns_empty_array_when_tile_has_no_background_blocks(): void
     {
         $tile = Tile::create([
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
             'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
-            'background_blocks' => null,
         ]);
 
         $response = $this->getJson("/api/tiles/{$tile->id}");
 
         $response->assertStatus(200);
         $data = $response->json('data');
-        $this->assertNull($data['background_blocks']);
+        $this->assertEmpty($data['background_blocks']);
     }
 
     public function test_api_handles_blocks_without_data_key(): void
@@ -128,11 +136,14 @@ class TileBackgroundBlocksApiTest extends TestCase
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
             'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
             'background_blocks' => [
-                [
-                    'type' => 'hero',
-                    'title' => 'Hero Title',
-                    'subtitle' => 'Hero Subtitle',
+                'de' => [
+                    [
+                        'type' => 'hero',
+                        'title' => 'Hero Title',
+                        'subtitle' => 'Hero Subtitle',
+                    ],
                 ],
+                'en' => [],
             ],
         ]);
 
@@ -153,7 +164,10 @@ class TileBackgroundBlocksApiTest extends TestCase
             'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
             'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
             'background_blocks' => [
-                ['type' => 'hero', 'data' => ['title' => 'Test']],
+                'de' => [
+                    ['type' => 'hero', 'data' => ['title' => 'Test']],
+                ],
+                'en' => [],
             ],
         ]);
 
@@ -190,5 +204,116 @@ class TileBackgroundBlocksApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonPath('data.id', $tile->id);
+    }
+
+    public function test_api_returns_jump_mark_label_in_block_props(): void
+    {
+        $tile = Tile::create([
+            'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
+            'background_blocks' => [
+                'de' => [
+                    [
+                        'type' => 'intro-text',
+                        'data' => [
+                            'heading' => 'Intro',
+                            'text' => 'Some text',
+                            'jump_mark_label' => 'Hintergrund',
+                        ],
+                    ],
+                ],
+                'en' => [
+                    [
+                        'type' => 'intro-text',
+                        'data' => [
+                            'heading' => 'Intro',
+                            'text' => 'Some text',
+                            'jump_mark_label' => 'Background',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->getJson("/api/tiles/{$tile->id}?locale=de");
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertEquals('Hintergrund', $data['background_blocks'][0]['props']['jump_mark_label']);
+
+        $response = $this->getJson("/api/tiles/{$tile->id}?locale=en");
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertEquals('Background', $data['background_blocks'][0]['props']['jump_mark_label']);
+    }
+
+    public function test_api_returns_locale_specific_background_blocks(): void
+    {
+        $tile = Tile::create([
+            'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
+            'background_blocks' => [
+                'de' => [
+                    [
+                        'type' => 'intro-text',
+                        'data' => [
+                            'heading' => 'Deutsche Ueberschrift',
+                            'text' => 'Deutscher Text',
+                        ],
+                    ],
+                ],
+                'en' => [
+                    [
+                        'type' => 'intro-text',
+                        'data' => [
+                            'heading' => 'English Heading',
+                            'text' => 'English Text',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->getJson("/api/tiles/{$tile->id}?locale=de");
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertEquals('Deutsche Ueberschrift', $data['background_blocks'][0]['props']['heading']);
+
+        $response = $this->getJson("/api/tiles/{$tile->id}?locale=en");
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertEquals('English Heading', $data['background_blocks'][0]['props']['heading']);
+    }
+
+    public function test_api_falls_back_to_german_blocks_without_locale(): void
+    {
+        $tile = Tile::create([
+            'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
+            'background_blocks' => [
+                'de' => [
+                    [
+                        'type' => 'intro-text',
+                        'data' => [
+                            'heading' => 'Deutsche Ueberschrift',
+                        ],
+                    ],
+                ],
+                'en' => [
+                    [
+                        'type' => 'intro-text',
+                        'data' => [
+                            'heading' => 'English Heading',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->getJson("/api/tiles/{$tile->id}");
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertEquals('Deutsche Ueberschrift', $data['background_blocks'][0]['props']['heading']);
     }
 }

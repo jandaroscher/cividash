@@ -711,7 +711,16 @@ class TileResource extends Resource
 
         foreach ($filteredBlocks as $blockClass) {
             if (class_exists($blockClass) && method_exists($blockClass, 'getBlockSchema')) {
-                $blocks[] = $blockClass::getBlockSchema();
+                $block = $blockClass::getBlockSchema();
+                $existingSchema = $block->getChildComponents();
+                $block->schema([
+                    ...$existingSchema,
+                    TextInput::make('jump_mark_label')
+                        ->label(__('filament.blocks.jump_mark_label'))
+                        ->helperText(__('filament.blocks.jump_mark_label_helper'))
+                        ->maxLength(255),
+                ]);
+                $blocks[] = $block;
             }
         }
 
