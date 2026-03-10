@@ -10,7 +10,6 @@ use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
@@ -353,25 +352,53 @@ class ManageBranding extends SettingsPage
 
                                 Forms\Components\Section::make(__('filament.pages.manage_branding.font_sizes_section'))
                                     ->schema([
-                                        KeyValue::make('typography_font_sizes')
-                                            ->label(__('filament.pages.manage_branding.font_sizes'))
-                                            ->keyLabel(__('filament.pages.manage_branding.font_size_key'))
-                                            ->valueLabel(__('filament.pages.manage_branding.font_size_value'))
-                                            ->helperText(__('filament.pages.manage_branding.font_sizes_helper'))
-                                            ->keyPlaceholder('base')
-                                            ->valuePlaceholder('1rem')
-                                            ->default([
-                                                'base' => '1rem',
-                                                'small' => '0.875rem',
-                                                'large' => '1.125rem',
-                                                'h1' => '3rem',
-                                                'h2' => '2.25rem',
-                                                'h3' => '1.875rem',
-                                                'h4' => '1.5rem',
-                                                'h5' => '1.25rem',
-                                                'h6' => '1.125rem',
-                                            ])
-                                            ->nullable(),
+                                        Forms\Components\Grid::make(3)
+                                            ->schema([
+                                                TextInput::make('typography_font_sizes.base')
+                                                    ->label(__('filament.pages.manage_branding.font_size_base'))
+                                                    ->placeholder('1rem')
+                                                    ->nullable(),
+
+                                                TextInput::make('typography_font_sizes.small')
+                                                    ->label(__('filament.pages.manage_branding.font_size_small'))
+                                                    ->placeholder('0.875rem')
+                                                    ->nullable(),
+
+                                                TextInput::make('typography_font_sizes.large')
+                                                    ->label(__('filament.pages.manage_branding.font_size_large'))
+                                                    ->placeholder('1.125rem')
+                                                    ->nullable(),
+
+                                                TextInput::make('typography_font_sizes.h1')
+                                                    ->label('h1')
+                                                    ->placeholder('3rem')
+                                                    ->nullable(),
+
+                                                TextInput::make('typography_font_sizes.h2')
+                                                    ->label('h2')
+                                                    ->placeholder('2.25rem')
+                                                    ->nullable(),
+
+                                                TextInput::make('typography_font_sizes.h3')
+                                                    ->label('h3')
+                                                    ->placeholder('1.875rem')
+                                                    ->nullable(),
+
+                                                TextInput::make('typography_font_sizes.h4')
+                                                    ->label('h4')
+                                                    ->placeholder('1.5rem')
+                                                    ->nullable(),
+
+                                                TextInput::make('typography_font_sizes.h5')
+                                                    ->label('h5')
+                                                    ->placeholder('1.25rem')
+                                                    ->nullable(),
+
+                                                TextInput::make('typography_font_sizes.h6')
+                                                    ->label('h6')
+                                                    ->placeholder('1.125rem')
+                                                    ->nullable(),
+                                            ]),
                                     ]),
                             ]),
 
