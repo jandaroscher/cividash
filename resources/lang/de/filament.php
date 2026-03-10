@@ -450,6 +450,14 @@ return [
             'meta_title' => 'SEO-Titel',
             'meta_description' => 'SEO-Beschreibung',
             'meta_image' => 'SEO-Bild',
+            'sort_order' => 'Reihenfolge',
+            'nav_placement' => 'Navigation-Platzierung',
+            'nav_placement_options' => [
+                'none' => 'Keine',
+                'header' => 'Header',
+                'footer' => 'Footer',
+                'both' => 'Header & Footer',
+            ],
             'created_at' => 'Erstellt am',
             'updated_at' => 'Aktualisiert am',
             'actions' => [

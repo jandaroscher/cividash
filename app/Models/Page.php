@@ -20,6 +20,12 @@ class Page extends FabricatorPage implements PageContract
 
     protected static function booted(): void
     {
+        static::creating(function (self $page) {
+            if ($page->sort_order === null) {
+                $page->sort_order = (static::max('sort_order') ?? 0) + 1;
+            }
+        });
+
         static::saving(function (self $page) {
             if ($page->layout === 'landingpage') {
                 $locales = config('app.available_locales', ['de', 'en']);
@@ -58,6 +64,8 @@ class Page extends FabricatorPage implements PageContract
         'parent_id',
         'is_public',
         'tenant_id',
+        'sort_order',
+        'nav_placement',
     ];
 
     /**
@@ -71,6 +79,7 @@ class Page extends FabricatorPage implements PageContract
         'meta_title' => 'array',
         'parent_id' => 'integer',
         'is_public' => 'boolean',
+        'sort_order' => 'integer',
     ];
 
     /**

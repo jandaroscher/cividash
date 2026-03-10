@@ -368,6 +368,14 @@ return [
             'meta_title' => 'SEO title',
             'meta_description' => 'SEO description',
             'meta_image' => 'SEO image',
+            'sort_order' => 'Sort Order',
+            'nav_placement' => 'Navigation Placement',
+            'nav_placement_options' => [
+                'none' => 'None',
+                'header' => 'Header',
+                'footer' => 'Footer',
+                'both' => 'Header & Footer',
+            ],
             'created_at' => 'Created at',
             'updated_at' => 'Updated at',
             'actions' => [

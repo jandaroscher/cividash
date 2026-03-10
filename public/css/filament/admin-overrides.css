@@ -243,3 +243,25 @@
     color: #d1d5db;               /* gray-300 */
     text-decoration: none;
 }
+
+/**
+ * Improve contrast for nested builder blocks in page editor
+ * Adds alternating background colors so nested content blocks are
+ * visually distinguishable from their parent containers.
+ */
+.fi-fo-builder-block .fi-fo-builder-block {
+    background-color: rgb(249 250 251); /* gray-50 */
+}
+
+.fi-fo-builder-block .fi-fo-builder-block .fi-fo-builder-block {
+    background-color: rgb(243 244 246); /* gray-100 */
+}
+
+/* Dark mode support */
+.dark .fi-fo-builder-block .fi-fo-builder-block {
+    background-color: rgb(31 41 55); /* gray-800 */
+}
+
+.dark .fi-fo-builder-block .fi-fo-builder-block .fi-fo-builder-block {
+    background-color: rgb(55 65 81); /* gray-700 */
+}

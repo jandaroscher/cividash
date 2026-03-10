@@ -152,6 +152,15 @@ class PageResource extends FabricatorPageResource
                                     Toggle::make('is_public')
                                         ->label(__('filament.resources.page.is_public'))
                                         ->default(true),
+                                    Select::make('nav_placement')
+                                        ->label(__('filament.resources.page.nav_placement'))
+                                        ->options([
+                                            'none' => __('filament.resources.page.nav_placement_options.none'),
+                                            'header' => __('filament.resources.page.nav_placement_options.header'),
+                                            'footer' => __('filament.resources.page.nav_placement_options.footer'),
+                                            'both' => __('filament.resources.page.nav_placement_options.both'),
+                                        ])
+                                        ->default('none'),
                                     TextInput::make('meta_title')
                                         ->label(__('filament.resources.page.meta_title'))
                                         ->maxLength(255),
@@ -210,6 +219,14 @@ class PageResource extends FabricatorPageResource
     public static function table(Table $table): Table
     {
         return $table
+            ->reorderable('sort_order')
+            ->defaultSort('sort_order')
+            ->reorderRecordsTriggerAction(
+                fn (Tables\Actions\Action $action, bool $isReordering) => $action
+                    ->link()
+                    ->label($isReordering ? __('filament.actions.stop_sorting') : __('filament.actions.start_sorting'))
+                    ->color('primary')
+            )
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label(__('filament.resources.page.title'))
@@ -247,6 +264,15 @@ class PageResource extends FabricatorPageResource
                 Tables\Columns\TextColumn::make('layout')
                     ->label(__('filament.resources.page.layout'))
                     ->sortable(),
+                Tables\Columns\TextColumn::make('sort_order')
+                    ->label(__('filament.resources.page.sort_order'))
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('nav_placement')
+                    ->label(__('filament.resources.page.nav_placement'))
+                    ->formatStateUsing(fn (string $state) => __("filament.resources.page.nav_placement_options.{$state}"))
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\ToggleColumn::make('is_public')
                     ->label(__('filament.resources.page.is_public'))
                     ->sortable(),
