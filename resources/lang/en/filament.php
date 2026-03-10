@@ -478,6 +478,8 @@ return [
         'deactivate' => 'Deactivate block',
         'slider' => [
             'label' => 'Slider',
+            'heading' => 'Heading',
+            'heading_en' => 'Heading (EN)',
             'items' => 'Slider Items',
             'title' => 'Title',
             'description' => 'Description',

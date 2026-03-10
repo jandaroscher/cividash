@@ -478,6 +478,8 @@ return [
         'deactivate' => 'Block deaktivieren',
         'slider' => [
             'label' => 'Slider',
+            'heading' => 'Überschrift',
+            'heading_en' => 'Überschrift (EN)',
             'items' => 'Slider Items',
             'title' => 'Titel',
             'description' => 'Beschreibung',

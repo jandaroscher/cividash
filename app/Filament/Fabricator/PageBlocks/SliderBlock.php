@@ -34,6 +34,12 @@ class SliderBlock extends PageBlock
             ->label(__('filament.blocks.slider.label'))
             ->icon('heroicon-o-arrows-right-left')
             ->schema([
+                TextInput::make('heading')
+                    ->label(__('filament.blocks.slider.heading'))
+                    ->maxLength(255),
+                TextInput::make('heading_en')
+                    ->label(__('filament.blocks.slider.heading_en'))
+                    ->maxLength(255),
                 Repeater::make('items')
                     ->label(__('filament.blocks.slider.items'))
                     ->addActionLabel(__('filament.actions.add_to_slider_items'))
