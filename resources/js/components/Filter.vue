@@ -121,19 +121,8 @@ const activeGroup = computed(() => {
     return filterGroups.value.find(group => group.key === filterStore.level1Filter) || filterGroups.value[0] || null;
 });
 
-const filterHeader = computed(() => {
-    return filterLabels.value.header || 'Filter';
-});
-
 const effectiveHeading = computed(() => {
-    if (props.heading) {
-        return props.heading;
-    }
-    return filterHeader.value;
-});
-
-const filterLabels = ref({
-    header: 'Filter',
+    return props.heading || null;
 });
 
 const apiUrl = computed(() => getApiBaseUrl());
@@ -173,12 +162,10 @@ async function fetchFilterGroups(locale) {
         const json = await res.json();
         const data = json.data || json;
 
-        filterLabels.value = data.labels || { header: 'Filter' };
         filterStore.setGroups(data.groups || []);
         filterStore.restoreFromUrl();
     } catch (err) {
         logError('Error fetching filter groups:', err);
-        filterLabels.value = { header: 'Filter' };
         filterStore.setGroups([]);
         filterStore.setError(err.message || 'Failed to load filters');
     } finally {
