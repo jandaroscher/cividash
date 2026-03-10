@@ -6,7 +6,7 @@
     <div class="flex flex-row justify-between space-x-4">
       <div
         v-if="tile"
-        class="text-theme-primary font-bold text-4xl md:text-5xl hyphens-auto min-w-0"
+        class="text-theme-primary font-bold text-theme-h1 hyphens-auto min-w-0"
       >
         {{ title }}
       </div>

@@ -1,5 +1,5 @@
 <template>
-    <div class="container pt-6 md:mb-10 px-3 sm:px-[30px] overflow-hidden">
+    <div class="container pt-6 md:mb-10 overflow-hidden">
         <VueFlexWaterfall
             v-if="filteredTiles.length > 0 && isReady"
             :key="`waterfall-${currentLocale}`"

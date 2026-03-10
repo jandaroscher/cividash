@@ -1,6 +1,6 @@
 <template>
     <section class="py-12 md:py-16">
-        <div class="space-y-4">
+        <div class="container space-y-4">
             <details
                 v-for="(item, index) in block.props.items"
                 :key="item.id || `faq-${index}`"

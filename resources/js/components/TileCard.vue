@@ -7,7 +7,7 @@
         <div class="shadow-card">
             <div :class="backgroundClass ? [backgroundClass] : []" :style="backgroundColorStyle" class="py-6 text-black relative">
                 <div class="flex flex-row justify-between gap-2 px-4">
-                    <div class="text-3xl font-bold mb-4 hyphens-auto">{{ header }}</div>
+                    <div class="text-theme-h3 font-bold mb-4 hyphens-auto">{{ header }}</div>
                 </div>
 
                 <div v-if="subheader" class="text-lg font-bold px-4">{{ subheader }}</div>

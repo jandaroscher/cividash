@@ -231,15 +231,6 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped>
-.shadow-card {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.shadow-info {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-</style>
 
 <style>
 .flicking-arrow-prev,
@@ -286,6 +277,9 @@ onBeforeUnmount(() => {
 .flicking-arrow-prev.flicking-arrow-disabled,
 .flicking-arrow-next.flicking-arrow-disabled {
     color: #e5e5e5;
+    opacity: 0.4;
+    cursor: default;
+    box-shadow: 0px 3px 6px #00000029;
 }
 
 .flicking-pagination-bullet-active {

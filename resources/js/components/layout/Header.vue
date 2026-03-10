@@ -11,11 +11,10 @@
                 class="flex-1"
                 :aria-label="locale === 'en' ? 'Home' : 'Startseite'"
             >
-                <img 
-                    :src="brandingStore.logoUrl" 
+                <img
+                    :src="brandingStore.logoUrl"
                     :alt="siteName"
-                    class="logo"
-                    style="max-height: 68px;"
+                    class="logo w-[140px] md:w-[190px] max-h-[68px] object-contain"
                 />
             </RouterLink>
             <RouterLink 

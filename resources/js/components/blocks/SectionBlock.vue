@@ -5,7 +5,7 @@
     >
         <div
             v-if="block.props.content"
-            class="prose prose-lg max-w-none"
+            class="container prose prose-lg max-w-none"
             v-html="sanitizedContent"
         />
     </section>

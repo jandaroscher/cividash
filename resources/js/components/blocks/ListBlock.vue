@@ -1,27 +1,29 @@
 <template>
     <section class="py-12 md:py-16">
-        <ul
-            v-if="block.props.list_type === 'bullet'"
-            class="list-disc list-inside space-y-2"
-        >
-            <li
-                v-for="(item, index) in block.props.items"
-                :key="index"
+        <div class="container">
+            <ul
+                v-if="block.props.list_type === 'bullet'"
+                class="list-disc list-inside space-y-2"
             >
-                {{ item.text }}
-            </li>
-        </ul>
-        <ol
-            v-else
-            class="list-decimal list-inside space-y-2"
-        >
-            <li
-                v-for="(item, index) in block.props.items"
-                :key="index"
+                <li
+                    v-for="(item, index) in block.props.items"
+                    :key="index"
+                >
+                    {{ item.text }}
+                </li>
+            </ul>
+            <ol
+                v-else
+                class="list-decimal list-inside space-y-2"
             >
-                {{ item.text }}
-            </li>
-        </ol>
+                <li
+                    v-for="(item, index) in block.props.items"
+                    :key="index"
+                >
+                    {{ item.text }}
+                </li>
+            </ol>
+        </div>
     </section>
 </template>
 

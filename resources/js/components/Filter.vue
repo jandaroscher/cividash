@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="flex flex-col xl:flex-row">
-            <h2 class="text-3xl text-black font-bold mb-6 lg:mb-12 hyphens-auto order-2 xl:order-1">
+            <h2 class="text-theme-h3 text-black font-bold mb-6 lg:mb-12 hyphens-auto order-2 xl:order-1">
                 {{ filterHeader }}
             </h2>
         </div>
@@ -285,6 +285,9 @@ function getButtonStyles(filter) {
 :deep(.flicking-arrow-prev.flicking-arrow-disabled),
 :deep(.flicking-arrow-next.flicking-arrow-disabled) {
     color: #e5e5e5;
+    opacity: 0.4;
+    cursor: default;
+    box-shadow: 0px 3px 6px #00000029;
 }
 
 :deep(.flicking-arrow-disabled:hover) {

@@ -1,7 +1,17 @@
 <template>
     <div class="tile-app-block">
         <Filter v-if="!tilesStore.loading && !tilesStore.error && (showSearch || showFilter)" :show-search="showSearch" :show-filter="showFilter" />
-        
+
+        <div v-if="!tilesStore.loading && !tilesStore.error && tilesStore.tiles.length > 0" class="container">
+            <p class="text-theme-base text-gray-400 flex flex-row gap-2 mb-5 ml-auto justify-end mt-10 sm:mt-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" fill="none" aria-hidden="true">
+                    <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 7H17V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ effectiveLocale === 'en' ? 'Change from previous year' : 'Veränderung zum Vorjahr' }}</span>
+            </p>
+        </div>
+
         <div v-if="tilesStore.loading" class="container text-center py-10" role="status" aria-live="polite" aria-label="Loading tiles">
             {{ effectiveLocale === 'en' ? 'Loading tiles…' : 'Lade Tiles…' }}
         </div>

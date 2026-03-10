@@ -2,7 +2,7 @@
     <div class="container">
         <h1
             v-if="block.props.heading"
-            class="text-4xl lg:text-5xl text-black font-bold mb-6 hyphens-auto"
+            class="text-theme-h1 text-black font-bold mb-6 hyphens-auto"
         >
             {{ block.props.heading }}
         </h1>
@@ -11,7 +11,7 @@
             <div class="col-span-2">
                 <h2
                     v-if="block.props.subheading"
-                    class="text-3xl text-black font-bold mb-6 lg:mb-12 hyphens-auto"
+                    class="text-theme-h2 text-black font-bold mb-6 lg:mb-12 hyphens-auto"
                 >
                     {{ block.props.subheading }}
                 </h2>
