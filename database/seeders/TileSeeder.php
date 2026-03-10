@@ -122,7 +122,8 @@ class TileSeeder extends Seeder
             $categoryIds = $this->mapCategoryIds($parsedTile->categoryIds, $categoryIdMap);
 
             if (! empty($dimensionCategoryMap) && $parsedTile->handlungsdimension) {
-                $dimensionCategoryId = $dimensionCategoryMap[$parsedTile->handlungsdimension] ?? null;
+                $dimensionKey = strtr($parsedTile->handlungsdimension, ['ü' => 'ue', 'ä' => 'ae', 'ö' => 'oe', 'ß' => 'ss']);
+                $dimensionCategoryId = $dimensionCategoryMap[$dimensionKey] ?? $dimensionCategoryMap[$parsedTile->handlungsdimension] ?? null;
                 if ($dimensionCategoryId) {
                     $categoryIds[] = $dimensionCategoryId;
                 }
