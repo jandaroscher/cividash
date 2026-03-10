@@ -58,11 +58,13 @@ const heading = computed(() => {
 });
 
 const imageUrl = computed(() => {
-    if (!props.block.props.image) return null;
-    if (props.block.props.image.startsWith('http')) {
-        return props.block.props.image;
+    const raw = props.block.props.image;
+    const image = Array.isArray(raw) ? raw[0] : raw;
+    if (!image) return null;
+    if (image.startsWith('http')) {
+        return image;
     }
-    return `/storage/${props.block.props.image}`;
+    return `/storage/${image}`;
 });
 
 const isImageLeft = computed(() => {
