@@ -20,9 +20,6 @@ class CardGridBlock extends PageBlock
                 TextInput::make('heading')
                     ->label(__('filament.blocks.card_grid.heading'))
                     ->helperText(__('filament.blocks.card_grid.heading_helper')),
-                TextInput::make('heading_en')
-                    ->label(__('filament.blocks.card_grid.heading_en'))
-                    ->helperText(__('filament.blocks.card_grid.heading_en_helper')),
                 Select::make('tiles')
                     ->label(__('filament.blocks.card_grid.tiles'))
                     ->multiple()

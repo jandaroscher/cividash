@@ -492,7 +492,6 @@ return [
         'slider' => [
             'label' => 'Slider',
             'heading' => 'Überschrift',
-            'heading_en' => 'Überschrift (EN)',
             'items' => 'Slider Items',
             'title' => 'Titel',
             'description' => 'Beschreibung',
@@ -521,7 +520,6 @@ return [
         'text_image' => [
             'label' => 'Text & Bild',
             'heading' => 'Überschrift',
-            'heading_en' => 'Überschrift (EN)',
             'text' => 'Text',
             'image' => 'Bild',
             'image_alt' => 'Alt-Text für Bild',
@@ -532,10 +530,8 @@ return [
         ],
         'card_grid' => [
             'label' => 'Kacheln',
-            'heading' => 'Überschrift (DE)',
-            'heading_helper' => 'Optionale Überschrift über den Kacheln (Deutsch). Leer lassen, um keine Überschrift anzuzeigen.',
-            'heading_en' => 'Überschrift (EN)',
-            'heading_en_helper' => 'Optionale Überschrift über den Kacheln (Englisch). Leer lassen, um keine Überschrift anzuzeigen.',
+            'heading' => 'Überschrift',
+            'heading_helper' => 'Optionale Überschrift über den Kacheln. Leer lassen, um keine Überschrift anzuzeigen.',
             'tiles' => 'Kacheln',
             'tiles_helper' => 'Leer lassen, um alle Kacheln anzuzeigen. Auswählen, um nur bestimmte Kacheln anzuzeigen.',
         ],

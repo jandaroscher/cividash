@@ -45,7 +45,6 @@
 <script setup>
 import { computed } from 'vue';
 import { sanitizeHtml } from '../../utils/sanitizeHtml';
-import { useLocale } from '../../composables/useLocale';
 
 const props = defineProps({
     block: {
@@ -54,13 +53,8 @@ const props = defineProps({
     },
 });
 
-const { currentLocale } = useLocale();
-
 const heading = computed(() => {
-    if (currentLocale.value === 'en') {
-        return props.block.props.heading_en || props.block.props.heading || '';
-    }
-    return props.block.props.heading || props.block.props.heading_en || '';
+    return props.block.props.heading || '';
 });
 
 const imageUrl = computed(() => {

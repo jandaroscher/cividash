@@ -28,9 +28,6 @@ class TextImageBlock extends PageBlock
                 TextInput::make('heading')
                     ->label(__('filament.blocks.text_image.heading'))
                     ->maxLength(255),
-                TextInput::make('heading_en')
-                    ->label(__('filament.blocks.text_image.heading_en'))
-                    ->maxLength(255),
                 RichEditorConfig::make('text')
                     ->label(__('filament.blocks.text_image.text'))
                     ->required(),

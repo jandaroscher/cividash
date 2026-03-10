@@ -492,7 +492,6 @@ return [
         'slider' => [
             'label' => 'Slider',
             'heading' => 'Heading',
-            'heading_en' => 'Heading (EN)',
             'items' => 'Slider Items',
             'title' => 'Title',
             'description' => 'Description',
@@ -521,7 +520,6 @@ return [
         'text_image' => [
             'label' => 'Text & Image',
             'heading' => 'Heading',
-            'heading_en' => 'Heading (EN)',
             'text' => 'Text',
             'image' => 'Image',
             'image_alt' => 'Alt text for image',
@@ -532,10 +530,8 @@ return [
         ],
         'card_grid' => [
             'label' => 'Tiles',
-            'heading' => 'Heading (DE)',
-            'heading_helper' => 'Optional heading above the tiles (German). Leave empty to show no heading.',
-            'heading_en' => 'Heading (EN)',
-            'heading_en_helper' => 'Optional heading above the tiles (English). Leave empty to show no heading.',
+            'heading' => 'Heading',
+            'heading_helper' => 'Optional heading above the tiles. Leave empty to show no heading.',
             'tiles' => 'Tiles',
             'tiles_helper' => 'Leave empty to show all tiles. Select to show only specific tiles.',
         ],

@@ -12,9 +12,28 @@
       class="container"
     >
       <p class="text-theme-base text-gray-400 flex flex-row gap-2 mb-5 ml-auto justify-end mt-10 sm:mt-0">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" fill="none" aria-hidden="true">
-          <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M7 7H17V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="25"
+          viewBox="0 0 24 25"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M7 17L17 7"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M7 7H17V17"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
         <span>{{ effectiveLocale === 'en' ? 'Change from previous year' : 'Veränderung zum Vorjahr' }}</span>
       </p>
@@ -63,10 +82,7 @@ const props = defineProps({
 const showSearch = computed(() => props.block.props?.show_search !== false);
 const showFilter = computed(() => props.block.props?.show_filter !== false);
 const blockHeading = computed(() => {
-    const heading = effectiveLocale.value === 'en'
-        ? (props.block.props?.heading_en || props.block.props?.heading || '')
-        : (props.block.props?.heading || '');
-    return heading || null;
+    return props.block.props?.heading || null;
 });
 
 const route = useRoute();

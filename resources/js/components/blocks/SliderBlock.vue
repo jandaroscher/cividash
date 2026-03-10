@@ -187,11 +187,7 @@ const props = defineProps({
 const { currentLocale } = useLocale();
 
 const heading = computed(() => {
-    const blockProps = props.block?.props ?? {};
-    if (currentLocale.value === 'en') {
-        return blockProps.heading_en || blockProps.heading || '';
-    }
-    return blockProps.heading || blockProps.heading_en || '';
+    return props.block?.props?.heading || '';
 });
 
 const flicking = ref(null);
@@ -215,21 +211,6 @@ const slides = computed(() => {
     return props.block.props.items
         .filter((item) => item?.is_active !== false)
         .map((item) => {
-            // Handle translations - data comes as title/description (DE) and title_en/description_en (EN)
-            let title = '';
-            if (currentLocale.value === 'en') {
-                title = item.title_en || item.title || '';
-            } else {
-                title = item.title || item.title_en || '';
-            }
-            
-            let description = '';
-            if (currentLocale.value === 'en') {
-                description = item.description_en || item.description || '';
-            } else {
-                description = item.description || item.description_en || '';
-            }
-            
             // Handle image URL - can be a path or full URL
             let imageUrl = '';
             if (item.image) {
@@ -240,22 +221,13 @@ const slides = computed(() => {
                 }
             }
 
-            let link_text = '';
-            if (item.link_text) {
-                if (currentLocale.value === 'en') {
-                    link_text = item.link_text_en || item.link_text || '';
-                } else {
-                    link_text = item.link_text || item.link_text_en || '';
-                }
-            }
-
             return {
-                title,
-                description,
+                title: item.title || '',
+                description: item.description || '',
                 image: item.image || null,
                 imageUrl,
                 link_url: item.link_url || null,
-                link_text: link_text || (currentLocale.value === 'en' ? 'Learn more' : 'Mehr erfahren'),
+                link_text: item.link_text || '',
             };
         })
         .filter((slide) => {
