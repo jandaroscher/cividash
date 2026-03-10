@@ -20,6 +20,8 @@ class ManageBranding extends SettingsPage
 {
     protected static string $view = 'filament.pages.manage-branding';
 
+    protected static ?string $slug = 'theme';
+
     protected static ?string $navigationIcon = 'heroicon-o-paint-brush';
 
     protected static ?int $navigationSort = 21;
