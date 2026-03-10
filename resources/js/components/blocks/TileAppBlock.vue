@@ -1,26 +1,45 @@
 <template>
-    <div class="tile-app-block">
-        <Filter v-if="!tilesStore.loading && !tilesStore.error && (showSearch || showFilter)" :show-search="showSearch" :show-filter="showFilter" />
+  <div class="tile-app-block">
+    <Filter
+      v-if="!tilesStore.loading && !tilesStore.error && (showSearch || showFilter || blockHeading)"
+      :show-search="showSearch"
+      :show-filter="showFilter"
+      :heading="blockHeading"
+    />
 
-        <div v-if="!tilesStore.loading && !tilesStore.error && tilesStore.tiles.length > 0" class="container">
-            <p class="text-theme-base text-gray-400 flex flex-row gap-2 mb-5 ml-auto justify-end mt-10 sm:mt-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" fill="none" aria-hidden="true">
-                    <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M7 7H17V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>{{ effectiveLocale === 'en' ? 'Change from previous year' : 'Veränderung zum Vorjahr' }}</span>
-            </p>
-        </div>
-
-        <div v-if="tilesStore.loading" class="container text-center py-10" role="status" aria-live="polite" aria-label="Loading tiles">
-            {{ effectiveLocale === 'en' ? 'Loading tiles…' : 'Lade Tiles…' }}
-        </div>
-        <div v-else-if="tilesStore.error" class="container text-accent-dark bg-red-50 border border-red-200 rounded-lg p-4" role="alert" aria-live="assertive">
-            {{ effectiveLocale === 'en' ? 'Error loading tiles:' : 'Fehler beim Laden der Tiles:' }} {{ tilesStore.error.message }}
-        </div>
-        <Cards v-else />
-        <Overlay />
+    <div
+      v-if="!tilesStore.loading && !tilesStore.error && tilesStore.tiles.length > 0"
+      class="container"
+    >
+      <p class="text-theme-base text-gray-400 flex flex-row gap-2 mb-5 ml-auto justify-end mt-10 sm:mt-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" fill="none" aria-hidden="true">
+          <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 7H17V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>{{ effectiveLocale === 'en' ? 'Change from previous year' : 'Veränderung zum Vorjahr' }}</span>
+      </p>
     </div>
+
+    <div
+      v-if="tilesStore.loading"
+      class="container text-center py-10"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading tiles"
+    >
+      {{ effectiveLocale === 'en' ? 'Loading tiles…' : 'Lade Tiles…' }}
+    </div>
+    <div
+      v-else-if="tilesStore.error"
+      class="container text-accent-dark bg-red-50 border border-red-200 rounded-lg p-4"
+      role="alert"
+      aria-live="assertive"
+    >
+      {{ effectiveLocale === 'en' ? 'Error loading tiles:' : 'Fehler beim Laden der Tiles:' }} {{ tilesStore.error.message }}
+    </div>
+    <Cards v-else />
+    <Overlay />
+  </div>
 </template>
 
 <script setup>
@@ -43,6 +62,12 @@ const props = defineProps({
 // Extract props from block
 const showSearch = computed(() => props.block.props?.show_search !== false);
 const showFilter = computed(() => props.block.props?.show_filter !== false);
+const blockHeading = computed(() => {
+    const heading = effectiveLocale.value === 'en'
+        ? (props.block.props?.heading_en || props.block.props?.heading || '')
+        : (props.block.props?.heading || '');
+    return heading || null;
+});
 
 const route = useRoute();
 const tilesStore = useTilesStore();
@@ -104,14 +129,14 @@ const popStateHandler = ref(null);
 onMounted(() => {
     // Restore filter state from URL before fetching tiles
     filterStore.restoreFromUrl();
-    
+
     tilesStore.fetchAll(effectiveLocale.value);
-    
+
     // Remove any existing handler before adding a new one (prevents duplicates on remount)
     if (popStateHandler.value) {
         window.removeEventListener('popstate', popStateHandler.value);
     }
-    
+
     // Setup popstate handler for browser back/forward button
     popStateHandler.value = () => {
         // Handle overlay state
@@ -123,11 +148,11 @@ onMounted(() => {
             // URL parameter was added (e.g., via forward button), open overlay
             overlayStore.openFromUrl(tilesStore.tiles);
         }
-        
+
         // Handle filter state
         filterStore.restoreFromUrl();
     };
-    
+
     window.addEventListener('popstate', popStateHandler.value);
 });
 

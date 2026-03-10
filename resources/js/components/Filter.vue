@@ -1,73 +1,82 @@
 <template>
-    <div class="container">
-        <div class="flex flex-col xl:flex-row">
-            <h2 class="text-theme-h3 text-black font-bold mb-6 lg:mb-12 hyphens-auto order-2 xl:order-1">
-                {{ filterHeader }}
-            </h2>
-        </div>
-
-        <!-- Search Input -->
-        <div v-if="showSearch" class="mb-5 md:mb-10">
-            <Tooltip
-                :text="getSearchTooltip()"
-                position="top"
-                wrapper-class="w-full"
-                trigger-class="w-full"
-            >
-                <input
-                    v-model="searchQuery"
-                    @input="handleSearchInput"
-                    type="text"
-                    :placeholder="searchPlaceholder"
-                    class="w-full px-4 border focus:outline-none focus:ring-2 focus:ring-offset-0"
-                    :style="{
-                        '--tw-ring-color': brandingStore.primaryColor,
-                        borderColor: '#191919',
-                        height: '4rem',
-                        fontSize: '1.25rem',
-                        lineHeight: '2rem'
-                    }"
-                    aria-label="Search tiles"
-                />
-            </Tooltip>
-        </div>
-
-        <div
-            v-if="showFilter && filterGroups.length > 0"
-            class="flex flex-wrap mb-5 md:mb-10"
-            role="tablist"
-            aria-label="Filter navigation"
-        >
-            <button
-                v-for="(group, index) in filterGroups"
-                :key="group.id"
-                :id="getTabId(group.id)"
-                role="tab"
-                :aria-selected="filterStore.level1Filter === group.key"
-                :aria-controls="getPanelId(group.id)"
-                :tabindex="filterStore.level1Filter === group.key ? 0 : -1"
-                @click="changeLevel1Filter(group.key)"
-                @keydown="handleTabKeydown($event, group.key, index)"
-                :class="[
-                    'filter-button',
-                    { 'filter-button--active': filterStore.level1Filter === group.key }
-                ]"
-                :style="getButtonStyles(group.key)"
-            >
-                {{ getGroupTitle(group) }}
-            </button>
-        </div>
-
-        <div v-if="showFilter && activeGroup" class="-mx-[30px] sm:mx-0">
-            <div
-                :id="getPanelId(activeGroup.id)"
-                role="tabpanel"
-                :aria-labelledby="getTabId(activeGroup.id)"
-            >
-                <FilterGroup :group="activeGroup" />
-            </div>
-        </div>
+  <div class="container">
+    <div
+      v-if="effectiveHeading"
+      class="flex flex-col xl:flex-row"
+    >
+      <h2 class="text-theme-h3 text-black font-bold mb-6 lg:mb-12 hyphens-auto order-2 xl:order-1">
+        {{ effectiveHeading }}
+      </h2>
     </div>
+
+    <!-- Search Input -->
+    <div
+      v-if="showSearch"
+      class="mb-5 md:mb-10"
+    >
+      <Tooltip
+        :text="getSearchTooltip()"
+        position="top"
+        wrapper-class="w-full"
+        trigger-class="w-full"
+      >
+        <input
+          v-model="searchQuery"
+          type="text"
+          :placeholder="searchPlaceholder"
+          class="w-full px-4 border focus:outline-none focus:ring-2 focus:ring-offset-0"
+          :style="{
+            '--tw-ring-color': brandingStore.primaryColor,
+            borderColor: '#191919',
+            height: '4rem',
+            fontSize: '1.25rem',
+            lineHeight: '2rem'
+          }"
+          :aria-label="currentLocale === 'en' ? 'Search tiles' : 'Kacheln durchsuchen'"
+          @input="handleSearchInput"
+        >
+      </Tooltip>
+    </div>
+
+    <div
+      v-if="showFilter && filterGroups.length > 0"
+      class="flex flex-wrap mb-5 md:mb-10"
+      role="tablist"
+      :aria-label="currentLocale === 'en' ? 'Filter navigation' : 'Filter-Navigation'"
+    >
+      <button
+        v-for="(group, index) in filterGroups"
+        :id="getTabId(group.id)"
+        :key="group.id"
+        role="tab"
+        :aria-selected="filterStore.level1Filter === group.key"
+        :aria-controls="getPanelId(group.id)"
+        :tabindex="filterStore.level1Filter === group.key ? 0 : -1"
+        :class="[
+          'filter-button',
+          { 'filter-button--active': filterStore.level1Filter === group.key }
+        ]"
+        :style="getButtonStyles(group.key)"
+        @click="changeLevel1Filter(group.key)"
+        @keydown="handleTabKeydown($event, group.key, index)"
+      >
+        {{ getGroupTitle(group) }}
+      </button>
+    </div>
+
+    <div
+      v-if="showFilter && activeGroup"
+      class="-mx-[30px] sm:mx-0"
+    >
+      <div
+        :id="getPanelId(activeGroup.id)"
+        role="tabpanel"
+        :aria-labelledby="getTabId(activeGroup.id)"
+      >
+        <FilterGroup :group="activeGroup" />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -88,6 +97,10 @@ const props = defineProps({
     showFilter: {
         type: Boolean,
         default: true,
+    },
+    heading: {
+        type: String,
+        default: null,
     },
 });
 
@@ -110,6 +123,13 @@ const activeGroup = computed(() => {
 
 const filterHeader = computed(() => {
     return filterLabels.value.header || 'Filter';
+});
+
+const effectiveHeading = computed(() => {
+    if (props.heading) {
+        return props.heading;
+    }
+    return filterHeader.value;
 });
 
 const filterLabels = ref({

@@ -6,6 +6,7 @@ use App\Models\Tile;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
 class CardGridBlock extends PageBlock
@@ -16,6 +17,12 @@ class CardGridBlock extends PageBlock
             ->label(__('filament.blocks.card_grid.label'))
             ->icon('heroicon-o-rectangle-stack')
             ->schema([
+                TextInput::make('heading')
+                    ->label(__('filament.blocks.card_grid.heading'))
+                    ->helperText(__('filament.blocks.card_grid.heading_helper')),
+                TextInput::make('heading_en')
+                    ->label(__('filament.blocks.card_grid.heading_en'))
+                    ->helperText(__('filament.blocks.card_grid.heading_en_helper')),
                 Select::make('tiles')
                     ->label(__('filament.blocks.card_grid.tiles'))
                     ->multiple()

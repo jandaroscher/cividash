@@ -43,7 +43,7 @@ class CategorySeeder extends Seeder
      * Static definition of the 3 Handlungsdimensionen.
      */
     protected array $dimensions = [
-        'grün' => [
+        'gruen' => [
             'title' => ['de' => 'Grün', 'en' => 'Green'],
             'icon_path' => 'dimensionen/gruen.svg',
             'position' => 0,
