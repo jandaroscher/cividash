@@ -206,6 +206,28 @@ class ManageBrandingTest extends TestCase
         $this->assertEquals('#000000', $settings->shadow_color);
     }
 
+    public function test_font_sizes_save_as_individual_fields(): void
+    {
+        Livewire::test(ManageBranding::class)
+            ->fillForm([
+                'primary_color' => '#FF0000',
+                'secondary_color' => '#00FF00',
+                'slider_colors.rail' => '#AAAAAA',
+                'slider_colors.handle' => '#BBBBBB',
+                'slider_colors.handleBorder' => '#CCCCCC',
+                'typography_font_sizes.base' => '1rem',
+                'typography_font_sizes.h1' => '3rem',
+                'typography_font_sizes.small' => '0.875rem',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $settings = app(BrandingSettings::class);
+        $this->assertEquals('1rem', $settings->typography_font_sizes['base']);
+        $this->assertEquals('3rem', $settings->typography_font_sizes['h1']);
+        $this->assertEquals('0.875rem', $settings->typography_font_sizes['small']);
+    }
+
     public function test_form_loads_existing_settings(): void
     {
         $settings = app(BrandingSettings::class);

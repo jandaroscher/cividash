@@ -78,7 +78,7 @@ class ManageBranding extends SettingsPage
                                         FileUpload::make('logo_url')
                                             ->label(__('filament.pages.manage_branding.logo'))
                                             ->disk('public')
-                                            ->directory('branding')
+                                            ->directory(fn () => 'branding/'.(Filament::getTenant()?->getKey() ?? 'default'))
                                             ->image()
                                             ->preserveFilenames()
                                             ->required(false),
@@ -278,7 +278,11 @@ class ManageBranding extends SettingsPage
                                                     ])
                                                     ->required(),
                                             ])
-                                            ->defaultItems(3)
+                                            ->default([
+                                                ['weight' => 400],
+                                                ['weight' => 600],
+                                                ['weight' => 700],
+                                            ])
                                             ->itemLabel(fn (array $state): ?string => $state['weight'] ?? null)
                                             ->collapsible()
                                             ->collapsed()
@@ -384,7 +388,8 @@ class ManageBranding extends SettingsPage
                                     ->columns(2),
                             ]),
                     ])
-                    ->persistTabInQueryString(),
+                    ->persistTabInQueryString()
+                    ->columnSpanFull(),
             ]);
     }
 
