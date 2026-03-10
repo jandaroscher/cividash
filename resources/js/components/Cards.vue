@@ -39,6 +39,13 @@ import { useTilesStore } from '../stores/tiles';
 import { useFilterStore } from '../stores/filter';
 import { useLocale } from '../composables/useLocale';
 
+const props = defineProps({
+    selectedTileIds: {
+        type: Array,
+        default: () => [],
+    },
+});
+
 const tilesStore = useTilesStore();
 const filterStore = useFilterStore();
 const { currentLocale } = useLocale();
@@ -79,11 +86,17 @@ function matchesSearch(tile, searchQuery) {
 
 // Function to check if a tile should be visible based on current filter
 function isTileVisible(tile) {
+    // First check if tile is in the selected tile IDs (if any are specified)
+    // Compare as strings since Filament stores IDs as strings in JSON
+    if (props.selectedTileIds.length > 0) {
+        return props.selectedTileIds.some(id => String(id) === String(tile.id));
+    }
+
     // First check search query
     if (!matchesSearch(tile, filterStore.searchQuery)) {
         return false;
     }
-    
+
     // Then check filter
     if (!filterStore.level2Filter?.key) {
         return true;

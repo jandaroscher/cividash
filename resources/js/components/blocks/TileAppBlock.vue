@@ -56,7 +56,7 @@
     >
       {{ effectiveLocale === 'en' ? 'Error loading tiles:' : 'Fehler beim Laden der Tiles:' }} {{ tilesStore.error.message }}
     </div>
-    <Cards v-else />
+    <Cards v-else :selected-tile-ids="selectedTileIds" />
     <Overlay />
   </div>
 </template>
@@ -79,8 +79,14 @@ const props = defineProps({
 });
 
 // Extract props from block
-const showSearch = computed(() => props.block.props?.show_search !== false);
-const showFilter = computed(() => props.block.props?.show_filter !== false);
+const selectedTileIds = computed(() => {
+    const ids = props.block.props?.tiles;
+    return Array.isArray(ids) && ids.length > 0 ? ids : [];
+});
+const hasSelectedTiles = computed(() => selectedTileIds.value.length > 0);
+const hideFilters = computed(() => selectedTileIds.value.length === 1);
+const showSearch = computed(() => !hideFilters.value && props.block.props?.show_search !== false);
+const showFilter = computed(() => !hideFilters.value && props.block.props?.show_filter !== false);
 const blockHeading = computed(() => {
     return props.block.props?.heading || null;
 });
