@@ -5,6 +5,7 @@
             <RouterView />
         </main>
         <Footer />
+        <ScrollToTop />
     </div>
 </template>
 
@@ -12,6 +13,7 @@
 import { RouterView } from 'vue-router';
 import Header from './components/layout/Header.vue';
 import Footer from './components/layout/Footer.vue';
+import ScrollToTop from './components/ScrollToTop.vue';
 // Stores are initialized in app.js before mounting
 </script>
 
