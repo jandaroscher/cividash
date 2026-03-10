@@ -156,10 +156,6 @@ class ConfigController extends Controller
         $filteredItems = $this->filterItemsByActivePages($navigationItems, $activePageIds);
         $filteredItems = $this->filterInactiveItems($filteredItems);
 
-        // Add page-based navigation items
-        $pageNavItems = $this->getPageNavigationItems(['header', 'both'], $locale);
-        $filteredItems = array_merge($filteredItems, $pageNavItems);
-
         $settings = app(GeneralSettings::class);
 
         return new JsonResource([
@@ -218,10 +214,6 @@ class ConfigController extends Controller
         $filteredFooterItems = $this->filterItemsByActivePages($footerItems, $activePageIds);
         $filteredFooterItems = $this->filterInactiveItems($filteredFooterItems);
 
-        // Add page-based navigation items
-        $pageNavItems = $this->getPageNavigationItems(['footer', 'both'], $locale);
-        $filteredFooterItems = array_merge($filteredFooterItems, $pageNavItems);
-
         $socialLinks = $footer->getTranslatedSocialLinks($locale) ?? [];
         $filteredSocialLinks = $this->filterInactiveItems($socialLinks);
 
@@ -233,39 +225,6 @@ class ConfigController extends Controller
             'social_links_enabled' => $footer->social_links_enabled,
             'copyright_text' => $footer->getTranslatedCopyrightText($locale),
         ]);
-    }
-
-    /**
-     * Get page-based navigation items for the specified placements.
-     *
-     * @param  array<string>  $placements  Nav placement values to include (e.g., ['header', 'both'])
-     * @param  string  $locale  Current locale
-     * @return array<int, array> Navigation items derived from pages
-     */
-    protected function getPageNavigationItems(array $placements, string $locale): array
-    {
-        $pages = \App\Models\Page::query()
-            ->whereIn('nav_placement', $placements)
-            ->where(function ($query) {
-                if (static::pageHasIsPublicColumn()) {
-                    $query->where('is_public', true);
-                }
-            })
-            ->orderBy('sort_order')
-            ->get();
-
-        return $pages->map(function (\App\Models\Page $page) use ($locale) {
-            $title = $page->getTranslation('title', $locale, false)
-                ?: $page->getTranslation('title', 'de', false)
-                ?: 'Untitled';
-
-            return [
-                'type' => 'page',
-                'page_id' => $page->id,
-                'label' => $title,
-                'url' => $page->getUrl(['locale' => $locale]),
-            ];
-        })->all();
     }
 
     /**

@@ -363,6 +363,7 @@ return [
             'navigation_label' => 'Pages',
             'model_label' => 'Page',
             'plural_model_label' => 'Pages',
+            'sidebar_title' => 'Page properties',
             'title' => 'Title',
             'slug' => 'Slug',
             'slug_validation' => 'The slug may only contain lowercase letters, numbers and hyphens (no slashes or special characters).',
@@ -373,14 +374,6 @@ return [
             'meta_title' => 'SEO title',
             'meta_description' => 'SEO description',
             'meta_image' => 'SEO image',
-            'sort_order' => 'Sort Order',
-            'nav_placement' => 'Navigation Placement',
-            'nav_placement_options' => [
-                'none' => 'None',
-                'header' => 'Header',
-                'footer' => 'Footer',
-                'both' => 'Header & Footer',
-            ],
             'created_at' => 'Created at',
             'updated_at' => 'Updated at',
             'actions' => [

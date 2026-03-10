@@ -445,6 +445,7 @@ return [
             'navigation_label' => 'Seiten',
             'model_label' => 'Seite',
             'plural_model_label' => 'Seiten',
+            'sidebar_title' => 'Seiteneigenschaften',
             'title' => 'Titel',
             'slug' => 'URL-Slug',
             'slug_validation' => 'Der Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten (keine Schrägstriche oder Sonderzeichen).',
@@ -455,14 +456,6 @@ return [
             'meta_title' => 'SEO-Titel',
             'meta_description' => 'SEO-Beschreibung',
             'meta_image' => 'SEO-Bild',
-            'sort_order' => 'Reihenfolge',
-            'nav_placement' => 'Navigation-Platzierung',
-            'nav_placement_options' => [
-                'none' => 'Keine',
-                'header' => 'Header',
-                'footer' => 'Footer',
-                'both' => 'Header & Footer',
-            ],
             'created_at' => 'Erstellt am',
             'updated_at' => 'Aktualisiert am',
             'actions' => [
