@@ -50,6 +50,15 @@ class ManageBranding extends SettingsPage
         return (bool) Filament::auth()->user()?->is_admin;
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('save')
+                ->label(__('filament.actions.save'))
+                ->submit('save'),
+        ];
+    }
+
     public function getSaveFormAction(): Action
     {
         return parent::getSaveFormAction()
