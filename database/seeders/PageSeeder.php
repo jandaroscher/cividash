@@ -166,6 +166,7 @@ class PageSeeder extends Seeder
                     [
                         'type' => 'card-grid',
                         'data' => [
+                            'heading' => 'Welcher Bereich interessiert Sie?',
                             'tiles' => [],
                             'is_active' => true,
                         ],
@@ -183,6 +184,7 @@ class PageSeeder extends Seeder
                     [
                         'type' => 'card-grid',
                         'data' => [
+                            'heading' => 'Which area are you interested in?',
                             'tiles' => [],
                             'is_active' => true,
                         ],
