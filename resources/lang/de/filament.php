@@ -124,6 +124,13 @@ return [
             'tile_color_source_group_helper' => 'Die Farben der Kategorien dieser Gruppe werden zur farblichen Kennzeichnung der Kacheln verwendet.',
             'tile_background_category_group' => 'Kategorie-Gruppe für Hintergrundseite',
             'tile_background_category_group_helper' => 'Die Icons dieser Kategorie-Gruppe werden auf der Kachel-Hintergrundseite (Overlay) angezeigt.',
+            'favicon_section' => 'Favicon',
+            'tabs' => [
+                'logo' => 'Logo',
+                'colors' => 'Farben',
+                'typography' => 'Schrift',
+                'configuration' => 'Konfiguration',
+            ],
         ],
         'manage_general' => [
             'title' => 'Seiteneinstellungen',

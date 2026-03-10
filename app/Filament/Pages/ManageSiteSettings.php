@@ -12,7 +12,6 @@ use Filament\Actions\Action;
 use Filament\Actions\LocaleSwitcher;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -94,7 +93,6 @@ class ManageSiteSettings extends Page implements HasForms
         // General settings (non-translatable)
         $data = [
             'site_name' => $settings->site_name,
-            'favicon' => $settings->favicon,
             'english_translation_active' => $settings->english_translation_active,
         ];
 
@@ -140,20 +138,9 @@ class ManageSiteSettings extends Page implements HasForms
             ->schema([
                 Section::make(__('filament.pages.manage_site_settings.section_basic'))
                     ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                TextInput::make('site_name')
-                                    ->label(__('filament.pages.manage_general.site_name'))
-                                    ->required(),
-                                FileUpload::make('favicon')
-                                    ->label(__('filament.pages.manage_general.favicon'))
-                                    ->disk('public')
-                                    ->directory('branding')
-                                    ->image()
-                                    ->acceptedFileTypes(['image/x-icon', 'image/png', 'image/svg+xml', 'image/vnd.microsoft.icon'])
-                                    ->maxSize(512)
-                                    ->helperText(__('filament.pages.manage_general.favicon_helper')),
-                            ]),
+                        TextInput::make('site_name')
+                            ->label(__('filament.pages.manage_general.site_name'))
+                            ->required(),
                         Toggle::make('english_translation_active')
                             ->label(__('filament.pages.manage_site_settings.english_translation_active'))
                             ->helperText(__('filament.pages.manage_site_settings.english_translation_active_helper'))
@@ -370,7 +357,6 @@ class ManageSiteSettings extends Page implements HasForms
         // Save GeneralSettings
         $settings = app(GeneralSettings::class);
         $settings->site_name = $data['site_name'];
-        $settings->favicon = $data['favicon'] ?? null;
         $settings->english_translation_active = $data['english_translation_active'] ?? true;
         $settings->save();
 

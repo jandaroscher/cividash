@@ -304,6 +304,13 @@ return [
             'tile_color_source_group_helper' => 'The colors of this group\'s categories are used to visually tint the tiles.',
             'tile_background_category_group' => 'Category Group for Background Page',
             'tile_background_category_group_helper' => 'The icons of this category group are displayed on the tile background page (overlay).',
+            'favicon_section' => 'Favicon',
+            'tabs' => [
+                'logo' => 'Logo',
+                'colors' => 'Colors',
+                'typography' => 'Typography',
+                'configuration' => 'Configuration',
+            ],
         ],
     ],
     'resources' => [
