@@ -17,23 +17,15 @@
           width="24"
           height="25"
           viewBox="0 0 24 25"
-          fill="none"
           aria-hidden="true"
         >
-          <path
-            d="M7 17L17 7"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M7 7H17V17"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
+          <g transform="translate(0 1)">
+            <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
+            <g transform="translate(0 15.48) rotate(-45)">
+              <path d="M0,0H18.789" transform="translate(0 4.311)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+              <path d="M0,0,4.359,4.359,0,8.719" transform="translate(14.705)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+            </g>
+          </g>
         </svg>
         <span>{{ effectiveLocale === 'en' ? 'Change from previous year' : 'Veränderung zum Vorjahr' }}</span>
       </p>
