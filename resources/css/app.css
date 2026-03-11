@@ -108,26 +108,24 @@
     --dimension-green-color-400: #0D7B56;
 }
 
-/* Custom container class */
-@layer components {
+/* Custom container class - un-layered to override Tailwind 4's utility-layer .container */
+.container {
+    width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: 30px;
+    padding-left: 30px;
+}
+
+@media (min-width: 1024px) {
     .container {
-        width: 100%;
-        margin-right: auto;
-        margin-left: auto;
-        padding-right: 30px;
-        padding-left: 30px;
+        max-width: 1024px;
     }
-    
-    @media (min-width: 1024px) {
-        .container {
-            max-width: 1024px;
-        }
-    }
-    
-    @media (min-width: 1230px) {
-        .container {
-            max-width: 1230px;
-        }
+}
+
+@media (min-width: 1230px) {
+    .container {
+        max-width: 1230px;
     }
 }
 

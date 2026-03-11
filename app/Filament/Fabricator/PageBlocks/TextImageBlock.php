@@ -46,8 +46,7 @@ class TextImageBlock extends PageBlock
                         'left' => __('filament.blocks.text_image.position_left'),
                         'right' => __('filament.blocks.text_image.position_right'),
                     ])
-                    ->default('left')
-                    ->required(),
+                    ->default('right'),
                 Hidden::make('is_active')
                     ->default(true)
                     ->afterStateHydrated(function (Hidden $component, $state): void {

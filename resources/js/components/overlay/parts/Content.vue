@@ -1,15 +1,5 @@
 <template>
   <div class="px-6 xl:px-20 py-8 flex flex-col gap-10">
-    <div
-      v-if="tile?.description"
-      class="whitespace-break-spaces"
-    >
-      <div
-        class="prose max-w-none"
-        v-html="description"
-      />
-    </div>
-
     <template v-if="tile?.background_blocks?.length > 0">
       <template
         v-for="(block, index) in blocksWithIds"
@@ -66,7 +56,6 @@
 
 <script setup>
 import { computed } from 'vue';
-import DOMPurify from 'dompurify';
 import { useLocale } from '../../../composables/useLocale';
 import HeroBlock from '../../blocks/HeroBlock.vue';
 import TextImageBlock from '../../blocks/TextImageBlock.vue';
@@ -89,18 +78,6 @@ const props = defineProps({
 });
 
 const { currentLocale } = useLocale();
-
-const description = computed(() => {
-    if (!props.tile) return '';
-    const rawDescription = (
-        props.tile.description?.[currentLocale.value] ||
-        props.tile.description?.de ||
-        props.tile.description ||
-        ''
-    );
-    // Sanitize HTML to prevent XSS attacks
-    return DOMPurify.sanitize(rawDescription);
-});
 
 const blockComponentMap = {
     hero: HeroBlock,
