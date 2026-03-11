@@ -21,7 +21,7 @@
                 </h1>
                 <p
                     v-if="block.props.subtitle"
-                    class="text-xl md:text-2xl mb-8 text-gray-200"
+                    class="text-theme-h5 mb-8 text-gray-200"
                 >
                     {{ block.props.subtitle }}
                 </p>

@@ -57,7 +57,7 @@
                 <div>
                   <p
                     v-if="slide.title"
-                    class="text-xl font-bold mb-2"
+                    class="text-theme-h5 font-bold mb-2"
                   >
                     {{ slide.title }}
                   </p>
