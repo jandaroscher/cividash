@@ -345,7 +345,8 @@ class ManageSiteSettings extends Page implements HasForms
             LocaleSwitcher::make(),
             Action::make('saveFromHeader')
                 ->label(__('filament-panels::resources/pages/edit-record.form.actions.save.label'))
-                ->submit('save'),
+                ->submit('form')
+                ->formId('form'),
         ];
     }
 

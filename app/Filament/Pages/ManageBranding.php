@@ -54,7 +54,8 @@ class ManageBranding extends SettingsPage
         return [
             Action::make('save')
                 ->label(__('filament.actions.save'))
-                ->submit('save'),
+                ->submit('form')
+                ->formId('form'),
         ];
     }
 
