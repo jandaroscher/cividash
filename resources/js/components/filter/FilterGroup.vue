@@ -1,94 +1,141 @@
 <template>
-    <div ref="containerRef" class="relative">
-        <div v-if="items.length === 0" class="text-center py-8 text-gray-600">
-            {{ localeValue === 'en' ? 'No filters available' : 'Keine Filter verfügbar' }}
-        </div>
-        <Flicking
-            v-else-if="isReady"
-            :key="flickingKey"
-            ref="flicking"
-            class="pb-4"
-            :plugins="activePlugins"
-            :options="{
-                align,
-                defaultIndex: 0,
-                circular,
-                circularFallback: 'bound',
-                moveType: 'snap',
-                panelsPerView,
-                bound: true
-            }"
-        >
-            <button
-                v-for="item in items"
-                :key="item.id"
-                :aria-label="getItemTitle(item)"
-                class="min-h-[204px] flex flex-col items-center cursor-pointer mr-10 md:mr-18"
-                @click="selectItem(item)"
-            >
-                <span
-                    :class="{ 'bg-gray-200/60 rounded-full': isSelected(item) }"
-                    class="block rounded-full hover:bg-gray-200/60 mb-3 p-2 transition-colors duration-200"
-                >
-                    <img
-                        v-if="getItemIcon(item)"
-                        class="w-30 max-w-none"
-                        :alt="getItemTitle(item)"
-                        :src="getItemIcon(item)"
-                        width="120"
-                        height="120"
-                        loading="lazy"
-                    />
-                </span>
-                <span class="block text-xl text-center">
-                    {{ getItemTitle(item) }}
-                </span>
-            </button>
-
-            <template #viewport>
-                <div class="xl:hidden flicking-pagination"></div>
-            </template>
-        </Flicking>
-
-        <span
-            ref="prevArrowRef"
-            class="flicking-arrow-prev is-outside cursor-pointer"
-            role="button"
-            tabindex="0"
-            :aria-label="localeValue === 'en' ? 'Previous filters' : 'Vorherige Filter'"
-            @click="handlePrev"
-            @keydown.enter.prevent="handlePrev"
-            @keydown.space.prevent="handlePrev"
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
-                <circle cx="18" cy="18" r="18" fill="#fff"/>
-                <path d="M1.061,1.061l9.238,9.5-9.238,9.5" transform="translate(22.806 29.558) rotate(180)" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="3"/>
-            </svg>
-        </span>
-        <span
-            ref="nextArrowRef"
-            class="flicking-arrow-next is-outside cursor-pointer"
-            role="button"
-            tabindex="0"
-            :aria-label="localeValue === 'en' ? 'Next filters' : 'Nächste Filter'"
-            @click="handleNext"
-            @keydown.enter.prevent="handleNext"
-            @keydown.space.prevent="handleNext"
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
-                <circle cx="18" cy="18" r="18" fill="#fff"/>
-                <path d="M0,18.995,9.238,9.5,0,0" transform="translate(14.254 9.503)" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="3"/>
-            </svg>
-        </span>
+  <div
+    ref="containerRef"
+    class="relative"
+  >
+    <div
+      v-if="items.length === 0"
+      class="text-center py-8 text-gray-600"
+    >
+      {{ localeValue === 'en' ? 'No filters available' : 'Keine Filter verfügbar' }}
     </div>
+    <Flicking
+      v-else-if="isReady"
+      :key="flickingKey"
+      ref="flicking"
+      :class="[needsScrolling ? 'pb-10' : '']"
+      :plugins="activePlugins"
+      :options="{
+        align,
+        defaultIndex: 0,
+        circular,
+        circularFallback: 'bound',
+        moveType: 'snap',
+        panelsPerView,
+        bound: true
+      }"
+    >
+      <button
+        v-for="item in items"
+        :key="item.id"
+        :aria-label="getItemTitle(item)"
+        class="min-h-[204px] flex flex-col items-center cursor-pointer mr-10 md:mr-18"
+        @click="selectItem(item)"
+      >
+        <span
+          :class="{ 'bg-gray-200/60 rounded-full': isSelected(item) }"
+          class="block rounded-full hover:bg-gray-200/60 mb-3 p-2 transition-colors duration-200"
+        >
+          <img
+            v-if="getItemIcon(item)"
+            class="w-30 max-w-none"
+            :alt="getItemTitle(item)"
+            :src="getItemIcon(item)"
+            width="120"
+            height="120"
+            loading="lazy"
+          >
+        </span>
+        <span class="block text-xl text-center">
+          {{ getItemTitle(item) }}
+        </span>
+      </button>
+
+      <template #viewport>
+        <div
+          v-show="needsScrolling"
+          class="xl:hidden flicking-pagination"
+        />
+      </template>
+    </Flicking>
+
+    <span
+      v-show="needsScrolling"
+      ref="prevArrowRef"
+      class="flicking-arrow-prev flicking-arrow-prev-filter is-outside cursor-pointer"
+      role="button"
+      tabindex="0"
+      :aria-label="localeValue === 'en' ? 'Previous filters' : 'Vorherige Filter'"
+      @click="handlePrev"
+      @keydown.enter.prevent="handlePrev"
+      @keydown.space.prevent="handlePrev"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="36"
+        height="36"
+        viewBox="0 0 36 36"
+        aria-hidden="true"
+      >
+        <circle
+          cx="18"
+          cy="18"
+          r="18"
+          fill="#fff"
+        />
+        <path
+          d="M1.061,1.061l9.238,9.5-9.238,9.5"
+          transform="translate(22.806 29.558) rotate(180)"
+          fill="none"
+          stroke="currentColor"
+          stroke-miterlimit="10"
+          stroke-width="3"
+        />
+      </svg>
+    </span>
+    <span
+      v-show="needsScrolling"
+      ref="nextArrowRef"
+      class="flicking-arrow-next flicking-arrow-next-filter is-outside cursor-pointer"
+      role="button"
+      tabindex="0"
+      :aria-label="localeValue === 'en' ? 'Next filters' : 'Nächste Filter'"
+      @click="handleNext"
+      @keydown.enter.prevent="handleNext"
+      @keydown.space.prevent="handleNext"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="36"
+        height="36"
+        viewBox="0 0 36 36"
+        aria-hidden="true"
+      >
+        <circle
+          cx="18"
+          cy="18"
+          r="18"
+          fill="#fff"
+        />
+        <path
+          d="M0,18.995,9.238,9.5,0,0"
+          transform="translate(14.254 9.503)"
+          fill="none"
+          stroke="currentColor"
+          stroke-miterlimit="10"
+          stroke-width="3"
+        />
+      </svg>
+    </span>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import Flicking from '@egjs/vue3-flicking';
 import '@egjs/vue3-flicking/dist/flicking.css';
-import { Pagination } from '@egjs/flicking-plugins';
-// Arrow plugin removed - using manual click handlers instead for better reliability
+import { Pagination, Arrow } from '@egjs/flicking-plugins';
+import '@egjs/flicking-plugins/dist/arrow.css';
 import '@egjs/flicking-plugins/dist/pagination.css';
 import { useFilterStore } from '../../stores/filter';
 import { useLocale } from '../../composables/useLocale';
@@ -119,6 +166,8 @@ const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024
 const panelsPerView = ref(5);
 const circular = ref(false);
 const align = ref('prev');
+
+const needsScrolling = computed(() => items.value.length > panelsPerView.value);
 
 // Control when Flicking is ready to render
 const isReady = ref(false);
@@ -216,7 +265,7 @@ function handleNext() {
     }
 }
 
-// Initialize plugins (only Pagination - Arrow functionality handled via click handlers)
+// Initialize plugins (Pagination + Arrow with parentEl scoping)
 function initializePlugins() {
     // Destroy existing plugins first
     if (activePlugins.value && Array.isArray(activePlugins.value)) {
@@ -231,11 +280,18 @@ function initializePlugins() {
         });
     }
     
-    // Create only Pagination plugin - Arrow navigation handled via manual click handlers
-    // This is more reliable as it doesn't depend on DOM element selectors
-    activePlugins.value = [
-        new Pagination({ type: 'bullet' })
-    ];
+    const plugins = [new Pagination({ type: 'bullet' })];
+
+    // Add Arrow plugin with parentEl to scope selectors to this component
+    if (containerRef.value) {
+        plugins.push(new Arrow({
+            parentEl: containerRef.value,
+            prevElSelector: '.flicking-arrow-prev-filter',
+            nextElSelector: '.flicking-arrow-next-filter',
+        }));
+    }
+
+    activePlugins.value = plugins;
 }
 
 // Watch for locale changes and reinitialize

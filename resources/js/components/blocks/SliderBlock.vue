@@ -16,7 +16,7 @@
       <Flicking
         ref="flicking"
         class="-mx-5 px-5 -mt-5 pt-5"
-        :class="[slides.length > 1 ? 'pb-10' : '-mb-5 pb-5']"
+        :class="[slides.length > panelsPerView ? 'pb-10' : '-mb-5 pb-5']"
         :plugins="plugins"
         :options="{
           align,
@@ -87,14 +87,14 @@
 
         <template #viewport>
           <div
-            v-show="slides.length > 1"
+            v-show="slides.length > panelsPerView"
             class="flicking-pagination"
           />
         </template>
       </Flicking>
 
       <button
-        v-show="slides.length > 1"
+        v-show="slides.length > panelsPerView"
         type="button"
         class="flicking-arrow-prev flicking-arrow-prev-overlay"
         :style="{ top: imageCenterY + 'px' }"
@@ -127,7 +127,7 @@
         </svg>
       </button>
       <button
-        v-show="slides.length > 1"
+        v-show="slides.length > panelsPerView"
         type="button"
         class="flicking-arrow-next flicking-arrow-next-overlay"
         :style="{ top: imageCenterY + 'px' }"
