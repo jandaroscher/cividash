@@ -144,30 +144,31 @@
     padding-bottom: 0;
 }
 
-/* Custom utility classes for shadows - now using themeable shadow color */
+/* Custom utility classes for shadows - using @utility for Tailwind v4 variant support (hover:, etc.) */
+@utility shadow-header {
+    box-shadow: 0px 3px 15px color-mix(in srgb, var(--shadow-color, #000000) 16%, transparent);
+}
+@utility shadow-card {
+    box-shadow: 0px 4px 10px color-mix(in srgb, var(--shadow-color, #000000) 10%, transparent);
+}
+@utility shadow-filter {
+    box-shadow: 0px 4px 10px color-mix(in srgb, var(--shadow-color, #000000) 44%, transparent);
+}
+@utility shadow-info {
+    box-shadow: 0px 1px 10px color-mix(in srgb, var(--shadow-color, #000000) 44%, transparent);
+}
+@utility shadow-info-close {
+    box-shadow: 0px 1px 10px #9B9B9B;
+}
+@utility shadow-textarea {
+    box-shadow: 0px 3px 15px color-mix(in srgb, var(--shadow-color, #000000) 16%, transparent);
+}
+@utility shadow-arrow {
+    box-shadow: 0px 3px 6px color-mix(in srgb, var(--shadow-color, #000000) 16%, transparent);
+}
+
+/* Themeable text color and font utilities */
 @layer utilities {
-    .shadow-header {
-        box-shadow: 0px 3px 15px color-mix(in srgb, var(--shadow-color, #000000) 16%, transparent);
-    }
-    .shadow-card {
-        box-shadow: 0px 4px 10px color-mix(in srgb, var(--shadow-color, #000000) 10%, transparent);
-    }
-    .shadow-filter {
-        box-shadow: 0px 4px 10px color-mix(in srgb, var(--shadow-color, #000000) 44%, transparent);
-    }
-    .shadow-info {
-        box-shadow: 0px 1px 10px color-mix(in srgb, var(--shadow-color, #000000) 44%, transparent);
-    }
-    .shadow-info-close {
-        box-shadow: 0px 1px 10px #9B9B9B;
-    }
-    .shadow-textarea {
-        box-shadow: 0px 3px 15px color-mix(in srgb, var(--shadow-color, #000000) 16%, transparent);
-    }
-    .shadow-arrow {
-        box-shadow: 0px 3px 6px color-mix(in srgb, var(--shadow-color, #000000) 16%, transparent);
-    }
-    
     /* Themeable text color utilities */
     .text-theme-primary {
         color: var(--text-primary-color, #000000);
