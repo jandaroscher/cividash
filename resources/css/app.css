@@ -131,6 +131,21 @@
     }
 }
 
+/* Neutralize .container inside tile overlay - overlay Content.vue handles its own padding */
+#default-sidebar .container {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Remove excessive vertical section padding inside overlay */
+#default-sidebar section {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 /* Custom utility classes for shadows - now using themeable shadow color */
 @layer utilities {
     .shadow-header {

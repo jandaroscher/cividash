@@ -303,10 +303,10 @@ class TileSeederTest extends TestCase
         $deBlocks = $tile->getTranslation('background_blocks', 'de');
         $this->assertNotNull($deBlocks);
 
-        // Block type should be valid (intro-text or slider)
+        // Block type should be valid (text-image or slider)
         $blockType = $deBlocks[0]['type'] ?? null;
         $this->assertNotNull($blockType);
-        $this->assertContains($blockType, ['intro-text', 'slider']);
+        $this->assertContains($blockType, ['text-image', 'slider']);
     }
 
     public function test_tile_seeder_sets_source_hash_and_last_synced_at(): void

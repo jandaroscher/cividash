@@ -176,7 +176,7 @@ class TileSeeder extends Seeder
         $validBlockTypes = $this->getValidBlockTypes();
 
         if (! empty($tile->backgroundText)) {
-            $blockType = $this->validateBlockType('intro-text', $validBlockTypes);
+            $blockType = $this->validateBlockType('text-image', $validBlockTypes);
 
             $deData = array_filter([
                 'heading' => $tile->title ?? null,
@@ -246,7 +246,7 @@ class TileSeeder extends Seeder
         }
 
         if (! empty($tile->contributionText)) {
-            $blockType = $this->validateBlockType('intro-text', $validBlockTypes);
+            $blockType = $this->validateBlockType('text-image', $validBlockTypes);
 
             $deData = array_filter([
                 'heading' => 'Beitrag',
@@ -305,7 +305,7 @@ class TileSeeder extends Seeder
             return $blockType;
         }
 
-        $fallbackType = 'intro-text';
+        $fallbackType = 'text-image';
         if (in_array($fallbackType, $validTypes)) {
             if ($this->command) {
                 $this->command->warn("Block type '{$blockType}' is not registered, falling back to '{$fallbackType}'");

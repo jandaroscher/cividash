@@ -2,7 +2,6 @@
   <div class="px-6 xl:px-20 py-8 flex flex-col gap-10">
     <div
       v-if="tile?.description"
-      id="section-achievement"
       class="whitespace-break-spaces"
     >
       <div
