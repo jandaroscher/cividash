@@ -14,7 +14,9 @@
                 <img
                     :src="brandingStore.logoUrl"
                     :alt="siteName"
-                    class="logo w-[140px] md:w-[190px] max-h-[68px] object-contain"
+                    class="logo md:w-[190px]"
+                    width="140"
+                    height="68"
                 />
             </RouterLink>
             <RouterLink 
