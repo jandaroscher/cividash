@@ -52,8 +52,6 @@ export const useOverlayStore = defineStore('overlay', {
             this.tile = tile;
             this.data = data;
             this.open = true;
-            // Lock body scroll when overlay is open
-            document.body.style.overflow = 'hidden';
             // Update URL with tile parameter
             const tileSlug = getTileSlug(tile);
             if (tileSlug) {
@@ -64,8 +62,6 @@ export const useOverlayStore = defineStore('overlay', {
             this.open = false;
             this.tile = null;
             this.data = null;
-            // Restore body scroll
-            document.body.style.overflow = '';
             // Remove tile parameter from URL
             updateUrlWithTile(null);
         },
