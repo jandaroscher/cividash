@@ -5,10 +5,10 @@
     >
         <div class="container h-full flex items-center space-x-2">
             <!-- Logo -->
-            <RouterLink 
-                v-if="brandingStore.logoUrl" 
-                :to="homePath" 
-                class="flex-1"
+            <RouterLink
+                v-if="brandingStore.logoUrl"
+                :to="homePath"
+                class="w-fit shrink-0"
                 :aria-label="locale === 'en' ? 'Home' : 'Startseite'"
             >
                 <img
@@ -19,14 +19,13 @@
                     height="68"
                 />
             </RouterLink>
-            <RouterLink 
-                v-else 
-                :to="homePath"
-                class="flex-1 text-2xl md:text-3xl font-bold"
+            <span
+                v-else
+                class="w-fit shrink-0 text-2xl md:text-3xl font-bold"
                 :style="{ color: brandingStore.primaryColor || '#1976d2' }"
             >
                 {{ siteName }}
-            </RouterLink>
+            </span>
 
             <!-- Mobile Menu Toggle -->
             <button
@@ -53,9 +52,10 @@
                         v-if="headerStore.dropdownEnabled && item.children && item.children.length > 0"
                         class="relative nav-item has-dropdown"
                     >
-                        <RouterLink 
-                            :to="item.url" 
-                            class="text-sm sm:text-base md:text-2xl md:font-bold transition-colors duration-200 nav-link" 
+                        <RouterLink
+                            :to="item.url"
+                            class="text-sm sm:text-base md:text-2xl md:font-bold transition-colors duration-200 nav-link"
+                            active-class="nav-link-active"
                             style="color: var(--nav-text-color);"
                             :aria-expanded="dropdownExpanded[index] || false"
                             @focus="dropdownExpanded[index] = true"
@@ -69,6 +69,7 @@
                                 :key="childIndex"
                                 :to="child.url"
                                 class="block px-4 py-2 text-base transition-colors duration-200 dropdown-link"
+                                active-class="nav-link-active"
                                 style="color: var(--link-color, #E30613);"
                             >
                                 {{ child.label }}
@@ -76,9 +77,10 @@
                         </div>
                     </div>
                     <div v-else class="relative nav-item">
-                        <RouterLink 
-                            :to="item.url" 
-                            class="text-sm sm:text-base md:text-2xl md:font-bold transition-colors duration-200 nav-link" 
+                        <RouterLink
+                            :to="item.url"
+                            class="text-sm sm:text-base md:text-2xl md:font-bold transition-colors duration-200 nav-link"
+                            active-class="nav-link-active"
                             style="color: var(--nav-text-color);"
                         >
                             {{ item.label }}
@@ -142,9 +144,10 @@
                 <nav class="flex flex-col space-y-4">
                     <template v-for="(item, index) in headerStore.navigationItems" :key="index">
                         <div>
-                            <RouterLink 
-                                :to="item.url" 
-                                class="text-lg font-bold transition-colors duration-200 block py-2" 
+                            <RouterLink
+                                :to="item.url"
+                                class="text-lg font-bold transition-colors duration-200 block py-2"
+                                active-class="nav-link-active"
                                 style="color: var(--nav-text-color);"
                                 @click="closeMobileMenu"
                             >
@@ -159,6 +162,7 @@
                                     :key="childIndex"
                                     :to="child.url"
                                     class="text-base transition-colors duration-200 block py-1"
+                                    active-class="nav-link-active"
                                     style="color: var(--nav-text-color);"
                                     @click="closeMobileMenu"
                                 >
@@ -388,6 +392,11 @@ watch(
     .language-switcher-mobile {
         display: block !important;
     }
+}
+
+/* Active navigation item */
+.nav-link-active {
+    color: var(--nav-hover-color) !important;
 }
 
 /* Navigation hover styles */

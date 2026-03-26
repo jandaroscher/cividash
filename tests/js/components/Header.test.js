@@ -86,12 +86,18 @@ describe('Header', () => {
         expect(wrapper.find('header').exists()).toBe(true);
     });
 
-    it('renders site name when no logo URL is set', () => {
+    it('renders site name as a non-link span when no logo URL is set', async () => {
         brandingStore.logoUrl = null;
         const wrapper = createWrapper();
 
         // Should display the site name from the header config
         expect(wrapper.text()).toContain('Test Dashboard');
+
+        // Fallback should be a span, not a RouterLink/anchor
+        const spans = wrapper.findAll('span');
+        const siteNameSpan = spans.find(s => s.text().includes('Test Dashboard'));
+        expect(siteNameSpan).toBeDefined();
+        expect(siteNameSpan.element.tagName).toBe('SPAN');
     });
 
     it('renders logo image when logoUrl is set', () => {
