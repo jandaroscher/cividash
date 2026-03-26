@@ -26,7 +26,7 @@
 
                 <div
                     v-if="block.props.text"
-                    class="prose prose-lg max-w-none [&_p]:text-xl [&_p]:text-black [&_p]:mb-5 [&_p:last-child]:mb-10 [&_a]:transition-colors [&_a]:duration-300"
+                    class="prose prose-lg max-w-none [&_p]:text-xl [&_p]:text-black [&_p]:mb-5 [&_p:last-child]:mb-10 [&_li]:text-xl [&_li]:text-black [&_a]:transition-colors [&_a]:duration-300"
                     v-html="sanitizedText"
                 />
             </div>

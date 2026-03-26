@@ -1,18 +1,19 @@
 <template>
-  <div
+  <section
     v-if="slides.length > 0"
-    class="px-0"
+    class="py-12 md:py-16"
   >
-    <h2
-      v-if="heading"
-      class="text-theme-h2 font-bold mb-6"
-    >
-      {{ heading }}
-    </h2>
-    <div
-      ref="sliderRoot"
-      class="overflow-visible relative"
-    >
+    <div class="container px-6 xl:px-20 overflow-visible">
+      <h2
+        v-if="heading"
+        class="text-theme-h2 font-bold mb-6"
+      >
+        {{ heading }}
+      </h2>
+      <div
+        ref="sliderRoot"
+        class="overflow-visible relative"
+      >
       <Flicking
         ref="flicking"
         class="-mx-5 px-5 -mt-5 pt-5"
@@ -61,12 +62,11 @@
                   >
                     {{ slide.title }}
                   </p>
-                  <p
+                  <div
                     v-if="slide.description"
-                    class="whitespace-break-spaces"
-                  >
-                    {{ slide.description }}
-                  </p>
+                    class="prose max-w-none text-theme-secondary"
+                    v-html="slide.sanitizedDescription"
+                  />
                 </div>
 
                 <a
@@ -160,7 +160,8 @@
         </svg>
       </button>
     </div>
-  </div>
+    </div>
+  </section>
 </template>
 
 <script setup>
@@ -173,7 +174,7 @@ import '@egjs/flicking-plugins/dist/arrow.css';
 import '@egjs/flicking-plugins/dist/pagination.css';
 import { useLocale } from '../../composables/useLocale';
 import { useBrandingStore } from '../../stores/branding';
-import { isExternalUrl } from '../../utils/sanitizeHtml';
+import { isExternalUrl, sanitizeHtml } from '../../utils/sanitizeHtml';
 
 const brandingStore = useBrandingStore();
 
@@ -224,6 +225,7 @@ const slides = computed(() => {
             return {
                 title: item.title || '',
                 description: item.description || '',
+                sanitizedDescription: item.description ? sanitizeHtml(item.description) : '',
                 image: item.image || null,
                 imageUrl,
                 link_url: item.link_url || null,
@@ -299,7 +301,7 @@ onBeforeUnmount(() => {
     height: 36px;
     width: 36px !important;
     border-radius: 50%;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    box-shadow: 0px 2px 4px color-mix(in srgb, var(--shadow-color, #000000) 10%, transparent);
     transform: translateY(-50%);
     cursor: pointer;
     color: var(--accent-color, #E30613);
@@ -308,6 +310,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     overflow: hidden;
     padding: 0;
+    transition: box-shadow 0.2s ease;
 }
 
 .flicking-arrow-prev {
@@ -332,7 +335,7 @@ onBeforeUnmount(() => {
 
 .flicking-arrow-prev:hover,
 .flicking-arrow-next:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    box-shadow: 0px 4px 10px color-mix(in srgb, var(--shadow-color, #000000) 18%, transparent);
 }
 
 .flicking-arrow-prev.flicking-arrow-disabled,
@@ -340,7 +343,7 @@ onBeforeUnmount(() => {
     color: #e5e5e5;
     opacity: 0.4;
     cursor: default;
-    box-shadow: 0px 3px 6px #00000029;
+    box-shadow: 0px 2px 4px color-mix(in srgb, var(--shadow-color, #000000) 8%, transparent);
 }
 
 .flicking-pagination-bullet-active {

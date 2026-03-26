@@ -16,7 +16,7 @@
             :src="imageUrl"
             :alt="altText"
             loading="lazy"
-            class="w-full h-auto rounded-lg shadow-card"
+            class="w-full h-auto"
           >
         </div>
         <div :class="['order-2', isImageLeft ? '' : 'md:order-1']">
@@ -34,7 +34,7 @@
             :src="imageUrl"
             :alt="altText"
             loading="lazy"
-            class="w-full h-auto rounded-lg shadow-card"
+            class="w-full h-auto"
           >
         </div>
       </div>

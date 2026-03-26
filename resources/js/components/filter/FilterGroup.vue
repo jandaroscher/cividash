@@ -46,7 +46,10 @@
             loading="lazy"
           >
         </span>
-        <span class="block text-xl text-center">
+        <span
+          class="block text-xl text-center hyphens-auto break-words max-w-[120px]"
+          :lang="localeValue"
+        >
           {{ getItemTitle(item) }}
         </span>
       </button>
