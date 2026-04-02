@@ -4,7 +4,8 @@ import { defineConfig } from '@playwright/test';
  * Playwright configuration for E2E tests.
  *
  * Tests cover: tenant resolution, multi-tenant data isolation,
- * API key lifecycle, and admin panel smoke tests.
+ * API key lifecycle, admin panel smoke tests, dashboard navigation,
+ * filter/search, locale switching, content pages, and branding.
  *
  * Prerequisites:
  * - ddev must be running: `ddev start`
@@ -65,6 +66,26 @@ export default defineConfig({
     {
       name: 'admin-smoke',
       testMatch: /smoke-test\.spec\.ts/,
+    },
+    {
+      name: 'dashboard-navigation',
+      testMatch: /dashboard-navigation\.spec\.ts/,
+    },
+    {
+      name: 'filter-search',
+      testMatch: /filter-search\.spec\.ts/,
+    },
+    {
+      name: 'locale-switching',
+      testMatch: /locale-switching\.spec\.ts/,
+    },
+    {
+      name: 'content-pages',
+      testMatch: /content-pages\.spec\.ts/,
+    },
+    {
+      name: 'branding',
+      testMatch: /branding\.spec\.ts/,
     },
   ],
 });
