@@ -87,5 +87,9 @@ export default defineConfig({
       name: 'branding',
       testMatch: /branding\.spec\.ts/,
     },
+    {
+      name: 'accessibility',
+      testMatch: /a11y-audit\.spec\.ts/,
+    },
   ],
 });

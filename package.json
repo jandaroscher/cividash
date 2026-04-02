@@ -24,6 +24,7 @@
         "vue-slider-component": "^4.1.0-beta.7"
     },
     "devDependencies": {
+        "@axe-core/playwright": "^4.11.1",
         "@eslint/js": "^9.17.0",
         "@pinia/testing": "^1.0.3",
         "@playwright/test": "^1.49.1",
