@@ -12,7 +12,10 @@
             </p>
             <RouterLink
                 :to="locale === 'en' ? '/en' : '/'"
-                class="inline-block text-accent hover:text-accent-dark transition-colors duration-200 font-semibold"
+                class="inline-block font-semibold underline transition-colors duration-200"
+                style="color: var(--link-color, var(--accent-color, #E30613));"
+                @mouseenter="$event.target.style.color = 'var(--link-hover-color, var(--accent-color-dark, #891F00))'"
+                @mouseleave="$event.target.style.color = 'var(--link-color, var(--accent-color, #E30613))'"
             >
                 {{ messages.homeLink }}
             </RouterLink>
