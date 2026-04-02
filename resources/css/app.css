@@ -306,6 +306,13 @@
         line-height: 1.5;
     }
     .prose ul ul,
+    .prose ul ol,
+    .prose ol ul,
+    .prose ol ol {
+        margin-top: 0.25em;
+        margin-bottom: 0.25em;
+    }
+    .prose ul ul,
     .prose ol ul {
         list-style-type: circle;
     }
