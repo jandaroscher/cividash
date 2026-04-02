@@ -133,6 +133,7 @@ class DashboardResetCommand extends Command
             $branding = app(BrandingSettings::class);
             $branding->primary_color = '#e30613';
             $branding->secondary_color = '#e30613';
+            $branding->nav_hover_color = '#e30613';
             $branding->save();
             app()->forgetInstance(BrandingSettings::class);
             $this->info('Regensburg branding colors set.');
