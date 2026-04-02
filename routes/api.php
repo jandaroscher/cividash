@@ -19,17 +19,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware(['auth:sanctum', 'throttle:60,1']);
 
 // Authenticated user profile endpoints
-Route::middleware('auth:sanctum')->prefix('me')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('me')->group(function () {
     Route::get('/', [ProfileController::class, 'show']);
     Route::patch('/', [ProfileController::class, 'update']);
     Route::put('/password', [ProfileController::class, 'updatePassword']);
 });
 
 // Public API routes with tenant resolution (Token > Domain > Default)
-Route::middleware('resolve.tenant')->group(function () {
+Route::middleware(['resolve.tenant', 'throttle:60,1'])->group(function () {
     Route::get('/tiles', [TileController::class, 'index']);
     Route::get('/tiles/{slug}', [TileController::class, 'show']);
     Route::get('/filters', [FilterController::class, 'index']);
@@ -54,7 +54,7 @@ Route::middleware('resolve.tenant')->group(function () {
 // 2. admin.api - 403 if user/token lacks permission
 // 3. resolve.tenant - resolve tenant from token/domain
 // 4. admin.tenant - 400 if no explicit tenant (no default fallback)
-Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant'])->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant', 'throttle:120,1'])->prefix('admin')->group(function () {
     // Config routes
     Route::post('/config/branding', [ConfigController::class, 'updateBranding']);
     Route::patch('/config/branding', [ConfigController::class, 'updateBranding']);
@@ -106,7 +106,7 @@ Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant'
 });
 
 // Tenant user management routes (requires auth, role-based authorization inside controller)
-Route::middleware(['auth:sanctum', 'resolve.tenant'])->prefix('tenants/{tenant:slug}')->group(function () {
+Route::middleware(['auth:sanctum', 'resolve.tenant', 'throttle:60,1'])->prefix('tenants/{tenant:slug}')->group(function () {
     Route::get('/users', [TenantUserController::class, 'index']);
     Route::patch('/users/{user}', [TenantUserController::class, 'update']);
     Route::delete('/users/{user}', [TenantUserController::class, 'destroy']);
