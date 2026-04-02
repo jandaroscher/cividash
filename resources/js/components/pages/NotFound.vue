@@ -11,7 +11,7 @@
                 {{ messages.description }}
             </p>
             <RouterLink
-                to="/"
+                :to="locale === 'en' ? '/en' : '/'"
                 class="inline-block text-accent hover:text-accent-dark transition-colors duration-200 font-semibold"
             >
                 {{ messages.homeLink }}
