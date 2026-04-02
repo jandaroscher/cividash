@@ -1,101 +1,113 @@
 <template>
-    <footer 
-        class="mt-12 pt-9 pb-8 md:pt-11 md:pb-10"
-        :style="{ backgroundColor: brandingStore.footerBackgroundColor || '#E5E7EB' }"
-    >
-        <div class="container text-center md:text-left">
-            <!-- Footer Navigation -->
-            <nav v-if="footerStore.footerNavigationItems.length > 0" class="mb-9" aria-label="Footer navigation">
-                <!-- Single Row Layout -->
-                <div 
-                    v-if="layoutType === 'single-row'"
-                    class="md:flex flex-wrap md:justify-center md:space-x-5 xl:space-x-0 xl:grid xl:grid-cols-6 space-y-5 md:space-y-0"
-                    style="color: var(--text-primary-color, #000000);"
-                >
-                    <RouterLink
-                        v-for="(item, index) in footerStore.footerNavigationItems"
-                        :key="index"
-                        :to="item.url"
-                        class="transition-colors duration-200 footer-link"
-                        style="color: var(--link-color, #E30613);"
-                    >
-                        {{ item.label }}
-                    </RouterLink>
+    <footer class="mt-12">
+        <!-- Sponsors / Förderer (above the gray nav area, white background) -->
+        <div
+            v-if="footerStore.sponsors && footerStore.sponsors.length > 0"
+            class="container text-center md:text-left"
+        >
+            <hr class="my-9 border border-gray-400">
+            <div class="max-w-[287px] md:max-w-none mx-auto mb-9">
+                <div class="mx-auto max-w-[195px] md:max-w-none grid md:grid-cols-4 gap-9 lg:gap-11">
+                    <template v-for="(sponsor, index) in footerStore.sponsors" :key="index">
+                        <div class="flex items-center" :class="sponsorAlignment(index)">
+                            <a
+                                v-if="sponsor.url"
+                                :href="sponsor.url"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                :title="sponsor.name || ''"
+                            >
+                                <img
+                                    :src="getSponsorImageUrl(sponsor.image)"
+                                    :alt="sponsor.name || (locale === 'en' ? 'Sponsor' : 'Förderer')"
+                                    width="194"
+                                    height="57"
+                                    loading="lazy"
+                                />
+                            </a>
+                            <img
+                                v-else
+                                :src="getSponsorImageUrl(sponsor.image)"
+                                :alt="sponsor.name || (locale === 'en' ? 'Sponsor' : 'Förderer')"
+                                width="194"
+                                height="57"
+                                loading="lazy"
+                            />
+                        </div>
+                    </template>
                 </div>
-
-                <!-- Multi-Column Layout -->
-                <div 
-                    v-else-if="layoutType === 'multi-column'"
-                    :class="`grid grid-cols-1 footer-grid-multi-column gap-5`"
-                    :style="`grid-template-columns: repeat(${cols}, minmax(0, 1fr)); color: var(--text-primary-color, #000000);`"
-                >
-                    <div
-                        v-for="(item, index) in footerStore.footerNavigationItems"
-                        :key="index"
-                    >
-                        <RouterLink
-                            :to="item.url"
-                            class="transition-colors duration-200 footer-link"
-                            style="color: var(--link-color, #E30613);"
-                        >
-                            {{ item.label }}
-                        </RouterLink>
-                    </div>
-                </div>
-
-                <!-- Grid Layout -->
-                <div 
-                    v-else-if="layoutType === 'grid'"
-                    :class="`grid grid-cols-1 sm:grid-cols-2 footer-grid-grid gap-5`"
-                    :style="`grid-template-columns: repeat(${cols}, minmax(0, 1fr)); color: var(--text-primary-color, #000000);`"
-                >
-                    <div
-                        v-for="(item, index) in footerStore.footerNavigationItems"
-                        :key="index"
-                    >
-                        <RouterLink
-                            :to="item.url"
-                            class="transition-colors duration-200 footer-link"
-                            style="color: var(--link-color, #E30613);"
-                        >
-                            {{ item.label }}
-                        </RouterLink>
-                    </div>
-                </div>
-            </nav>
-
-            <!-- Social Links -->
-            <div 
-                v-if="footerStore.socialLinksEnabled && footerStore.socialLinks.length > 0"
-                class="flex flex-wrap space-x-5 justify-center md:justify-start xl:justify-end mb-4"
-            >
-                <template v-for="(social, index) in footerStore.socialLinks" :key="index">
-                    <a
-                        v-if="social.link && social.icon"
-                        :href="social.link"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="transition-colors duration-200 footer-link"
-                        style="color: var(--link-color, #E30613);"
-                        :aria-label="social.title || (locale === 'en' ? 'Social link' : 'Social Media Link')"
-                        :title="social.title || (locale === 'en' ? 'Social link' : 'Social Media Link')"
-                    >
-                        <img 
-                            :src="getSocialIconUrl(social.icon)" 
-                            :alt="social.title || (locale === 'en' ? 'Social link' : 'Social Media Link')" 
-                            class="w-6 h-6"
-                        />
-                    </a>
-                </template>
             </div>
+        </div>
 
-            <!-- Copyright -->
-            <div 
-                class="mt-4 text-sm text-center md:text-left"
-                style="color: var(--text-secondary-color, #4B5563);"
-            >
-                <span v-if="copyrightTextFormatted">{{ copyrightTextFormatted }}</span>
-                <span v-else>&copy; {{ currentYear }} {{ siteName }}</span>
+        <!-- Gray bottom area: Nav Links + Social Icons -->
+        <div
+            class="pt-9 pb-8 md:pt-11 md:pb-10"
+            :style="{ backgroundColor: brandingStore.footerBackgroundColor || '#E5E7EB' }"
+        >
+            <div class="container text-center md:text-left">
+                <div class="max-w-[287px] md:max-w-none mx-auto">
+                    <div class="md:flex flex-wrap md:justify-center md:space-x-5 xl:space-x-0 xl:grid xl:grid-cols-6 space-y-5 md:space-y-0" style="color: var(--text-primary-color, #000000);">
+                        <!-- Nav Items -->
+                        <div
+                            v-for="(item, index) in footerStore.footerNavigationItems"
+                            :key="index"
+                        >
+                            <component
+                                :is="shouldUseAnchor(item) ? 'a' : 'RouterLink'"
+                                v-bind="linkAttrs(item)"
+                                class="group transition-colors duration-200 footer-link"
+                                :class="{ 'hover:text-red-300': true }"
+                            >
+                                <svg
+                                    v-if="isExternalLink(item)"
+                                    class="inline-block -top-px relative"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path
+                                        class="group-hover:stroke-red-300 transition-colors duration-200"
+                                        d="M21,12a9,9,0,0,1-9,9m9-9a9,9,0,0,0-9-9m9,9H3m9,9a9,9,0,0,1-9-9m9,9c1.657,0,3-4.029,3-9s-1.343-9-3-9m0,18c-1.657,0-3-4.029-3-9s1.343-9,3-9M3,12a9,9,0,0,1,9-9"
+                                        transform="translate(-2 -2)"
+                                        fill="none"
+                                        stroke="#191919"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                    />
+                                </svg>
+                                <span :class="{ 'ml-2': isExternalLink(item) }">{{ item.label }}</span>
+                            </component>
+                        </div>
+
+                        <!-- Social Links (in the same grid row, right-aligned) -->
+                        <div
+                            v-if="footerStore.socialLinksEnabled && activeSocialLinks.length > 0"
+                            class="basis-full lg:col-span-2 flex justify-center xl:justify-end pt-7 md:pt-12 xl:pt-0"
+                        >
+                            <div class="flex flex-wrap space-x-5">
+                                <a
+                                    v-for="(social, index) in activeSocialLinks"
+                                    :key="index"
+                                    :href="social.url || social.link"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    :title="social.title || social.platform || ''"
+                                    class="social-icon-link"
+                                >
+                                    <img
+                                        v-if="social.icon"
+                                        :src="resolveStorageUrl(social.icon)"
+                                        :alt="social.title || social.platform || ''"
+                                        class="h-8 w-auto"
+                                    />
+                                    <SocialIcon v-else :platform="social.platform" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
@@ -107,85 +119,72 @@ import { useFooterStore } from '../../stores/footer';
 import { useBrandingStore } from '../../stores/branding';
 import { useLocale } from '../../composables/useLocale';
 import { getApiBaseUrl } from '../../utils/api';
+import SocialIcon from './SocialIcon.vue';
 
 const footerStore = useFooterStore();
 const brandingStore = useBrandingStore();
 const { currentLocale: locale } = useLocale();
 
-const siteName = computed(() => headerStore.siteName);
+const activeSocialLinks = computed(() => {
+    return (footerStore.socialLinks || []).filter(
+        (s) => (s.url || s.link) && s.is_active !== false
+    );
+});
 
-const currentYear = computed(() => new Date().getFullYear());
+function sponsorAlignment(index) {
+    if (index === 0) return 'justify-start';
+    if (index === (footerStore.sponsors?.length || 1) - 1) return 'justify-end';
+    return 'justify-center';
+}
 
-// Map layout types (API might return 'columns' or 'simple', but Blade uses 'single-row', 'multi-column', 'grid')
-const layoutType = computed(() => {
-    const apiType = footerStore.layoutType;
-    // Map API types to Blade template types
-    if (apiType === 'simple' || apiType === 'single-row') {
-        return 'single-row';
-    } else if (apiType === 'columns' || apiType === 'multi-column') {
-        return 'multi-column';
-    } else if (apiType === 'grid') {
-        return 'grid';
+function shouldUseAnchor(item) {
+    return /^(https?:|mailto:|tel:)/i.test(item.url || '');
+}
+
+function isExternalLink(item) {
+    return /^https?:/i.test(item.url || '');
+}
+
+function linkAttrs(item) {
+    if (shouldUseAnchor(item)) {
+        return {
+            href: item.url,
+            ...(isExternalLink(item)
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {}),
+        };
     }
-    // Default to single-row
-    return 'single-row';
-});
+    return { to: item.url };
+}
 
-const cols = computed(() => {
-    return Math.min(footerStore.columns || 3, 12);
-});
+function resolveStorageUrl(path) {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
 
-// Format copyright text (replace {year} and {site_name})
-const copyrightTextFormatted = computed(() => {
-    if (!footerStore.copyrightText) {
-        return null;
-    }
-    return footerStore.copyrightText
-        .replace(/{year}/g, currentYear.value.toString())
-        .replace(/{site_name}/g, siteName.value);
-});
-
-// Compute image URLs for all social icons at top-level (using same logic as useImageUrl)
-const socialIconUrlMap = computed(() => {
-    const map = new Map();
     const apiUrl = getApiBaseUrl();
-    
-    footerStore.socialLinks.forEach((social) => {
-        if (social.icon) {
-            let imageUrl = '';
-            const iconPath = social.icon;
-            
-            // If already a full URL, return as-is
-            if (iconPath.startsWith('http://') || iconPath.startsWith('https://')) {
-                imageUrl = iconPath;
-            } else {
-                // Strip leading slash first
-                let normalizedPath = iconPath.startsWith('/') ? iconPath.slice(1) : iconPath;
-                
-                // If path already starts with "storage/", append directly to apiUrl
-                // Otherwise, prefix with "storage/"
-                if (normalizedPath.startsWith('storage/')) {
-                    imageUrl = `${apiUrl}/${normalizedPath}`;
-                } else {
-                    imageUrl = `${apiUrl}/storage/${normalizedPath}`;
-                }
-            }
-            
-            map.set(iconPath, imageUrl);
+    let normalizedPath = path.startsWith('/') ? path.slice(1) : path;
+
+    if (normalizedPath.startsWith('storage/')) {
+        return `${apiUrl}/${normalizedPath}`;
+    }
+    return `${apiUrl}/storage/${normalizedPath}`;
+}
+
+const sponsorImageUrlMap = computed(() => {
+    const map = new Map();
+    (footerStore.sponsors || []).forEach((sponsor) => {
+        if (sponsor.image) {
+            map.set(sponsor.image, resolveStorageUrl(sponsor.image));
         }
     });
-    
     return map;
 });
 
-// Get social icon URL from precomputed map
-function getSocialIconUrl(iconPath) {
-    if (!iconPath) return '';
-    return socialIconUrlMap.value.get(iconPath) || '';
+function getSponsorImageUrl(imagePath) {
+    if (!imagePath) return '';
+    return sponsorImageUrlMap.value.get(imagePath) || '';
 }
 
-
-// Watch locale changes and refetch footer data
 watch(
     () => locale.value,
     (newLocale) => {
@@ -196,18 +195,16 @@ watch(
 </script>
 
 <style scoped>
-/* Multi-column grid styles */
-@media (min-width: 768px) {
-    .footer-grid-multi-column {
-        display: grid;
-    }
-    .footer-grid-grid {
-        display: grid;
-    }
-}
-
-/* Footer link hover styles */
 footer a.footer-link:hover {
     color: var(--nav-hover-color) !important;
+}
+
+/* Social icons: grayscale by default, color on hover */
+.social-icon-link img {
+    filter: grayscale(100%);
+    transition: filter 0.2s ease;
+}
+.social-icon-link:hover img {
+    filter: grayscale(0%);
 }
 </style>

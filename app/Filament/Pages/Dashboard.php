@@ -13,6 +13,8 @@ class Dashboard extends BaseDashboard
 {
     protected static string $view = 'filament.pages.dashboard';
 
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+
     public function getTitle(): string
     {
         return __('filament.pages.dashboard_overview.title');

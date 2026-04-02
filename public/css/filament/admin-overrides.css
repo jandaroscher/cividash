@@ -245,6 +245,39 @@
 }
 
 /**
+ * Fix block-picker "insert between" overlay
+ *
+ * The "Dazwischen einfügen" overlay uses opacity-0 / hover:opacity-100
+ * on a wrapper div. When the mouse leaves the browser window the wrapper loses
+ * :hover and the dropdown disappears. On re-entry the dropdown flickers.
+ * Fix: keep the trigger always visible (low opacity when idle, full on hover)
+ * and use focus-within to keep it visible while the dropdown is open.
+ *
+ * Unify the size of the "insert between" picker with the bottom
+ * "add to blocks" picker by giving both consistent min-width.
+ */
+
+/* Always show the insert-between trigger at reduced opacity; full on hover/focus.
+   Note: Selector depends on Filament's Builder DOM structure and Tailwind -top-2 utility.
+   Verify after Filament or Tailwind upgrades. */
+.fi-fo-builder > ul > li.relative.-top-2 > div {
+    opacity: 0.35 !important;
+    transition: opacity 150ms ease !important;
+}
+
+.fi-fo-builder > ul > li.relative.-top-2 > div:hover,
+.fi-fo-builder > ul > li.relative.-top-2 > div:focus-within {
+    opacity: 1 !important;
+}
+
+/* Unify block picker modal size for both "add" and "insert between"
+   Both modals use fi-modal-window. Force a consistent min-width so the
+   "insert between" modal doesn't shrink smaller than the "add to blocks" one. */
+.fi-fo-builder .fi-modal-window {
+    min-width: min(42rem, 90vw);
+}
+
+/**
  * Improve contrast for nested builder blocks in page editor
  * Adds alternating background colors so nested content blocks are
  * visually distinguishable from their parent containers.

@@ -6,6 +6,7 @@ use App\Models\FooterNavigation;
 use App\Models\Navigation;
 use App\Models\Page;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Seeder for Header and Footer Navigation from reference site.
@@ -186,6 +187,51 @@ class NavigationSeeder extends Seeder
 
         $footer->setTranslation('footer_navigation_items', 'de', $navigationItems);
         $footer->setTranslation('footer_navigation_items', 'en', $navigationItems);
+
+        // Copy sponsor logos to public storage
+        $assetsDir = database_path('seeders/assets/footer-sponsors');
+        if (is_dir($assetsDir)) {
+            Storage::disk('public')->makeDirectory('footer-sponsors');
+            foreach (glob($assetsDir . '/*.svg') as $file) {
+                Storage::disk('public')->put(
+                    'footer-sponsors/' . basename($file),
+                    file_get_contents($file)
+                );
+            }
+        }
+
+        // Placeholder sponsors without links; real logos are configured per tenant in the CMS.
+        $sponsors = [
+            ['image' => 'footer-sponsors/logo-sponsor-1.svg', 'url' => '', 'name' => 'Sponsor 1'],
+            ['image' => 'footer-sponsors/logo-sponsor-2.svg', 'url' => '', 'name' => 'Sponsor 2'],
+        ];
+        $footer->setTranslation('sponsors', 'de', $sponsors);
+        $footer->setTranslation('sponsors', 'en', $sponsors);
+
+        // Copy social icons to public storage
+        $socialAssetsDir = database_path('seeders/assets/footer-social-icons');
+        if (is_dir($socialAssetsDir)) {
+            Storage::disk('public')->makeDirectory('footer-social-icons');
+            foreach (glob($socialAssetsDir . '/*.svg') as $file) {
+                Storage::disk('public')->put(
+                    'footer-social-icons/' . basename($file),
+                    file_get_contents($file)
+                );
+            }
+        }
+
+        // Social Links (fields: icon, link, title — matching Filament form). Inactive
+        // placeholders until a tenant enters its own profile URLs.
+        $socialLinks = [
+            ['icon' => 'footer-social-icons/facebook.svg', 'link' => 'https://example.org', 'title' => 'Facebook', 'is_active' => false],
+            ['icon' => 'footer-social-icons/twitter.svg', 'link' => 'https://example.org', 'title' => 'Twitter', 'is_active' => false],
+            ['icon' => 'footer-social-icons/instagram.svg', 'link' => 'https://example.org', 'title' => 'Instagram', 'is_active' => false],
+            ['icon' => 'footer-social-icons/youtube.svg', 'link' => 'https://example.org', 'title' => 'Youtube', 'is_active' => false],
+        ];
+        $footer->setTranslation('social_links', 'de', $socialLinks);
+        $footer->setTranslation('social_links', 'en', $socialLinks);
+        $footer->social_links_enabled = true;
+
         $footer->save();
 
         if ($this->command) {

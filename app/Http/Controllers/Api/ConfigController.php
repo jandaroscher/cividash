@@ -217,6 +217,8 @@ class ConfigController extends Controller
         $socialLinks = $footer->getTranslatedSocialLinks($locale) ?? [];
         $filteredSocialLinks = $this->filterInactiveItems($socialLinks);
 
+        $sponsors = $footer->getTranslatedSponsors($locale) ?? [];
+
         return new JsonResource([
             'footer_navigation_items' => $filteredFooterItems,
             'social_links' => $filteredSocialLinks,
@@ -224,6 +226,7 @@ class ConfigController extends Controller
             'columns' => $footer->columns,
             'social_links_enabled' => $footer->social_links_enabled,
             'copyright_text' => $footer->getTranslatedCopyrightText($locale),
+            'sponsors' => $sponsors,
         ]);
     }
 
@@ -493,6 +496,7 @@ class ConfigController extends Controller
      * @bodyParam columns integer Number of footer columns (1-6). Example: 3
      * @bodyParam social_links_enabled boolean Enable social links display. Example: true
      * @bodyParam copyright_text object Copyright text per locale. Example: {"de": "© 2025", "en": "© 2025"}
+     * @bodyParam sponsors object Sponsors per locale. Example: {"de": [{"image": "footer-sponsors/logo.png", "url": "https://example.com", "name": "Example"}], "en": []}
      *
      * @response 200 scenario="Footer updated" {"data": {"footer_navigation_items": {"de": [], "en": []}, "social_links": {"de": [], "en": []}, "layout_type": "single-row", "columns": 3, "social_links_enabled": true, "copyright_text": {"de": "", "en": ""}}}
      */
@@ -525,6 +529,11 @@ class ConfigController extends Controller
             $footer->copyright_text = $validated['copyright_text'];
         }
 
+        if (array_key_exists('sponsors', $validated)) {
+            $existing = $footer->getTranslations('sponsors');
+            $footer->sponsors = array_merge($existing, $validated['sponsors']);
+        }
+
         $footer->save();
 
         return new JsonResource([
@@ -534,6 +543,7 @@ class ConfigController extends Controller
             'columns' => $footer->columns,
             'social_links_enabled' => $footer->social_links_enabled,
             'copyright_text' => $footer->getTranslations('copyright_text'),
+            'sponsors' => $footer->getTranslations('sponsors'),
         ]);
     }
 

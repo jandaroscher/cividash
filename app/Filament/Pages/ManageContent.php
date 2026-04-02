@@ -14,7 +14,7 @@ class ManageContent extends SettingsPage
 {
     protected static string $settings = ContentSettings::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static ?string $navigationIcon = 'heroicon-o-window';
 
     public function getTitle(): string
     {

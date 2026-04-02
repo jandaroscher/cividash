@@ -12,9 +12,9 @@ use Illuminate\Contracts\Support\Htmlable;
 
 class ManageDashboard extends SettingsPage
 {
-    protected static ?string $navigationIcon = 'heroicon-o-home';
-
     protected static ?int $navigationSort = 22;
+
+    protected static ?string $navigationIcon = 'heroicon-o-window';
 
     protected static string $settings = DashboardSettings::class;
 

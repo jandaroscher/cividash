@@ -18,6 +18,7 @@ class FooterNavigation extends Model
         'footer_navigation_items',
         'social_links',
         'copyright_text',
+        'sponsors',
     ];
 
     /**
@@ -30,6 +31,7 @@ class FooterNavigation extends Model
         'columns',
         'social_links_enabled',
         'copyright_text',
+        'sponsors',
         'tenant_id',
     ];
 
@@ -42,6 +44,7 @@ class FooterNavigation extends Model
         'columns' => 'integer',
         'social_links_enabled' => 'boolean',
         'copyright_text' => 'array',
+        'sponsors' => 'array',
     ];
 
     /**
@@ -224,6 +227,10 @@ class FooterNavigation extends Model
                             'de' => '',
                             'en' => '',
                         ],
+                        'sponsors' => [
+                            'de' => [],
+                            'en' => [],
+                        ],
                     ]);
                 });
             });
@@ -247,6 +254,10 @@ class FooterNavigation extends Model
                 'copyright_text' => [
                     'de' => '',
                     'en' => '',
+                ],
+                'sponsors' => [
+                    'de' => [],
+                    'en' => [],
                 ],
             ]
         );
@@ -430,6 +441,49 @@ class FooterNavigation extends Model
         }
 
         return $copyright;
+    }
+
+    /**
+     * Return sponsor entries translated for a given locale.
+     *
+     * @param  string|null  $locale  Locale to use; when null, the application locale is used.
+     * @return array Sponsor entries with `image` and optional `url` fields.
+     */
+    public function getTranslatedSponsors(?string $locale = null): array
+    {
+        $locale = $locale ?? app()->getLocale();
+        $sponsors = $this->getTranslation('sponsors', $locale, false);
+
+        if (is_array($sponsors)) {
+            if (isset($sponsors[$locale]) || isset($sponsors['de']) || isset($sponsors['en'])) {
+                if (isset($sponsors[$locale]) && ! empty($sponsors[$locale])) {
+                    $sponsors = $sponsors[$locale];
+                } else {
+                    $sponsors = $sponsors['de'] ?? [];
+                }
+            }
+        }
+
+        if ((($sponsors === null) || ($sponsors === '') || (is_array($sponsors) && empty($sponsors))) && $locale !== 'de') {
+            $sponsorsDe = $this->getTranslation('sponsors', 'de', false);
+            if (is_array($sponsorsDe)) {
+                if (isset($sponsorsDe['de']) || isset($sponsorsDe['en'])) {
+                    $sponsors = $sponsorsDe['de'] ?? [];
+                } else {
+                    $sponsors = $sponsorsDe;
+                }
+            } else {
+                $sponsors = $sponsorsDe ?? [];
+            }
+        }
+
+        $sponsors = $sponsors ?? [];
+
+        if (! is_array($sponsors)) {
+            $sponsors = [];
+        }
+
+        return array_values(array_filter($sponsors, fn ($item) => is_array($item)));
     }
 
     /**

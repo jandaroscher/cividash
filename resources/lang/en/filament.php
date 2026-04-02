@@ -126,6 +126,7 @@ return [
             'section_footer_navigation' => 'Footer Navigation',
             'section_social_media' => 'Social Media Links',
             'section_copyright' => 'Copyright',
+            'section_sponsors' => 'Sponsors',
         ],
         'manage_header' => [
             'title' => 'Header / Navigation',
@@ -162,6 +163,10 @@ return [
             'icon' => 'Icon',
             'profile_url' => 'Profile URL',
             'tooltip_text' => 'Tooltip Text',
+            'sponsors' => 'Sponsors',
+            'sponsor_image' => 'Sponsor Logo',
+            'sponsor_url' => 'Sponsor URL',
+            'sponsor_name' => 'Sponsor Name',
         ],
         'edit_profile' => [
             'title' => 'Profile',
@@ -596,6 +601,7 @@ return [
         'add_to_background_blocks' => 'Add to Background Blocks',
         'add_to_children' => 'Add to Submenu Items',
         'add_to_social_media_links' => 'Add to Social Media Links',
+        'add_to_sponsors' => 'Add Sponsor',
         'add_to_faq_items' => 'Add to FAQ Items',
         'add_to_blocks' => 'Add to Blocks',
         'insert_page_link' => 'Insert page link',

@@ -26,6 +26,15 @@ class UpdateFooterRequest extends FormRequest
             'copyright_text' => ['sometimes', 'array'],
             'copyright_text.de' => ['sometimes', 'nullable', 'string'],
             'copyright_text.en' => ['sometimes', 'nullable', 'string'],
+            'sponsors' => ['sometimes', 'array'],
+            'sponsors.de' => ['sometimes', 'nullable', 'array'],
+            'sponsors.de.*.image' => ['required', 'string'],
+            'sponsors.de.*.url' => ['nullable', 'string'],
+            'sponsors.de.*.name' => ['required', 'string'],
+            'sponsors.en' => ['sometimes', 'nullable', 'array'],
+            'sponsors.en.*.image' => ['required', 'string'],
+            'sponsors.en.*.url' => ['nullable', 'string'],
+            'sponsors.en.*.name' => ['required', 'string'],
         ];
     }
 }

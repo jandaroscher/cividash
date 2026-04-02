@@ -160,26 +160,24 @@ class ManageSiteSettingsTest extends TestCase
         $this->assertFalse($footer->social_links_enabled);
     }
 
-    public function test_footer_copyright_text_saves(): void
+    public function test_footer_copyright_text_is_not_overwritten_on_save(): void
     {
+        // Set copyright_text directly on the model (field is no longer in the form)
+        $footer = FooterNavigation::withoutGlobalScope('tenant')
+            ->where('tenant_id', $this->tenant->id)
+            ->first() ?? FooterNavigation::getOrCreateInstance();
+        $footer->setTranslation('copyright_text', 'de', '(c) 2025 Test Company');
+        $footer->save();
+
+        // Save the form without touching copyright_text
         Livewire::test(ManageSiteSettings::class)
-            ->fillForm([
-                'copyright_text' => '(c) 2025 Test Company',
-            ])
             ->call('save')
             ->assertHasNoFormErrors();
 
-        $footer = FooterNavigation::withoutGlobalScope('tenant')
-            ->where('tenant_id', $this->tenant->id)
-            ->first();
-
-        $rawCopyright = $footer->getRawOriginal('copyright_text');
-        $decoded = is_string($rawCopyright) ? json_decode($rawCopyright, true) : $rawCopyright;
-
-        $this->assertIsArray($decoded);
-        $storedValues = array_filter($decoded, fn ($v) => $v !== '' && $v !== null);
-        $this->assertNotEmpty($storedValues);
-        $this->assertContains('(c) 2025 Test Company', $storedValues);
+        // Verify existing copyright_text was preserved
+        $footer->refresh();
+        $deCopyright = $footer->getTranslation('copyright_text', 'de', false);
+        $this->assertEquals('(c) 2025 Test Company', $deCopyright);
     }
 
     public function test_form_loads_existing_data_from_all_sources(): void

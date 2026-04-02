@@ -122,6 +122,12 @@ class ManageSiteSettings extends Page implements HasForms
         );
         $data['copyright_text'] = $copyrightText ?? '';
 
+        $sponsors = $this->extractTranslatableValue(
+            $this->footerRecord->getTranslation('sponsors', $locale, false),
+            $locale
+        );
+        $data['sponsors'] = is_array($sponsors) ? $this->filterValidRepeaterItems($sponsors) : [];
+
         $data['columns'] = $this->footerRecord->layout_type === 'single-row'
             ? 1
             : ($this->footerRecord->columns ?? 1);
@@ -251,13 +257,30 @@ class ManageSiteSettings extends Page implements HasForms
                                     ]),
                             ]),
 
-                        Section::make(__('filament.pages.manage_site_settings.section_copyright'))
+                        Section::make(__('filament.pages.manage_site_settings.section_sponsors'))
                             ->schema([
-                                TextInput::make('copyright_text')
-                                    ->label(__('filament.pages.manage_footer.copyright_text'))
-                                    ->helperText(__('filament.pages.manage_footer.copyright_text_helper'))
-                                    ->placeholder('© {year} {site_name}')
-                                    ->nullable(),
+                                Repeater::make('sponsors')
+                                    ->label(__('filament.pages.manage_footer.sponsors'))
+                                    ->addActionLabel(__('filament.actions.add_to_sponsors'))
+                                    ->schema([
+                                        FileUpload::make('image')
+                                            ->label(__('filament.pages.manage_footer.sponsor_image'))
+                                            ->image()
+                                            ->directory('footer-sponsors')
+                                            ->disk('public')
+                                            ->required(),
+                                        TextInput::make('url')
+                                            ->label(__('filament.pages.manage_footer.sponsor_url'))
+                                            ->url()
+                                            ->nullable(),
+                                        TextInput::make('name')
+                                            ->label(__('filament.pages.manage_footer.sponsor_name'))
+                                            ->nullable(),
+                                    ])
+                                    ->reorderable()
+                                    ->collapsible()
+                                    ->collapsed()
+                                    ->itemLabel(fn (array $state): ?string => $state['name'] ?? $state['url'] ?? null),
                             ]),
                     ]),
             ])
@@ -372,10 +395,10 @@ class ManageSiteSettings extends Page implements HasForms
         $this->footerRecord->fill([
             'footer_navigation_items' => $data['footer_navigation_items'],
             'social_links' => $data['social_links'] ?? [],
-            'copyright_text' => $data['copyright_text'] ?? '',
             'layout_type' => 'multi-column',
             'columns' => $data['columns'] ?? 4,
             'social_links_enabled' => $data['social_links_enabled'] ?? true,
+            'sponsors' => $data['sponsors'] ?? [],
         ]);
         $this->footerRecord->save();
 
@@ -392,7 +415,7 @@ class ManageSiteSettings extends Page implements HasForms
 
     protected function getTranslatableAttributes(): array
     {
-        return ['navigation_items', 'footer_navigation_items', 'social_links', 'copyright_text'];
+        return ['navigation_items', 'footer_navigation_items', 'social_links', 'copyright_text', 'sponsors'];
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
@@ -461,10 +484,12 @@ class ManageSiteSettings extends Page implements HasForms
                 } else {
                     $footerNav = $this->footerRecord->getTranslation('footer_navigation_items', $existingLocale, false);
                     $social = $this->footerRecord->getTranslation('social_links', $existingLocale, false);
+                    $sponsorsVal = $this->footerRecord->getTranslation('sponsors', $existingLocale, false);
                     $existingFooterTranslations[$existingLocale] = [
                         'footer_navigation_items' => is_array($footerNav) ? $footerNav : [],
                         'social_links' => is_array($social) ? $social : [],
                         'copyright_text' => $this->footerRecord->getTranslation('copyright_text', $existingLocale, false),
+                        'sponsors' => is_array($sponsorsVal) ? $sponsorsVal : [],
                     ];
                 }
             }
@@ -532,6 +557,16 @@ class ManageSiteSettings extends Page implements HasForms
                 $data['copyright_text'] = array_merge($existingCopyrightText, $data['copyright_text']);
                 $data['copyright_text'][$locale] = (string) ($data['copyright_text'][$locale] ?? '');
             }
+        }
+
+        // Wrap sponsors per locale (sponsors are not text-translatable, just locale-scoped arrays)
+        if (isset($data['sponsors']) && is_array($data['sponsors'])) {
+            $existingSponsors = [];
+            foreach ($existingFooterTranslations as $existingLocale => $existingData) {
+                $existingSponsors[$existingLocale] = $existingData['sponsors'] ?? [];
+            }
+            $existingSponsors[$locale] = $data['sponsors'];
+            $data['sponsors'] = $existingSponsors;
         }
 
         return $data;
@@ -688,6 +723,11 @@ class ManageSiteSettings extends Page implements HasForms
             ''
         );
 
+        $sponsors = $this->extractTranslatableValue(
+            $this->footerRecord->getTranslation('sponsors', $locale, false),
+            $locale
+        );
+
         return [
             'navigation_items' => $this->transformTranslatableRepeaterItems(
                 $this->filterValidRepeaterItems($navigationItems),
@@ -705,6 +745,7 @@ class ManageSiteSettings extends Page implements HasForms
                 return $link;
             }, $this->filterValidSocialLinks($socialLinks)),
             'copyright_text' => $copyrightText ?? '',
+            'sponsors' => is_array($sponsors) ? $this->filterValidRepeaterItems($sponsors) : [],
         ];
     }
 

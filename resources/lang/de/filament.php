@@ -47,6 +47,10 @@ return [
             'icon' => 'Icon',
             'profile_url' => 'Profil-URL',
             'tooltip_text' => 'Tooltip-Text',
+            'sponsors' => 'Förderer',
+            'sponsor_image' => 'Förderer-Logo',
+            'sponsor_url' => 'Förderer-URL',
+            'sponsor_name' => 'Förderer-Name',
         ],
         'manage_content' => [
             'title' => 'Inhaltsbereich',
@@ -153,6 +157,7 @@ return [
             'section_footer_navigation' => 'Footer-Navigation',
             'section_social_media' => 'Social Media Links',
             'section_copyright' => 'Copyright',
+            'section_sponsors' => 'Förderer',
         ],
         'manage_dashboard' => [
             'title' => 'Dashboard',
@@ -596,6 +601,7 @@ return [
         'add_to_background_blocks' => 'Zu Hintergrund-Blöcken hinzufügen',
         'add_to_children' => 'Zu Untermenü-Elementen hinzufügen',
         'add_to_social_media_links' => 'Zu Social Media Links hinzufügen',
+        'add_to_sponsors' => 'Förderer hinzufügen',
         'add_to_faq_items' => 'Zu FAQ-Einträgen hinzufügen',
         'add_to_blocks' => 'Zu Blöcke hinzufügen',
         'insert_page_link' => 'Seiten-Link einfügen',

@@ -33,9 +33,10 @@ class FooterNavigationTest extends TestCase
         $this->assertNotNull($footer);
         $this->assertGreaterThan(0, $footer->id, 'Footer should have a valid id');
         $this->assertNotNull($footer->tenant_id, 'Footer should be associated with a tenant');
-        $this->assertEquals('single-row', $footer->layout_type);
-        $this->assertEquals(3, $footer->columns);
+        $this->assertEquals('multi-column', $footer->layout_type);
+        $this->assertEquals(4, $footer->columns);
         $this->assertTrue($footer->social_links_enabled);
+        $this->assertEmpty($footer->sponsors);
     }
 
     public function test_singleton_get_instance_returns_existing_record(): void

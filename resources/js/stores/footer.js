@@ -9,6 +9,7 @@ export const useFooterStore = defineStore('footer', {
         columns: 4,
         socialLinksEnabled: false,
         copyrightText: null,
+        sponsors: [],
         loading: false,
         error: null,
     }),
@@ -42,7 +43,8 @@ export const useFooterStore = defineStore('footer', {
                 this.columns = data.columns || 4;
                 this.socialLinksEnabled = data.social_links_enabled || false;
                 this.copyrightText = data.copyright_text || null;
-                
+                this.sponsors = data.sponsors || [];
+
                 return data;
             } catch (err) {
                 this.error = err;
