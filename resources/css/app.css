@@ -300,8 +300,8 @@
         margin-bottom: 0.75em;
     }
     .prose li {
-        margin-top: 0.5em;
-        margin-bottom: 0.5em;
+        margin-top: 0.25em;
+        margin-bottom: 0.25em;
         font-size: var(--font-size-base, 1rem);
         line-height: 1.5;
     }
@@ -309,8 +309,8 @@
     .prose ul ol,
     .prose ol ul,
     .prose ol ol {
-        margin-top: 0.5em;
-        margin-bottom: 0.5em;
+        margin-top: 0.25em;
+        margin-bottom: 0.25em;
     }
     .prose ul ul,
     .prose ol ul {
