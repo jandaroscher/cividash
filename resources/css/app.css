@@ -309,8 +309,8 @@
     .prose ul ol,
     .prose ol ul,
     .prose ol ol {
-        margin-top: 0.25em;
-        margin-bottom: 0.25em;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
     }
     .prose ul ul,
     .prose ol ul {
