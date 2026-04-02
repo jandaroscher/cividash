@@ -11,7 +11,7 @@
       v-if="!tilesStore.loading && !tilesStore.error && tilesStore.tiles.length > 0"
       class="container"
     >
-      <p class="text-theme-base text-gray-400 flex flex-row gap-2 mb-5 ml-auto justify-end mt-10 sm:mt-0">
+      <p class="text-theme-base text-gray-600 font-medium flex flex-row gap-2 mb-5 ml-auto justify-end mt-10 sm:mt-0">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
