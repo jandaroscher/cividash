@@ -43,7 +43,7 @@ export const useBrandingStore = defineStore('branding', {
         shadowColor: '#000000',
         navTextColor: '#374151',
         navTextColorInactive: '#9CA3AF',
-        navHoverColor: '#FCA5A5',
+        navHoverColor: '#e30613',
         tileColorSourceGroupKey: null,
         tileBackgroundCategoryGroupKey: null,
     }),
@@ -207,7 +207,7 @@ export const useBrandingStore = defineStore('branding', {
                 // Set navigation colors as CSS variables
                 document.documentElement.style.setProperty('--nav-text-color', this.navTextColor || '#374151');
                 document.documentElement.style.setProperty('--nav-text-color-inactive', this.navTextColorInactive || '#9CA3AF');
-                document.documentElement.style.setProperty('--nav-hover-color', this.navHoverColor || '#FCA5A5');
+                document.documentElement.style.setProperty('--nav-hover-color', this.navHoverColor || '#e30613');
             } catch (error) {
                 logError('Failed to fetch branding settings:', error);
             }

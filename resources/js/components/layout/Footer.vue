@@ -56,7 +56,6 @@
                                 :is="shouldUseAnchor(item) ? 'a' : 'RouterLink'"
                                 v-bind="linkAttrs(item)"
                                 class="group transition-colors duration-200 footer-link"
-                                :class="{ 'hover:text-red-300': true }"
                             >
                                 <svg
                                     v-if="isExternalLink(item)"
@@ -67,7 +66,7 @@
                                     viewBox="0 0 20 20"
                                 >
                                     <path
-                                        class="group-hover:stroke-red-300 transition-colors duration-200"
+                                        class="footer-globe-stroke transition-colors duration-200"
                                         d="M21,12a9,9,0,0,1-9,9m9-9a9,9,0,0,0-9-9m9,9H3m9,9a9,9,0,0,1-9-9m9,9c1.657,0,3-4.029,3-9s-1.343-9-3-9m0,18c-1.657,0-3-4.029-3-9s1.343-9,3-9M3,12a9,9,0,0,1,9-9"
                                         transform="translate(-2 -2)"
                                         fill="none"
@@ -197,6 +196,11 @@ watch(
 <style scoped>
 footer a.footer-link:hover {
     color: var(--nav-hover-color) !important;
+}
+
+/* Globe icon stroke follows nav hover color */
+footer a.footer-link:hover .footer-globe-stroke {
+    stroke: var(--nav-hover-color) !important;
 }
 
 /* Social icons: grayscale by default, color on hover */
