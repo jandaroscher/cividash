@@ -271,7 +271,7 @@
         margin-top: 1em;
         margin-bottom: 0.5em;
     }
-    .prose *:first-child {
+    .prose *:first-child:not(li > ul, li > ol) {
         margin-top: 0;
     }
 
