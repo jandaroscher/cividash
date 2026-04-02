@@ -108,11 +108,11 @@ class TokenEdgeCasesTest extends TestCase
         $token->accessToken->tenant_id = $this->tenant->id;
         $token->accessToken->save();
 
+        // Send intentionally invalid body — if we get 422, auth/ability/tenant checks passed
         $response = $this->withToken($token->plainTextToken)
-            ->postJson('/api/admin/tiles', ['title' => ['de' => 'Wildcard Test']]);
+            ->postJson('/api/admin/tiles', []);
 
-        // Should not be 401 or 403 — may be 422 (validation) or 201 (created)
-        $this->assertNotEquals(401, $response->status());
-        $this->assertNotEquals(403, $response->status());
+        // 422 proves auth (not 401), ability (not 403), and tenant (not 400) all passed
+        $response->assertStatus(422);
     }
 }

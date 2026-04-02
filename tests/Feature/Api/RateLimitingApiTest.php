@@ -2,6 +2,10 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Tenant;
+use App\Models\Tile;
+use App\Models\User;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -31,18 +35,23 @@ class RateLimitingApiTest extends TestCase
 
     public function test_admin_endpoint_has_higher_rate_limit(): void
     {
-        $user = \App\Models\User::factory()->create();
-        $tenant = \App\Models\Tenant::create(['name' => 'Rate Test', 'slug' => 'rate-test']);
+        $user = User::factory()->create();
+        $tenant = Tenant::create(['name' => 'Rate Test', 'slug' => 'rate-test']);
         $user->tenants()->attach($tenant->id);
 
         $token = $user->createToken('test', ['admin-api']);
         $token->accessToken->tenant_id = $tenant->id;
         $token->accessToken->save();
 
+        // POST to create tile — exercises the admin throttle group
+        // May return 201 (created) or 422 (validation) but must not be 429
         $response = $this->withToken($token->plainTextToken)
-            ->getJson('/api/admin/tiles');
+            ->postJson('/api/admin/tiles', ['title' => ['de' => 'Rate Limit Test']]);
 
-        // Admin has 120/min limit — first request should succeed (or 404 if no route for GET, but not 429)
-        $this->assertNotEquals(429, $response->status());
+        $this->assertNotEquals(429, $response->status(), 'First admin request must not be rate-limited');
+        $this->assertTrue(
+            in_array($response->status(), [201, 422]),
+            "Expected 201 or 422, got {$response->status()}"
+        );
     }
 }

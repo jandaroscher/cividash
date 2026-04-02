@@ -48,27 +48,33 @@ class InputValidationSecurityTest extends TestCase
                 'title' => ['de' => '<script>alert("xss")</script>'],
             ]);
 
-        // Must not cause 500 — acceptable outcomes: 201 (stored, frontend sanitizes), 422 (rejected)
-        $this->assertNotEquals(500, $response->status(), 'Script tags in title must not cause server error');
+        // Must not cause 500 — acceptable: 201 (stored, frontend sanitizes via sanitizeHtml) or 422 (rejected)
+        $this->assertTrue(
+            in_array($response->status(), [201, 422]),
+            "Expected 201 or 422, got {$response->status()}"
+        );
     }
 
     // ========== Invalid ID Formats ==========
 
-    public function test_non_numeric_tile_id_does_not_succeed(): void
+    public function test_non_numeric_tile_id_returns_client_error(): void
     {
         $response = $this->withToken($this->adminToken)
             ->patchJson('/api/admin/tiles/abc', ['title' => ['de' => 'Test']]);
 
-        // Route may not match (404) or method not allowed (405) — must not be 200/201
-        $this->assertGreaterThanOrEqual(400, $response->status(), 'Non-numeric ID must not succeed');
+        // Route constraint where('id', '[0-9]+') rejects non-numeric IDs (404 or 405)
+        $this->assertGreaterThanOrEqual(400, $response->status());
+        $this->assertLessThan(500, $response->status(), 'Non-numeric ID must not cause server error');
     }
 
-    public function test_negative_tile_id_returns_404(): void
+    public function test_negative_tile_id_returns_client_error(): void
     {
         $response = $this->withToken($this->adminToken)
             ->deleteJson('/api/admin/tiles/-1');
 
-        $response->assertNotFound();
+        // Route constraint where('id', '[0-9]+') rejects negative IDs (404 or 405)
+        $this->assertGreaterThanOrEqual(400, $response->status());
+        $this->assertLessThan(500, $response->status(), 'Negative ID must not cause server error');
     }
 
     public function test_nonexistent_tile_id_returns_404(): void
@@ -124,7 +130,7 @@ class InputValidationSecurityTest extends TestCase
 
         // Must not cause 500 (SQL error) — 200 with empty data or 404 are both safe
         $this->assertNotEquals(500, $response->status(), 'SQL injection must not cause server error');
-        // Verify tiles table still exists
-        $this->assertDatabaseHas('tenants', ['slug' => 'default']);
+        // Verify tiles table was not dropped
+        $this->assertTrue(\Illuminate\Support\Facades\Schema::hasTable('tiles'), 'Tiles table must still exist after SQL injection attempt');
     }
 }

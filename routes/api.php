@@ -19,17 +19,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware(['auth:sanctum', 'throttle:60,1']);
+})->middleware(['throttle:60,1', 'auth:sanctum']);
 
 // Authenticated user profile endpoints
-Route::middleware(['auth:sanctum', 'throttle:60,1'])->prefix('me')->group(function () {
+Route::middleware(['throttle:60,1', 'auth:sanctum'])->prefix('me')->group(function () {
     Route::get('/', [ProfileController::class, 'show']);
     Route::patch('/', [ProfileController::class, 'update']);
     Route::put('/password', [ProfileController::class, 'updatePassword']);
 });
 
 // Public API routes with tenant resolution (Token > Domain > Default)
-Route::middleware(['resolve.tenant', 'throttle:60,1'])->group(function () {
+Route::middleware(['throttle:60,1', 'resolve.tenant'])->group(function () {
     Route::get('/tiles', [TileController::class, 'index']);
     Route::get('/tiles/{slug}', [TileController::class, 'show']);
     Route::get('/filters', [FilterController::class, 'index']);
@@ -50,52 +50,53 @@ Route::middleware(['resolve.tenant', 'throttle:60,1'])->group(function () {
 
 // Admin API routes (secured with Sanctum + admin permission check + tenant resolution)
 // Middleware order:
-// 1. auth:sanctum - 401 if not authenticated
-// 2. admin.api - 403 if user/token lacks permission
-// 3. resolve.tenant - resolve tenant from token/domain
-// 4. admin.tenant - 400 if no explicit tenant (no default fallback)
-Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant', 'throttle:120,1'])->prefix('admin')->group(function () {
+// 1. throttle:120,1 - rate limit (reject before expensive auth)
+// 2. auth:sanctum - 401 if not authenticated
+// 3. admin.api - 403 if user/token lacks permission
+// 4. resolve.tenant - resolve tenant from token/domain
+// 5. admin.tenant - 400 if no explicit tenant (no default fallback)
+Route::middleware(['throttle:120,1', 'auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant'])->prefix('admin')->group(function () {
     // Config routes
     Route::post('/config/branding', [ConfigController::class, 'updateBranding']);
     Route::patch('/config/branding', [ConfigController::class, 'updateBranding']);
 
     // Tile management
     Route::post('/tiles', [AdminTileController::class, 'store']);
-    Route::patch('/tiles/{id}', [AdminTileController::class, 'update']);
-    Route::delete('/tiles/{id}', [AdminTileController::class, 'destroy']);
+    Route::patch('/tiles/{id}', [AdminTileController::class, 'update'])->where('id', '[0-9]+');
+    Route::delete('/tiles/{id}', [AdminTileController::class, 'destroy'])->where('id', '[0-9]+');
 
     // TileYear management
     Route::post('/tile-years', [AdminTileYearController::class, 'store']);
-    Route::patch('/tile-years/{id}', [AdminTileYearController::class, 'update']);
-    Route::delete('/tile-years/{id}', [AdminTileYearController::class, 'destroy']);
+    Route::patch('/tile-years/{id}', [AdminTileYearController::class, 'update'])->where('id', '[0-9]+');
+    Route::delete('/tile-years/{id}', [AdminTileYearController::class, 'destroy'])->where('id', '[0-9]+');
 
     // MetricDefinition management
     Route::post('/metric-definitions', [AdminMetricDefinitionController::class, 'store']);
-    Route::patch('/metric-definitions/{id}', [AdminMetricDefinitionController::class, 'update']);
-    Route::delete('/metric-definitions/{id}', [AdminMetricDefinitionController::class, 'destroy']);
+    Route::patch('/metric-definitions/{id}', [AdminMetricDefinitionController::class, 'update'])->where('id', '[0-9]+');
+    Route::delete('/metric-definitions/{id}', [AdminMetricDefinitionController::class, 'destroy'])->where('id', '[0-9]+');
 
     // MetricValue management
     Route::post('/metric-values', [AdminMetricValueController::class, 'store']);
-    Route::patch('/metric-values/{id}', [AdminMetricValueController::class, 'update']);
-    Route::delete('/metric-values/{id}', [AdminMetricValueController::class, 'destroy']);
+    Route::patch('/metric-values/{id}', [AdminMetricValueController::class, 'update'])->where('id', '[0-9]+');
+    Route::delete('/metric-values/{id}', [AdminMetricValueController::class, 'destroy'])->where('id', '[0-9]+');
 
     // Category group management
     Route::post('/category-groups', [AdminCategoryGroupController::class, 'store']);
-    Route::patch('/category-groups/{id}', [AdminCategoryGroupController::class, 'update']);
-    Route::delete('/category-groups/{id}', [AdminCategoryGroupController::class, 'destroy']);
+    Route::patch('/category-groups/{id}', [AdminCategoryGroupController::class, 'update'])->where('id', '[0-9]+');
+    Route::delete('/category-groups/{id}', [AdminCategoryGroupController::class, 'destroy'])->where('id', '[0-9]+');
 
     // Category management
     Route::post('/categories', [AdminCategoryController::class, 'store']);
-    Route::patch('/categories/{id}', [AdminCategoryController::class, 'update']);
-    Route::delete('/categories/{id}', [AdminCategoryController::class, 'destroy']);
+    Route::patch('/categories/{id}', [AdminCategoryController::class, 'update'])->where('id', '[0-9]+');
+    Route::delete('/categories/{id}', [AdminCategoryController::class, 'destroy'])->where('id', '[0-9]+');
 
     // Tile-Category sync
-    Route::post('/tiles/{id}/categories', [AdminTileController::class, 'syncCategories']);
+    Route::post('/tiles/{id}/categories', [AdminTileController::class, 'syncCategories'])->where('id', '[0-9]+');
 
     // Page management
     Route::post('/pages', [AdminPageController::class, 'store']);
-    Route::patch('/pages/{id}', [AdminPageController::class, 'update']);
-    Route::delete('/pages/{id}', [AdminPageController::class, 'destroy']);
+    Route::patch('/pages/{id}', [AdminPageController::class, 'update'])->where('id', '[0-9]+');
+    Route::delete('/pages/{id}', [AdminPageController::class, 'destroy'])->where('id', '[0-9]+');
 
     // Settings updates
     Route::patch('/config/navigation', [ConfigController::class, 'updateNavigation']);
@@ -106,7 +107,7 @@ Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant'
 });
 
 // Tenant user management routes (requires auth, role-based authorization inside controller)
-Route::middleware(['auth:sanctum', 'resolve.tenant', 'throttle:60,1'])->prefix('tenants/{tenant:slug}')->group(function () {
+Route::middleware(['throttle:60,1', 'auth:sanctum', 'resolve.tenant'])->prefix('tenants/{tenant:slug}')->group(function () {
     Route::get('/users', [TenantUserController::class, 'index']);
     Route::patch('/users/{user}', [TenantUserController::class, 'update']);
     Route::delete('/users/{user}', [TenantUserController::class, 'destroy']);

@@ -219,11 +219,11 @@ class CrossTenantSecurityTest extends TestCase
     {
         $page = $this->createInTenant($this->tenantB, fn () => \App\Models\Page::factory()->create());
 
+        // Send valid payload so validation passes — tenant-scoped lookup must return 404
         $response = $this->withToken($this->tokenA)
-            ->patchJson("/api/admin/pages/{$page->id}", ['title' => 'Hacked']);
+            ->patchJson("/api/admin/pages/{$page->id}", ['title' => ['de' => 'Hacked', 'en' => 'Hacked']]);
 
-        // Controller may return 404 (not found in tenant scope) or 422 (validation fails on scoped lookup)
-        $this->assertTrue(in_array($response->status(), [404, 422]), "Expected 404 or 422, got {$response->status()}");
+        $response->assertNotFound();
     }
 
     public function test_cannot_delete_page_from_other_tenant(): void
