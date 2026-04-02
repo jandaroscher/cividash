@@ -38,6 +38,7 @@ class Tile extends Model
     public array $translatable = [
         'title',
         'description',
+        'hint',
         'slug',
         'meta_title',
         'meta_description',
@@ -47,6 +48,7 @@ class Tile extends Model
     protected $fillable = [
         'title',
         'description',
+        'hint',
         'slug',
         'icon',
         'position',
@@ -63,6 +65,7 @@ class Tile extends Model
     protected $casts = [
         'title' => 'array',
         'description' => 'array',
+        'hint' => 'array',
         'slug' => 'array',
         'background_blocks' => 'array',
         'is_public' => 'boolean',

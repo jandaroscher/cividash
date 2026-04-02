@@ -1,115 +1,176 @@
 <template>
-    <div
-        v-show="shouldShow"
-        class="max-w-[363px] block hyphens-auto"
-        :class="{ 'pb-5 md:pb-10': !isIframe }"
-    >
-        <div class="shadow-card">
-            <div :class="backgroundClass ? [backgroundClass] : []" :style="backgroundColorStyle" class="py-6 text-black relative">
-                <div class="flex flex-row justify-between gap-2 px-4">
-                    <div class="text-theme-h3 font-bold mb-4 hyphens-auto">{{ header }}</div>
-                </div>
-
-                <div v-if="subheader" class="text-lg font-bold px-4">{{ subheader }}</div>
-
-                <template v-for="indicator in indicators" :key="indicator.id">
-                    <IndicatorBig
-                        v-if="(indicator.type === 'big' || indicator.indicator_type === 'big' || indicator.indikatortyp === 'groß') && !lottieUrl && !imageUrl"
-                        :indicator="indicator"
-                        :current-year="currentYear"
-                    />
-                </template>
-
-                <img
-                    v-if="imageUrl"
-                    class="mx-auto h-[216px] object-contain"
-                    height="216"
-                    width="363"
-                    :src="imageUrl"
-                    :alt="header"
-                    loading="lazy"
-                />
-
-                <div v-if="lottieUrl" class="text-center" ref="target" v-intersection-observer="onIntersectionObserver">
-                    <dotlottie-player
-                        ref="lottiePlayer"
-                        autoplay="true"
-                        loop="true"
-                        class="mx-auto h-[216px]"
-                    />
-                </div>
-            </div>
-
-            <div class="py-6 px-4" :style="{ backgroundColor: 'var(--card-background-color, #FFFFFF)' }">
-                <template v-for="indicator in indicators" :key="indicator.id">
-                    <IndicatorSmall
-                        v-if="indicator.type === 'small' || indicator.indikatortyp === 'normal' || lottieUrl || imageUrl"
-                        :indicator="indicator"
-                        :current-year="currentYear"
-                    />
-                </template>
-
-                <div v-if="years.length > 0" class="max-w-[214px] mx-auto my-4">
-                    <Tooltip
-                        :text="getYearSliderTooltip()"
-                        position="top"
-                        wrapper-class="w-full"
-                        trigger-class="w-full"
-                        :disabled="isSliderInteracting"
-                    >
-                        <div 
-                            class="w-full"
-                            @mousedown="handleSliderInteractionStart"
-                            @mouseup="handleSliderInteractionEnd"
-                            @mouseleave="handleSliderInteractionEnd"
-                            @touchstart="handleSliderInteractionStart"
-                            @touchend="handleSliderInteractionEnd"
-                        >
-                            <VueSlider
-                                :data="years"
-                                v-model="currentYear"
-                                :tooltip="'none'"
-                                :dot-attrs="{ 'aria-label': 'Select year' }"
-                            />
-                        </div>
-                    </Tooltip>
-                </div>
-                <div v-if="years.length > 0" class="text-black font-bold text-center text-lg mb-4">
-                    {{ currentYear }}
-                </div>
-
-                <div v-if="footnote" class="text-sm text-gray-300">{{ footnote }}</div>
-
-                <div v-if="!isIframe" class="flex justify-end mt-2.5 space-x-2.5">
-                    <Tooltip
-                        v-if="infoButtonVisible"
-                        :text="getInfoButtonTooltip()"
-                        position="left"
-                    >
-                        <button
-                            @click="toggleOverlay"
-                            class="rounded-full shrink-0 w-9 h-9 text-xl font-bold hover:shadow-info transition-shadow duration-200"
-                            :style="{ color: brandingStore.primaryColor }"
-                            aria-label="Info"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="36"
-                                height="36"
-                                viewBox="0 0 36 36"
-                                fill="none"
-                            >
-                                <path d="M18 0.5C27.665 0.5 35.5 8.33502 35.5 18C35.5 27.665 27.665 35.5 18 35.5C8.33502 35.5 0.5 27.665 0.5 18C0.5 8.33502 8.33502 0.5 18 0.5Z" fill="currentColor" stroke="#191919"/>
-                                <path d="M18 35C27.3888 35 35 27.3888 35 18C35 8.61116 27.3888 1 18 1C8.61116 1 1 8.61116 1 18C1 27.3888 8.61116 35 18 35Z" stroke="#191919" stroke-width="2"/>
-                                <path d="M18.3137 29.313V6.68556" stroke="white" stroke-width="2"/>
-                                <path d="M7.00148 18.0005H29.6289" stroke="white" stroke-width="2"/>
-                            </svg>
-                        </button>
-                    </Tooltip>
-                </div>
-            </div>
+  <div
+    v-show="shouldShow"
+    class="max-w-[363px] block hyphens-auto"
+    :class="{ 'pb-5 md:pb-10': !isIframe }"
+  >
+    <div class="shadow-card">
+      <div
+        :class="backgroundClass ? [backgroundClass] : []"
+        :style="backgroundColorStyle"
+        class="py-6 text-black relative"
+      >
+        <div class="flex flex-row justify-between gap-2 px-4">
+          <div class="text-theme-h3 font-bold mb-4 hyphens-auto">
+            {{ header }}
+          </div>
         </div>
+
+        <div
+          v-if="subheader"
+          class="text-lg font-bold px-4"
+        >
+          {{ subheader }}
+        </div>
+        <template
+          v-for="indicator in indicators"
+          :key="indicator.id"
+        >
+          <IndicatorBig
+            v-if="(indicator.type === 'big' || indicator.indicator_type === 'big' || indicator.indikatortyp === 'groß') && !lottieUrl && !imageUrl"
+            :indicator="indicator"
+            :current-year="currentYear"
+          />
+        </template>
+
+        <img
+          v-if="imageUrl"
+          class="mx-auto h-[216px] object-contain"
+          height="216"
+          width="363"
+          :src="imageUrl"
+          :alt="header"
+          loading="lazy"
+        >
+
+        <div
+          v-if="lottieUrl"
+          ref="target"
+          v-intersection-observer="onIntersectionObserver"
+          class="text-center"
+        >
+          <dotlottie-player
+            ref="lottiePlayer"
+            autoplay="true"
+            loop="true"
+            class="mx-auto h-[216px]"
+          />
+        </div>
+      </div>
+
+      <div
+        class="py-6 px-4"
+        :style="{ backgroundColor: 'var(--card-background-color, #FFFFFF)' }"
+      >
+        <template
+          v-for="indicator in indicators"
+          :key="indicator.id"
+        >
+          <IndicatorSmall
+            v-if="indicator.type === 'small' || indicator.indikatortyp === 'normal' || lottieUrl || imageUrl"
+            :indicator="indicator"
+            :current-year="currentYear"
+          />
+        </template>
+
+        <div
+          v-if="years.length > 0"
+          class="max-w-[214px] mx-auto my-4"
+        >
+          <Tooltip
+            :text="getYearSliderTooltip()"
+            position="top"
+            wrapper-class="w-full"
+            trigger-class="w-full"
+            :disabled="isSliderInteracting"
+          >
+            <div 
+              class="w-full"
+              @mousedown="handleSliderInteractionStart"
+              @mouseup="handleSliderInteractionEnd"
+              @mouseleave="handleSliderInteractionEnd"
+              @touchstart="handleSliderInteractionStart"
+              @touchend="handleSliderInteractionEnd"
+            >
+              <VueSlider
+                v-model="currentYear"
+                :data="years"
+                :tooltip="'none'"
+                :dot-attrs="{ 'aria-label': 'Select year' }"
+              />
+            </div>
+          </Tooltip>
+        </div>
+        <div
+          v-if="years.length > 0"
+          class="text-black font-bold text-center text-lg mb-4"
+        >
+          {{ currentYear }}
+        </div>
+
+        <div
+          v-if="hint"
+          class="text-sm italic text-gray-600 mt-1"
+        >
+          {{ hint }}
+        </div>
+
+        <div
+          v-if="footnote"
+          class="text-sm text-gray-300"
+        >
+          {{ footnote }}
+        </div>
+
+        <div
+          v-if="!isIframe"
+          class="flex justify-end mt-2.5 space-x-2.5"
+        >
+          <Tooltip
+            v-if="infoButtonVisible"
+            :text="getInfoButtonTooltip()"
+            position="left"
+          >
+            <button
+              class="rounded-full shrink-0 w-9 h-9 text-xl font-bold hover:shadow-info transition-shadow duration-200"
+              :style="{ color: brandingStore.primaryColor }"
+              aria-label="Info"
+              @click="toggleOverlay"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="36"
+                height="36"
+                viewBox="0 0 36 36"
+                fill="none"
+              >
+                <path
+                  d="M18 0.5C27.665 0.5 35.5 8.33502 35.5 18C35.5 27.665 27.665 35.5 18 35.5C8.33502 35.5 0.5 27.665 0.5 18C0.5 8.33502 8.33502 0.5 18 0.5Z"
+                  fill="currentColor"
+                  stroke="#191919"
+                />
+                <path
+                  d="M18 35C27.3888 35 35 27.3888 35 18C35 8.61116 27.3888 1 18 1C8.61116 1 1 8.61116 1 18C1 27.3888 8.61116 35 18 35Z"
+                  stroke="#191919"
+                  stroke-width="2"
+                />
+                <path
+                  d="M18.3137 29.313V6.68556"
+                  stroke="white"
+                  stroke-width="2"
+                />
+                <path
+                  d="M7.00148 18.0005H29.6289"
+                  stroke="white"
+                  stroke-width="2"
+                />
+              </svg>
+            </button>
+          </Tooltip>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>
@@ -144,12 +205,17 @@ const { getTooltip } = useHelpContext();
 const { currentLocale } = useLocale();
 
 const header = computed(() => {
-    return (
-        props.tile.title?.[currentLocale.value] ||
-        props.tile.title?.de ||
-        props.tile.title ||
-        ''
-    );
+    const source = props.tile.title;
+    if (typeof source === 'string') return source.trim();
+    if (source && typeof source === 'object') {
+        const resolved =
+            source[currentLocale.value] ??
+            source.de ??
+            Object.values(source).find((v) => typeof v === 'string' && v.trim().length > 0) ??
+            '';
+        return typeof resolved === 'string' ? resolved.trim() : '';
+    }
+    return '';
 });
 
 const subheader = computed(() => {
@@ -159,6 +225,20 @@ const subheader = computed(() => {
     // Extract first sentence or first 100 chars as subheader
     const firstSentence = plainText.split('.')[0];
     return firstSentence.length > 100 ? firstSentence.slice(0, 100) + '…' : firstSentence;
+});
+
+const hint = computed(() => {
+    const source = props.tile.hint;
+    if (typeof source === 'string') return source.trim();
+    if (source && typeof source === 'object') {
+        const resolved =
+            source[currentLocale.value] ??
+            source.de ??
+            Object.values(source).find((v) => typeof v === 'string' && v.trim().length > 0) ??
+            '';
+        return typeof resolved === 'string' ? resolved.trim() : '';
+    }
+    return '';
 });
 
 const footnote = computed(() => {

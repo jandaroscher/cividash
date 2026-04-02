@@ -1,12 +1,12 @@
 <template>
-    <div>
-        <component
-            v-for="(block, index) in visibleBlocks"
-            :key="block.id || `${block.type}-${index}`"
-            :is="getBlockComponent(block.type)"
-            :block="block"
-        />
-    </div>
+  <div>
+    <component
+      :is="getBlockComponent(block.type)"
+      v-for="(block, index) in visibleBlocks"
+      :key="block.id || `${block.type}-${index}`"
+      :block="block"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -20,6 +20,7 @@ import FAQBlock from './blocks/FAQBlock.vue';
 import LinkBlock from './blocks/LinkBlock.vue';
 import SliderBlock from './blocks/SliderBlock.vue';
 import TileAppBlock from './blocks/TileAppBlock.vue';
+import DownloadBlock from './blocks/DownloadBlock.vue';
 
 const props = defineProps({
     blocks: {
@@ -43,6 +44,7 @@ const blockComponentMap = {
     slider: SliderBlock,
     'tile-app': TileAppBlock,
     'card-grid': TileAppBlock,
+    download: DownloadBlock,
 };
 
 function getBlockComponent(blockType) {

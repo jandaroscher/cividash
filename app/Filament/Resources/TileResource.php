@@ -113,6 +113,9 @@ class TileResource extends Resource
                                             ->view('filament.forms.components.lottie-preview')
                                             ->dehydrated(false)
                                             ->afterStateHydrated(fn ($component, $record) => $component->state($record?->icon)),
+                                        Textarea::make('hint')
+                                            ->label(__('filament.resources.tile.hint'))
+                                            ->rows(3),
                                     ]),
 
                                 // Tab 2: background page

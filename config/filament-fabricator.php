@@ -63,6 +63,7 @@ return [
             \App\Filament\Fabricator\PageBlocks\SliderBlock::class,
             \App\Filament\Fabricator\PageBlocks\FAQBlock::class,
             \App\Filament\Fabricator\PageBlocks\CardGridBlock::class,
+            \App\Filament\Fabricator\PageBlocks\DownloadBlock::class,
         ],
     ],
 

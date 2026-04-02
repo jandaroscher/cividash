@@ -46,6 +46,10 @@ class TileResource extends JsonResource
                 ? $this->getTranslation('description', $locale)
                 : $this->getTranslations('description'),
 
+            'hint' => $locale
+                ? $this->getTranslation('hint', $locale)
+                : $this->getTranslations('hint'),
+
             'slug' => $locale
                 ? $this->getTranslation('slug', $locale)
                 : $this->getTranslations('slug'),
