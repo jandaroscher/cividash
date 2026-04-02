@@ -11,13 +11,14 @@
       v-if="!tilesStore.loading && !tilesStore.error && tilesStore.tiles.length > 0"
       class="container"
     >
-      <p class="text-theme-base text-gray-600 font-medium flex flex-row gap-2 mb-5 ml-auto justify-end mt-10 sm:mt-0">
+      <p class="text-theme-base text-gray-400 font-medium flex flex-row gap-2 mb-5 ml-auto justify-end mt-10 sm:mt-0">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="25"
           viewBox="0 0 24 25"
           aria-hidden="true"
+          class="text-gray-600"
         >
           <g transform="translate(0 1)">
             <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
