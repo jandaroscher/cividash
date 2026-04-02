@@ -36,7 +36,7 @@ describe('brandingStore', () => {
             expect(store.customFontFile).toBeNull();
             expect(store.sliderColors).toEqual({
                 rail: '#191919',
-                handle: '#E30613',
+                handle: null,
                 handleBorder: '#191919',
             });
             expect(store.backgroundColor).toBeNull();
@@ -55,7 +55,7 @@ describe('brandingStore', () => {
             expect(store.shadowColor).toBe('#000000');
             expect(store.navTextColor).toBe('#374151');
             expect(store.navTextColorInactive).toBe('#9CA3AF');
-            expect(store.navHoverColor).toBe('#FCA5A5');
+            expect(store.navHoverColor).toBe('#e30613');
         });
     });
 

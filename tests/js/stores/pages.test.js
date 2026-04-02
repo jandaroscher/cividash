@@ -312,8 +312,8 @@ describe('pagesStore', () => {
     describe('fetchPageBySlug', () => {
         it('fetches page list then fetches page by ID', async () => {
             const pagesListData = [
-                { id: 1, title: 'Home', slug: 'home' },
-                { id: 2, title: 'About', slug: 'about' },
+                { id: 1, title: 'Home', slug: 'home', parent_id: null },
+                { id: 2, title: 'About', slug: 'about', parent_id: null },
             ];
             const fullPageData = { id: 2, title: 'About', slug: 'about', blocks: [{ type: 'text' }] };
 
@@ -347,7 +347,7 @@ describe('pagesStore', () => {
         });
 
         it('uses cache on second call', async () => {
-            const pagesListData = [{ id: 1, title: 'Home', slug: 'home' }];
+            const pagesListData = [{ id: 1, title: 'Home', slug: 'home', parent_id: null }];
             const fullPageData = { id: 1, title: 'Home', slug: 'home', blocks: [] };
 
             globalThis.fetch = vi.fn().mockImplementation((url) => {
@@ -379,7 +379,7 @@ describe('pagesStore', () => {
         });
 
         it('sets 404 when slug not found in page list', async () => {
-            const pagesListData = [{ id: 1, title: 'Home', slug: 'home' }];
+            const pagesListData = [{ id: 1, title: 'Home', slug: 'home', parent_id: null }];
             globalThis.fetch = vi.fn().mockResolvedValue({
                 ok: true,
                 status: 200,
@@ -397,7 +397,7 @@ describe('pagesStore', () => {
 
         it('handles localized slug objects', async () => {
             const pagesListData = [
-                { id: 1, title: 'Home', slug: { de: 'startseite', en: 'home' } },
+                { id: 1, title: 'Home', slug: { de: 'startseite', en: 'home' }, parent_id: null },
             ];
             const fullPageData = { id: 1, title: 'Home', slug: { de: 'startseite', en: 'home' }, blocks: [] };
 
@@ -427,7 +427,7 @@ describe('pagesStore', () => {
         });
 
         it('handles 404 on the page detail fetch', async () => {
-            const pagesListData = [{ id: 1, title: 'Home', slug: 'home' }];
+            const pagesListData = [{ id: 1, title: 'Home', slug: 'home', parent_id: null }];
             globalThis.fetch = vi.fn().mockImplementation((url) => {
                 if (url.includes('/api/content/pages?')) {
                     return Promise.resolve({

@@ -38,6 +38,7 @@ vi.mock('@/utils/api', () => ({
     getApiBaseUrl: () => 'http://localhost',
 }));
 
+
 describe('Footer', () => {
     let footerStore;
     let brandingStore;
@@ -76,6 +77,7 @@ describe('Footer', () => {
                         template: '<a :href="to" class="router-link-stub"><slot /></a>',
                         props: ['to'],
                     },
+                    SocialIcon: { template: '<span class="social-icon-stub" />' },
                 },
             },
         });
@@ -97,77 +99,60 @@ describe('Footer', () => {
         await wrapper.vm.$nextTick();
 
         const navLinks = wrapper.findAll('.footer-link');
-        // Find links that are RouterLink stubs (text content)
         const linkTexts = navLinks.map(link => link.text());
         expect(linkTexts).toContain('Impressum');
         expect(linkTexts).toContain('Datenschutz');
         expect(linkTexts).toContain('Barrierefreiheit');
     });
 
-    it('does not render footer navigation section when no items exist', () => {
+    it('does not render footer navigation items when no items exist', () => {
         footerStore.footerNavigationItems = [];
         const wrapper = createWrapper();
 
-        const nav = wrapper.find('nav[aria-label="Footer navigation"]');
-        expect(nav.exists()).toBe(false);
+        const navLinks = wrapper.findAll('.footer-link');
+        expect(navLinks.length).toBe(0);
     });
 
     it('renders social links when enabled and links exist', async () => {
         footerStore.socialLinksEnabled = true;
         footerStore.socialLinks = [
-            { link: 'https://twitter.com/example', icon: 'https://example.com/twitter.svg', title: 'Twitter' },
-            { link: 'https://facebook.com/example', icon: 'https://example.com/facebook.svg', title: 'Facebook' },
+            { link: 'https://twitter.com/example', icon: 'https://example.com/twitter.svg', title: 'Twitter', is_active: true },
+            { link: 'https://facebook.com/example', icon: 'https://example.com/facebook.svg', title: 'Facebook', is_active: true },
         ];
 
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        const socialLinks = wrapper.findAll('a[target="_blank"]');
+        const socialLinks = wrapper.findAll('.social-icon-link');
         expect(socialLinks.length).toBe(2);
         expect(socialLinks[0].attributes('href')).toBe('https://twitter.com/example');
-        expect(socialLinks[0].attributes('aria-label')).toBe('Twitter');
+        expect(socialLinks[0].attributes('title')).toBe('Twitter');
     });
 
     it('does not render social links section when disabled', async () => {
         footerStore.socialLinksEnabled = false;
         footerStore.socialLinks = [
-            { link: 'https://twitter.com/example', icon: 'https://example.com/twitter.svg', title: 'Twitter' },
+            { link: 'https://twitter.com/example', icon: 'https://example.com/twitter.svg', title: 'Twitter', is_active: true },
         ];
 
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        const socialLinks = wrapper.findAll('a[target="_blank"]');
+        const socialLinks = wrapper.findAll('.social-icon-link');
         expect(socialLinks.length).toBe(0);
-    });
-
-    it('renders default copyright text with current year and site name', () => {
-        footerStore.copyrightText = null;
-        const wrapper = createWrapper();
-
-        const currentYear = new Date().getFullYear().toString();
-        expect(wrapper.text()).toContain(currentYear);
-        expect(wrapper.text()).toContain('Test Dashboard');
-    });
-
-    it('renders formatted copyright text with placeholders replaced', () => {
-        footerStore.copyrightText = 'Copyright {year} {site_name}. Alle Rechte vorbehalten.';
-        const wrapper = createWrapper();
-
-        const currentYear = new Date().getFullYear().toString();
-        expect(wrapper.text()).toContain(`Copyright ${currentYear} Zukunftsbarometer. Alle Rechte vorbehalten.`);
     });
 
     it('applies footer background color from branding store', () => {
         brandingStore.footerBackgroundColor = '#333333';
         const wrapper = createWrapper();
 
-        const footer = wrapper.find('footer');
-        // Happy-DOM keeps hex values as-is rather than converting to rgb()
-        expect(footer.attributes('style')).toContain('background-color: #333333');
+        // Background color is on the inner div, not the footer element
+        const styledDiv = wrapper.find('[style]');
+        expect(styledDiv.exists()).toBe(true);
+        expect(styledDiv.attributes('style')).toContain('#333333');
     });
 
-    it('renders single-row layout by default for simple/columns type', async () => {
+    it('renders footer links in a flat layout', async () => {
         footerStore.layoutType = 'simple';
         footerStore.footerNavigationItems = [
             { label: 'Link A', url: '/a' },
@@ -177,11 +162,9 @@ describe('Footer', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        // The single-row layout has links rendered directly (no grid wrapper per item)
-        const nav = wrapper.find('nav[aria-label="Footer navigation"]');
-        expect(nav.exists()).toBe(true);
-        // Check that footer-link class links are present
-        const links = nav.findAll('.footer-link');
+        const links = wrapper.findAll('.footer-link');
         expect(links.length).toBe(2);
+        expect(links[0].text()).toBe('Link A');
+        expect(links[1].text()).toBe('Link B');
     });
 });

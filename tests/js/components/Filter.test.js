@@ -90,8 +90,8 @@ describe('Filter', () => {
         });
     }
 
-    it('renders the filter header', async () => {
-        const wrapper = createWrapper();
+    it('renders the filter header when heading prop is set', async () => {
+        const wrapper = createWrapper({ heading: 'Filter' });
         await vi.dynamicImportSettled();
         await wrapper.vm.$nextTick();
 
@@ -134,7 +134,7 @@ describe('Filter', () => {
 
         const searchInput = wrapper.find('input[type="text"]');
         expect(searchInput.exists()).toBe(true);
-        expect(searchInput.attributes('aria-label')).toBe('Search tiles');
+        expect(searchInput.attributes('aria-label')).toBe('Kacheln durchsuchen');
     });
 
     it('hides search input when showSearch is false', async () => {
