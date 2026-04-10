@@ -33,15 +33,23 @@ class KeycloakSsoController extends Controller
     public function callback(): RedirectResponse
     {
         try {
+            // In containerized environments (e.g. DDEV), the server cannot reach
+            // Keycloak via the browser-facing URL. Override for server-side calls.
+            if ($internalUrl = config('services.keycloak.base_url_internal')) {
+                config(['services.keycloak.base_url' => $internalUrl]);
+            }
+
             $socialiteUser = Socialite::driver('keycloak')->user();
-        } catch (InvalidStateException) {
+        } catch (InvalidStateException $e) {
+            \Illuminate\Support\Facades\Log::error('Keycloak SSO: InvalidStateException', ['message' => $e->getMessage()]);
             Notification::make()
                 ->title(__('filament.sso.login_failed'))
                 ->danger()
                 ->send();
 
             return redirect()->to('/admin/login');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Keycloak SSO: callback error', ['message' => $e->getMessage(), 'class' => get_class($e)]);
             Notification::make()
                 ->title(__('filament.sso.login_failed'))
                 ->danger()
