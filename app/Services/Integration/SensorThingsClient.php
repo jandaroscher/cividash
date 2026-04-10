@@ -84,7 +84,7 @@ class SensorThingsClient implements ExternalDataSourceInterface
 
         return [
             'entities' => $data['value'] ?? [],
-            'total' => $data['@iot.count'] ?? count($data['value'] ?? []),
+            'total' => (int) ($data['@iot.count'] ?? count($data['value'] ?? [])),
         ];
     }
 

@@ -35,10 +35,6 @@ class CategoryGroup extends Model
         'title',
         'position',
         'is_active',
-        'external_source',
-        'external_id',
-        'last_synced_at',
-        'source_hash',
         'tenant_id',
     ];
 

@@ -43,7 +43,7 @@ class CivitasDataMapper implements DataMapperInterface
             'position' => $props['position'] ?? null,
             'is_public' => true,
             'external_source' => self::SOURCE_KEY,
-            'external_id' => (string) ($entity['@iot.id'] ?? ''),
+            'external_id' => ! empty($entity['@iot.id']) ? (string) $entity['@iot.id'] : null,
         ], fn ($v) => $v !== null);
     }
 
@@ -99,7 +99,7 @@ class CivitasDataMapper implements DataMapperInterface
             'indicator_type' => 'number',
             'is_active' => true,
             'external_source' => self::SOURCE_KEY,
-            'external_id' => (string) ($entity['@iot.id'] ?? ''),
+            'external_id' => ! empty($entity['@iot.id']) ? (string) $entity['@iot.id'] : null,
         ], fn ($v) => $v !== null);
     }
 
@@ -111,7 +111,7 @@ class CivitasDataMapper implements DataMapperInterface
     public function mapToMetricValue(array $entity): array
     {
         return [
-            'value' => $entity['result'] ?? 0,
+            'value' => $entity['result'] ?? null,
             'is_active' => true,
         ];
     }
@@ -132,10 +132,33 @@ class CivitasDataMapper implements DataMapperInterface
 
     public function computeSourceHash(array $entity): string
     {
-        // Strip navigation links and self-links to avoid hash changes from URL differences
-        $clean = array_filter($entity, fn ($key) => ! str_contains($key, '@iot.') && ! str_contains($key, 'Link'), ARRAY_FILTER_USE_KEY);
+        $clean = $this->normalizeForHash($entity);
 
         return md5(json_encode($clean, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+
+    /**
+     * Recursively strip @iot.* and *Link keys, sort associative arrays by key.
+     */
+    private function normalizeForHash(array $data): array
+    {
+        $result = [];
+
+        foreach ($data as $key => $value) {
+            if (is_string($key) && (str_contains($key, '@iot.') || str_ends_with($key, 'Link'))) {
+                continue;
+            }
+
+            $result[$key] = is_array($value) ? $this->normalizeForHash($value) : $value;
+        }
+
+        if (array_is_list($result)) {
+            usort($result, fn ($a, $b) => json_encode($a) <=> json_encode($b));
+        } else {
+            ksort($result);
+        }
+
+        return $result;
     }
 
     private function slugify(string $text): string

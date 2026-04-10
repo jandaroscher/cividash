@@ -147,7 +147,13 @@ class NgsiLdClient implements ExternalDataSourceInterface
 
             $response->throw();
 
-            return $response->json('access_token');
+            $token = $response->json('access_token');
+
+            if (empty($token) || ! is_string($token)) {
+                throw new \RuntimeException('OAuth2 token response did not contain a valid access_token.');
+            }
+
+            return $token;
         });
 
         return $this->accessToken;

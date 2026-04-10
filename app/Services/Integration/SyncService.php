@@ -5,6 +5,9 @@ namespace App\Services\Integration;
 use App\Contracts\Integration\DataMapperInterface;
 use App\Contracts\Integration\ExternalDataSourceInterface;
 use App\Contracts\Integration\SyncServiceInterface;
+use App\Models\Category;
+use App\Models\CategoryGroup;
+use App\Models\MetricDefinition;
 use App\Models\Tenant;
 use App\Models\Tile;
 use Illuminate\Support\Facades\Log;
@@ -38,13 +41,13 @@ class SyncService implements SyncServiceInterface
         // 4. Update last_synced_at on all touched records.
         // 5. Return SyncResult with counts.
 
-        Log::info('CIVITAS sync started', [
+        Log::warning('CIVITAS sync stub invoked — not yet implemented.', [
             'tenant' => $tenant->slug,
             'force' => $force,
             'dry_run' => $dryRun,
         ]);
 
-        return new SyncResult(dryRun: $dryRun);
+        throw new \RuntimeException('CIVITAS sync is not yet implemented.');
     }
 
     public function syncEntity(Tenant $tenant, string $externalId): SyncResult
@@ -57,17 +60,19 @@ class SyncService implements SyncServiceInterface
             return new SyncResult(failed: 1, errors: ["Entity {$externalId} not found in external source."]);
         }
 
-        return new SyncResult();
+        return new SyncResult;
     }
 
     public function getLastSyncStatus(Tenant $tenant): SyncStatus
     {
         $isConfigured = ! empty(config('integrations.civitas.api_url'));
 
-        $lastSyncedAt = Tile::withoutGlobalScopes()
-            ->where('tenant_id', $tenant->id)
-            ->whereNotNull('external_source')
-            ->max('last_synced_at');
+        $lastSyncedAt = collect([
+            Tile::withoutGlobalScopes()->where('tenant_id', $tenant->id)->whereNotNull('external_source')->max('last_synced_at'),
+            Category::withoutGlobalScopes()->where('tenant_id', $tenant->id)->whereNotNull('external_source')->max('last_synced_at'),
+            CategoryGroup::withoutGlobalScopes()->where('tenant_id', $tenant->id)->whereNotNull('external_source')->max('last_synced_at'),
+            MetricDefinition::withoutGlobalScopes()->where('tenant_id', $tenant->id)->whereNotNull('external_source')->max('last_synced_at'),
+        ])->filter()->max();
 
         return new SyncStatus(
             lastSyncedAt: $lastSyncedAt ? \Carbon\Carbon::parse($lastSyncedAt) : null,

@@ -22,6 +22,8 @@ Local development setup for testing the dashboard's CIVITAS/CORE integration aga
 
 **Infrastructure only** (default):
 - Docker + Docker Compose v2
+- git (setup.sh clones the CORE repo)
+- curl (used for health checks and FROST seeding)
 - jq
 
 **Full mode** (`--full`):

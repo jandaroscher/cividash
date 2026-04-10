@@ -32,28 +32,36 @@ class SyncCivitasData extends Command
             : Tenant::all();
 
         if ($tenants->isEmpty()) {
-            $this->error("No tenant found" . ($tenantSlug ? " with slug '{$tenantSlug}'" : '') . '.');
+            $this->error('No tenant found'.($tenantSlug ? " with slug '{$tenantSlug}'" : '').'.');
 
             return self::FAILURE;
         }
 
+        $exitCode = self::SUCCESS;
+
         foreach ($tenants as $tenant) {
             $this->info("Syncing tenant: {$tenant->name} ({$tenant->slug})");
 
-            $result = $syncService->syncAll($tenant, $force, $dryRun);
+            try {
+                $result = $syncService->syncAll($tenant, $force, $dryRun);
 
-            $this->table(
-                ['Created', 'Updated', 'Deleted', 'Skipped', 'Failed', 'Dry Run'],
-                [[$result->created, $result->updated, $result->deleted, $result->skipped, $result->failed, $result->dryRun ? 'Yes' : 'No']],
-            );
+                $this->table(
+                    ['Created', 'Updated', 'Deleted', 'Skipped', 'Failed', 'Dry Run'],
+                    [[$result->created, $result->updated, $result->deleted, $result->skipped, $result->failed, $result->dryRun ? 'Yes' : 'No']],
+                );
 
-            if ($result->hasErrors()) {
-                foreach ($result->errors as $error) {
-                    $this->error("  - {$error}");
+                if ($result->hasErrors()) {
+                    $exitCode = self::FAILURE;
+                    foreach ($result->errors as $error) {
+                        $this->error("  - {$error}");
+                    }
                 }
+            } catch (\Throwable $e) {
+                $exitCode = self::FAILURE;
+                $this->error("  Sync failed: {$e->getMessage()}");
             }
         }
 
-        return self::SUCCESS;
+        return $exitCode;
     }
 }

@@ -30,7 +30,7 @@ KC_ADMIN_USER="admin"
 KC_ADMIN_PASS="admin"
 KC_CLIENT_ID="cividash-dashboard"
 KC_CLIENT_SECRET="cividash-secret"
-FROST_DB_PASSWORD="frost_secret"
+FROST_DB_PASSWORD="${FROST_DB_PASSWORD:-frost_secret}"
 
 FULL_MODE=false
 if [ "${1:-}" = "--full" ]; then
@@ -71,19 +71,19 @@ fi
 # 3. Start infrastructure containers
 # -------------------------------------------------------
 info "Starting PostgreSQL..."
-(cd "$CORE_DIR/dev-environment/postgres" && docker compose up -d) 2>&1 | grep -v "Pulling" || true
+(cd "$CORE_DIR/dev-environment/postgres" && docker compose up -d) 2>&1 | grep -v "Pulling"
 
 info "Starting Kafka..."
-(cd "$CORE_DIR/dev-environment/kafka" && docker compose up -d) 2>&1 | grep -v "Pulling" || true
+(cd "$CORE_DIR/dev-environment/kafka" && docker compose up -d) 2>&1 | grep -v "Pulling"
 
 info "Starting Keycloak..."
-(cd "$CORE_DIR/dev-environment/keycloak" && docker compose up -d) 2>&1 | grep -v "Pulling" || warn "Mailpit port conflict is non-critical"
+(cd "$CORE_DIR/dev-environment/keycloak" && docker compose up -d) 2>&1 | grep -v "Pulling" || warn "Keycloak compose had warnings (Mailpit port conflict is non-critical)"
 
 info "Starting APISIX..."
-(cd "$CORE_DIR/dev-environment/apisix" && docker compose up -d) 2>&1 | grep -v "Pulling" || true
+(cd "$CORE_DIR/dev-environment/apisix" && docker compose up -d) 2>&1 | grep -v "Pulling"
 
 info "Starting FROST (SensorThings)..."
-(cd "$CORE_DIR/dev-environment/frost" && FROST_DB_PASSWORD="$FROST_DB_PASSWORD" docker compose up -d) 2>&1 | grep -v "Pulling" || true
+(cd "$CORE_DIR/dev-environment/frost" && FROST_DB_PASSWORD="$FROST_DB_PASSWORD" docker compose up -d) 2>&1 | grep -v "Pulling"
 
 # -------------------------------------------------------
 # 4. Wait for services to be ready
@@ -177,7 +177,15 @@ if [ "$FULL_MODE" = true ]; then
     info "=== Full mode: building CORE Portal ==="
 
     # Check prerequisites
-    if ! command -v java &>/dev/null && ! [ -x "/usr/local/opt/openjdk@21/bin/java" ]; then
+    if command -v java &>/dev/null; then
+        java_version=$(java -version 2>&1 | head -1 | sed 's/.*"\([0-9]*\)\..*/\1/')
+        if ! [ "$java_version" -ge 21 ] 2>/dev/null; then
+            err "Java 21+ required (found version ${java_version:-unknown}). Install with: brew install openjdk@21"
+            exit 1
+        fi
+    elif [ -x "/usr/local/opt/openjdk@21/bin/java" ]; then
+        : # Will be added to PATH below
+    else
         err "Java 21+ required. Install with: brew install openjdk@21"
         exit 1
     fi

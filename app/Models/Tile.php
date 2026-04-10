@@ -57,10 +57,6 @@ class Tile extends Model
         'meta_title',
         'meta_description',
         'meta_image',
-        'external_source',
-        'external_id',
-        'last_synced_at',
-        'source_hash',
         'tenant_id',
     ];
 
