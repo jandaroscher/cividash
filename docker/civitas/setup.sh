@@ -137,12 +137,19 @@ if [ "$EXISTING" -eq 0 ]; then
         -s secret="$KC_CLIENT_SECRET" \
         -s serviceAccountsEnabled=true \
         -s directAccessGrantsEnabled=true \
+        -s standardFlowEnabled=true \
         -s 'redirectUris=["http://localhost:*"]' \
         -s protocol=openid-connect \
         -s publicClient=false 2>/dev/null
     info "Client created"
 else
-    info "Keycloak client '$KC_CLIENT_ID' already exists"
+    info "Keycloak client '$KC_CLIENT_ID' already exists — ensuring Authorization Code flow is enabled"
+    CLIENT_UUID=$(docker exec civitas-keycloak /opt/keycloak/bin/kcadm.sh get clients \
+        -r "$KC_REALM" -q clientId="$KC_CLIENT_ID" --fields id 2>/dev/null | grep '"id"' | sed 's/.*: "\(.*\)".*/\1/')
+    if [ -n "$CLIENT_UUID" ]; then
+        docker exec civitas-keycloak /opt/keycloak/bin/kcadm.sh update "clients/$CLIENT_UUID" \
+            -r "$KC_REALM" -s standardFlowEnabled=true 2>/dev/null
+    fi
 fi
 
 # -------------------------------------------------------

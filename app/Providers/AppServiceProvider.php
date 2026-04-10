@@ -2,9 +2,15 @@
 
 namespace App\Providers;
 
+use App\Contracts\Integration\DataMapperInterface;
+use App\Contracts\Integration\ExternalDataSourceInterface;
+use App\Contracts\Integration\SyncServiceInterface;
 use App\Models\Page;
 use App\Models\PersonalAccessToken;
 use App\Observers\PageObserver;
+use App\Services\Integration\CivitasDataMapper;
+use App\Services\Integration\SensorThingsClient;
+use App\Services\Integration\SyncService;
 use BezhanSalleh\FilamentLanguageSwitch\Events\LocaleChanged;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +18,8 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
+use SocialiteProviders\Keycloak\KeycloakExtendSocialite;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 use Z3d0X\FilamentFabricator\Forms\Components\PageBuilder;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,7 +29,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(ExternalDataSourceInterface::class, fn () => SensorThingsClient::fromConfig());
+        $this->app->singleton(DataMapperInterface::class, CivitasDataMapper::class);
+        $this->app->singleton(SyncServiceInterface::class, SyncService::class);
     }
 
     /**
@@ -62,5 +72,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Register Page observer for cache invalidation
         Page::observe(PageObserver::class);
+
+        // Register Keycloak Socialite provider for SSO
+        Event::listen(SocialiteWasCalled::class, [KeycloakExtendSocialite::class, 'handle']);
     }
 }

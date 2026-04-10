@@ -1,6 +1,13 @@
 <?php
 
+use App\Http\Controllers\Auth\KeycloakSsoController;
 use Illuminate\Support\Facades\Route;
+
+// Keycloak SSO routes (before SPA catch-all)
+Route::get('admin/auth/keycloak/redirect', [KeycloakSsoController::class, 'redirect'])
+    ->name('auth.keycloak.redirect');
+Route::get('admin/auth/keycloak/callback', [KeycloakSsoController::class, 'callback'])
+    ->name('auth.keycloak.callback');
 
 // Password reset route - redirects to Filament admin password reset page
 Route::get('/reset-password/{token}', function (string $token) {
