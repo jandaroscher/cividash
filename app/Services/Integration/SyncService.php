@@ -61,7 +61,7 @@ class SyncService implements SyncServiceInterface
             return new SyncResult(failed: 1, errors: ["Entity {$externalId} not found in external source."]);
         }
 
-        return new SyncResult;
+        return new SyncResult(failed: 1, errors: ['Single-entity sync not yet implemented.']);
     }
 
     public function getLastSyncStatus(Tenant $tenant): SyncStatus

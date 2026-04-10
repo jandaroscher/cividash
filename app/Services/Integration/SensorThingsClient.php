@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Log;
  */
 class SensorThingsClient implements ExternalDataSourceInterface
 {
+    private int $tokenCacheTtl = 240;
+
     public function __construct(
         private readonly string $baseUrl,
         private readonly string $tokenUrl = '',
@@ -144,6 +146,11 @@ class SensorThingsClient implements ExternalDataSourceInterface
     // OAuth2 token management
     // ---------------------------------------------------------------
 
+    private function getTokenCacheTtl(): int
+    {
+        return $this->tokenCacheTtl;
+    }
+
     protected function obtainAccessToken(): ?string
     {
         if (empty($this->tokenUrl) || empty($this->clientId)) {
@@ -152,14 +159,26 @@ class SensorThingsClient implements ExternalDataSourceInterface
 
         $cacheKey = 'sensorthings_oauth_token_'.md5($this->clientId.$this->tokenUrl);
 
-        return Cache::remember($cacheKey, 240, function () {
-            $response = Http::asForm()->post($this->tokenUrl, [
+        return Cache::remember($cacheKey, $this->getTokenCacheTtl(), function () {
+            $params = [
                 'grant_type' => 'client_credentials',
                 'client_id' => $this->clientId,
                 'client_secret' => $this->clientSecret,
-            ]);
+            ];
 
+            $scope = config('integrations.civitas.oauth.scope', '');
+            if (! empty($scope)) {
+                $params['scope'] = $scope;
+            }
+
+            $response = Http::asForm()->post($this->tokenUrl, $params);
             $response->throw();
+
+            // Update cache TTL based on token response for subsequent calls
+            $expiresIn = $response->json('expires_in');
+            if ($expiresIn && $expiresIn > 0) {
+                $this->tokenCacheTtl = max(1, (int) $expiresIn - 30);
+            }
 
             return $response->json('access_token');
         });

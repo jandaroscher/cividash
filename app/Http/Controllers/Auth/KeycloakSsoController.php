@@ -32,6 +32,8 @@ class KeycloakSsoController extends Controller
      */
     public function callback(): RedirectResponse
     {
+        abort_unless($this->ssoService->isEnabled(), 403);
+
         try {
             // In containerized environments (e.g. DDEV), the server cannot reach
             // Keycloak via the browser-facing URL. Override for server-side calls.

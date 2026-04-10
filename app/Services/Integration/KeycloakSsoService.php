@@ -79,25 +79,31 @@ class KeycloakSsoService
             }
         }
 
-        // Handle Admin role (is_admin flag, not Spatie)
-        if (in_array('Admin', $mappedRoles)) {
-            $user->update(['is_admin' => true]);
+        $tenant = $user->tenants()->where('slug', 'default')->first()
+            ?? Tenant::where('slug', 'default')->first();
 
+        // Sync Admin status (is_admin flag, not Spatie)
+        $shouldBeAdmin = in_array('Admin', $mappedRoles);
+        if ($user->is_admin !== $shouldBeAdmin) {
+            $user->update(['is_admin' => $shouldBeAdmin]);
+        }
+
+        if ($shouldBeAdmin) {
             return;
         }
 
-        // Handle Redakteur role in default tenant
-        if (in_array('Redakteur', $mappedRoles)) {
-            $tenant = $user->tenants()->where('slug', 'default')->first()
-                ?? Tenant::where('slug', 'default')->first();
+        // Sync Redakteur role in default tenant
+        if ($tenant) {
+            if (! $user->tenants()->where('tenant_id', $tenant->id)->exists()) {
+                $user->tenants()->syncWithoutDetaching($tenant->id);
+            }
 
-            if ($tenant) {
-                if (! $user->tenants()->where('tenant_id', $tenant->id)->exists()) {
-                    $user->tenants()->syncWithoutDetaching($tenant->id);
-                }
+            $this->roleService->createDefaultRolesForTenant($tenant);
 
-                $this->roleService->createDefaultRolesForTenant($tenant);
+            if (in_array('Redakteur', $mappedRoles)) {
                 $this->roleService->assignRoleInTenant($user, 'Redakteur', $tenant);
+            } else {
+                $this->roleService->removeAllRolesInTenant($user, $tenant);
             }
         }
     }

@@ -123,7 +123,7 @@ class CivitasDataMapper implements DataMapperInterface
     {
         $time = $observation['phenomenonTime'] ?? null;
 
-        if ($time === null) {
+        if (! is_string($time) || strlen($time) < 4 || ! ctype_digit(substr($time, 0, 4))) {
             return null;
         }
 

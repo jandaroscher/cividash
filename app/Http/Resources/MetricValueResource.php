@@ -10,7 +10,7 @@ class MetricValueResource extends JsonResource
     {
         return [
             'year' => $this->whenLoaded('tileYear') ? $this->tileYear->year : null,
-            'value' => (float) $this->value,
+            'value' => $this->value !== null ? (float) $this->value : null,
         ];
     }
 }

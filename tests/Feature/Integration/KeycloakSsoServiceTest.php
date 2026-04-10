@@ -178,6 +178,52 @@ class KeycloakSsoServiceTest extends TestCase
         $this->assertTrue($user->fresh()->hasRole('Redakteur'));
     }
 
+    public function test_revokes_admin_when_keycloak_role_removed(): void
+    {
+        $user = User::factory()->create(['keycloak_id' => 'kc-ex-admin', 'is_admin' => true]);
+
+        config(['integrations.keycloak_sso.role_mapping' => [
+            'admin' => 'Admin',
+            'editor' => 'Redakteur',
+        ]]);
+
+        $tokenData = [
+            'realm_access' => ['roles' => ['editor', 'default-roles-civitas']],
+        ];
+
+        $this->service->syncRolesFromToken($user, $tokenData);
+
+        $this->assertFalse($user->fresh()->is_admin);
+    }
+
+    public function test_revokes_redakteur_when_keycloak_role_removed(): void
+    {
+        $user = User::factory()->create(['keycloak_id' => 'kc-ex-editor']);
+        $tenant = Tenant::where('slug', 'default')->first();
+
+        // First assign the role
+        $this->service->syncRolesFromToken($user, [
+            'realm_access' => ['roles' => ['editor']],
+        ]);
+
+        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
+        $user->unsetRelation('roles');
+        $this->assertTrue($user->fresh()->hasRole('Redakteur'));
+
+        // Now sync with no matching roles — should revoke
+        config(['integrations.keycloak_sso.role_mapping' => [
+            'admin' => 'Admin',
+            'editor' => 'Redakteur',
+        ]]);
+
+        $this->service->syncRolesFromToken($user, [
+            'realm_access' => ['roles' => ['default-roles-civitas']],
+        ]);
+
+        $user->unsetRelation('roles');
+        $this->assertFalse($user->fresh()->hasRole('Redakteur'));
+    }
+
     public function test_user_marked_active_on_sso_login(): void
     {
         $user = User::factory()->inactive()->create([

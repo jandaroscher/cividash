@@ -42,6 +42,15 @@ class KeycloakSsoControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function test_callback_aborts_when_sso_disabled(): void
+    {
+        config(['integrations.keycloak_sso.enabled' => false]);
+
+        $response = $this->get(route('auth.keycloak.callback'));
+
+        $response->assertStatus(403);
+    }
+
     public function test_callback_logs_in_existing_user_and_redirects(): void
     {
         config(['integrations.keycloak_sso.enabled' => true]);
