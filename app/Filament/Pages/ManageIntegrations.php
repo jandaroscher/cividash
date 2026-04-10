@@ -144,6 +144,8 @@ class ManageIntegrations extends SettingsPage
                 ->color('gray')
                 ->action(function (): void {
                     try {
+                        // Tests connection using the persisted configuration.
+                        // Save settings before testing if you've made changes.
                         $connected = app(ExternalDataSourceInterface::class)->isConnected();
 
                         if ($connected) {

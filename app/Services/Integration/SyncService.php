@@ -11,6 +11,7 @@ use App\Models\MetricDefinition;
 use App\Models\Tenant;
 use App\Models\Tile;
 use App\Settings\IntegrationSettings;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -77,10 +78,18 @@ class SyncService implements SyncServiceInterface
             MetricDefinition::withoutGlobalScopes()->where('tenant_id', $tenant->id)->whereNotNull('external_source')->max('last_synced_at'),
         ])->filter()->max();
 
+        // Cache the connectivity probe to avoid blocking page renders.
+        // The "Test Connection" action in ManageIntegrations probes live.
+        $isConnected = $isConfigured && Cache::remember(
+            'integration:connectivity:'.$tenant->id,
+            60,
+            fn () => $this->source->isConnected(),
+        );
+
         return new SyncStatus(
             lastSyncedAt: $lastSyncedAt ? \Carbon\Carbon::parse($lastSyncedAt) : null,
             isConfigured: $isConfigured,
-            isConnected: $isConfigured && $this->source->isConnected(),
+            isConnected: $isConnected,
         );
     }
 }
