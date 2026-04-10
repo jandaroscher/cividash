@@ -6,17 +6,20 @@ use App\Contracts\Integration\ExternalDataSourceInterface;
 use App\Contracts\Integration\SyncServiceInterface;
 use App\Models\Tenant;
 use App\Services\Integration\SyncResult;
+use App\Settings\IntegrationSettings;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Filament\Pages\Page;
+use Filament\Pages\SettingsPage;
 use Illuminate\Contracts\Support\Htmlable;
 
-class ManageIntegrations extends Page implements HasForms
+class ManageIntegrations extends SettingsPage
 {
-    use InteractsWithForms;
+    protected static string $settings = IntegrationSettings::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-path-rounded-square';
 
@@ -67,17 +70,67 @@ class ManageIntegrations extends Page implements HasForms
         return app(SyncServiceInterface::class);
     }
 
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Section::make(__('filament.pages.manage_integrations.config_heading'))
+                    ->description(__('filament.pages.manage_integrations.config_description'))
+                    ->schema([
+                        TextInput::make('api_url')
+                            ->label(__('filament.pages.manage_integrations.api_url'))
+                            ->url()
+                            ->placeholder('https://core.example.com/FROST-Server/v1.1'),
+
+                        TextInput::make('oauth_token_url')
+                            ->label(__('filament.pages.manage_integrations.oauth_token_url'))
+                            ->url()
+                            ->placeholder('https://keycloak.example.com/realms/civitas/protocol/openid-connect/token'),
+
+                        TextInput::make('oauth_client_id')
+                            ->label(__('filament.pages.manage_integrations.client_id'))
+                            ->placeholder('dashboard-client'),
+
+                        TextInput::make('oauth_client_secret')
+                            ->label(__('filament.pages.manage_integrations.client_secret'))
+                            ->password()
+                            ->revealable()
+                            ->dehydrateStateUsing(fn (?string $state, IntegrationSettings $settings) => filled($state) ? $state : $settings->oauth_client_secret)
+                            ->placeholder(__('filament.pages.manage_integrations.secret_placeholder')),
+
+                        Select::make('sync_schedule')
+                            ->label(__('filament.pages.manage_integrations.sync_schedule'))
+                            ->options([
+                                'hourly' => __('filament.pages.manage_integrations.schedule_hourly'),
+                                'daily' => __('filament.pages.manage_integrations.schedule_daily'),
+                                'weekly' => __('filament.pages.manage_integrations.schedule_weekly'),
+                            ])
+                            ->default('daily'),
+
+                        TextInput::make('sync_batch_size')
+                            ->label(__('filament.pages.manage_integrations.batch_size'))
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(1000)
+                            ->default(100),
+                    ])
+                    ->columns(2),
+            ]);
+    }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // Never send the secret to the frontend — show empty field with placeholder
+        $data['oauth_client_secret'] = null;
+
+        return $data;
+    }
+
     protected function getViewData(): array
     {
         $syncStatus = $this->getSyncService()->getLastSyncStatus($this->getTenant());
 
         return [
-            'apiUrl' => config('integrations.civitas.api_url'),
-            'tokenUrl' => config('integrations.civitas.oauth.token_url'),
-            'clientId' => config('integrations.civitas.oauth.client_id'),
-            'hasSecret' => ! empty(config('integrations.civitas.oauth.client_secret')),
-            'syncSchedule' => config('integrations.civitas.sync.schedule'),
-            'batchSize' => config('integrations.civitas.sync.batch_size'),
             'syncStatus' => $syncStatus,
         ];
     }

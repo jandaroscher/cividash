@@ -29,9 +29,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(ExternalDataSourceInterface::class, fn () => SensorThingsClient::fromConfig());
-        $this->app->singleton(DataMapperInterface::class, CivitasDataMapper::class);
-        $this->app->singleton(SyncServiceInterface::class, SyncService::class);
+        $this->app->bind(ExternalDataSourceInterface::class, fn () => SensorThingsClient::fromConfig());
+        $this->app->bind(DataMapperInterface::class, CivitasDataMapper::class);
+        $this->app->bind(SyncServiceInterface::class, SyncService::class);
     }
 
     /**

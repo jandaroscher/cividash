@@ -10,6 +10,7 @@ use App\Models\Tile;
 use App\Models\User;
 use App\Services\Integration\SyncResult;
 use App\Services\Integration\SyncStatus;
+use App\Settings\IntegrationSettings;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -69,29 +70,63 @@ class ManageIntegrationsTest extends TestCase
         $this->assertTrue(ManageIntegrations::shouldRegisterNavigation());
     }
 
-    public function test_displays_config_values(): void
+    public function test_page_not_accessible_when_civitas_disabled(): void
     {
-        config([
-            'integrations.civitas.api_url' => 'https://core.example.com/FROST-Server/v1.1',
-            'integrations.civitas.oauth.token_url' => 'https://keycloak.example.com/token',
-            'integrations.civitas.oauth.client_id' => 'dashboard-client',
-        ]);
+        config(['integrations.civitas.enabled' => false]);
 
         Livewire::test(ManageIntegrations::class)
-            ->assertSee('https://core.example.com/FROST-Server/v1.1')
-            ->assertSee('https://keycloak.example.com/token')
-            ->assertSee('dashboard-client');
+            ->assertForbidden();
     }
 
-    public function test_client_secret_is_masked(): void
+    public function test_form_saves_settings(): void
     {
-        config([
-            'integrations.civitas.oauth.client_secret' => 'super-secret-value-123',
-        ]);
+        Livewire::test(ManageIntegrations::class)
+            ->fillForm([
+                'api_url' => 'https://core.example.com/FROST-Server/v1.1',
+                'oauth_token_url' => 'https://keycloak.example.com/token',
+                'oauth_client_id' => 'dashboard-client',
+                'oauth_client_secret' => 'my-secret',
+                'sync_schedule' => 'hourly',
+                'sync_batch_size' => 50,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $settings = app(IntegrationSettings::class);
+        $this->assertEquals('https://core.example.com/FROST-Server/v1.1', $settings->api_url);
+        $this->assertEquals('https://keycloak.example.com/token', $settings->oauth_token_url);
+        $this->assertEquals('dashboard-client', $settings->oauth_client_id);
+        $this->assertEquals('my-secret', $settings->oauth_client_secret);
+        $this->assertEquals('hourly', $settings->sync_schedule);
+        $this->assertEquals(50, $settings->sync_batch_size);
+    }
+
+    public function test_secret_not_exposed_in_form(): void
+    {
+        $settings = app(IntegrationSettings::class);
+        $settings->oauth_client_secret = 'super-secret-value';
+        $settings->save();
 
         Livewire::test(ManageIntegrations::class)
-            ->assertDontSee('super-secret-value-123')
-            ->assertSee(__('filament.pages.manage_integrations.masked'));
+            ->assertFormFieldExists('oauth_client_secret')
+            ->assertDontSee('super-secret-value');
+    }
+
+    public function test_empty_secret_preserves_existing(): void
+    {
+        $settings = app(IntegrationSettings::class);
+        $settings->oauth_client_secret = 'original-secret';
+        $settings->save();
+
+        Livewire::test(ManageIntegrations::class)
+            ->fillForm([
+                'oauth_client_secret' => '',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $settings->refresh();
+        $this->assertEquals('original-secret', $settings->oauth_client_secret);
     }
 
     public function test_connection_test_success(): void
@@ -142,13 +177,5 @@ class ManageIntegrationsTest extends TestCase
 
         Livewire::test(ManageIntegrations::class)
             ->assertDontSee(__('filament.pages.manage_integrations.never_synced'));
-    }
-
-    public function test_page_not_accessible_when_civitas_disabled(): void
-    {
-        config(['integrations.civitas.enabled' => false]);
-
-        Livewire::test(ManageIntegrations::class)
-            ->assertForbidden();
     }
 }

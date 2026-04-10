@@ -27,17 +27,18 @@ class SensorThingsClient implements ExternalDataSourceInterface
     ) {}
 
     /**
-     * Build an instance from the application config.
+     * Build an instance from database settings (tenant-aware), falling back to env/config.
      */
     public static function fromConfig(): static
     {
+        $settings = rescue(fn () => app(\App\Settings\IntegrationSettings::class), null, false);
         $config = config('integrations.civitas');
 
         return new static(
-            baseUrl: $config['api_url'] ?? '',
-            tokenUrl: $config['oauth']['token_url'] ?? '',
-            clientId: $config['oauth']['client_id'] ?? '',
-            clientSecret: $config['oauth']['client_secret'] ?? '',
+            baseUrl: $settings?->api_url ?: ($config['api_url'] ?? ''),
+            tokenUrl: $settings?->oauth_token_url ?: ($config['oauth']['token_url'] ?? ''),
+            clientId: $settings?->oauth_client_id ?: ($config['oauth']['client_id'] ?? ''),
+            clientSecret: $settings?->oauth_client_secret ?: ($config['oauth']['client_secret'] ?? ''),
         );
     }
 

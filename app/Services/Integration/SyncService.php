@@ -10,6 +10,7 @@ use App\Models\CategoryGroup;
 use App\Models\MetricDefinition;
 use App\Models\Tenant;
 use App\Models\Tile;
+use App\Settings\IntegrationSettings;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -65,7 +66,9 @@ class SyncService implements SyncServiceInterface
 
     public function getLastSyncStatus(Tenant $tenant): SyncStatus
     {
-        $isConfigured = ! empty(config('integrations.civitas.api_url'));
+        $settings = rescue(fn () => app(IntegrationSettings::class), null, false);
+        $apiUrl = $settings?->api_url ?: config('integrations.civitas.api_url');
+        $isConfigured = ! empty($apiUrl);
 
         $lastSyncedAt = collect([
             Tile::withoutGlobalScopes()->where('tenant_id', $tenant->id)->whereNotNull('external_source')->max('last_synced_at'),
