@@ -1,0 +1,123 @@
+[
+  {
+    "name": "Erneuerbare Energien",
+    "description": "Ausbau der Erneuerbaren Energien im Stadtgebiet",
+    "properties": {
+      "category": "energie",
+      "title_en": "Renewable Energy",
+      "description_en": "Expansion of renewable energy in the urban area",
+      "icon": "heroicon-o-bolt",
+      "position": 1
+    },
+    "Locations": [
+      {
+        "name": "Regensburg",
+        "description": "Stadt Regensburg",
+        "encodingType": "application/vnd.geo+json",
+        "location": { "type": "Point", "coordinates": [12.0956, 49.0134] }
+      }
+    ],
+    "Datastreams": [
+      {
+        "name": "Installierte PV-Leistung",
+        "description": "Installierte Nennleistung aller PV-Anlagen im Stadtgebiet",
+        "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement",
+        "unitOfMeasurement": { "name": "Megawatt", "symbol": "MW", "definition": "https://qudt.org/vocab/unit/MegaW" },
+        "Sensor": { "name": "Marktstammdatenregister", "description": "Bundesnetzagentur MaStR", "encodingType": "text/html", "metadata": "https://www.marktstammdatenregister.de" },
+        "ObservedProperty": { "name": "Photovoltaik-Leistung", "definition": "https://example.org/pv-capacity", "description": "Installierte Nennleistung Photovoltaik" },
+        "Observations": [
+          { "phenomenonTime": "2015-12-31T23:59:59Z", "result": 26.1 },
+          { "phenomenonTime": "2018-12-31T23:59:59Z", "result": 35.4 },
+          { "phenomenonTime": "2020-12-31T23:59:59Z", "result": 44.2 },
+          { "phenomenonTime": "2022-12-31T23:59:59Z", "result": 55.8 },
+          { "phenomenonTime": "2023-12-31T23:59:59Z", "result": 64.0 }
+        ]
+      },
+      {
+        "name": "Gesamte erneuerbare Leistung",
+        "description": "Installierte Nennleistung aller regenerativen Erzeugungsanlagen",
+        "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement",
+        "unitOfMeasurement": { "name": "Megawatt", "symbol": "MW", "definition": "https://qudt.org/vocab/unit/MegaW" },
+        "Sensor": { "name": "Marktstammdatenregister", "description": "Bundesnetzagentur MaStR", "encodingType": "text/html", "metadata": "https://www.marktstammdatenregister.de" },
+        "ObservedProperty": { "name": "Erneuerbare Gesamtleistung", "definition": "https://example.org/renewable-capacity", "description": "Installierte Nennleistung aller erneuerbaren Quellen" },
+        "Observations": [
+          { "phenomenonTime": "2015-12-31T23:59:59Z", "result": 41.0 },
+          { "phenomenonTime": "2018-12-31T23:59:59Z", "result": 52.3 },
+          { "phenomenonTime": "2020-12-31T23:59:59Z", "result": 61.5 },
+          { "phenomenonTime": "2022-12-31T23:59:59Z", "result": 73.1 },
+          { "phenomenonTime": "2023-12-31T23:59:59Z", "result": 81.0 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Radverkehr",
+    "description": "Steigerung des Radverkehrsanteils am Gesamtverkehr",
+    "properties": {
+      "category": "mobilitaet",
+      "title_en": "Cycling",
+      "description_en": "Increase of cycling share in total traffic",
+      "icon": "heroicon-o-truck",
+      "position": 2
+    },
+    "Locations": [
+      {
+        "name": "Regensburg",
+        "description": "Stadt Regensburg",
+        "encodingType": "application/vnd.geo+json",
+        "location": { "type": "Point", "coordinates": [12.0956, 49.0134] }
+      }
+    ],
+    "Datastreams": [
+      {
+        "name": "Radverkehrsanteil",
+        "description": "Anteil des Radverkehrs am Modal Split",
+        "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement",
+        "unitOfMeasurement": { "name": "Prozent", "symbol": "%", "definition": "https://qudt.org/vocab/unit/PERCENT" },
+        "Sensor": { "name": "Verkehrszählung", "description": "Kommunale Verkehrszählung", "encodingType": "text/html", "metadata": "https://www.regensburg.de" },
+        "ObservedProperty": { "name": "Modal Split Radverkehr", "definition": "https://example.org/modal-split-cycling", "description": "Anteil Radverkehr am Modal Split" },
+        "Observations": [
+          { "phenomenonTime": "2015-12-31T23:59:59Z", "result": 18.5 },
+          { "phenomenonTime": "2018-12-31T23:59:59Z", "result": 20.1 },
+          { "phenomenonTime": "2020-12-31T23:59:59Z", "result": 21.8 },
+          { "phenomenonTime": "2022-12-31T23:59:59Z", "result": 23.4 }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "CO2-Emissionen",
+    "description": "Reduktion der städtischen CO2-Emissionen",
+    "properties": {
+      "category": "klima",
+      "title_en": "CO2 Emissions",
+      "description_en": "Reduction of urban CO2 emissions",
+      "icon": "heroicon-o-cloud",
+      "position": 3
+    },
+    "Locations": [
+      {
+        "name": "Regensburg",
+        "description": "Stadt Regensburg",
+        "encodingType": "application/vnd.geo+json",
+        "location": { "type": "Point", "coordinates": [12.0956, 49.0134] }
+      }
+    ],
+    "Datastreams": [
+      {
+        "name": "CO2 pro Kopf",
+        "description": "Jährliche CO2-Emissionen pro Einwohner",
+        "observationType": "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement",
+        "unitOfMeasurement": { "name": "Tonnen CO2", "symbol": "t CO2/a", "definition": "https://qudt.org/vocab/unit/TON" },
+        "Sensor": { "name": "Bilanzierung", "description": "Kommunale CO2-Bilanz", "encodingType": "text/html", "metadata": "https://www.regensburg.de" },
+        "ObservedProperty": { "name": "CO2 pro Kopf", "definition": "https://example.org/co2-per-capita", "description": "CO2-Emissionen pro Einwohner und Jahr" },
+        "Observations": [
+          { "phenomenonTime": "2015-12-31T23:59:59Z", "result": 8.2 },
+          { "phenomenonTime": "2018-12-31T23:59:59Z", "result": 7.5 },
+          { "phenomenonTime": "2020-12-31T23:59:59Z", "result": 6.8 },
+          { "phenomenonTime": "2022-12-31T23:59:59Z", "result": 6.1 }
+        ]
+      }
+    ]
+  }
+]
