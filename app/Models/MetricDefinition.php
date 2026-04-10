@@ -27,6 +27,10 @@ class MetricDefinition extends Model
         'indicator_type',
         'is_active',
         'sort_order',
+        'external_source',
+        'external_id',
+        'last_synced_at',
+        'source_hash',
         'tenant_id',
     ];
 
@@ -34,6 +38,7 @@ class MetricDefinition extends Model
         'label' => 'array',
         'unit' => 'array',
         'is_active' => 'boolean',
+        'last_synced_at' => 'datetime',
     ];
 
     public function tile()

@@ -36,6 +36,8 @@ class Category extends Model
         'is_active',
         'category_group_id',
         'key',
+        'external_source',
+        'external_id',
         'last_synced_at',
         'source_hash',
         'tenant_id',

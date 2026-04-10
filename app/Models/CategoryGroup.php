@@ -35,12 +35,17 @@ class CategoryGroup extends Model
         'title',
         'position',
         'is_active',
+        'external_source',
+        'external_id',
+        'last_synced_at',
+        'source_hash',
         'tenant_id',
     ];
 
     protected $casts = [
         'title' => 'array',
         'is_active' => 'boolean',
+        'last_synced_at' => 'datetime',
     ];
 
     /**
