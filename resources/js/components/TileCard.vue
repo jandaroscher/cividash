@@ -124,7 +124,7 @@
 
         <div
           v-if="!isIframe"
-          class="flex justify-end mt-2.5 space-x-2.5"
+          class="flex justify-end mt-2.5 space-x-2.5 items-center"
         >
           <Tooltip
             v-if="infoButtonVisible"
@@ -432,6 +432,7 @@ function toggleOverlay() {
 function getInfoButtonTooltip() {
     return getTooltip('tileInfoButton') || (currentLocale.value === 'en' ? 'Shows additional information about this tile' : 'Zeigt weitere Informationen zu dieser Kachel');
 }
+
 
 function getYearSliderTooltip() {
     return getTooltip('yearSlider') || (currentLocale.value === 'en' ? 'Select a year to display values for that year' : 'Wählen Sie ein Jahr aus, um die Werte für dieses Jahr anzuzeigen');

@@ -10,55 +10,93 @@
       >
         {{ title }}
       </div>
-      <button
-        class="h-9 rounded-full flex justify-center shrink-0 hover:shadow-info-close transition-shadow duration-200"
-        aria-label="Close overlay"
-        @click="$emit('close')"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="36"
-          height="36"
-          viewBox="0 0 36 36"
+      <div class="flex items-center gap-3 shrink-0">
+        <button
+          v-if="tileSlug"
+          class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
+          :style="{ color: brandingStore.primaryColor }"
+          :aria-label="currentLocale === 'en' ? 'Download data' : 'Daten herunterladen'"
+          @click="exportDialogOpen = true"
         >
-          <g>
-            <g
-              fill="none"
-              stroke="#191919"
-              stroke-width="2"
-            >
-              <circle
-                cx="18"
-                cy="18"
-                r="18"
-                stroke="none"
-              />
-              <circle
-                cx="18"
-                cy="18"
-                r="17"
-                fill="none"
-              />
-            </g>
-            <g transform="translate(10 10)">
-              <path
-                d="M6396.07-5129.94l16-16"
-                transform="translate(-6396.07 5145.938)"
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line
+              x1="12"
+              y1="15"
+              x2="12"
+              y2="3"
+            />
+          </svg>
+        </button>
+        <ExportDialog
+          v-if="tileSlug"
+          :open="exportDialogOpen"
+          scope="tile"
+          :tile-slug="tileSlug"
+          :tile-title="title"
+          @close="exportDialogOpen = false"
+        />
+        <button
+          class="h-9 rounded-full flex justify-center shrink-0 hover:shadow-info-close transition-shadow duration-200"
+          :aria-label="currentLocale === 'en' ? 'Close overlay' : 'Overlay schließen'"
+          @click="$emit('close')"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="36"
+            height="36"
+            viewBox="0 0 36 36"
+          >
+            <g>
+              <g
                 fill="none"
                 stroke="#191919"
                 stroke-width="2"
-              />
-              <path
-                d="M0,16,16,0"
-                transform="translate(16) rotate(90)"
-                fill="none"
-                stroke="#191919"
-                stroke-width="2"
-              />
+              >
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="18"
+                  stroke="none"
+                />
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="17"
+                  fill="none"
+                />
+              </g>
+              <g transform="translate(10 10)">
+                <path
+                  d="M6396.07-5129.94l16-16"
+                  transform="translate(-6396.07 5145.938)"
+                  fill="none"
+                  stroke="#191919"
+                  stroke-width="2"
+                />
+                <path
+                  d="M0,16,16,0"
+                  transform="translate(16) rotate(90)"
+                  fill="none"
+                  stroke="#191919"
+                  stroke-width="2"
+                />
+              </g>
             </g>
-          </g>
-        </svg>
-      </button>
+          </svg>
+        </button>
+      </div>
     </div>
     <div class="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-6">
       <div class="flex flex-col gap-[10px]">
@@ -114,9 +152,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useLocale } from '../../../composables/useLocale';
 import { useBrandingStore } from '../../../stores/branding';
+import ExportDialog from '../../export/ExportDialog.vue';
 
 const brandingStore = useBrandingStore();
 
@@ -131,6 +170,8 @@ defineEmits(['close']);
 
 const { currentLocale } = useLocale();
 
+const exportDialogOpen = ref(false);
+
 const title = computed(() => {
     if (!props.tile) return 'Tile Details';
     return (
@@ -139,6 +180,18 @@ const title = computed(() => {
         props.tile.title ||
         'Tile Details'
     );
+});
+
+const tileSlug = computed(() => {
+    const slug = props.tile?.slug;
+    if (slug) {
+        if (typeof slug === 'string') return slug;
+        const resolved = slug[currentLocale.value] || slug.de || slug.en;
+        if (resolved) return resolved;
+    }
+    // Fallback to tile ID so the export button stays visible even when
+    // the slug is missing — the export endpoint accepts numeric IDs.
+    return props.tile?.id ? String(props.tile.id) : null;
 });
 
 const backgroundCategories = computed(() => {
