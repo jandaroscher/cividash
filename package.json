@@ -15,6 +15,7 @@
         "@egjs/flicking-plugins": "^4.7.1",
         "@egjs/vue3-flicking": "^4.15.0",
         "@johanaarstein/dotlottie-player": "^1.5.23",
+        "@unhead/vue": "^3.0.4",
         "@vueuse/components": "^14.1.0",
         "dompurify": "^3.3.0",
         "pinia": "^3.0.4",

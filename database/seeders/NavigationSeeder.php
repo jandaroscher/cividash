@@ -192,9 +192,9 @@ class NavigationSeeder extends Seeder
         $assetsDir = database_path('seeders/assets/footer-sponsors');
         if (is_dir($assetsDir)) {
             Storage::disk('public')->makeDirectory('footer-sponsors');
-            foreach (glob($assetsDir . '/*.svg') as $file) {
+            foreach (glob($assetsDir.'/*.svg') as $file) {
                 Storage::disk('public')->put(
-                    'footer-sponsors/' . basename($file),
+                    'footer-sponsors/'.basename($file),
                     file_get_contents($file)
                 );
             }
@@ -212,9 +212,9 @@ class NavigationSeeder extends Seeder
         $socialAssetsDir = database_path('seeders/assets/footer-social-icons');
         if (is_dir($socialAssetsDir)) {
             Storage::disk('public')->makeDirectory('footer-social-icons');
-            foreach (glob($socialAssetsDir . '/*.svg') as $file) {
+            foreach (glob($socialAssetsDir.'/*.svg') as $file) {
                 Storage::disk('public')->put(
-                    'footer-social-icons/' . basename($file),
+                    'footer-social-icons/'.basename($file),
                     file_get_contents($file)
                 );
             }

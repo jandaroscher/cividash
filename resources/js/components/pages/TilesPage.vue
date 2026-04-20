@@ -18,6 +18,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useHead } from '@unhead/vue';
 import Cards from '../Cards.vue';
 import Filter from '../Filter.vue';
 import Overlay from '../overlay/Overlay.vue';
@@ -55,6 +56,11 @@ const effectiveLocale = computed(() => {
         return navigator.language.startsWith('en') ? 'en' : 'de';
     }
     return 'de';
+});
+
+// Set page title for the tiles listing
+useHead({
+    title: computed(() => effectiveLocale.value === 'en' ? 'Tiles' : 'Kacheln'),
 });
 
 // Set locale in tiles store

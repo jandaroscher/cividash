@@ -21,11 +21,12 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useHead, useSeoMeta } from '@unhead/vue';
 import OverlayHeader from '../overlay/parts/Header.vue';
 import OverlayContent from '../overlay/parts/Content.vue';
 import NotFound from './NotFound.vue';
 import { useTilesStore } from '../../stores/tiles';
-import { setMetaTags } from '../../composables/useMeta';
+import { getApiBaseUrl } from '../../utils/api';
 
 const route = useRoute();
 const router = useRouter();
@@ -66,7 +67,6 @@ async function loadTile() {
 
     if (data) {
         tile.value = data;
-        updateMetaTags(data);
     } else if (tilesStore.error?.status === 404) {
         isNotFound.value = true;
     }
@@ -83,32 +83,43 @@ function getLocalizedValue(value) {
     return value[locale.value] || value.de || value.en || '';
 }
 
-function updateMetaTags(tileData) {
-    const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
-    const fallbackTitle = getLocalizedValue(tileData.title);
-    const metaTitle = tileData.meta?.title || fallbackTitle;
-    const metaDescription = tileData.meta?.description || '';
-    const metaImage = tileData.meta?.image || null;
+// Reactive meta tag management via @unhead/vue
+const metaTitle = computed(() => {
+    if (!tile.value) return '';
+    return tile.value.meta?.title || getLocalizedValue(tile.value.title);
+});
 
-    setMetaTags({
-        title: metaTitle,
-        description: metaDescription,
-        image: metaImage,
-        url: currentUrl,
-        og: {
-            title: metaTitle,
-            description: metaDescription,
-            image: metaImage,
-            type: 'website',
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: metaTitle,
-            description: metaDescription,
-            image: metaImage,
-        },
-    });
-}
+const metaDescription = computed(() => {
+    if (!tile.value) return '';
+    return tile.value.meta?.description || '';
+});
+
+const metaImage = computed(() => {
+    const image = tile.value?.meta?.image;
+    if (!image) return null;
+    return image.startsWith('http') ? image : `${getApiBaseUrl()}${image}`;
+});
+
+const currentUrl = computed(() =>
+    typeof window !== 'undefined' ? window.location.href : '',
+);
+
+useHead({
+    title: metaTitle,
+});
+
+useSeoMeta({
+    description: metaDescription,
+    ogType: 'website',
+    ogTitle: metaTitle,
+    ogDescription: metaDescription,
+    ogImage: metaImage,
+    ogUrl: currentUrl,
+    twitterCard: 'summary_large_image',
+    twitterTitle: metaTitle,
+    twitterDescription: metaDescription,
+    twitterImage: metaImage,
+});
 
 onMounted(() => {
     loadTile();

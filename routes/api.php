@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ConfigController;
 use App\Http\Controllers\Api\Content\PageController as ContentPageController;
 use App\Http\Controllers\Api\FilterController;
+use App\Http\Controllers\Api\OgMetaController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\Tenant\TenantUserController;
 use App\Http\Controllers\Api\TileController;
@@ -46,6 +47,9 @@ Route::middleware(['throttle:60,1', 'resolve.tenant'])->group(function () {
     Route::get('/content/pages', [ContentPageController::class, 'index']);
     Route::get('/content/pages/root', [ContentPageController::class, 'showRoot']);
     Route::get('/content/pages/{id}', [ContentPageController::class, 'show'])->where('id', '[0-9]+');
+
+    // OG meta data for headless frontend deployments
+    Route::get('/og-meta', [OgMetaController::class, 'show']);
 });
 
 // Admin API routes (secured with Sanctum + admin permission check + tenant resolution)
