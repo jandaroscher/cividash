@@ -1,34 +1,37 @@
 <template>
-    <div class="container pt-6 md:mb-10 overflow-hidden">
-        <VueFlexWaterfall
-            v-if="filteredTiles.length > 0 && isReady"
-            :key="`waterfall-${currentLocale}`"
-            ref="waterfall"
-            class="h-full max-w-[363px] mx-auto md:max-w-none md:mx-0"
-            :style="{ minHeight: '200px', visibility: isTransitioning ? 'hidden' : 'visible' }"
-            align-content="center"
-            :col="colCount"
-            col-spacing="40"
-            :break-at="{ 1280: mdColCount, 825: 1 }"
-        >
-            <TileCard
-                v-for="tile in filteredTiles"
-                :key="tile.id"
-                :tile="tile"
-            />
-        </VueFlexWaterfall>
-        <div v-if="visibleTilesCount === 0" class="text-center py-10 text-gray-600">
-            <template v-if="filterStore.searchQuery && filterStore.level2Filter?.key">
-                {{ currentLocale === 'en' ? 'No tiles found for filter and search:' : 'Keine Tiles gefunden für Filter und Suche:' }} {{ filterStore.level2Filter.title }} / "{{ filterStore.searchQuery }}"
-            </template>
-            <template v-else-if="filterStore.searchQuery">
-                {{ currentLocale === 'en' ? 'No tiles found for search:' : 'Keine Tiles gefunden für Suche:' }} "{{ filterStore.searchQuery }}"
-            </template>
-            <template v-else-if="filterStore.level2Filter?.key">
-                {{ currentLocale === 'en' ? 'No tiles found for filter:' : 'Keine Tiles gefunden für Filter:' }} {{ filterStore.level2Filter.title }}
-            </template>
-        </div>
+  <div class="container pt-6 md:mb-10">
+    <VueFlexWaterfall
+      v-if="filteredTiles.length > 0 && isReady"
+      :key="`waterfall-${currentLocale}`"
+      ref="waterfall"
+      class="h-full max-w-[363px] mx-auto md:max-w-none md:mx-0"
+      :style="{ minHeight: '200px', visibility: isTransitioning ? 'hidden' : 'visible' }"
+      align-content="center"
+      :col="colCount"
+      col-spacing="40"
+      :break-at="{ 1280: mdColCount, 825: 1 }"
+    >
+      <TileCard
+        v-for="tile in filteredTiles"
+        :key="tile.id"
+        :tile="tile"
+      />
+    </VueFlexWaterfall>
+    <div
+      v-if="visibleTilesCount === 0"
+      class="text-center py-10 text-gray-600"
+    >
+      <template v-if="filterStore.searchQuery && filterStore.level2Filter?.key">
+        {{ currentLocale === 'en' ? 'No tiles found for filter and search:' : 'Keine Tiles gefunden für Filter und Suche:' }} {{ filterStore.level2Filter.title }} / "{{ filterStore.searchQuery }}"
+      </template>
+      <template v-else-if="filterStore.searchQuery">
+        {{ currentLocale === 'en' ? 'No tiles found for search:' : 'Keine Tiles gefunden für Suche:' }} "{{ filterStore.searchQuery }}"
+      </template>
+      <template v-else-if="filterStore.level2Filter?.key">
+        {{ currentLocale === 'en' ? 'No tiles found for filter:' : 'Keine Tiles gefunden für Filter:' }} {{ filterStore.level2Filter.title }}
+      </template>
     </div>
+  </div>
 </template>
 
 <script setup>
