@@ -34,6 +34,7 @@ class FAQBlock extends PageBlock
                             ->label(__('filament.blocks.faq.answer'))
                             ->required(),
                     ])
+                    ->itemLabel(fn (array $state): ?string => $state['question'] ?? null)
                     ->defaultItems(1)
                     ->collapsible()
                     ->collapsed(),
