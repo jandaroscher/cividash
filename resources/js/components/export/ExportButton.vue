@@ -3,8 +3,11 @@
     <div class="relative inline-flex items-center">
       <button
         type="button"
-        class="rounded-full shrink-0 w-9 h-9 inline-flex items-center justify-center hover:shadow-info transition-shadow duration-200 disabled:opacity-50"
-        :style="{ color: brandingStore.primaryColor }"
+        class="rounded-full shrink-0 w-9 h-9 inline-flex items-center justify-center border transition-opacity duration-200 disabled:opacity-50 hover:opacity-70"
+        :style="{
+          borderColor: 'var(--text-primary-color, #000000)',
+          color: 'var(--text-primary-color, #000000)',
+        }"
         :aria-label="labels.button"
         :disabled="loading || !canDirectDownload"
         :title="directError || undefined"
@@ -43,8 +46,8 @@
   <template v-else>
     <button
       type="button"
-      class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
-      :style="{ backgroundColor: brandingStore.primaryColor, color: '#fff' }"
+      class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold border-2 bg-transparent hover:opacity-70 transition"
+      :style="{ borderColor: brandingStore.primaryColor, color: brandingStore.primaryColor }"
       @click="dialogOpen = true"
     >
       <svg

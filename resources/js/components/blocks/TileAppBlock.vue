@@ -9,7 +9,7 @@
 
     <div
       v-if="!tilesStore.loading && !tilesStore.error && tilesStore.tiles.length > 0"
-      class="container flex flex-wrap items-center justify-end gap-4 mb-5 mt-10 sm:mt-0"
+      class="container flex flex-col items-center gap-4 mb-5 mt-10 sm:mt-0 sm:flex-row sm:items-center sm:justify-between"
     >
       <p class="text-theme-base text-gray-400 font-semibold flex flex-row gap-2 m-0">
         <svg
