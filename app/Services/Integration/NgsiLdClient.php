@@ -3,7 +3,10 @@
 namespace App\Services\Integration;
 
 use App\Contracts\Integration\ExternalDataSourceInterface;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -27,21 +30,26 @@ class NgsiLdClient implements ExternalDataSourceInterface
         private readonly string $clientId,
         private readonly string $clientSecret,
         private readonly string $scope = '',
+        private readonly string $contextUrl = '',
     ) {}
 
     /**
-     * Build an instance from the application config.
+     * Build an instance from database settings (tenant-aware), falling back to env/config.
      */
     public static function fromConfig(): static
     {
+        $settings = rescue(fn () => app(\App\Settings\IntegrationSettings::class), null, false);
         $config = config('integrations.civitas');
 
+        $apiUrl = $settings?->api_url ?: ($config['api_url'] ?? '');
+
         return new static(
-            apiUrl: $config['api_url'] ?? '',
-            tokenUrl: $config['oauth']['token_url'] ?? '',
-            clientId: $config['oauth']['client_id'] ?? '',
-            clientSecret: $config['oauth']['client_secret'] ?? '',
+            apiUrl: rtrim($apiUrl, '/'),
+            tokenUrl: $settings?->oauth_token_url ?: ($config['oauth']['token_url'] ?? ''),
+            clientId: $settings?->oauth_client_id ?: ($config['oauth']['client_id'] ?? ''),
+            clientSecret: $settings?->oauth_client_secret ?: ($config['oauth']['client_secret'] ?? ''),
             scope: $config['oauth']['scope'] ?? '',
+            contextUrl: (string) ($config['context_url'] ?? ''),
         );
     }
 
@@ -68,6 +76,9 @@ class NgsiLdClient implements ExternalDataSourceInterface
 
     public function fetchEntities(string $type, array $filters = [], int $limit = 100, int $offset = 0): array
     {
+        // NGSI-LD brokers cap the page size; never request more than 1000 at once.
+        $limit = min($limit, 1000);
+
         $query = array_filter([
             'type' => $type,
             'limit' => $limit,
@@ -76,24 +87,28 @@ class NgsiLdClient implements ExternalDataSourceInterface
             ...$filters,
         ]);
 
-        $response = $this->http()
-            ->withHeader('Accept', 'application/ld+json')
+        $response = $this->applyContext($this->http())
             ->get($this->apiUrl.'/entities', $query);
 
         $response->throw();
 
         $total = (int) $response->header('NGSILD-Results-Count', '0');
 
+        $json = $response->json();
+
+        // Normalise the body shape: brokers return either a bare list of
+        // entities or an envelope object with an "entities" key.
+        $entities = array_is_list($json ?? []) ? $json : ($json['entities'] ?? []);
+
         return [
-            'entities' => $response->json(),
+            'entities' => $entities,
             'total' => $total,
         ];
     }
 
     public function fetchEntity(string $id): ?array
     {
-        $response = $this->http()
-            ->withHeader('Accept', 'application/ld+json')
+        $response = $this->applyContext($this->http())
             ->get($this->apiUrl.'/entities/'.$id);
 
         if ($response->notFound()) {
@@ -107,17 +122,52 @@ class NgsiLdClient implements ExternalDataSourceInterface
 
     public function getAvailableEntityTypes(): array
     {
-        $response = $this->http()
-            ->withHeader('Accept', 'application/ld+json')
+        $response = $this->applyContext($this->http())
             ->get($this->apiUrl.'/types');
 
         $response->throw();
 
-        return collect($response->json())
-            ->pluck('id')
+        $json = $response->json() ?? [];
+
+        // Stellio returns an EntityTypeList object: { "typeList": ["A", "B"] }.
+        if (! array_is_list($json) && isset($json['typeList'])) {
+            return collect($json['typeList'])
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        // Other brokers return a list of objects: [{ "id": ..., "typeName": ... }].
+        return collect($json)
+            ->map(fn ($item) => is_array($item) ? ($item['typeName'] ?? $item['id'] ?? null) : $item)
             ->filter()
             ->values()
             ->all();
+    }
+
+    // ---------------------------------------------------------------
+    // Request helpers
+    // ---------------------------------------------------------------
+
+    /**
+     * Apply the NGSI-LD JSON-LD negotiation headers to a request.
+     *
+     * Always sets Accept: application/ld+json. When a JSON-LD @context URL is
+     * configured, it is advertised via the Link header so the broker expands
+     * terms against it.
+     */
+    private function applyContext(PendingRequest $request): PendingRequest
+    {
+        $request = $request->withHeader('Accept', 'application/ld+json');
+
+        if ($this->contextUrl !== '') {
+            $request = $request->withHeader(
+                'Link',
+                '<'.$this->contextUrl.'>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"',
+            );
+        }
+
+        return $request;
     }
 
     // ---------------------------------------------------------------
@@ -161,13 +211,30 @@ class NgsiLdClient implements ExternalDataSourceInterface
 
     /**
      * Return an HTTP client pre-configured with the Bearer token.
+     *
+     * Transient failures are retried: connection errors and 5xx responses are
+     * retried, while 4xx responses are surfaced immediately (a single attempt)
+     * since retrying a client error is pointless.
      */
     protected function http(): PendingRequest
     {
-        $request = Http::timeout(30)->retry(
-            config('integrations.civitas.sync.retry_attempts', 3),
-            config('integrations.civitas.sync.retry_delay_seconds', 5) * 1000,
-        );
+        $request = Http::connectTimeout(10)
+            ->timeout(30)
+            ->retry(
+                config('integrations.civitas.sync.retry_attempts', 3),
+                config('integrations.civitas.sync.retry_delay_seconds', 5) * 1000,
+                function (\Throwable $exception, PendingRequest $request): bool {
+                    if ($exception instanceof ConnectionException) {
+                        return true;
+                    }
+
+                    $response = $exception instanceof RequestException ? $exception->response : null;
+
+                    // Only retry server-side (5xx) errors, never client (4xx) errors.
+                    return $response instanceof Response && $response->serverError();
+                },
+                throw: false,
+            );
 
         if ($this->tokenUrl && $this->clientId) {
             $request = $request->withToken($this->obtainAccessToken());
