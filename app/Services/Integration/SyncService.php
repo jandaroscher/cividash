@@ -42,7 +42,10 @@ class SyncService implements SyncServiceInterface
 
     public function syncAll(Tenant $tenant, bool $force = false, bool $dryRun = false): SyncResult
     {
-        Filament::setTenant($tenant);
+        // isQuiet: true skips the TenantSet event, which requires an authenticated
+        // user — there is none in a scheduled/console run. We scope every write with
+        // an explicit tenant_id anyway, so the quiet context is sufficient.
+        Filament::setTenant($tenant, isQuiet: true);
 
         $created = 0;
         $updated = 0;
@@ -107,7 +110,10 @@ class SyncService implements SyncServiceInterface
 
     public function syncEntity(Tenant $tenant, string $externalId): SyncResult
     {
-        Filament::setTenant($tenant);
+        // isQuiet: true skips the TenantSet event, which requires an authenticated
+        // user — there is none in a scheduled/console run. We scope every write with
+        // an explicit tenant_id anyway, so the quiet context is sufficient.
+        Filament::setTenant($tenant, isQuiet: true);
 
         $entity = $this->source->fetchEntity($externalId);
 

@@ -143,7 +143,7 @@ class NgsiLdDataMapperTest extends TestCase
     public function test_map_to_metric_values_fans_out_with_null(): void
     {
         $entity = [
-            'values' => [
+            'dataPoints' => [
                 ['year' => 2023, 'value' => 1.5],
                 ['year' => 2024, 'value' => null],
             ],
@@ -160,7 +160,7 @@ class NgsiLdDataMapperTest extends TestCase
     public function test_map_to_metric_values_skips_malformed_or_missing_year(): void
     {
         $entity = [
-            'values' => [
+            'dataPoints' => [
                 ['year' => 2023, 'value' => 1.5],
                 ['value' => 9.9],                 // missing year
                 ['year' => 'abc', 'value' => 2.2], // non-numeric year
@@ -176,7 +176,7 @@ class NgsiLdDataMapperTest extends TestCase
     public function test_map_to_metric_values_tolerates_property_wrapped_list(): void
     {
         $entity = [
-            'values' => [
+            'dataPoints' => [
                 'type' => 'Property',
                 'value' => [
                     ['year' => 2023, 'value' => 1.5],

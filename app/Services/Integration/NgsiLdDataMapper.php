@@ -100,12 +100,17 @@ class NgsiLdDataMapper implements DataMapperInterface
     /**
      * Fan out an entity's time-series into a list of ['year'=>int,'value'=>float|null] pairs.
      *
-     * Tolerates a Property-wrapped `values` node ({type:Property,value:[...]}).
+     * Tolerates a Property-wrapped `dataPoints` node ({type:Property,value:[...]}).
      * Pairs without a numeric year are skipped.
+     *
+     * NOTE: the time-series attribute is `dataPoints`, NOT `values`. Under the
+     * NGSI-LD core context `values` expands to the reserved term hasValues, which
+     * Stellio — and therefore production CORE — rejects with HTTP 400. See
+     * docker/civitas/v1.6.2/README.md.
      */
     public function mapToMetricValues(array $entity): array
     {
-        $values = $entity['values'] ?? [];
+        $values = $entity['dataPoints'] ?? [];
 
         // Unwrap a Property node: {"type":"Property","value":[...]}.
         if (is_array($values) && ! array_is_list($values) && array_key_exists('value', $values)) {

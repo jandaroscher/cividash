@@ -47,7 +47,7 @@ class SyncServiceTest extends TestCase
             'type' => 'NachhaltigkeitsIndikator',
             'name' => ['type' => 'LanguageProperty', 'languageMap' => ['de' => $deName, 'en' => $deName]],
             'unit' => ['type' => 'Property', 'value' => 't'],
-            'values' => ['type' => 'Property', 'value' => $values],
+            'dataPoints' => ['type' => 'Property', 'value' => $values],
         ];
 
         if ($category !== null) {
@@ -277,6 +277,24 @@ class SyncServiceTest extends TestCase
         $this->assertNotNull($tile1);
         $this->assertNotNull($tile2);
         $this->assertNotSame($tile1->id, $tile2->id);
+    }
+
+    public function test_sync_succeeds_without_authenticated_user_console_context(): void
+    {
+        // Simulate the scheduled/console run: NO Filament user is logged in.
+        // Regression guard for the TenantSet-requires-a-user crash that the
+        // logged-in setUp() masked.
+        Filament::auth()->logout();
+        Filament::setTenant(null, isQuiet: true);
+
+        $source = $this->fakeSource([
+            $this->indicator('urn:ngsi-ld:Indicator:co2', 'CO2', [['year' => 2022, 'value' => 1.0]]),
+        ]);
+
+        $result = $this->service($source)->syncAll($this->tenant);
+
+        $this->assertSame(1, $result->created);
+        $this->assertSame(1, Tile::withoutGlobalScopes()->where('tenant_id', $this->tenant->id)->whereNotNull('external_source')->count());
     }
 
     public function test_pagination_loops_until_results_count_reached(): void
