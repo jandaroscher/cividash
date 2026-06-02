@@ -8,9 +8,12 @@ use App\Contracts\Integration\SyncServiceInterface;
 use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\MetricDefinition;
+use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
+use App\Models\TileYear;
 use App\Settings\IntegrationSettings;
+use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -22,6 +25,16 @@ use Illuminate\Support\Facades\Log;
  */
 class SyncService implements SyncServiceInterface
 {
+    /**
+     * Provenance marker written to external_source on every synced record.
+     */
+    public const SOURCE_KEY = 'civitas-core';
+
+    /**
+     * NGSI-LD entity type pulled from the external source.
+     */
+    public const ENTITY_TYPE = 'NachhaltigkeitsIndikator';
+
     public function __construct(
         private readonly ExternalDataSourceInterface $source,
         private readonly DataMapperInterface $mapper,
@@ -29,32 +42,72 @@ class SyncService implements SyncServiceInterface
 
     public function syncAll(Tenant $tenant, bool $force = false, bool $dryRun = false): SyncResult
     {
-        // TODO: Implement full sync loop.
-        //
-        // High-level algorithm:
-        // 1. Fetch all entities from the external source (paginated).
-        // 2. For each entity:
-        //    a. Compute source_hash via $this->mapper->computeSourceHash().
-        //    b. Look up local record by external_id + external_source.
-        //    c. If not found → create (unless $dryRun).
-        //    d. If found and source_hash differs → update (unless $dryRun).
-        //    e. If found and source_hash matches → skip.
-        // 3. Optionally delete local records whose external_id no longer exists upstream.
-        // 4. Update last_synced_at on all touched records.
-        // 5. Return SyncResult with counts.
+        Filament::setTenant($tenant);
 
-        Log::warning('CIVITAS sync stub invoked — not yet implemented.', [
-            'tenant' => $tenant->slug,
-            'force' => $force,
-            'dry_run' => $dryRun,
-        ]);
+        $created = 0;
+        $updated = 0;
+        $skipped = 0;
+        $failed = 0;
+        $deleted = 0;
+        $errors = [];
+        $seenExternalIds = [];
 
-        throw new \RuntimeException('CIVITAS sync is not yet implemented.');
+        $batchSize = $this->batchSize();
+        $offset = 0;
+        $total = null;
+
+        do {
+            $page = $this->source->fetchEntities(self::ENTITY_TYPE, [], $batchSize, $offset);
+            $entities = $page['entities'] ?? [];
+            $total ??= (int) ($page['total'] ?? 0);
+
+            foreach ($entities as $entity) {
+                try {
+                    if (! is_array($entity) || empty($entity['id'])) {
+                        throw new \RuntimeException('External entity is missing an id.');
+                    }
+
+                    $externalId = (string) $entity['id'];
+                    $seenExternalIds[] = $externalId;
+
+                    $outcome = $this->syncSingle($tenant, $entity, $force, $dryRun);
+
+                    match ($outcome) {
+                        'created' => $created++,
+                        'updated' => $updated++,
+                        default => $skipped++,
+                    };
+                } catch (\Throwable $e) {
+                    $failed++;
+                    $errors[] = $e->getMessage();
+                    Log::warning('CIVITAS sync: failed to sync entity.', [
+                        'tenant' => $tenant->slug,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            $offset += $batchSize;
+        } while ($offset < $total && ! empty($entities));
+
+        if (config('integrations.civitas.sync.prune_removed') && ! $dryRun) {
+            $deleted = $this->pruneRemoved($tenant, $seenExternalIds);
+        }
+
+        return new SyncResult(
+            created: $created,
+            updated: $updated,
+            deleted: $deleted,
+            skipped: $skipped,
+            failed: $failed,
+            errors: $errors,
+            dryRun: $dryRun,
+        );
     }
 
     public function syncEntity(Tenant $tenant, string $externalId): SyncResult
     {
-        // TODO: Implement single-entity sync.
+        Filament::setTenant($tenant);
 
         $entity = $this->source->fetchEntity($externalId);
 
@@ -62,7 +115,148 @@ class SyncService implements SyncServiceInterface
             return new SyncResult(failed: 1, errors: ["Entity {$externalId} not found in external source."]);
         }
 
-        return new SyncResult(failed: 1, errors: ['Single-entity sync not yet implemented.']);
+        try {
+            $outcome = $this->syncSingle($tenant, $entity, force: true, dryRun: false);
+        } catch (\Throwable $e) {
+            return new SyncResult(failed: 1, errors: [$e->getMessage()]);
+        }
+
+        return new SyncResult(
+            created: $outcome === 'created' ? 1 : 0,
+            updated: $outcome === 'updated' ? 1 : 0,
+            skipped: $outcome === 'skipped' ? 1 : 0,
+        );
+    }
+
+    /**
+     * Sync a single external entity into the dashboard data model.
+     *
+     * @return 'created'|'updated'|'skipped'
+     */
+    private function syncSingle(Tenant $tenant, array $entity, bool $force, bool $dryRun): string
+    {
+        $externalId = (string) $entity['id'];
+        $hash = $this->mapper->computeSourceHash($entity);
+
+        $existing = Tile::withoutGlobalScopes()
+            ->where('tenant_id', $tenant->id)
+            ->where('external_source', self::SOURCE_KEY)
+            ->where('external_id', $externalId)
+            ->first();
+
+        $isNew = $existing === null;
+
+        if (! $isNew && ! $force && $existing->source_hash === $hash) {
+            return 'skipped';
+        }
+
+        if ($dryRun) {
+            return $isNew ? 'created' : 'updated';
+        }
+
+        DB::transaction(function () use ($tenant, $entity, $existing, $hash, $externalId) {
+            $tile = $existing ?? new Tile;
+            $tile->fill($this->fillableOnly($tile, $this->mapper->mapToTile($entity)));
+            $tile->tenant_id = $tenant->id;
+            $tile->external_source = self::SOURCE_KEY;
+            $tile->external_id = $externalId;
+            $tile->source_hash = $hash;
+            $tile->last_synced_at = now();
+            $tile->save();
+
+            $definitionAttrs = $this->mapper->mapToMetricDefinition($entity);
+            $metricKey = $definitionAttrs['metric_key'] ?? $externalId;
+
+            $definition = MetricDefinition::withoutGlobalScopes()
+                ->where('tile_id', $tile->id)
+                ->where('metric_key', $metricKey)
+                ->first() ?? new MetricDefinition;
+
+            $definition->fill($this->fillableOnly($definition, $definitionAttrs));
+            $definition->tile_id = $tile->id;
+            $definition->tenant_id = $tenant->id;
+            $definition->external_source = self::SOURCE_KEY;
+            $definition->external_id = $definitionAttrs['external_id'] ?? $externalId;
+            $definition->source_hash = $hash;
+            $definition->last_synced_at = now();
+            $definition->save();
+
+            foreach ($this->mapper->mapToMetricValues($entity) as $pair) {
+                $tileYear = TileYear::withoutGlobalScopes()
+                    ->where('tile_id', $tile->id)
+                    ->where('year', $pair['year'])
+                    ->first();
+
+                if ($tileYear === null) {
+                    $tileYear = new TileYear;
+                    $tileYear->tile_id = $tile->id;
+                    $tileYear->year = $pair['year'];
+                    $tileYear->tenant_id = $tenant->id;
+                    $tileYear->save();
+                }
+
+                $metricValue = MetricValue::withoutGlobalScopes()
+                    ->where('metric_definition_id', $definition->id)
+                    ->where('tile_year_id', $tileYear->id)
+                    ->first() ?? new MetricValue;
+
+                $metricValue->fill($this->fillableOnly($metricValue, $this->mapper->mapToMetricValue($pair)));
+                $metricValue->metric_definition_id = $definition->id;
+                $metricValue->tile_year_id = $tileYear->id;
+                $metricValue->tenant_id = $tenant->id;
+                $metricValue->save();
+            }
+
+            $categoryAttrs = $this->mapper->mapToCategory($entity);
+
+            if ($categoryAttrs !== []) {
+                $category = Category::withoutGlobalScopes()
+                    ->where('tenant_id', $tenant->id)
+                    ->where('external_source', self::SOURCE_KEY)
+                    ->where('external_id', $categoryAttrs['external_id'])
+                    ->first() ?? new Category;
+
+                $category->fill($this->fillableOnly($category, $categoryAttrs));
+                $category->tenant_id = $tenant->id;
+                $category->external_source = self::SOURCE_KEY;
+                $category->external_id = $categoryAttrs['external_id'];
+                $category->last_synced_at = now();
+                $category->save();
+
+                $tile->categories()->syncWithoutDetaching([$category->id]);
+            }
+        });
+
+        return $isNew ? 'created' : 'updated';
+    }
+
+    /**
+     * Delete tiles previously synced from this source whose external_id no longer
+     * appears upstream. Child rows cascade via foreign keys.
+     */
+    private function pruneRemoved(Tenant $tenant, array $seenExternalIds): int
+    {
+        // Guard: an empty seen-list makes whereNotIn() match every row (WHERE 1=1)
+        // and would delete ALL synced tiles — e.g. when the source returns nothing
+        // due to a transient or auth error. Never prune when we saw no entities.
+        if ($seenExternalIds === []) {
+            return 0;
+        }
+
+        $stale = Tile::withoutGlobalScopes()
+            ->where('tenant_id', $tenant->id)
+            ->where('external_source', self::SOURCE_KEY)
+            ->whereNotIn('external_id', $seenExternalIds)
+            ->get();
+
+        $count = 0;
+
+        foreach ($stale as $tile) {
+            $tile->delete();
+            $count++;
+        }
+
+        return $count;
     }
 
     public function getLastSyncStatus(Tenant $tenant): SyncStatus
@@ -91,5 +285,30 @@ class SyncService implements SyncServiceInterface
             isConfigured: $isConfigured,
             isConnected: $isConnected,
         );
+    }
+
+    /**
+     * Resolve the page size for paginated fetches.
+     */
+    private function batchSize(): int
+    {
+        $settings = rescue(fn () => app(IntegrationSettings::class), null, false);
+
+        return (int) ($settings?->sync_batch_size
+            ?? config('integrations.civitas.sync.batch_size', 100));
+    }
+
+    /**
+     * Filter a mapped attribute array down to the model's fillable columns so
+     * that guarded provenance columns are set explicitly rather than mass-assigned.
+     *
+     * @param  array<string,mixed>  $attributes
+     * @return array<string,mixed>
+     */
+    private function fillableOnly(\Illuminate\Database\Eloquent\Model $model, array $attributes): array
+    {
+        $fillable = $model->getFillable();
+
+        return array_intersect_key($attributes, array_flip($fillable));
     }
 }
