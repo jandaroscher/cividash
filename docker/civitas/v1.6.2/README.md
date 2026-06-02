@@ -169,7 +169,22 @@ curl http://localhost:8092/ngsi-ld/v1/entities?type=NachhaltigkeitsIndikator \
   -H 'Accept: application/ld+json'
 ```
 
-> **Security:** auth is disabled, so the broker is an **open, writable** NGSI-LD
-> endpoint. Keep it project-internal — do **not** attach a public ingress without
-> first enabling Keycloak auth. The staging dashboard should reach it over the
-> project-internal network (or a protected ingress), not a public URL.
+### Public ingress (stage)
+
+A virtualhost exposes the broker for the staging dashboard:
+
+**`https://civitas.example.org/ngsi-ld/v1`** → api-gateway container.
+
+```bash
+mw domain virtualhost create --hostname civitas.example.org \
+  --path-to-container /:<api-gateway-container-UUID>:8080/tcp -p p-example
+# NOTE: --path-to-container needs the FULL container UUID (mw container ls -o json),
+# not the short c-xxxxxx id.
+```
+
+> **Security — open writable broker:** auth is disabled, so this public endpoint
+> accepts NGSI-LD **writes (POST/DELETE) from anyone on the internet**. This is
+> acceptable ONLY as a throwaway stage with disposable data. **TODO before any
+> real use:** protect it — enable Stellio/Keycloak auth, or restrict writes /
+> IP-allowlist at the ingress. Reads are "Open Data" per the project decision;
+> writes are not.
