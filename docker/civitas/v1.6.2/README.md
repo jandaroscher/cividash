@@ -169,22 +169,35 @@ curl http://localhost:8092/ngsi-ld/v1/entities?type=NachhaltigkeitsIndikator \
   -H 'Accept: application/ld+json'
 ```
 
-### Public ingress (stage)
+### Public ingress + write protection (stage)
 
-A virtualhost exposes the broker for the staging dashboard:
+Public URL: **`https://civitas.example.org/ngsi-ld/v1`**. The
+virtualhost points at the **`caddy` auth-proxy** container (NOT api-gateway
+directly), enforcing the project's "reads open, writes protected" rule:
 
-**`https://civitas.example.org/ngsi-ld/v1`** → api-gateway container.
+- **Reads** (`GET`/`HEAD`) — open ("Open Data"), no credentials.
+- **Writes** (`POST`/`PUT`/`PATCH`/`DELETE`) — require header
+  `X-Civitas-Key: <key>`, else **403**. The stage write-key lives in the `caddy`
+  service command in `docker-compose.hosted.yml`; rotate by editing + redeploy.
 
 ```bash
+# ingress -> caddy container (needs the FULL UUID, not the short c-xxxxxx id)
 mw domain virtualhost create --hostname civitas.example.org \
-  --path-to-container /:<api-gateway-container-UUID>:8080/tcp -p p-example
-# NOTE: --path-to-container needs the FULL container UUID (mw container ls -o json),
-# not the short c-xxxxxx id.
+  --path-to-container /:<caddy-container-UUID>:8080/tcp -p p-example
+
+# write/seed (needs the key); reads need no key
+curl -X POST https://civitas.example.org/ngsi-ld/v1/entities \
+  -H "X-Civitas-Key: <key>" -H 'Content-Type: application/ld+json' --data-binary @entity.json
 ```
 
-> **Security — open writable broker:** auth is disabled, so this public endpoint
-> accepts NGSI-LD **writes (POST/DELETE) from anyone on the internet**. This is
-> acceptable ONLY as a throwaway stage with disposable data. **TODO before any
-> real use:** protect it — enable Stellio/Keycloak auth, or restrict writes /
-> IP-allowlist at the ingress. Reads are "Open Data" per the project decision;
-> writes are not.
+> The shared header-key is a lightweight stage guard, not production auth — for
+> real use front it with Keycloak/OIDC (as CORE does via APISIX). the hosting provider
+> ingresses have no native basic-auth/IP-allowlist, hence the proxy.
+
+### Postgres data persistence
+
+The `stellio-timescale-postgis` image stores data at
+**`/var/lib/postgresql/16/main`** (Kartoza/Debian layout), NOT
+`/var/lib/postgresql/data`. The volume MUST mount the former, or postgres falls
+back to the image's baked data dir and **loses all data on every container
+recreate**. Both compose files mount `…/16/main`.
