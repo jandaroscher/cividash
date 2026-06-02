@@ -28,6 +28,11 @@ interface DataMapperInterface
     public function mapToMetricValue(array $entity): array;
 
     /**
+     * Fan out an entity's time-series into a list of ['year'=>int,'value'=>float|null] pairs.
+     */
+    public function mapToMetricValues(array $entity): array;
+
+    /**
      * Compute a deterministic hash of the entity data for change detection.
      */
     public function computeSourceHash(array $entity): string;

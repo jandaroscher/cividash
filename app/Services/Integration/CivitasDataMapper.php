@@ -117,6 +117,20 @@ class CivitasDataMapper implements DataMapperInterface
     }
 
     /**
+     * Fan out an entity's time-series into a list of ['year'=>int,'value'=>float|null] pairs.
+     *
+     * SensorThings exposes time-series as individual Observations, which the
+     * sync maps per-observation (via mapToMetricValue + extractYear) rather
+     * than as a bundled list on the Datastream. This method therefore returns
+     * an empty array; it exists solely to satisfy the DataMapperInterface
+     * contract for the SensorThings fallback driver.
+     */
+    public function mapToMetricValues(array $entity): array
+    {
+        return [];
+    }
+
+    /**
      * Extract year from an Observation's phenomenonTime.
      */
     public function extractYear(array $observation): ?int

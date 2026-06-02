@@ -16,8 +16,17 @@ return [
     'civitas' => [
         'enabled' => env('CIVITAS_ENABLED', false),
 
-        // NGSI-LD API base URL (e.g. http://localhost:9080/ngsi-ld/v1)
-        'api_url' => env('CIVITAS_API_URL'),
+        // Active driver for talking to CORE: 'ngsi-ld' (Stellio, default) or
+        // 'sensorthings' (FROST). Selects the client + data mapper used.
+        'driver' => env('CIVITAS_DRIVER', 'ngsi-ld'),
+
+        // API base URL. CORE V1.6.2 exposes NGSI-LD via Stellio at
+        // '/context/ngsi-ld' (NOT the legacy '/ngsi-ld/v1' path).
+        'api_url' => env('CIVITAS_API_URL', 'http://localhost:8080/context/ngsi-ld'),
+
+        // JSON-LD @context URL sent with NGSI-LD requests. May be null when
+        // the broker serves a default context.
+        'context_url' => env('CIVITAS_CONTEXT_URL'),
 
         // OAuth2 Client Credentials for Keycloak token retrieval
         'oauth' => [
@@ -33,6 +42,10 @@ return [
             'retry_attempts' => env('CIVITAS_SYNC_RETRY_ATTEMPTS', 3),
             'retry_delay_seconds' => env('CIVITAS_SYNC_RETRY_DELAY', 5),
             'schedule' => env('CIVITAS_SYNC_SCHEDULE', 'daily'),
+
+            // When true, local records whose external_id no longer appears in
+            // the source on a full sync are removed (pruned).
+            'prune_removed' => env('CIVITAS_SYNC_PRUNE_REMOVED', false),
         ],
     ],
 
