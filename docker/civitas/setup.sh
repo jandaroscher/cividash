@@ -18,8 +18,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-# Must match the default in setup.sh.
+# Defaults to a civitas-core checkout next to this repository.
 CORE_DIR="${CIVITAS_CORE_DIR:-$(cd "$SCRIPT_DIR/../../.." && pwd)/civitas-core}"
 CORE_REPO="https://gitlab.com/civitas-connect/civitas-core/civitas-core-v2/civitas-core-platform.git"
 
@@ -278,9 +277,18 @@ if [ "$FULL_MODE" = true ]; then
     if [ ! -f .env.local ]; then
         cp .env.local.template .env.local
     fi
-    # Patch API port to backend (8089) instead of APISIX (9080)
-    sed -i '' 's/API_PORT=9080/API_PORT=8089/' .env.local 2>/dev/null || \
-    sed -i 's/API_PORT=9080/API_PORT=8089/' .env.local 2>/dev/null || true
+    # Patch API port to backend (8089) instead of APISIX (9080).
+    # Portable in-place edit that works on both BSD (macOS) and GNU (Linux)
+    # sed without relying on the incompatible `-i` flag syntax.
+    if grep -q 'API_PORT=9080' .env.local; then
+        tmp_env="$(mktemp)"
+        sed 's/API_PORT=9080/API_PORT=8089/' .env.local > "$tmp_env" \
+            && mv "$tmp_env" .env.local \
+            || { rm -f "$tmp_env"; err "Failed to patch API_PORT in .env.local"; exit 1; }
+        info "Patched .env.local API_PORT to 8089"
+    else
+        warn "API_PORT=9080 not found in .env.local — skipping port patch (template may have changed)"
+    fi
 
     corepack enable 2>/dev/null || true
     pnpm install --frozen-lockfile 2>/dev/null || pnpm install

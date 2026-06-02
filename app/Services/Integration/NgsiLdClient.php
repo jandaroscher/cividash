@@ -35,19 +35,26 @@ class NgsiLdClient implements ExternalDataSourceInterface
 
     /**
      * Build an instance from database settings (tenant-aware), falling back to env/config.
+     *
+     * @param  array<string, mixed>  $overrides  Explicit config values that take
+     *                                           precedence over stored settings.
+     *                                           Recognised keys: api_url,
+     *                                           oauth_token_url, oauth_client_id,
+     *                                           oauth_client_secret. Used e.g. to
+     *                                           test unsaved form input.
      */
-    public static function fromConfig(): static
+    public static function fromConfig(array $overrides = []): static
     {
         $settings = rescue(fn () => app(\App\Settings\IntegrationSettings::class), null, false);
         $config = config('integrations.civitas');
 
-        $apiUrl = $settings?->api_url ?: ($config['api_url'] ?? '');
+        $apiUrl = (string) (($overrides['api_url'] ?? null) ?: ($settings?->api_url ?: ($config['api_url'] ?? '')));
 
         return new static(
             apiUrl: rtrim($apiUrl, '/'),
-            tokenUrl: $settings?->oauth_token_url ?: ($config['oauth']['token_url'] ?? ''),
-            clientId: $settings?->oauth_client_id ?: ($config['oauth']['client_id'] ?? ''),
-            clientSecret: $settings?->oauth_client_secret ?: ($config['oauth']['client_secret'] ?? ''),
+            tokenUrl: (string) (($overrides['oauth_token_url'] ?? null) ?: ($settings?->oauth_token_url ?: ($config['oauth']['token_url'] ?? ''))),
+            clientId: (string) (($overrides['oauth_client_id'] ?? null) ?: ($settings?->oauth_client_id ?: ($config['oauth']['client_id'] ?? ''))),
+            clientSecret: (string) (($overrides['oauth_client_secret'] ?? null) ?: ($settings?->oauth_client_secret ?: ($config['oauth']['client_secret'] ?? ''))),
             scope: $config['oauth']['scope'] ?? '',
             contextUrl: (string) ($config['context_url'] ?? ''),
         );

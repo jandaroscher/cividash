@@ -88,8 +88,20 @@ class CivitasDataMapper implements DataMapperInterface
         $observedProperty = $entity['ObservedProperty'] ?? [];
         $unit = $entity['unitOfMeasurement'] ?? [];
 
+        // Derive the metric key from the ObservedProperty/Datastream name.
+        // For malformed datastreams with no usable name the slug is empty,
+        // which would persist an ambiguous blank key — fall back to the stable
+        // @iot.id, or omit the key entirely (array_filter drops null) so the
+        // record is rejected downstream rather than saved with key = ''.
+        $metricKey = $this->slugify($observedProperty['name'] ?? $entity['name'] ?? '');
+        if ($metricKey === '') {
+            $metricKey = ! empty($entity['@iot.id'])
+                ? 'datastream_'.$this->slugify((string) $entity['@iot.id'])
+                : null;
+        }
+
         return array_filter([
-            'metric_key' => $this->slugify($observedProperty['name'] ?? $entity['name'] ?? ''),
+            'metric_key' => $metricKey,
             'label' => [
                 'de' => $entity['name'] ?? '',
             ],

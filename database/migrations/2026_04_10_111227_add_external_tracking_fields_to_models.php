@@ -49,29 +49,41 @@ return new class extends Migration
 
     public function down(): void
     {
-        $tables = ['tiles', 'categories', 'category_groups', 'metric_definitions'];
+        // Mirror up() exactly. external_source/external_id (+ the composite
+        // index) are added to every table here, so they are always dropped.
+        // last_synced_at/source_hash already exist on tiles and categories
+        // from earlier migrations (2025_11_28_120000/120001) — up() only adds
+        // them to category_groups and metric_definitions, so down() must only
+        // remove them from those same two tables to avoid dropping columns this
+        // migration never created.
+        $allTables = ['tiles', 'categories', 'category_groups', 'metric_definitions'];
+        $syncColumnTables = ['category_groups', 'metric_definitions'];
 
-        foreach ($tables as $table) {
+        foreach ($allTables as $table) {
+            // Drop the composite index before its columns.
             Schema::table($table, function (Blueprint $blueprint) use ($table) {
                 $indexName = $table.'_external_source_external_id_index';
                 if (Schema::hasIndex($table, $indexName)) {
                     $blueprint->dropIndex($indexName);
                 }
+            });
 
+            Schema::table($table, function (Blueprint $blueprint) use ($table, $syncColumnTables) {
                 $columns = [];
-                if (Schema::hasColumn($table, 'external_source')) {
-                    $columns[] = 'external_source';
-                }
+
                 if (Schema::hasColumn($table, 'external_id')) {
                     $columns[] = 'external_id';
                 }
-                // Only drop last_synced_at/source_hash on tables that didn't have them before
-                if (in_array($table, ['category_groups', 'metric_definitions'])) {
-                    if (Schema::hasColumn($table, 'last_synced_at')) {
-                        $columns[] = 'last_synced_at';
-                    }
+                if (Schema::hasColumn($table, 'external_source')) {
+                    $columns[] = 'external_source';
+                }
+
+                if (in_array($table, $syncColumnTables, true)) {
                     if (Schema::hasColumn($table, 'source_hash')) {
                         $columns[] = 'source_hash';
+                    }
+                    if (Schema::hasColumn($table, 'last_synced_at')) {
+                        $columns[] = 'last_synced_at';
                     }
                 }
 

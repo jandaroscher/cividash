@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Filament\Settings;
 
-use App\Contracts\Integration\ExternalDataSourceInterface;
 use App\Contracts\Integration\SyncServiceInterface;
 use App\Filament\Pages\ManageIntegrations;
 use App\Models\Tenant;
@@ -13,6 +12,7 @@ use App\Services\Integration\SyncStatus;
 use App\Settings\IntegrationSettings;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -131,20 +131,58 @@ class ManageIntegrationsTest extends TestCase
 
     public function test_connection_test_success(): void
     {
-        $this->mock(ExternalDataSourceInterface::class)
-            ->shouldReceive('isConnected')->andReturn(true);
+        config(['integrations.civitas.driver' => 'ngsi-ld']);
+        Http::fake([
+            'https://typed.example.com/*' => Http::response([], 200),
+        ]);
 
         Livewire::test(ManageIntegrations::class)
+            ->fillForm(['api_url' => 'https://typed.example.com'])
             ->callAction('testConnection')
             ->assertNotified(__('filament.pages.manage_integrations.test_connection_success'));
+
+        // The currently-typed URL must have been tested, not the persisted one.
+        Http::assertSent(fn ($request) => str_starts_with($request->url(), 'https://typed.example.com/types'));
+    }
+
+    public function test_connection_test_uses_unsaved_form_url(): void
+    {
+        // Persist one URL, then type a different one without saving. The
+        // testConnection action must probe the typed URL, not the saved one.
+        $settings = app(IntegrationSettings::class);
+        $settings->api_url = 'https://old-saved.example.com';
+        $settings->save();
+
+        config(['integrations.civitas.driver' => 'ngsi-ld']);
+        Http::fake([
+            '*' => Http::response([], 200),
+        ]);
+
+        Livewire::test(ManageIntegrations::class)
+            ->fillForm(['api_url' => 'https://new-unsaved.example.com'])
+            ->callAction('testConnection')
+            ->assertNotified(__('filament.pages.manage_integrations.test_connection_success'));
+
+        // The testConnection action probed the currently-typed (unsaved) URL.
+        // (The status panel on page mount may separately probe the saved URL,
+        // which is expected — we only assert the action used the new value.)
+        Http::assertSent(fn ($request) => str_starts_with($request->url(), 'https://new-unsaved.example.com/types'));
     }
 
     public function test_connection_test_failure(): void
     {
-        $this->mock(ExternalDataSourceInterface::class)
-            ->shouldReceive('isConnected')->andReturn(false);
+        config([
+            'integrations.civitas.driver' => 'ngsi-ld',
+            // Avoid slow retry backoff on the simulated failure.
+            'integrations.civitas.sync.retry_attempts' => 1,
+            'integrations.civitas.sync.retry_delay_seconds' => 0,
+        ]);
+        Http::fake([
+            'https://typed.example.com/*' => Http::response([], 500),
+        ]);
 
         Livewire::test(ManageIntegrations::class)
+            ->fillForm(['api_url' => 'https://typed.example.com'])
             ->callAction('testConnection')
             ->assertNotified(__('filament.pages.manage_integrations.test_connection_failed'));
     }

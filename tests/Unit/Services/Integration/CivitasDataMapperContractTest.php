@@ -37,4 +37,37 @@ class CivitasDataMapperContractTest extends TestCase
     {
         $this->assertIsArray($this->mapper->mapToMetricValues([]));
     }
+
+    public function test_metric_key_falls_back_to_iot_id_when_name_is_blank(): void
+    {
+        $result = $this->mapper->mapToMetricDefinition([
+            '@iot.id' => 42,
+            'name' => '',
+            'ObservedProperty' => ['name' => ''],
+        ]);
+
+        $this->assertSame('datastream_42', $result['metric_key']);
+    }
+
+    public function test_metric_key_omitted_when_name_and_iot_id_are_missing(): void
+    {
+        // No usable name and no @iot.id: the key must not be persisted as ''.
+        $result = $this->mapper->mapToMetricDefinition([
+            'name' => '',
+            'ObservedProperty' => ['name' => '   '],
+        ]);
+
+        $this->assertArrayNotHasKey('metric_key', $result);
+    }
+
+    public function test_metric_key_derived_from_observed_property_name(): void
+    {
+        $result = $this->mapper->mapToMetricDefinition([
+            '@iot.id' => 7,
+            'name' => 'PV-Leistung',
+            'ObservedProperty' => ['name' => 'CO2 pro Kopf'],
+        ]);
+
+        $this->assertSame('co2_pro_kopf', $result['metric_key']);
+    }
 }

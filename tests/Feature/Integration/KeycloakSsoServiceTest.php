@@ -224,6 +224,76 @@ class KeycloakSsoServiceTest extends TestCase
         $this->assertFalse($user->fresh()->hasRole('Redakteur'));
     }
 
+    public function test_rejects_payload_with_missing_id_and_does_not_match_null_keycloak_id_user(): void
+    {
+        // A pre-existing account with a null keycloak_id must NOT be matched
+        // by an incomplete SSO payload (which would produce a "... IS NULL" query).
+        $existing = User::factory()->create([
+            'keycloak_id' => null,
+            'email' => 'orphan@example.com',
+        ]);
+
+        $socialiteUser = $this->makeSocialiteUser([
+            'id' => '',
+            'email' => 'attacker@example.com',
+        ]);
+
+        try {
+            $this->service->findOrCreateUser($socialiteUser);
+            $this->fail('Expected InvalidArgumentException for missing external id.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('external user id', $e->getMessage());
+        }
+
+        // The orphan account is untouched: its keycloak_id stays null.
+        $this->assertNull($existing->fresh()->keycloak_id);
+    }
+
+    public function test_rejects_payload_with_missing_email_and_does_not_match_null_email_user(): void
+    {
+        $socialiteUser = $this->makeSocialiteUser([
+            'id' => 'kc-uuid-no-email',
+            'email' => '',
+        ]);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('user email');
+
+        $this->service->findOrCreateUser($socialiteUser);
+    }
+
+    public function test_revokes_redakteur_for_user_who_also_loses_admin_role(): void
+    {
+        // Regression: previously the early return on admin skipped tenant role
+        // reconciliation, so an ex-admin kept a stale Redakteur role.
+        $user = User::factory()->create(['keycloak_id' => 'kc-admin-editor', 'is_admin' => true]);
+        $tenant = Tenant::where('slug', 'default')->first();
+
+        config(['integrations.keycloak_sso.role_mapping' => [
+            'admin' => 'Admin',
+            'editor' => 'Redakteur',
+        ]]);
+
+        // First login: both admin and editor roles present.
+        $this->service->syncRolesFromToken($user, [
+            'realm_access' => ['roles' => ['admin', 'editor']],
+        ]);
+
+        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
+        $user->unsetRelation('roles');
+        $this->assertTrue($user->fresh()->is_admin);
+        $this->assertTrue($user->fresh()->hasRole('Redakteur'));
+
+        // Second login: all privileged roles removed in Keycloak.
+        $this->service->syncRolesFromToken($user, [
+            'realm_access' => ['roles' => ['default-roles-civitas']],
+        ]);
+
+        $user->unsetRelation('roles');
+        $this->assertFalse($user->fresh()->is_admin);
+        $this->assertFalse($user->fresh()->hasRole('Redakteur'));
+    }
+
     public function test_user_marked_active_on_sso_login(): void
     {
         $user = User::factory()->inactive()->create([

@@ -5,6 +5,8 @@ namespace App\Filament\Pages;
 use App\Contracts\Integration\ExternalDataSourceInterface;
 use App\Contracts\Integration\SyncServiceInterface;
 use App\Models\Tenant;
+use App\Services\Integration\NgsiLdClient;
+use App\Services\Integration\SensorThingsClient;
 use App\Services\Integration\SyncResult;
 use App\Settings\IntegrationSettings;
 use Filament\Actions\Action;
@@ -68,6 +70,32 @@ class ManageIntegrations extends SettingsPage
     protected function getSyncService(): SyncServiceInterface
     {
         return app(SyncServiceInterface::class);
+    }
+
+    /**
+     * Build a data-source client from the values currently entered in the form,
+     * so "Test connection" validates unsaved edits rather than the persisted
+     * configuration. Driver-aware: ngsi-ld (default) or sensorthings.
+     */
+    protected function buildClientFromFormState(): ExternalDataSourceInterface
+    {
+        $state = $this->form->getState();
+
+        $overrides = array_filter([
+            'api_url' => $state['api_url'] ?? null,
+            'oauth_token_url' => $state['oauth_token_url'] ?? null,
+            'oauth_client_id' => $state['oauth_client_id'] ?? null,
+            // The secret field is intentionally blank in the form; when the
+            // user leaves it empty we fall back to the stored secret, mirroring
+            // the save behaviour (dehydrateStateUsing).
+            'oauth_client_secret' => filled($state['oauth_client_secret'] ?? null)
+                ? $state['oauth_client_secret']
+                : app(IntegrationSettings::class)->oauth_client_secret,
+        ], fn ($value) => filled($value));
+
+        return config('integrations.civitas.driver') === 'sensorthings'
+            ? SensorThingsClient::fromConfig($overrides)
+            : NgsiLdClient::fromConfig($overrides);
     }
 
     public function form(Form $form): Form
@@ -144,9 +172,11 @@ class ManageIntegrations extends SettingsPage
                 ->color('gray')
                 ->action(function (): void {
                     try {
-                        // Tests connection using the persisted configuration.
-                        // Save settings before testing if you've made changes.
-                        $connected = app(ExternalDataSourceInterface::class)->isConnected();
+                        // Test the configuration currently typed into the form
+                        // (not just the persisted settings), so editing the URL
+                        // or credentials and clicking Test before saving tests
+                        // the new values.
+                        $connected = $this->buildClientFromFormState()->isConnected();
 
                         if ($connected) {
                             Notification::make()

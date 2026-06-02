@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\RoleService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
 class KeycloakSsoService
@@ -27,12 +28,30 @@ class KeycloakSsoService
      * Find an existing user or create a new one from a Socialite user.
      *
      * Matching order: keycloak_id → email → create new.
+     *
+     * @throws InvalidArgumentException When the SSO payload is missing the
+     *                                  external id or email. Matching on a
+     *                                  null identifier could otherwise attach
+     *                                  the login to an unrelated local account
+     *                                  that happens to have a null
+     *                                  keycloak_id/email.
      */
     public function findOrCreateUser(SocialiteUser $socialiteUser): User
     {
         $keycloakId = $socialiteUser->id;
         $email = $socialiteUser->email;
         $rawAttributes = $socialiteUser->user ?? [];
+
+        // Reject incomplete payloads before any User lookup: an empty
+        // identifier would turn the lookup into a "... IS NULL" query and
+        // could match an unrelated account with null fields.
+        if (! is_string($keycloakId) || trim($keycloakId) === '') {
+            throw new InvalidArgumentException('Keycloak SSO payload is missing the external user id.');
+        }
+
+        if (! is_string($email) || trim($email) === '') {
+            throw new InvalidArgumentException('Keycloak SSO payload is missing the user email.');
+        }
 
         // Priority 1: Match by keycloak_id
         $user = User::where('keycloak_id', $keycloakId)->first();
@@ -82,17 +101,22 @@ class KeycloakSsoService
         $tenant = $user->tenants()->where('slug', 'default')->first()
             ?? Tenant::where('slug', 'default')->first();
 
-        // Sync Admin status (is_admin flag, not Spatie)
-        $shouldBeAdmin = in_array('Admin', $mappedRoles);
+        // Role sync is authoritative: the current token is the single source
+        // of truth. Every privilege is reset to "off" first and only granted
+        // again when its mapped role is present in this token, so a role that
+        // was removed in Keycloak is revoked on the next login rather than
+        // lingering and leaving the user over-privileged.
+
+        // Sync Admin status (is_admin flag, not Spatie). Reset to false, then
+        // grant only if the Admin role is present in the current token.
+        $shouldBeAdmin = in_array('Admin', $mappedRoles, true);
         if ($user->is_admin !== $shouldBeAdmin) {
             $user->update(['is_admin' => $shouldBeAdmin]);
         }
 
-        if ($shouldBeAdmin) {
-            return;
-        }
-
-        // Sync Redakteur role in default tenant
+        // Reconcile the Redakteur role in the default tenant regardless of
+        // admin status, so stale tenant roles are always removed when the
+        // mapped role is no longer present in the token.
         if ($tenant) {
             if (! $user->tenants()->where('tenant_id', $tenant->id)->exists()) {
                 $user->tenants()->syncWithoutDetaching($tenant->id);
@@ -100,7 +124,7 @@ class KeycloakSsoService
 
             $this->roleService->createDefaultRolesForTenant($tenant);
 
-            if (in_array('Redakteur', $mappedRoles)) {
+            if (in_array('Redakteur', $mappedRoles, true)) {
                 $this->roleService->assignRoleInTenant($user, 'Redakteur', $tenant);
             } else {
                 $this->roleService->removeAllRolesInTenant($user, $tenant);
