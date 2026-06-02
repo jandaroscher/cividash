@@ -5,7 +5,6 @@ namespace Tests\Feature\Api;
 use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\User;
-use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { createHead } from '@unhead/vue/client';
 import TileDetailPage from '@/components/pages/TileDetailPage.vue';
 import { useTilesStore } from '@/stores/tiles';
 
@@ -30,11 +31,6 @@ vi.mock('@/composables/useLocale', () => ({
     }),
 }));
 
-vi.mock('@/composables/useMeta', () => ({
-    setMetaTags: vi.fn(),
-    useMeta: () => ({ setMetaTags: vi.fn() }),
-}));
-
 vi.mock('@/utils/api', () => ({ getApiBaseUrl: () => 'http://localhost' }));
 
 describe('TileDetailPage', () => {
@@ -59,6 +55,7 @@ describe('TileDetailPage', () => {
 
         return shallowMount(TileDetailPage, {
             global: {
+                plugins: [createHead()],
                 stubs: {
                     OverlayHeader: {
                         template: '<div class="overlay-header-stub" />',
@@ -109,6 +106,7 @@ describe('TileDetailPage', () => {
 
         const wrapper = shallowMount(TileDetailPage, {
             global: {
+                plugins: [createHead()],
                 stubs: {
                     OverlayHeader: { template: '<div />', props: ['tile'] },
                     OverlayContent: { template: '<div />', props: ['tile'] },

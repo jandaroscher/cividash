@@ -329,18 +329,27 @@ function getButtonStyles(filter) {
     font-size: 1.25rem;
     line-height: 2rem;
     border: 1px solid;
-    border-right: none;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
-.filter-button:last-child {
-    border-right-width: 1px;
-    border-right-style: solid;
+/* Mobile (stacked column): collapse adjacent borders so the active state's
+   border still shows above the neighbour's. */
+.filter-button + .filter-button {
+    margin-top: -1px;
 }
 
 @media (min-width: 768px) {
     .filter-button {
         flex: 1 1 calc(33.333% - 0.5rem);
+        border-right-width: 0;
+    }
+
+    .filter-button + .filter-button {
+        margin-top: 0;
+    }
+
+    .filter-button:last-child {
+        border-right-width: 1px;
     }
 }
 

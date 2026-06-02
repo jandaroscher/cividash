@@ -9,9 +9,9 @@
 
     <div
       v-if="!tilesStore.loading && !tilesStore.error && tilesStore.tiles.length > 0"
-      class="container"
+      class="container flex flex-wrap items-center justify-end gap-4 mb-5 mt-10 sm:mt-0"
     >
-      <p class="text-theme-base text-gray-400 font-semibold flex flex-row gap-2 mb-5 ml-auto justify-end mt-10 sm:mt-0">
+      <p class="text-theme-base text-gray-400 font-semibold flex flex-row gap-2 m-0">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -30,6 +30,10 @@
         </svg>
         <span>{{ effectiveLocale === 'en' ? 'Change from previous year' : 'Veränderung zum Vorjahr' }}</span>
       </p>
+      <ExportButton
+        mode="dialog"
+        :scope="exportScope"
+      />
     </div>
 
     <div
@@ -60,6 +64,7 @@ import { useRoute } from 'vue-router';
 import Cards from '../Cards.vue';
 import Filter from '../Filter.vue';
 import Overlay from '../overlay/Overlay.vue';
+import ExportButton from '../export/ExportButton.vue';
 import { useTilesStore } from '../../stores/tiles';
 import { useOverlayStore } from '../../stores/overlay';
 import { useFilterStore } from '../../stores/filter';
@@ -88,6 +93,12 @@ const route = useRoute();
 const tilesStore = useTilesStore();
 const overlayStore = useOverlayStore();
 const filterStore = useFilterStore();
+
+// Switch export scope once a category filter is active so the button
+// only downloads the currently visible tiles instead of the whole catalog.
+const exportScope = computed(() =>
+    filterStore.level2Filter?.key ? 'filtered' : 'catalog'
+);
 
 // Get locale from route meta or detect from browser
 const effectiveLocale = computed(() => {

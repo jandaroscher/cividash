@@ -29,10 +29,10 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
+import { useHead, useSeoMeta } from '@unhead/vue';
 import BlockRenderer from '../BlockRenderer.vue';
 import { usePagesStore } from '../../stores/pages';
-import { setMetaTags } from '../../composables/useMeta';
 import { getApiBaseUrl } from '../../utils/api';
 
 const props = defineProps({
@@ -72,50 +72,45 @@ const transformedBlocks = computed(() => {
         });
 });
 
-// Update meta tags when page data changes
-watch(
-    () => props.pageData,
-    (newPageData) => {
-        if (newPageData) {
-            updateMetaTags(newPageData);
-        }
-    },
-    { immediate: true }
+// Reactive meta tag management via @unhead/vue
+const apiUrl = getApiBaseUrl();
+
+const metaTitle = computed(() => {
+    if (!props.pageData) return '';
+    return props.pageData.meta?.title || props.pageData.title || '';
+});
+
+const metaDescription = computed(() => {
+    if (!props.pageData) return '';
+    return props.pageData.meta?.description || '';
+});
+
+const metaImage = computed(() => {
+    const image = props.pageData?.meta?.image;
+    if (!image) return null;
+    return image.startsWith('http') ? image : `${apiUrl}${image}`;
+});
+
+const currentUrl = computed(() =>
+    typeof window !== 'undefined' ? window.location.href : '',
 );
 
-function updateMetaTags(pageData) {
-    const apiUrl = getApiBaseUrl();
-    const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
-    
-    // Resolve image URL (meta.image might already include /storage/ or be a relative path)
-    const imageUrl = pageData.meta?.image 
-        ? (pageData.meta.image.startsWith('http') 
-            ? pageData.meta.image 
-            : `${apiUrl}${pageData.meta.image}`)
-        : null;
-    
-    const metaTitle = pageData.meta?.title || pageData.title;
-    const metaDescription = pageData.meta?.description;
+useHead({
+    title: metaTitle,
+});
 
-    setMetaTags({
-        title: metaTitle,
-        description: metaDescription,
-        image: imageUrl,
-        url: currentUrl,
-        og: {
-            title: metaTitle,
-            description: metaDescription,
-            image: imageUrl,
-            type: 'website',
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: metaTitle,
-            description: metaDescription,
-            image: imageUrl,
-        },
-    });
-}
+useSeoMeta({
+    description: metaDescription,
+    ogType: 'website',
+    ogTitle: metaTitle,
+    ogDescription: metaDescription,
+    ogImage: metaImage,
+    ogUrl: currentUrl,
+    twitterCard: 'summary_large_image',
+    twitterTitle: metaTitle,
+    twitterDescription: metaDescription,
+    twitterImage: metaImage,
+});
 </script>
 
 <style scoped>

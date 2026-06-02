@@ -1,6 +1,7 @@
 import './bootstrap';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
+import { createHead } from '@unhead/vue/client';
 import App from './App.vue';
 import router from './router';
 import { useBrandingStore } from './stores/branding';
@@ -14,7 +15,9 @@ import '@johanaarstein/dotlottie-player';
 
 const app = createApp(App);
 const pinia = createPinia();
+const head = createHead();
 app.use(pinia);
+app.use(head);
 app.directive('intersection-observer', vIntersectionObserver);
 
 // Fetch branding, help, header and footer content before mounting.

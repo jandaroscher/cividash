@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { createHead } from '@unhead/vue/client';
 import PageView from '@/components/pages/PageView.vue';
 import { usePagesStore } from '@/stores/pages';
 
@@ -18,18 +19,6 @@ vi.mock('@/composables/useLocale', () => ({
         supportedLocales: ['de', 'en'],
         defaultLocale: 'de',
         getLocale: () => 'de',
-    }),
-}));
-
-vi.mock('@/composables/useMeta', () => ({
-    setMetaTags: vi.fn(),
-    useMeta: () => ({
-        setTitle: vi.fn(),
-        setDescription: vi.fn(),
-        setMetaTag: vi.fn(),
-        setOGTags: vi.fn(),
-        setTwitterTags: vi.fn(),
-        setMetaTags: vi.fn(),
     }),
 }));
 
@@ -51,6 +40,7 @@ describe('PageView', () => {
         return shallowMount(PageView, {
             props,
             global: {
+                plugins: [createHead()],
                 stubs: {
                     BlockRenderer: {
                         template: '<div class="block-renderer-stub" />',

@@ -13,8 +13,11 @@ use App\Services\Integration\SensorThingsClient;
 use App\Services\Integration\SyncService;
 use BezhanSalleh\FilamentLanguageSwitch\Events\LocaleChanged;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
@@ -75,5 +78,12 @@ class AppServiceProvider extends ServiceProvider
 
         // Register Keycloak Socialite provider for SSO
         Event::listen(SocialiteWasCalled::class, [KeycloakExtendSocialite::class, 'handle']);
+
+        // Named rate limiter for export endpoints.
+        // Separate bucket from the general API throttle so normal
+        // page/tile/config fetches don't eat into the export quota.
+        RateLimiter::for('export', function (Request $request) {
+            return Limit::perMinute(30)->by($request->ip());
+        });
     }
 }

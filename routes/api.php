@@ -10,7 +10,9 @@ use App\Http\Controllers\Api\Admin\AdminTileYearController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ConfigController;
 use App\Http\Controllers\Api\Content\PageController as ContentPageController;
+use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\FilterController;
+use App\Http\Controllers\Api\OgMetaController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\Tenant\TenantUserController;
 use App\Http\Controllers\Api\TileController;
@@ -46,6 +48,18 @@ Route::middleware(['throttle:60,1', 'resolve.tenant'])->group(function () {
     Route::get('/content/pages', [ContentPageController::class, 'index']);
     Route::get('/content/pages/root', [ContentPageController::class, 'showRoot']);
     Route::get('/content/pages/{id}', [ContentPageController::class, 'show'])->where('id', '[0-9]+');
+
+    // OG meta data for headless frontend deployments
+    Route::get('/og-meta', [OgMetaController::class, 'show']);
+});
+
+// Public export endpoints. Separate, tighter rate limit (10/min per IP)
+// since exports are more expensive than regular list endpoints. Data is public
+// (same as /api/tiles) — no authentication required.
+Route::middleware(['throttle:export', 'resolve.tenant'])->group(function () {
+    Route::get('/tiles/{slug}/export', [ExportController::class, 'tile']);
+    Route::get('/exports/tiles', [ExportController::class, 'tiles']);
+    Route::get('/exports/catalog', [ExportController::class, 'catalog']);
 });
 
 // Admin API routes (secured with Sanctum + admin permission check + tenant resolution)

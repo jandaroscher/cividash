@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { createHead } from '@unhead/vue/client';
 import TilesPage from '@/components/pages/TilesPage.vue';
 import { useTilesStore } from '@/stores/tiles';
 import { useOverlayStore } from '@/stores/overlay';
@@ -63,6 +64,7 @@ describe('TilesPage', () => {
         return shallowMount(TilesPage, {
             props,
             global: {
+                plugins: [createHead()],
                 stubs: {
                     Cards: { template: '<div class="cards-stub" />' },
                     Filter: {

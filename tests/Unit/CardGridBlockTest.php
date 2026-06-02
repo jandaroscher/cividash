@@ -7,7 +7,6 @@ use Tests\TestCase;
 
 class CardGridBlockTest extends TestCase
 {
-
     public function test_mutate_data_returns_empty_array_when_no_tiles_selected(): void
     {
         // Test mutateData with empty tiles array — frontend shows all tiles when array is empty

@@ -110,14 +110,14 @@ class InputValidationSecurityTest extends TestCase
 
     public function test_special_characters_in_slug_returns_404(): void
     {
-        $response = $this->getJson('/api/tiles/' . urlencode('<script>alert(1)</script>'));
+        $response = $this->getJson('/api/tiles/'.urlencode('<script>alert(1)</script>'));
 
         $response->assertNotFound();
     }
 
     public function test_very_long_slug_returns_404(): void
     {
-        $response = $this->getJson('/api/tiles/' . str_repeat('a', 500));
+        $response = $this->getJson('/api/tiles/'.str_repeat('a', 500));
 
         $response->assertNotFound();
     }

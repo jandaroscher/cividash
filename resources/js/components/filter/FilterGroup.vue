@@ -22,7 +22,8 @@
         circularFallback: 'bound',
         moveType: 'snap',
         panelsPerView,
-        bound: true
+        bound: true,
+        inputType: ['touch', 'mouse', 'pointer']
       }"
     >
       <button
