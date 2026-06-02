@@ -11,23 +11,34 @@
       @keydown.esc="close"
       @keydown.tab="onTab"
     >
-      <div class="bg-white shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto px-6">
-        <div class="py-6 border-b border-gray-200 flex items-start justify-between gap-4">
+      <div
+        class="shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto px-6"
+        :style="surfaceStyle"
+      >
+        <div
+          class="py-6 border-b flex items-start justify-between gap-4"
+          :style="dividerStyle"
+        >
           <div>
             <h2
               :id="titleId"
-              class="text-xl font-bold text-gray-900"
+              class="text-xl font-bold"
+              :style="textPrimaryStyle"
             >
               {{ titleWithScope }}
             </h2>
-            <p class="mt-2 text-sm text-gray-700">
+            <p
+              class="mt-2 text-sm"
+              :style="textMutedStyle"
+            >
               {{ labels.description }}
             </p>
           </div>
           <button
             ref="closeButton"
             type="button"
-            class="text-gray-400 hover:text-gray-600 shrink-0"
+            class="shrink-0 hover:opacity-70 transition-opacity"
+            :style="textMutedStyle"
             :aria-label="labels.cancel"
             @click="close"
           >
@@ -51,11 +62,17 @@
           @submit.prevent="submit"
         >
           <fieldset>
-            <legend class="text-sm font-semibold text-gray-900 mb-2">
+            <legend
+              class="text-sm font-semibold mb-2"
+              :style="textPrimaryStyle"
+            >
               {{ labels.format }}
             </legend>
             <div class="flex gap-4">
-              <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+              <label
+                class="flex items-center gap-2 cursor-pointer text-sm"
+                :style="textPrimaryStyle"
+              >
                 <input
                   v-model="format"
                   type="radio"
@@ -69,12 +86,16 @@
                 >
                   <span
                     v-if="format === 'json'"
-                    class="w-2 h-2 rounded-full bg-white"
+                    class="w-2 h-2 rounded-full"
+                    :style="inverseBgStyle"
                   />
                 </span>
                 <span>{{ labels.formatJson }}</span>
               </label>
-              <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+              <label
+                class="flex items-center gap-2 cursor-pointer text-sm"
+                :style="textPrimaryStyle"
+              >
                 <input
                   v-model="format"
                   type="radio"
@@ -88,7 +109,8 @@
                 >
                   <span
                     v-if="format === 'csv'"
-                    class="w-2 h-2 rounded-full bg-white"
+                    class="w-2 h-2 rounded-full"
+                    :style="inverseBgStyle"
                   />
                 </span>
                 <span>{{ labels.formatCsv }}</span>
@@ -97,14 +119,18 @@
           </fieldset>
 
           <fieldset>
-            <legend class="text-sm font-semibold text-gray-900 mb-2">
+            <legend
+              class="text-sm font-semibold mb-2"
+              :style="textPrimaryStyle"
+            >
               {{ labels.fields }}
             </legend>
             <div class="space-y-3">
               <label
                 v-for="group in fieldGroups"
                 :key="group.key"
-                class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"
+                class="flex items-center gap-2 text-sm cursor-pointer"
+                :style="textPrimaryStyle"
               >
                 <input
                   type="checkbox"
@@ -124,7 +150,7 @@
                     height="14"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#ffffff"
+                    :stroke="inverseColor"
                     stroke-width="3"
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -138,7 +164,7 @@
                     height="14"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#ffffff"
+                    :stroke="inverseColor"
                     stroke-width="3"
                     stroke-linecap="round"
                   >
@@ -157,17 +183,22 @@
 
           <div
             v-if="localError"
-            class="text-sm text-red-600"
+            class="text-sm"
             role="alert"
+            :style="{ color: 'var(--color-accent, #E30613)' }"
           >
             {{ localError }}
           </div>
         </form>
 
-        <div class="py-6 border-t border-gray-200 flex justify-end gap-3">
+        <div
+          class="py-6 border-t flex justify-end gap-3"
+          :style="dividerStyle"
+        >
           <button
             type="button"
-            class="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded"
+            class="px-4 py-2 text-sm font-semibold hover:opacity-70 transition-opacity"
+            :style="textPrimaryStyle"
             @click="close"
           >
             {{ labels.cancel }}
@@ -176,8 +207,11 @@
             type="submit"
             :form="formId"
             :disabled="loading || selectedFields.length === 0"
-            class="px-4 py-2 text-sm font-semibold text-white rounded disabled:opacity-50"
-            :style="{ backgroundColor: brandingStore.primaryColor }"
+            class="px-4 py-2 text-sm font-semibold disabled:opacity-50"
+            :style="{
+              backgroundColor: brandingStore.primaryColor,
+              color: inverseColor,
+            }"
           >
             {{ loading ? labels.downloading : labels.download }}
           </button>
@@ -386,17 +420,42 @@ function isGroupPartiallySelected(group) {
     return count > 0 && count < group.fields.length;
 }
 
+const surfaceStyle = computed(() => ({
+    backgroundColor: brandingStore.cardBackgroundColor || 'var(--card-background-color, #FFFFFF)',
+}));
+
+const textPrimaryStyle = computed(() => ({
+    color: 'var(--text-primary-color, #000000)',
+}));
+
+const textMutedStyle = computed(() => ({
+    color: 'var(--text-primary-color, #000000)',
+    opacity: 0.7,
+}));
+
+const dividerStyle = computed(() => ({
+    borderColor: 'var(--divider-color, #E5E7EB)',
+}));
+
+const inverseColor = computed(() =>
+    brandingStore.textInverseColor || 'var(--text-inverse-color, #FFFFFF)'
+);
+
+const inverseBgStyle = computed(() => ({
+    backgroundColor: brandingStore.textInverseColor || 'var(--text-inverse-color, #FFFFFF)',
+}));
+
 function checkboxStyle(group) {
     const active = isGroupFullySelected(group) || isGroupPartiallySelected(group);
     return active
         ? { backgroundColor: brandingStore.primaryColor, borderColor: brandingStore.primaryColor }
-        : { backgroundColor: 'transparent', borderColor: '#d1d5db' };
+        : { backgroundColor: 'transparent', borderColor: 'var(--border-color, #D1D5DB)' };
 }
 
 function radioStyle(value) {
     return format.value === value
         ? { backgroundColor: brandingStore.primaryColor, borderColor: brandingStore.primaryColor }
-        : { backgroundColor: 'transparent', borderColor: '#d1d5db' };
+        : { backgroundColor: 'transparent', borderColor: 'var(--border-color, #D1D5DB)' };
 }
 
 function toggleGroup(group, enabled) {
