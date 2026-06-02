@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\KeycloakSsoController;
+use App\Http\Controllers\Auth\PasswordResetRedirectController;
 use App\Http\Controllers\SpaController;
 use Illuminate\Support\Facades\Route;
 
@@ -10,12 +11,11 @@ Route::get('admin/auth/keycloak/redirect', [KeycloakSsoController::class, 'redir
 Route::get('admin/auth/keycloak/callback', [KeycloakSsoController::class, 'callback'])
     ->name('auth.keycloak.callback');
 
-// Password reset route - redirects to Filament admin password reset page
-Route::get('/reset-password/{token}', function (string $token) {
-    $queryString = request()->getQueryString();
-
-    return redirect()->to('/admin/password-reset/'.$token.($queryString ? '?'.$queryString : ''));
-})->name('password.reset');
+// Password reset route - redirects to Filament admin password reset page.
+// Uses an invokable controller (not a Closure) so the full route set stays
+// serializable for `php artisan route:cache` in the production container.
+Route::get('/reset-password/{token}', PasswordResetRedirectController::class)
+    ->name('password.reset');
 
 // Vue SPA catch-all route
 // Excludes API routes, admin routes, and other system routes
