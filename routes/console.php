@@ -12,3 +12,8 @@ Schedule::command('dashboard:reset --force')
     ->daily()
     ->at('03:00')
     ->environments(['production']);
+
+Schedule::command('integration:sync-civitas')
+    ->cron(config('integrations.civitas.sync.schedule') === 'hourly' ? '0 * * * *' : '0 4 * * *')
+    ->environments(['production'])
+    ->withoutOverlapping();

@@ -9,6 +9,8 @@ use App\Models\Page;
 use App\Models\PersonalAccessToken;
 use App\Observers\PageObserver;
 use App\Services\Integration\CivitasDataMapper;
+use App\Services\Integration\NgsiLdClient;
+use App\Services\Integration\NgsiLdDataMapper;
 use App\Services\Integration\SensorThingsClient;
 use App\Services\Integration\SyncService;
 use BezhanSalleh\FilamentLanguageSwitch\Events\LocaleChanged;
@@ -32,8 +34,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(ExternalDataSourceInterface::class, fn () => SensorThingsClient::fromConfig());
-        $this->app->bind(DataMapperInterface::class, CivitasDataMapper::class);
+        $this->app->bind(ExternalDataSourceInterface::class, fn () => config('integrations.civitas.driver') === 'sensorthings'
+            ? SensorThingsClient::fromConfig()
+            : NgsiLdClient::fromConfig());
+        $this->app->bind(DataMapperInterface::class, fn () => config('integrations.civitas.driver') === 'sensorthings'
+            ? new CivitasDataMapper
+            : new NgsiLdDataMapper);
         $this->app->bind(SyncServiceInterface::class, SyncService::class);
     }
 
