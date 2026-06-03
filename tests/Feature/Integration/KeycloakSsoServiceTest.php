@@ -178,6 +178,52 @@ class KeycloakSsoServiceTest extends TestCase
         $this->assertTrue($user->fresh()->hasRole('Redakteur'));
     }
 
+    public function test_maps_admin_role_from_groups_claim(): void
+    {
+        // CORE's Keycloak emits client roles via a flat "groups" claim
+        // (oidc-usermodel-client-role-mapper, claim.name=groups). The userinfo
+        // response - which Socialite passes to syncRolesFromToken - carries the
+        // role ONLY there, not in realm_access or resource_access. The sync must
+        // read the groups claim or admins stay locked out of the panel.
+        $user = User::factory()->create(['keycloak_id' => 'kc-groups-admin', 'is_admin' => false]);
+
+        config(['integrations.keycloak_sso.role_mapping' => [
+            'admin' => 'Admin',
+            'editor' => 'Redakteur',
+        ]]);
+
+        $tokenData = [
+            'realm_access' => ['roles' => ['default-roles-tst', 'offline_access']],
+            'groups' => ['admin'],
+        ];
+
+        $this->service->syncRolesFromToken($user, $tokenData);
+
+        $this->assertTrue($user->fresh()->is_admin);
+    }
+
+    public function test_maps_editor_role_from_groups_claim(): void
+    {
+        $user = User::factory()->create(['keycloak_id' => 'kc-groups-editor']);
+        $tenant = Tenant::where('slug', 'default')->first();
+
+        config(['integrations.keycloak_sso.role_mapping' => [
+            'admin' => 'Admin',
+            'editor' => 'Redakteur',
+        ]]);
+
+        $tokenData = [
+            'realm_access' => ['roles' => ['default-roles-tst']],
+            'groups' => ['editor'],
+        ];
+
+        $this->service->syncRolesFromToken($user, $tokenData);
+
+        $user->unsetRelation('roles');
+        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
+        $this->assertTrue($user->fresh()->hasRole('Redakteur'));
+    }
+
     public function test_revokes_admin_when_keycloak_role_removed(): void
     {
         $user = User::factory()->create(['keycloak_id' => 'kc-ex-admin', 'is_admin' => true]);

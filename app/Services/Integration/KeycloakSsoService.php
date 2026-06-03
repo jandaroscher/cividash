@@ -154,6 +154,15 @@ class KeycloakSsoService
             $roles = array_merge($roles, $tokenData['resource_access'][$clientId]['roles']);
         }
 
+        // CORE convention: client roles are emitted into a flat "groups" claim
+        // (oidc-usermodel-client-role-mapper, claim.name=groups). The userinfo
+        // response - which Socialite passes to syncRolesFromToken - carries the
+        // roles only here, not in realm_access/resource_access. Unmapped values
+        // are ignored downstream, so reading this claim is safe across setups.
+        if (isset($tokenData['groups']) && is_array($tokenData['groups'])) {
+            $roles = array_merge($roles, $tokenData['groups']);
+        }
+
         return array_unique($roles);
     }
 }
