@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\AdminCategoryController;
 use App\Http\Controllers\Api\Admin\AdminCategoryGroupController;
+use App\Http\Controllers\Api\Admin\AdminImportController;
 use App\Http\Controllers\Api\Admin\AdminMetricDefinitionController;
 use App\Http\Controllers\Api\Admin\AdminMetricValueController;
 use App\Http\Controllers\Api\Admin\AdminPageController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Api\ConfigController;
 use App\Http\Controllers\Api\Content\PageController as ContentPageController;
 use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\FilterController;
+use App\Http\Controllers\Api\ImportSchemaController;
 use App\Http\Controllers\Api\OgMetaController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\Tenant\TenantUserController;
@@ -60,6 +62,13 @@ Route::middleware(['throttle:export', 'resolve.tenant'])->group(function () {
     Route::get('/tiles/{slug}/export', [ExportController::class, 'tile']);
     Route::get('/exports/tiles', [ExportController::class, 'tiles']);
     Route::get('/exports/catalog', [ExportController::class, 'catalog']);
+});
+
+// Public upload-schema endpoints. Schemas + example bundles served so
+// that end-users and external integrators can fetch them without repo access.
+Route::middleware(['throttle:60,1'])->group(function () {
+    Route::get('/import/schemas/{name}', [ImportSchemaController::class, 'schema'])->where('name', '[a-z0-9-]+');
+    Route::get('/import/examples/{name}', [ImportSchemaController::class, 'example'])->where('name', '[a-z0-9-]+');
 });
 
 // Admin API routes (secured with Sanctum + admin permission check + tenant resolution)
@@ -118,6 +127,9 @@ Route::middleware(['throttle:120,1', 'auth:sanctum', 'admin.api', 'resolve.tenan
     Route::patch('/config/general', [ConfigController::class, 'updateGeneral']);
     Route::patch('/config/dashboard', [ConfigController::class, 'updateDashboard']);
     Route::patch('/config/content', [ConfigController::class, 'updateContent']);
+
+    // Bulk import. Lower rate limit due to DB load.
+    Route::post('/import', [AdminImportController::class, 'store'])->middleware('throttle:5,1');
 });
 
 // Tenant user management routes (requires auth, role-based authorization inside controller)

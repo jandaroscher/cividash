@@ -12,6 +12,7 @@
         "filament/filament": "^3.3",
         "filament/spatie-laravel-settings-plugin": "^3.2",
         "filament/spatie-laravel-translatable-plugin": "^3.2",
+        "justinrainbow/json-schema": "^6.0",
         "laravel/fortify": "^1.34",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",

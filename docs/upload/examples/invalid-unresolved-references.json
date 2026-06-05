@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "data": [
+    {
+      "tile.slug": "mobilitaet",
+      "tile.title": { "de": "Mobilität" },
+      "category.keys": [
+        "handlungsfelder/energie",
+        "unbekannte-gruppe/unbekannte-kategorie"
+      ],
+      "metric.key": "pkw_per_capita",
+      "metric.label": { "de": "PKW pro Einwohner" },
+      "value.year": 2024,
+      "value.value": 0.52
+    }
+  ]
+}

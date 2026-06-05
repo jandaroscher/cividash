@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "data": [
+    {
+      "tile.slug": "Energieverbrauch_MIT_UNDERSCORE",
+      "tile.title": { "de": "Energie" },
+      "tile.position": "first",
+      "value.year": 1500,
+      "value.value": "nicht-numerisch"
+    },
+    {
+      "tile.slug": "valid-slug",
+      "tile.title": { "de": "" },
+      "category.keys": ["nur-ein-teil"],
+      "metric.indicator_type": 42
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Upload Bundle",
+  "description": "Root envelope for a CiviDash data upload. Round-trip compatible with the JSON export.",
+  "type": "object",
+  "required": ["schema_version", "data"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp when the bundle was generated. Informational only."
+    },
+    "tenant": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Optional tenant metadata. The tenant_id is always taken from the bearer token, not from this field.",
+      "properties": {
+        "slug": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+    "locale": {
+      "type": "string",
+      "enum": ["de", "en"],
+      "description": "Informational only; translatable fields are provided as {de, en} objects in rows."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["upsert", "replace"],
+      "default": "upsert",
+      "description": "upsert: create new, update existing. replace: additionally delete resources not present in the bundle."
+    },
+    "fields": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Export convention: lists columns populated in `data`. Ignored on import."
+    },
+    "filter": {
+      "type": ["object", "null"],
+      "description": "Echo of export filter parameters (e.g. year range). Informational only."
+    },
+    "category_groups": {
+      "type": "array",
+      "items": {
+        "$ref": "category-group.schema.json"
+      }
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "$ref": "category.schema.json"
+      }
+    },
+    "data": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "$ref": "row.schema.json"
+      }
+    }
+  }
+}

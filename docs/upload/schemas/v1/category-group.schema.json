@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Category Group",
+  "description": "Hierarchical structure data. Processed before rows so category.keys references resolve.",
+  "type": "object",
+  "required": ["key", "title"],
+  "additionalProperties": false,
+  "properties": {
+    "key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^[a-z0-9_-]+$",
+      "description": "Natural key, unique per tenant."
+    },
+    "title": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "required": ["de"],
+      "properties": {
+        "de": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "en": { "type": ["string", "null"], "maxLength": 255 }
+      }
+    },
+    "position": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "is_filterable": {
+      "type": ["boolean", "null"],
+      "default": false
+    },
+    "is_color_source": {
+      "type": ["boolean", "null"],
+      "default": false
+    },
+    "is_active": {
+      "type": ["boolean", "null"],
+      "default": true
+    },
+    "selection_type": {
+      "type": ["string", "null"],
+      "enum": ["single", "multi", null]
+    }
+  }
+}
