@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\TimeGranularity;
 use App\Filament\Concerns\HasBlockActiveToggleAction;
 use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Fabricator\PageBlocks\FAQBlock;
@@ -14,7 +15,7 @@ use App\Models\CategoryGroup;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use Closure;
 use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Components\Builder;
@@ -136,6 +137,16 @@ class TileResource extends Resource
                                 // Tab 3: metrics
                                 Tabs\Tab::make(__('filament.tabs.metrics'))
                                     ->schema([
+                                        Select::make('time_granularity')
+                                            ->label(__('filament.resources.tile.time_granularity'))
+                                            ->options(TimeGranularity::filamentOptions())
+                                            ->default('year')
+                                            ->required()
+                                            ->disabled(fn (?Tile $record): bool => $record !== null && $record->timePeriods()->whereHas('metricValues')->exists())
+                                            ->helperText(fn (?Tile $record): string => $record !== null && $record->timePeriods()->whereHas('metricValues')->exists()
+                                                ? __('filament.resources.tile.time_granularity_helper')
+                                                : __('filament.resources.tile.time_granularity_helper_editable'))
+                                            ->live(),
                                         Repeater::make('metricDefinitions')
                                             ->relationship('metricDefinitions')
                                             ->orderColumn('sort_order')
@@ -146,12 +157,20 @@ class TileResource extends Resource
                                                 static::getBlockActiveToggleAction(),
                                             ])
                                             ->schema([
+                                                TextInput::make('label')
+                                                    ->label(__('filament.resources.tile.label'))
+                                                    ->required()
+                                                    ->live(onBlur: true)
+                                                    ->afterStateUpdated(function (?string $state, \Filament\Forms\Set $set, ?MetricDefinition $record): void {
+                                                        if ($record === null && filled($state)) {
+                                                            $set('metric_key', \Illuminate\Support\Str::slug($state));
+                                                        }
+                                                    }),
                                                 TextInput::make('metric_key')
                                                     ->label(__('filament.resources.tile.metric_key'))
-                                                    ->helperText(__('filament.resources.tile.metric_key_helper'))
-                                                    ->regex('/^[a-z][a-z0-9_-]*$/')
+                                                    ->disabled()
+                                                    ->dehydrated()
                                                     ->required()
-                                                    ->disabled(fn (?MetricDefinition $record): bool => $record !== null)
                                                     ->unique(
                                                         table: MetricDefinition::class,
                                                         column: 'metric_key',
@@ -169,9 +188,6 @@ class TileResource extends Resource
                                                             $component->state(true);
                                                         }
                                                     }),
-                                                TextInput::make('label')
-                                                    ->label(__('filament.resources.tile.label'))
-                                                    ->required(),
                                                 TextInput::make('unit')
                                                     ->label(__('filament.resources.tile.unit')),
                                                 Select::make('indicator_type')
@@ -195,16 +211,13 @@ class TileResource extends Resource
                                                     ->label(__('filament.resources.tile.metric_values'))
                                                     ->addActionLabel(__('filament.actions.add_to_metric_values'))
                                                     ->itemLabel(function (array $state, $record): ?string {
-                                                        // Display the year as label for each metric value entry
-                                                        // Prefer loaded relationship to avoid N+1 queries
-                                                        if ($record && $record->relationLoaded('tileYear') && $record->tileYear) {
-                                                            return (string) $record->tileYear->year;
+                                                        if ($record && $record->relationLoaded('timePeriod') && $record->timePeriod) {
+                                                            return $record->timePeriod->label ?? $record->timePeriod->period_key;
                                                         }
-                                                        // Fallback: load from database if relationship not loaded
-                                                        if (isset($state['tile_year_id']) && is_numeric($state['tile_year_id'])) {
-                                                            $tileYear = TileYear::find($state['tile_year_id']);
+                                                        if (isset($state['time_period_id']) && is_numeric($state['time_period_id'])) {
+                                                            $timePeriod = TimePeriod::find($state['time_period_id']);
 
-                                                            return $tileYear ? (string) $tileYear->year : (string) $state['tile_year_id'];
+                                                            return $timePeriod ? ($timePeriod->label ?? $timePeriod->period_key) : (string) $state['time_period_id'];
                                                         }
 
                                                         return null;
@@ -215,12 +228,12 @@ class TileResource extends Resource
                                                     ->mutateRelationshipDataBeforeCreateUsing(function (array $data, $record, $livewire): array {
                                                         $tile = static::resolveTileForMetricValue($record, $livewire);
 
-                                                        return static::resolveMetricValueTileYearId($data, $tile);
+                                                        return static::resolveMetricValueTimePeriodId($data, $tile);
                                                     })
                                                     ->mutateRelationshipDataBeforeSaveUsing(function (array $data, $record, $livewire): array {
                                                         $tile = static::resolveTileForMetricValue($record, $livewire);
 
-                                                        return static::resolveMetricValueTileYearId($data, $tile);
+                                                        return static::resolveMetricValueTimePeriodId($data, $tile);
                                                     })
                                                     ->schema([
                                                         Hidden::make('is_active')
@@ -230,47 +243,82 @@ class TileResource extends Resource
                                                                     $component->state(true);
                                                                 }
                                                             }),
-                                                        TextInput::make('tile_year_id')
-                                                            ->label(__('filament.resources.tile.year'))
-                                                            ->numeric()
-                                                            ->rule('integer')
+                                                        TextInput::make('time_period_id')
+                                                            ->label(__('filament.resources.tile.period_key'))
+                                                            ->placeholder(function (Get $get) {
+                                                                $granularity = $get('../../../../time_granularity') ?? 'year';
+                                                                $enum = TimeGranularity::tryFrom($granularity);
+
+                                                                return $enum?->inputPlaceholder() ?? 'z.B. 2023';
+                                                            })
+                                                            ->helperText(function (Get $get) {
+                                                                $granularity = $get('../../../../time_granularity') ?? 'year';
+                                                                $enum = TimeGranularity::tryFrom($granularity);
+
+                                                                return $enum?->inputHelperText() ?? '';
+                                                            })
                                                             ->rule(function (Get $get) {
                                                                 return function (string $attribute, $value, Closure $fail) use ($get) {
-                                                                    if (! is_numeric($value)) {
+                                                                    if (! $value) {
                                                                         return;
                                                                     }
+
+                                                                    // Validate input format (German format)
+                                                                    $granularity = $get('../../../../time_granularity') ?? 'year';
+                                                                    $enum = TimeGranularity::tryFrom($granularity);
+                                                                    if ($enum && ! $enum->isValidInput($value)) {
+                                                                        $fail(__('filament.resources.tile.invalid_period_format', [
+                                                                            'format' => $enum->inputHelperText(),
+                                                                        ]));
+
+                                                                        return;
+                                                                    }
+
+                                                                    // Normalize for duplicate check
+                                                                    $normalized = $enum ? ($enum->normalizeInput($value) ?? $value) : $value;
+
+                                                                    // Check for duplicates
                                                                     $parent = $get('../../');
                                                                     $siblings = is_array($parent) ? ($parent['metricValues'] ?? []) : [];
                                                                     if (! is_array($siblings)) {
                                                                         return;
                                                                     }
                                                                     $count = collect($siblings)
-                                                                        ->filter(fn ($item) => isset($item['tile_year_id']) && (int) $item['tile_year_id'] === (int) $value)
+                                                                        ->filter(function ($item) use ($enum, $normalized) {
+                                                                            $other = $item['time_period_id'] ?? null;
+                                                                            if ($other === null) {
+                                                                                return false;
+                                                                            }
+                                                                            $otherNormalized = $enum ? ($enum->normalizeInput((string) $other) ?? (string) $other) : (string) $other;
+
+                                                                            return $otherNormalized === $normalized;
+                                                                        })
                                                                         ->count();
                                                                     if ($count > 1) {
-                                                                        $fail(__('filament.resources.tile.duplicate_year'));
+                                                                        $fail(__('filament.resources.tile.duplicate_period'));
                                                                     }
                                                                 };
                                                             })
                                                             ->afterStateHydrated(function (TextInput $component, $state, $record): void {
-                                                                if ($record && $record->relationLoaded('tileYear') && $record->tileYear) {
-                                                                    $component->state($record->tileYear->year);
+                                                                // Show stored period_key in German display format
+                                                                if ($record && $record->relationLoaded('timePeriod') && $record->timePeriod) {
+                                                                    $granularity = $record->timePeriod->granularity;
+                                                                    $enum = $granularity instanceof TimeGranularity ? $granularity : TimeGranularity::tryFrom($granularity ?? 'year');
+                                                                    $component->state($enum?->toDisplayFormat($record->timePeriod->period_key) ?? $record->timePeriod->period_key);
 
                                                                     return;
                                                                 }
 
                                                                 if (is_numeric($state)) {
-                                                                    $tileYear = TileYear::find($state);
-                                                                    if ($tileYear) {
-                                                                        $component->state($tileYear->year);
+                                                                    $timePeriod = TimePeriod::find($state);
+                                                                    if ($timePeriod) {
+                                                                        $granularity = $timePeriod->granularity;
+                                                                        $enum = $granularity instanceof TimeGranularity ? $granularity : TimeGranularity::tryFrom($granularity ?? 'year');
+                                                                        $component->state($enum?->toDisplayFormat($timePeriod->period_key) ?? $timePeriod->period_key);
                                                                     }
                                                                 }
                                                             })
-                                                            ->dehydrateStateUsing(function ($state) {
-                                                                $year = is_numeric($state) ? (int) $state : null;
-
-                                                                return $year;
-                                                            })
+                                                            ->dehydrateStateUsing(fn ($state) => $state)
                                                             ->required(),
                                                         TextInput::make('value')
                                                             ->label(__('filament.resources.tile.value'))
@@ -819,27 +867,17 @@ class TileResource extends Resource
         return null;
     }
 
-    /**
-     * Ensure a TileYear exists for the given tile and numeric year, and replace `tile_year_id` in the provided data with that TileYear's id.
-     *
-     * @param  array<string,mixed>  $data  Input data array which may contain a numeric `tile_year_id` representing a year.
-     * @param  Tile|null  $tile  The Tile to associate the year with; if null, the data is returned unchanged.
-     * @return array<string,mixed> The (possibly modified) data array with `tile_year_id` set to the corresponding TileYear id when applicable.
-     */
-    protected static function resolveMetricValueTileYearId(array $data, ?Tile $tile): array
+    protected static function resolveMetricValueTimePeriodId(array $data, ?Tile $tile): array
     {
-        $year = is_numeric($data['tile_year_id'] ?? null) ? (int) $data['tile_year_id'] : null;
+        $input = $data['time_period_id'] ?? null;
 
-        if ($year === null || ! $tile) {
+        if ($input === null || ! is_string($input) || $input === '' || ! $tile) {
             return $data;
         }
 
-        $tileYear = TileYear::firstOrCreate([
-            'tile_id' => $tile->id,
-            'year' => $year,
-        ]);
+        $timePeriod = app(\App\Services\TimePeriodService::class)->resolveOrCreate($input, $tile);
 
-        $data['tile_year_id'] = $tileYear->id;
+        $data['time_period_id'] = $timePeriod->id;
 
         return $data;
     }

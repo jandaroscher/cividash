@@ -127,20 +127,20 @@ Partial Update – nur übergebene Felder werden aktualisiert.
 
 ---
 
-### Tile Years
+### Time Periods
 
 | Methode | Endpoint | Beschreibung |
 |---------|----------|--------------|
-| `POST` | `/api/admin/tile-years` | Neues Jahr erstellen |
-| `PATCH` | `/api/admin/tile-years/{id}` | Jahr aktualisieren |
-| `DELETE` | `/api/admin/tile-years/{id}` | Jahr löschen |
+| `POST` | `/api/admin/time-periods` | Zeitraum erstellen |
+| `PATCH` | `/api/admin/time-periods/{id}` | Zeitraum aktualisieren |
+| `DELETE` | `/api/admin/time-periods/{id}` | Zeitraum löschen |
 
-#### POST /api/admin/tile-years
+#### POST /api/admin/time-periods
 
 ```json
 {
   "tile_id": 42,
-  "year": 2024
+  "period_key": "2024"
 }
 ```
 
@@ -181,7 +181,7 @@ Partial Update – nur übergebene Felder werden aktualisiert.
 ```json
 {
   "metric_definition_id": 5,
-  "tile_year_id": 10,
+  "time_period_id": 10,
   "value": 150000
 }
 ```
@@ -290,11 +290,11 @@ curl -X POST https://example.com/api/admin/tiles \
   -H "Content-Type: application/json" \
   -d '{"title": {"de": "Energie", "en": "Energy"}}'
 
-# 3. Jahr hinzufügen
-curl -X POST https://example.com/api/admin/tile-years \
+# 3. Zeitraum hinzufügen
+curl -X POST https://example.com/api/admin/time-periods \
   -H "Authorization: Bearer 1|abc123..." \
   -H "Content-Type: application/json" \
-  -d '{"tile_id": 42, "year": 2024}'
+  -d '{"tile_id": 42, "period_key": "2024"}'
 
 # 4. Metrik-Definition erstellen
 curl -X POST https://example.com/api/admin/metric-definitions \
@@ -306,7 +306,7 @@ curl -X POST https://example.com/api/admin/metric-definitions \
 curl -X POST https://example.com/api/admin/metric-values \
   -H "Authorization: Bearer 1|abc123..." \
   -H "Content-Type: application/json" \
-  -d '{"metric_definition_id": 1, "tile_year_id": 1, "value": 1250}'
+  -d '{"metric_definition_id": 1, "time_period_id": 1, "value": 1250}'
 ```
 
 > **Wichtig:** Tokens MÜSSEN mit `tenant_id` versehen sein. Bei Requests ohne Tenant-Kontext:
@@ -324,7 +324,7 @@ Die Admin API ist umfangreich getestet:
 | Testklasse | Tests | Fokus |
 |------------|-------|-------|
 | `AdminTileApiTest` | 12 Tests | CRUD + Tenant-Scoping |
-| `AdminTileYearApiTest` | 12 Tests | CRUD + Tenant-Scoping |
+| `AdminTimePeriodApiTest` | 12 Tests | CRUD + Tenant-Scoping |
 | `AdminMetricDefinitionApiTest` | 13 Tests | CRUD + Tenant-Scoping |
 | `AdminMetricValueApiTest` | 13 Tests | CRUD + Tenant-Scoping |
 | `AdminApiPermissionTest` | 7 Tests | Auth + Abilities |

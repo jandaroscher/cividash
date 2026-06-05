@@ -29,7 +29,7 @@ class TileController extends Controller
      *
      * @queryParam locale string Locale for translated content (de or en). Example: de
      *
-     * @response 200 scenario="Tiles retrieved" {"data": [{"id": 1, "slug": {"de": "energie", "en": "energy"}, "title": {"de": "Energie", "en": "Energy"}, "description": {"de": "Energieverbrauch und erneuerbare Energien", "en": "Energy consumption and renewables"}, "icon": "bolt", "position": 1, "categories": [], "metric_definitions": [], "tile_years": []}]}
+     * @response 200 scenario="Tiles retrieved" {"data": [{"id": 1, "slug": {"de": "energie", "en": "energy"}, "title": {"de": "Energie", "en": "Energy"}, "description": {"de": "Energieverbrauch und erneuerbare Energien", "en": "Energy consumption and renewables"}, "icon": "bolt", "position": 1, "categories": [], "metric_definitions": [], "time_periods": []}]}
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -46,11 +46,11 @@ class TileController extends Controller
                     ->with([
                         'metricValues' => function ($valueQuery) {
                             $valueQuery->where('is_active', true)
-                                ->with('tileYear');
+                                ->with('timePeriod');
                         },
                     ]);
             },
-            'tileYears',
+            'timePeriods',
         ])
             ->orderBy('position')
             ->get();
@@ -70,7 +70,7 @@ class TileController extends Controller
      *
      * @queryParam locale string Locale for slug lookup and translated content (de or en). Example: de
      *
-     * @response 200 scenario="Tile found" {"data": {"id": 1, "slug": {"de": "energie", "en": "energy"}, "title": {"de": "Energie", "en": "Energy"}, "description": {"de": "Energieverbrauch", "en": "Energy consumption"}, "icon": "bolt", "position": 1, "categories": [], "metric_definitions": [], "tile_years": []}}
+     * @response 200 scenario="Tile found" {"data": {"id": 1, "slug": {"de": "energie", "en": "energy"}, "title": {"de": "Energie", "en": "Energy"}, "description": {"de": "Energieverbrauch", "en": "Energy consumption"}, "icon": "bolt", "position": 1, "categories": [], "metric_definitions": [], "time_periods": []}}
      * @response 404 scenario="Tile not found" {"message": "No query results for model [App\\Models\\Tile]"}
      */
     public function show(Request $request, string $slug): TileResource
@@ -121,11 +121,11 @@ class TileController extends Controller
                     ->with([
                         'metricValues' => function ($valueQuery) {
                             $valueQuery->where('is_active', true)
-                                ->with('tileYear');
+                                ->with('timePeriod');
                         },
                     ]);
             },
-            'tileYears',
+            'timePeriods',
         ]);
 
         return new TileResource($tile);

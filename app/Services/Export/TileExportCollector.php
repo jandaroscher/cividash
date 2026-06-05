@@ -39,7 +39,7 @@ class TileExportCollector
                     $q->where('is_active', true)
                         ->with([
                             'metricValues' => function ($vq) {
-                                $vq->where('is_active', true)->with('tileYear');
+                                $vq->where('is_active', true)->with('timePeriod');
                             },
                         ]);
                 },
@@ -118,7 +118,7 @@ class TileExportCollector
             FieldWhitelist::METRIC_UNIT => $md ? $this->translate($md, 'unit', $locale) : null,
             FieldWhitelist::METRIC_INDICATOR_TYPE => $md?->indicator_type,
 
-            FieldWhitelist::VALUE_YEAR => $mv?->tileYear?->year,
+            FieldWhitelist::VALUE_YEAR => $this->periodYear($mv),
             FieldWhitelist::VALUE_VALUE => $mv !== null ? (float) $mv->value : null,
             FieldWhitelist::VALUE_SORT_ORDER => $mv?->sort_order,
 
@@ -204,6 +204,24 @@ class TileExportCollector
     }
 
     /**
+     * Derive the calendar year from a metric value's time period.
+     *
+     * TileYear was replaced by TimePeriod (granularity + period_key).
+     * For every granularity the period_key is prefixed with the 4-digit year
+     * (e.g. "2023", "2023-Q1", "2023-05"), so the leading digits give the year
+     * that the export's `value.year` field still expects.
+     */
+    private function periodYear(?MetricValue $mv): ?int
+    {
+        $key = $mv?->timePeriod?->period_key;
+        if ($key === null || ! preg_match('/^(\d{4})/', $key, $m)) {
+            return null;
+        }
+
+        return (int) $m[1];
+    }
+
+    /**
      * Apply year range filter to an already-loaded metric value collection.
      */
     private function filterValuesByYear($values, ExportQuery $query)
@@ -213,7 +231,7 @@ class TileExportCollector
         }
 
         return $values->filter(function (MetricValue $mv) use ($query) {
-            $year = $mv->tileYear?->year;
+            $year = $this->periodYear($mv);
             if ($year === null) {
                 return false;
             }

@@ -9,6 +9,8 @@ use App\Models\CategoryGroup;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
+use Illuminate\Support\Str;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -77,22 +79,27 @@ class CategoryGroupResource extends Resource
                 Forms\Components\Section::make(__('filament.resources.category_group.section_group'))
                     ->columns(1)
                     ->schema([
+                        Forms\Components\TextInput::make('title')
+                            ->label(__('filament.resources.category_group.title'))
+                            ->required()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (?string $state, Set $set, $record): void {
+                                if ($record === null && filled($state)) {
+                                    $set('key', Str::slug($state));
+                                }
+                            }),
                         Forms\Components\TextInput::make('key')
                             ->label(__('filament.resources.category_group.key'))
                             ->required()
                             ->maxLength(255)
-                            ->regex('/^[a-z][a-z0-9_-]*$/')
-                            ->helperText(__('filament.resources.category_group.key_helper'))
-                            ->disabled(fn ($record) => $record !== null)
+                            ->disabled()
+                            ->dehydrated()
                             ->unique(
                                 table: CategoryGroup::class,
                                 column: 'key',
                                 ignorable: fn ($record) => $record,
                                 modifyRuleUsing: fn ($rule) => $rule->where('tenant_id', Filament::getTenant()?->id),
                             ),
-                        Forms\Components\TextInput::make('title')
-                            ->label(__('filament.resources.category_group.title'))
-                            ->required(),
                         Forms\Components\Toggle::make('is_active')
                             ->label(__('filament.resources.category_group.is_active'))
                             ->default(true),

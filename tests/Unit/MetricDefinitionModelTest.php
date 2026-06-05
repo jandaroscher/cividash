@@ -6,7 +6,7 @@ use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -60,18 +60,18 @@ class MetricDefinitionModelTest extends TestCase
     public function test_has_many_metric_values(): void
     {
         $tile = Tile::factory()->forTenant($this->tenant)->create();
-        $tileYear2023 = TileYear::factory()->forTile($tile)->create(['year' => 2023]);
-        $tileYear2024 = TileYear::factory()->forTile($tile)->create(['year' => 2024]);
+        $timePeriod2023 = TimePeriod::factory()->forTile($tile)->year(2023)->create();
+        $timePeriod2024 = TimePeriod::factory()->forTile($tile)->year(2024)->create();
         $definition = MetricDefinition::factory()->forTile($tile)->create();
 
         MetricValue::factory()
             ->forDefinition($definition)
-            ->forTileYear($tileYear2023)
+            ->forTimePeriod($timePeriod2023)
             ->create(['value' => 42.50]);
 
         MetricValue::factory()
             ->forDefinition($definition)
-            ->forTileYear($tileYear2024)
+            ->forTimePeriod($timePeriod2024)
             ->create(['value' => 99.00]);
 
         $definition->refresh();

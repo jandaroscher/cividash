@@ -5,7 +5,7 @@ namespace Database\Factories;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tenant;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +19,7 @@ class MetricValueFactory extends Factory
     {
         return [
             'metric_definition_id' => MetricDefinition::factory(),
-            'tile_year_id' => TileYear::factory(),
+            'time_period_id' => TimePeriod::factory(),
             'value' => fake()->randomFloat(2, 0, 1000),
             'is_active' => true,
             'sort_order' => 0,
@@ -35,11 +35,11 @@ class MetricValueFactory extends Factory
         ]);
     }
 
-    public function forTileYear(TileYear $tileYear): static
+    public function forTimePeriod(TimePeriod $timePeriod): static
     {
         return $this->state(fn (array $attributes) => [
-            'tile_year_id' => $tileYear->id,
-            'tenant_id' => $tileYear->tenant_id,
+            'time_period_id' => $timePeriod->id,
+            'tenant_id' => $timePeriod->tenant_id,
         ]);
     }
 }

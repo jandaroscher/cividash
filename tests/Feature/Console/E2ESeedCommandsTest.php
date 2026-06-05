@@ -6,7 +6,7 @@ use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
@@ -94,7 +94,7 @@ class E2ESeedCommandsTest extends TestCase
         );
     }
 
-    public function test_seed_full_creates_tile_years(): void
+    public function test_seed_full_creates_time_periods(): void
     {
         $this->artisan('e2e:seed-full')->assertExitCode(0);
 
@@ -102,7 +102,7 @@ class E2ESeedCommandsTest extends TestCase
 
         $this->assertGreaterThan(
             0,
-            TileYear::withoutGlobalScope('tenant')->where('tenant_id', $tenantA->id)->count()
+            TimePeriod::withoutGlobalScope('tenant')->where('tenant_id', $tenantA->id)->count()
         );
     }
 

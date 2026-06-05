@@ -68,73 +68,25 @@ class CategoryGroupResourceTest extends TestCase
             ->assertSuccessful();
     }
 
-    public function test_create_key_is_required(): void
-    {
-        Livewire::test(CreateCategoryGroup::class)
-            ->fillForm([
-                'key' => '',
-                'title' => 'Test',
-            ])
-            ->call('create')
-            ->assertHasFormErrors(['key' => 'required']);
-    }
-
-    public function test_create_key_must_match_regex(): void
-    {
-        Livewire::test(CreateCategoryGroup::class)
-            ->fillForm([
-                'key' => 'Invalid Key!',
-                'title' => 'Test',
-            ])
-            ->call('create')
-            ->assertHasFormErrors(['key']);
-    }
-
-    public function test_create_key_rejects_uppercase(): void
-    {
-        Livewire::test(CreateCategoryGroup::class)
-            ->fillForm([
-                'key' => 'UpperCase',
-                'title' => 'Test',
-            ])
-            ->call('create')
-            ->assertHasFormErrors(['key']);
-    }
-
-    public function test_create_key_rejects_starting_with_number(): void
-    {
-        Livewire::test(CreateCategoryGroup::class)
-            ->fillForm([
-                'key' => '1invalid',
-                'title' => 'Test',
-            ])
-            ->call('create')
-            ->assertHasFormErrors(['key']);
-    }
-
     public function test_create_title_is_required(): void
     {
         Livewire::test(CreateCategoryGroup::class)
             ->fillForm([
-                'key' => 'test-key',
                 'title' => '',
             ])
             ->call('create')
             ->assertHasFormErrors(['title' => 'required']);
     }
 
-    public function test_create_form_accepts_valid_data(): void
+    public function test_create_key_auto_generated_from_title(): void
     {
         Livewire::test(CreateCategoryGroup::class)
             ->fillForm([
-                'key' => 'valid-key-123',
-                'title' => 'Valid Group',
+                'title' => 'Neue Gruppe',
                 'is_active' => true,
             ])
             ->assertFormSet([
-                'key' => 'valid-key-123',
-                'title' => 'Valid Group',
-                'is_active' => true,
+                'key' => 'neue-gruppe',
             ]);
     }
 
@@ -142,7 +94,6 @@ class CategoryGroupResourceTest extends TestCase
     {
         Livewire::test(CreateCategoryGroup::class)
             ->fillForm([
-                'key' => 'new-group',
                 'title' => 'Neue Gruppe',
                 'is_active' => true,
             ])
@@ -150,7 +101,7 @@ class CategoryGroupResourceTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('category_groups', [
-            'key' => 'new-group',
+            'key' => 'neue-gruppe',
             'tenant_id' => $this->tenant->id,
         ]);
     }

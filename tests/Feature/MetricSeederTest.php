@@ -6,7 +6,7 @@ use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Services\DashboardJsonParser;
 use App\Services\ParsedMetric;
 use Database\Seeders\MetricSeeder;
@@ -39,7 +39,7 @@ class MetricSeederTest extends TestCase
         class_exists(DashboardJsonParser::class);
     }
 
-    public function test_seeder_creates_tile_years_and_metrics(): void
+    public function test_seeder_creates_time_periods_and_metrics(): void
     {
         // Create a tile
         $tile = new Tile;
@@ -72,9 +72,9 @@ class MetricSeederTest extends TestCase
             $tileMetricMapping
         );
 
-        // Check TileYears were created
-        $tileYears = TileYear::where('tile_id', $tile->id)->get();
-        $this->assertCount(3, $tileYears);
+        // Check TimePeriods were created
+        $timePeriods = TimePeriod::where('tile_id', $tile->id)->get();
+        $this->assertCount(3, $timePeriods);
 
         // Check MetricDefinition was created
         $metricDefinition = MetricDefinition::where('tile_id', $tile->id)
@@ -87,7 +87,7 @@ class MetricSeederTest extends TestCase
         $this->assertEquals('seeds/metrics/metric.png', $metricDefinition->icon);
 
         // Check MetricValues were created
-        $metricValues = MetricValue::whereIn('tile_year_id', $tileYears->pluck('id'))
+        $metricValues = MetricValue::whereIn('time_period_id', $timePeriods->pluck('id'))
             ->where('metric_definition_id', $metricDefinition->id)
             ->get();
         $this->assertCount(3, $metricValues);
@@ -129,7 +129,7 @@ class MetricSeederTest extends TestCase
             $tileMetricMapping
         );
 
-        $firstRunTileYearCount = TileYear::where('tile_id', $tile->id)->count();
+        $firstRunTimePeriodCount = TimePeriod::where('tile_id', $tile->id)->count();
         $firstRunMetricDefinitionCount = MetricDefinition::where('tile_id', $tile->id)->count();
         $firstRunMetricValueCount = MetricValue::count();
 
@@ -140,7 +140,7 @@ class MetricSeederTest extends TestCase
         );
 
         // Should not create duplicates
-        $this->assertEquals($firstRunTileYearCount, TileYear::where('tile_id', $tile->id)->count());
+        $this->assertEquals($firstRunTimePeriodCount, TimePeriod::where('tile_id', $tile->id)->count());
         $this->assertEquals($firstRunMetricDefinitionCount, MetricDefinition::where('tile_id', $tile->id)->count());
         $this->assertEquals($firstRunMetricValueCount, MetricValue::count());
     }
@@ -188,16 +188,16 @@ class MetricSeederTest extends TestCase
             $tileMetricMapping
         );
 
-        // Should create one TileYear (same year)
-        $tileYears = TileYear::where('tile_id', $tile->id)->get();
-        $this->assertCount(1, $tileYears);
+        // Should create one TimePeriod (same period)
+        $timePeriods = TimePeriod::where('tile_id', $tile->id)->get();
+        $this->assertCount(1, $timePeriods);
 
         // Should create two MetricDefinitions (one per metric_key)
         $metricDefinitions = MetricDefinition::where('tile_id', $tile->id)->get();
         $this->assertCount(2, $metricDefinitions);
 
         // Should create two MetricValues (one per metric definition)
-        $metricValues = MetricValue::whereIn('tile_year_id', $tileYears->pluck('id'))->get();
+        $metricValues = MetricValue::whereIn('time_period_id', $timePeriods->pluck('id'))->get();
         $this->assertCount(2, $metricValues);
     }
 
@@ -267,8 +267,8 @@ class MetricSeederTest extends TestCase
             $tileMetricMapping
         );
 
-        // Should not create any TileYears, MetricDefinitions or MetricValues
-        $this->assertEquals(0, TileYear::where('tile_id', $tile->id)->count());
+        // Should not create any TimePeriods, MetricDefinitions or MetricValues
+        $this->assertEquals(0, TimePeriod::where('tile_id', $tile->id)->count());
         $this->assertEquals(0, MetricDefinition::where('tile_id', $tile->id)->count());
         $this->assertEquals(0, MetricValue::count());
     }

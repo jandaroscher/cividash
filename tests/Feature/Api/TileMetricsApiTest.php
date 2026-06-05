@@ -5,7 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -20,9 +20,11 @@ class TileMetricsApiTest extends TestCase
             'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
         ]);
 
-        $year = TileYear::create([
+        $timePeriod = TimePeriod::create([
             'tile_id' => $tile->id,
-            'year' => 2020,
+            'period_key' => '2020',
+            'granularity' => 'year',
+            'label' => '2020',
         ]);
 
         $activeDefinition = MetricDefinition::create([
@@ -45,14 +47,14 @@ class TileMetricsApiTest extends TestCase
 
         MetricValue::create([
             'metric_definition_id' => $activeDefinition->id,
-            'tile_year_id' => $year->id,
+            'time_period_id' => $timePeriod->id,
             'value' => 1,
             'is_active' => true,
         ]);
 
         MetricValue::create([
             'metric_definition_id' => $inactiveDefinition->id,
-            'tile_year_id' => $year->id,
+            'time_period_id' => $timePeriod->id,
             'value' => 2,
             'is_active' => true,
         ]);
@@ -83,26 +85,30 @@ class TileMetricsApiTest extends TestCase
             'is_active' => true,
         ]);
 
-        $year2020 = TileYear::create([
+        $tp2020 = TimePeriod::create([
             'tile_id' => $tile->id,
-            'year' => 2020,
+            'period_key' => '2020',
+            'granularity' => 'year',
+            'label' => '2020',
         ]);
 
-        $year2021 = TileYear::create([
+        $tp2021 = TimePeriod::create([
             'tile_id' => $tile->id,
-            'year' => 2021,
+            'period_key' => '2021',
+            'granularity' => 'year',
+            'label' => '2021',
         ]);
 
         MetricValue::create([
             'metric_definition_id' => $activeDefinition->id,
-            'tile_year_id' => $year2020->id,
+            'time_period_id' => $tp2020->id,
             'value' => 1,
             'is_active' => true,
         ]);
 
         MetricValue::create([
             'metric_definition_id' => $activeDefinition->id,
-            'tile_year_id' => $year2021->id,
+            'time_period_id' => $tp2021->id,
             'value' => 2,
             'is_active' => false,
         ]);
@@ -113,7 +119,7 @@ class TileMetricsApiTest extends TestCase
 
         $values = $response->json('data.metric_definitions.0.values');
         $this->assertCount(1, $values);
-        $this->assertSame(2020, $values[0]['year']);
+        $this->assertSame('2020', $values[0]['period_key']);
         $this->assertArrayNotHasKey('is_active', $values[0]);
     }
 }

@@ -8,7 +8,7 @@ use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -55,11 +55,11 @@ class ExportTileTest extends TestCase
             'indicator_type' => 'big',
         ]);
 
-        $year2020 = TileYear::factory()->forTile($this->tile)->create(['year' => 2020]);
-        $year2021 = TileYear::factory()->forTile($this->tile)->create(['year' => 2021]);
+        $year2020 = TimePeriod::factory()->forTile($this->tile)->year(2020)->create();
+        $year2021 = TimePeriod::factory()->forTile($this->tile)->year(2021)->create();
 
-        MetricValue::factory()->forDefinition($md)->forTileYear($year2020)->create(['value' => 100.50]);
-        MetricValue::factory()->forDefinition($md)->forTileYear($year2021)->create(['value' => 95.25]);
+        MetricValue::factory()->forDefinition($md)->forTimePeriod($year2020)->create(['value' => 100.50]);
+        MetricValue::factory()->forDefinition($md)->forTimePeriod($year2021)->create(['value' => 95.25]);
     }
 
     public function test_json_export_returns_envelope_with_schema_version(): void

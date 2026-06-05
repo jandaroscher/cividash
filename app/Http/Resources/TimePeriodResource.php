@@ -4,13 +4,15 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TileYearResource extends JsonResource
+class TimePeriodResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
             'id' => $this->id,
-            'year' => $this->year,
+            'period_key' => $this->period_key,
+            'granularity' => $this->granularity,
+            'label' => $this->label,
             'metrics' => MetricResource::collection(
                 $this->whenLoaded('metrics')
             ),

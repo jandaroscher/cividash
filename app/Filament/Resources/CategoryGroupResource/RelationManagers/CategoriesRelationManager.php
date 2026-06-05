@@ -55,9 +55,8 @@ class CategoriesRelationManager extends RelationManager
                     ->label(__('filament.resources.category_group.items.key'))
                     ->maxLength(255)
                     ->nullable()
-                    ->regex('/^[a-z][a-z0-9_-]*$/')
-                    ->helperText(__('filament.resources.category_group.items.key_helper'))
-                    ->disabled(fn ($record) => $record !== null && filled($record->key)),
+                    ->disabled()
+                    ->dehydrated(),
                 Forms\Components\TextInput::make('slug')
                     ->label(__('filament.resources.category_group.items.title'))
                     ->required()

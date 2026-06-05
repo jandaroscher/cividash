@@ -13,7 +13,7 @@ use App\Models\Navigation;
 use App\Models\Page;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Models\User;
 use App\Settings\BrandingSettings;
 use App\Settings\ContentSettings;
@@ -237,7 +237,7 @@ class DashboardResetCommand extends Command
             Metric::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
         }
 
-        TileYear::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
+        TimePeriod::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
         MetricDefinition::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
         BackgroundPage::withoutGlobalScope('tenant')->where('tenant_id', $tenantId)->delete();
 

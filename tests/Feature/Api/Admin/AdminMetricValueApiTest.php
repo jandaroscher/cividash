@@ -6,7 +6,7 @@ use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,7 +24,7 @@ class AdminMetricValueApiTest extends TestCase
 
     protected Tile $tile;
 
-    protected TileYear $tileYear;
+    protected TimePeriod $timePeriod;
 
     protected MetricDefinition $metricDefinition;
 
@@ -47,9 +47,11 @@ class AdminMetricValueApiTest extends TestCase
             'description' => ['de' => 'Desc', 'en' => 'Desc'],
         ]);
 
-        $this->tileYear = TileYear::create([
+        $this->timePeriod = TimePeriod::create([
             'tile_id' => $this->tile->id,
-            'year' => 2024,
+            'period_key' => '2024',
+            'granularity' => 'year',
+            'label' => '2024',
         ]);
 
         $this->metricDefinition = MetricDefinition::create([
@@ -103,9 +105,11 @@ class AdminMetricValueApiTest extends TestCase
             'description' => ['de' => 'Desc', 'en' => 'Desc'],
         ]);
 
-        $tileYear = TileYear::create([
+        $timePeriod = TimePeriod::create([
             'tile_id' => $tile->id,
-            'year' => 2020,
+            'period_key' => '2020',
+            'granularity' => 'year',
+            'label' => '2020',
         ]);
 
         $definition = MetricDefinition::create([
@@ -116,20 +120,20 @@ class AdminMetricValueApiTest extends TestCase
 
         Filament::setTenant(null);
 
-        return compact('tile', 'tileYear', 'definition');
+        return compact('tile', 'timePeriod', 'definition');
     }
 
     /**
      * Create a metric value in a specific tenant context.
      */
-    protected function createMetricValueInTenant(Tenant $tenant, MetricDefinition $definition, TileYear $tileYear, float $value): MetricValue
+    protected function createMetricValueInTenant(Tenant $tenant, MetricDefinition $definition, TimePeriod $timePeriod, float $value): MetricValue
     {
         Filament::auth()->login($this->user);
         Filament::setTenant($tenant);
 
         $metricValue = MetricValue::create([
             'metric_definition_id' => $definition->id,
-            'tile_year_id' => $tileYear->id,
+            'time_period_id' => $timePeriod->id,
             'value' => $value,
         ]);
 
@@ -147,7 +151,7 @@ class AdminMetricValueApiTest extends TestCase
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/metric-values', [
                 'metric_definition_id' => $this->metricDefinition->id,
-                'tile_year_id' => $this->tileYear->id,
+                'time_period_id' => $this->timePeriod->id,
                 'value' => 42.5,
             ]);
 
@@ -166,12 +170,12 @@ class AdminMetricValueApiTest extends TestCase
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/metric-values', [
                 'metric_definition_id' => $this->metricDefinition->id,
-                'tile_year_id' => $this->tileYear->id,
+                'time_period_id' => $this->timePeriod->id,
                 'value' => 42.5,
             ]);
 
         $response->assertStatus(201)
-            ->assertJsonStructure(['data' => ['id', 'metric_definition_id', 'tile_year_id', 'value']]);
+            ->assertJsonStructure(['data' => ['id', 'metric_definition_id', 'time_period_id', 'value']]);
 
         $this->assertDatabaseHas('metric_values', [
             'tenant_id' => $this->tenant->id,
@@ -187,7 +191,7 @@ class AdminMetricValueApiTest extends TestCase
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/admin/metric-values', [
                 'metric_definition_id' => $this->metricDefinition->id,
-                'tile_year_id' => $this->tileYear->id,
+                'time_period_id' => $this->timePeriod->id,
                 'value' => 100.0,
                 'tenant_id' => $this->otherTenant->id, // Should be ignored
             ]);
@@ -206,7 +210,7 @@ class AdminMetricValueApiTest extends TestCase
             ->postJson('/api/admin/metric-values', []);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['metric_definition_id', 'tile_year_id', 'value']);
+            ->assertJsonValidationErrors(['metric_definition_id', 'time_period_id', 'value']);
     }
 
     // ========== PATCH Tests ==========
@@ -216,7 +220,7 @@ class AdminMetricValueApiTest extends TestCase
         $metricValue = $this->createMetricValueInTenant(
             $this->tenant,
             $this->metricDefinition,
-            $this->tileYear,
+            $this->timePeriod,
             50.0
         );
 
@@ -238,7 +242,7 @@ class AdminMetricValueApiTest extends TestCase
         $otherValue = $this->createMetricValueInTenant(
             $this->otherTenant,
             $otherData['definition'],
-            $otherData['tileYear'],
+            $otherData['timePeriod'],
             100
         );
 
@@ -258,7 +262,7 @@ class AdminMetricValueApiTest extends TestCase
         $metricValue = $this->createMetricValueInTenant(
             $this->tenant,
             $this->metricDefinition,
-            $this->tileYear,
+            $this->timePeriod,
             50.0
         );
 
@@ -283,7 +287,7 @@ class AdminMetricValueApiTest extends TestCase
         $metricValue = $this->createMetricValueInTenant(
             $this->tenant,
             $this->metricDefinition,
-            $this->tileYear,
+            $this->timePeriod,
             50.0
         );
 
@@ -306,7 +310,7 @@ class AdminMetricValueApiTest extends TestCase
         $otherValue = $this->createMetricValueInTenant(
             $this->otherTenant,
             $otherData['definition'],
-            $otherData['tileYear'],
+            $otherData['timePeriod'],
             100
         );
 
@@ -328,7 +332,7 @@ class AdminMetricValueApiTest extends TestCase
 
         $response = $this->postJson('/api/admin/metric-values', [
             'metric_definition_id' => 1,
-            'tile_year_id' => 1,
+            'time_period_id' => 1,
             'value' => 42,
         ]);
 

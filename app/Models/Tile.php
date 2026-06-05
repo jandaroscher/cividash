@@ -52,6 +52,7 @@ class Tile extends Model
         'slug',
         'icon',
         'position',
+        'time_granularity',
         'background_blocks',
         'is_public',
         'meta_title',
@@ -91,15 +92,12 @@ class Tile extends Model
         return $this->belongsToMany(Category::class);
     }
 
-    // Background blocks are now embedded directly in the tile model
     /**
-     * Define a one-to-many relationship to TileYear models ordered by the `year` field ascending.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany Collection of TileYear models ordered by year.
+     * Get the time periods for this tile, ordered by sort then period_key.
      */
-    public function tileYears()
+    public function timePeriods()
     {
-        return $this->hasMany(TileYear::class)->orderBy('year');
+        return $this->hasMany(TimePeriod::class)->orderBy('sort')->orderBy('period_key');
     }
 
     /**

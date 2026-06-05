@@ -9,27 +9,15 @@
 
     <div
       v-if="!tilesStore.loading && !tilesStore.error && tilesStore.tiles.length > 0"
-      class="container flex flex-col items-center gap-4 mb-5 mt-10 sm:mt-0 sm:flex-row sm:items-center sm:justify-between"
+      class="container flex flex-col items-center gap-4 mb-5 mt-10 sm:mt-0 sm:flex-row sm:items-center sm:justify-end"
     >
-      <p class="text-theme-base text-gray-400 font-semibold flex flex-row gap-2 m-0">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="25"
-          viewBox="0 0 24 25"
-          aria-hidden="true"
-          class="text-gray-600"
-        >
-          <g transform="translate(0 1)">
-            <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
-            <g transform="translate(0 15.48) rotate(-45)">
-              <path d="M0,0H18.789" transform="translate(0 4.311)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
-              <path d="M0,0,4.359,4.359,0,8.719" transform="translate(14.705)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
-            </g>
-          </g>
-        </svg>
-        <span>{{ effectiveLocale === 'en' ? 'Change from previous year' : 'Veränderung zum Vorjahr' }}</span>
-      </p>
+      <!--
+        The hardcoded "Change from previous year" banner was removed
+        because time granularity is now configured per tile (year/quarter/month/
+        week/day). Each TileCard renders its own granularity-appropriate
+        comparison label (see TileCard.vue), so a single global "previous year"
+        label would be misleading. The ExportButton (added on main) is preserved.
+      -->
       <ExportButton
         mode="dialog"
         :scope="exportScope"

@@ -61,7 +61,7 @@
                     {{ __('filament.pages.dashboard_overview.active_tiles', ['count' => $tileCount]) }}
                 </li>
                 <li>
-                    {{ __('filament.pages.dashboard_overview.year_data', ['count' => $tileYearCount]) }}
+                    {{ __('filament.pages.dashboard_overview.period_data', ['count' => $timePeriodCount]) }}
                 </li>
                 <li>
                     {{ __('filament.pages.dashboard_overview.active_categories', ['count' => $categoryCount]) }}

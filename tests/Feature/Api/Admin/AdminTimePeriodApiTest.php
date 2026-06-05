@@ -4,13 +4,13 @@ namespace Tests\Feature\Api\Admin;
 
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class AdminTileYearApiTest extends TestCase
+class AdminTimePeriodApiTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -73,19 +73,21 @@ class AdminTileYearApiTest extends TestCase
     /**
      * Create test data in a specific tenant context.
      */
-    protected function createTileYearInTenant(Tenant $tenant, Tile $tile, int $year): TileYear
+    protected function createTimePeriodInTenant(Tenant $tenant, Tile $tile, string $periodKey): TimePeriod
     {
         Filament::auth()->login($this->user);
         Filament::setTenant($tenant);
 
-        $tileYear = TileYear::create([
+        $timePeriod = TimePeriod::create([
             'tile_id' => $tile->id,
-            'year' => $year,
+            'period_key' => $periodKey,
+            'granularity' => 'year',
+            'label' => $periodKey,
         ]);
 
         Filament::setTenant(null);
 
-        return $tileYear;
+        return $timePeriod;
     }
 
     /**
@@ -110,9 +112,10 @@ class AdminTileYearApiTest extends TestCase
         $token = $this->createTokenWithoutTenant();
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tile-years', [
+            ->postJson('/api/admin/time-periods', [
                 'tile_id' => $this->tile->id,
-                'year' => 2024,
+                'period_key' => '2024',
+                'granularity' => 'year',
             ]);
 
         $response->assertStatus(400)
@@ -123,138 +126,165 @@ class AdminTileYearApiTest extends TestCase
 
     // ========== POST Tests ==========
 
-    public function test_can_create_tile_year_within_tenant_context(): void
+    public function test_can_create_time_period_within_tenant_context(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tile-years', [
+            ->postJson('/api/admin/time-periods', [
                 'tile_id' => $this->tile->id,
-                'year' => 2024,
+                'period_key' => '2024',
+                'granularity' => 'year',
             ]);
 
         $response->assertStatus(201)
-            ->assertJsonStructure(['data' => ['id', 'tile_id', 'year']]);
+            ->assertJsonStructure(['data' => ['id', 'tile_id', 'period_key']]);
 
-        $this->assertDatabaseHas('tile_years', [
+        $this->assertDatabaseHas('time_periods', [
             'tenant_id' => $this->tenant->id,
             'tile_id' => $this->tile->id,
-            'year' => 2024,
+            'period_key' => '2024',
         ]);
     }
 
-    public function test_created_tile_year_gets_tenant_id_from_context(): void
+    public function test_created_time_period_gets_tenant_id_from_context(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tile-years', [
+            ->postJson('/api/admin/time-periods', [
                 'tile_id' => $this->tile->id,
-                'year' => 2025,
+                'period_key' => '2025',
+                'granularity' => 'year',
                 'tenant_id' => $this->otherTenant->id, // Should be ignored
             ]);
 
         $response->assertStatus(201);
 
-        $tileYear = TileYear::withoutGlobalScope('tenant')->latest('id')->first();
-        $this->assertEquals($this->tenant->id, $tileYear->tenant_id);
+        $timePeriod = TimePeriod::withoutGlobalScope('tenant')->latest('id')->first();
+        $this->assertEquals($this->tenant->id, $timePeriod->tenant_id);
     }
 
-    public function test_create_tile_year_validates_required_fields(): void
+    public function test_create_time_period_validates_required_fields(): void
     {
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tile-years', []);
+            ->postJson('/api/admin/time-periods', []);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['tile_id', 'year']);
+            ->assertJsonValidationErrors(['tile_id', 'period_key']);
     }
 
     // ========== PATCH Tests ==========
 
-    public function test_can_update_tile_year_within_tenant_context(): void
+    public function test_can_update_time_period_within_tenant_context(): void
     {
-        $tileYear = $this->createTileYearInTenant($this->tenant, $this->tile, 2020);
+        $timePeriod = $this->createTimePeriodInTenant($this->tenant, $this->tile, '2020');
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/tile-years/{$tileYear->id}", [
-                'year' => 2025,
+            ->patchJson("/api/admin/time-periods/{$timePeriod->id}", [
+                'period_key' => '2025',
             ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('data.year', 2025);
+            ->assertJsonPath('data.period_key', '2025')
+            ->assertJsonPath('data.label', '2025');
+
+        // Verify label was regenerated in DB
+        $timePeriod->refresh();
+        $this->assertEquals('2025', $timePeriod->label);
     }
 
-    public function test_cannot_update_tile_year_from_different_tenant(): void
+    /**
+     * Regression: rules() must not query the DB / throw when there is no
+     * route id. Scribe's API-doc generator instantiates the FormRequest with
+     * no bound route to extract body parameters, which previously triggered a
+     * "no such table: time_periods" QueryException and failed the CI docs step.
+     *
+     * @see \App\Http\Requests\Admin\UpdateTimePeriodRequest::resolveTimePeriod()
+     */
+    public function test_update_rules_do_not_throw_without_route_id(): void
     {
-        // Create tile year in other tenant
+        $request = new \App\Http\Requests\Admin\UpdateTimePeriodRequest;
+
+        $rules = $request->rules();
+
+        $this->assertArrayHasKey('period_key', $rules);
+        // Without a resolvable record, the DB-dependent uniqueness rule is
+        // skipped (empty string), leaving only the static constraints.
+        $this->assertContains('', $rules['period_key']);
+    }
+
+    public function test_cannot_update_time_period_from_different_tenant(): void
+    {
+        // Create time period in other tenant
         $otherTile = $this->createTileInTenant($this->otherTenant, [
             'title' => ['de' => 'Other', 'en' => 'Other'],
             'description' => ['de' => 'Desc', 'en' => 'Desc'],
         ]);
-        $otherTileYear = $this->createTileYearInTenant($this->otherTenant, $otherTile, 2020);
+        $otherTimePeriod = $this->createTimePeriodInTenant($this->otherTenant, $otherTile, '2020');
 
         // Request with token for our tenant (not otherTenant)
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/tile-years/{$otherTileYear->id}", [
-                'year' => 2025,
+            ->patchJson("/api/admin/time-periods/{$otherTimePeriod->id}", [
+                'period_key' => '2025',
             ]);
 
         $response->assertStatus(404);
     }
 
-    public function test_cannot_change_tenant_id_via_patch_tile_year(): void
+    public function test_cannot_change_tenant_id_via_patch_time_period(): void
     {
-        $tileYear = $this->createTileYearInTenant($this->tenant, $this->tile, 2020);
+        $timePeriod = $this->createTimePeriodInTenant($this->tenant, $this->tile, '2020');
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/tile-years/{$tileYear->id}", [
-                'year' => 2021,
+            ->patchJson("/api/admin/time-periods/{$timePeriod->id}", [
+                'period_key' => '2021',
                 'tenant_id' => $this->otherTenant->id,
             ]);
 
         $response->assertStatus(200);
 
-        $tileYear->refresh();
-        $this->assertEquals($this->tenant->id, $tileYear->tenant_id);
+        $timePeriod->refresh();
+        $this->assertEquals($this->tenant->id, $timePeriod->tenant_id);
     }
 
     // ========== DELETE Tests ==========
 
-    public function test_can_delete_tile_year_within_tenant_context(): void
+    public function test_can_delete_time_period_within_tenant_context(): void
     {
-        $tileYear = $this->createTileYearInTenant($this->tenant, $this->tile, 2020);
+        $timePeriod = $this->createTimePeriodInTenant($this->tenant, $this->tile, '2020');
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson("/api/admin/tile-years/{$tileYear->id}");
+            ->deleteJson("/api/admin/time-periods/{$timePeriod->id}");
 
         $response->assertStatus(204);
 
-        $this->assertDatabaseMissing('tile_years', [
-            'id' => $tileYear->id,
+        $this->assertDatabaseMissing('time_periods', [
+            'id' => $timePeriod->id,
         ]);
     }
 
-    public function test_cannot_delete_tile_year_from_different_tenant(): void
+    public function test_cannot_delete_time_period_from_different_tenant(): void
     {
-        // Create tile year in other tenant
+        // Create time period in other tenant
         $otherTile = $this->createTileInTenant($this->otherTenant, [
             'title' => ['de' => 'Other', 'en' => 'Other'],
             'description' => ['de' => 'Desc', 'en' => 'Desc'],
         ]);
-        $otherTileYear = $this->createTileYearInTenant($this->otherTenant, $otherTile, 2020);
+        $otherTimePeriod = $this->createTimePeriodInTenant($this->otherTenant, $otherTile, '2020');
 
         // Request with token for our tenant (not otherTenant)
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson("/api/admin/tile-years/{$otherTileYear->id}");
+            ->deleteJson("/api/admin/time-periods/{$otherTimePeriod->id}");
 
         $response->assertStatus(404);
     }
@@ -266,9 +296,10 @@ class AdminTileYearApiTest extends TestCase
         // Ensure no residual auth from setUp
         Filament::auth()->logout();
 
-        $response = $this->postJson('/api/admin/tile-years', [
+        $response = $this->postJson('/api/admin/time-periods', [
             'tile_id' => 1,
-            'year' => 2024,
+            'period_key' => '2024',
+            'granularity' => 'year',
         ]);
 
         $response->assertStatus(401);
@@ -278,8 +309,8 @@ class AdminTileYearApiTest extends TestCase
     {
         Filament::auth()->logout();
 
-        $response = $this->patchJson('/api/admin/tile-years/1', [
-            'year' => 2025,
+        $response = $this->patchJson('/api/admin/time-periods/1', [
+            'period_key' => '2025',
         ]);
 
         $response->assertStatus(401);
@@ -289,7 +320,7 @@ class AdminTileYearApiTest extends TestCase
     {
         Filament::auth()->logout();
 
-        $response = $this->deleteJson('/api/admin/tile-years/1');
+        $response = $this->deleteJson('/api/admin/time-periods/1');
 
         $response->assertStatus(401);
     }

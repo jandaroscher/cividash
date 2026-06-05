@@ -217,15 +217,15 @@ class TileResourceTest extends TestCase
                         'indicator_type' => 'small',
                         'is_active' => true,
                         'metricValues' => [
-                            ['tile_year_id' => 2024, 'value' => 100, 'is_active' => true],
-                            ['tile_year_id' => 2024, 'value' => 200, 'is_active' => true],
+                            ['time_period_id' => 2024, 'value' => 100, 'is_active' => true],
+                            ['time_period_id' => 2024, 'value' => 200, 'is_active' => true],
                         ],
                     ],
                 ],
             ])
             ->call('save')
-            ->assertHasFormErrors(['metricDefinitions.0.metricValues.0.tile_year_id'])
-            ->assertHasFormErrors(['metricDefinitions.0.metricValues.1.tile_year_id']);
+            ->assertHasFormErrors(['metricDefinitions.0.metricValues.0.time_period_id'])
+            ->assertHasFormErrors(['metricDefinitions.0.metricValues.1.time_period_id']);
     }
 
     // ========== Auto-Position ==========

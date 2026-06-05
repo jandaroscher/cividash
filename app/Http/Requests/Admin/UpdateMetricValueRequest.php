@@ -31,10 +31,10 @@ class UpdateMetricValueRequest extends FormRequest
                 'integer',
                 Rule::exists('metric_definitions', 'id')->where('tenant_id', $tenantId),
             ],
-            'tile_year_id' => [
+            'time_period_id' => [
                 'sometimes',
                 'integer',
-                Rule::exists('tile_years', 'id')->where('tenant_id', $tenantId),
+                Rule::exists('time_periods', 'id')->where('tenant_id', $tenantId),
             ],
             'value' => ['sometimes', 'numeric'],
             'is_active' => ['sometimes', 'boolean'],

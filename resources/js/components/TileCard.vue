@@ -105,8 +105,31 @@
           v-if="years.length > 0"
           class="text-black font-bold text-center text-lg mb-4"
         >
-          {{ currentYear }}
+          {{ periodLabelMap[currentYear] || currentYear }}
         </div>
+
+        <p
+          v-if="years.length > 1 && currentYear !== years[0]"
+          class="text-theme-base text-gray-400 font-semibold flex flex-row gap-2 justify-end text-sm"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="17"
+            viewBox="0 0 24 25"
+            aria-hidden="true"
+            class="text-gray-600 flex-shrink-0"
+          >
+            <g transform="translate(0 1)">
+              <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
+              <g transform="translate(0 15.48) rotate(-45)">
+                <path d="M0,0H18.789" transform="translate(0 4.311)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+                <path d="M0,0,4.359,4.359,0,8.719" transform="translate(14.705)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+              </g>
+            </g>
+          </svg>
+          <span>{{ trendLabel }}</span>
+        </p>
 
         <div
           v-if="hint"
@@ -218,6 +241,17 @@ const header = computed(() => {
     return '';
 });
 
+// Trend label based on tile's time_granularity
+const trendLabels = {
+    de: { year: 'Veränderung zum Vorjahr', quarter: 'Veränderung zum Vorquartal', month: 'Veränderung zum Vormonat', week: 'Veränderung zur Vorwoche', day: 'Veränderung zum Vortag' },
+    en: { year: 'Change from previous year', quarter: 'Change from previous quarter', month: 'Change from previous month', week: 'Change from previous week', day: 'Change from previous day' },
+};
+const trendLabel = computed(() => {
+    const granularity = props.tile.time_granularity || 'year';
+    const locale = currentLocale.value === 'en' ? 'en' : 'de';
+    return trendLabels[locale]?.[granularity] || trendLabels.de.year;
+});
+
 const subheader = computed(() => {
     const desc = props.tile.description?.[currentLocale.value] || props.tile.description?.de || props.tile.description || '';
     // Strip HTML tags since description comes from a rich text editor
@@ -296,6 +330,7 @@ const shouldShow = computed(() => {
 const indicators = ref([]);
 const years = ref([]);
 const currentYear = ref(null);
+const periodLabelMap = ref({});
 const imageUrl = ref(null);
 const lottieUrl = ref(null);
 const lottiePlayer = ref(null);
@@ -307,9 +342,10 @@ const isSliderInteracting = ref(false);
 onMounted(() => {
     // New API structure: tile.metric_definitions[] -> each definition has values[]
     if (props.tile.metric_definitions && Array.isArray(props.tile.metric_definitions)) {
-        // Collect all unique years from metric values
-        const yearsSet = new Set();
-        
+        // Collect all unique period keys from metric values
+        const periodsSet = new Set();
+        const labels = {};
+
         props.tile.metric_definitions
             .filter((definition) => definition?.is_active !== false)
             .forEach((definition) => {
@@ -317,16 +353,20 @@ onMounted(() => {
                 definition.values
                     .filter((valueData) => valueData?.is_active !== false)
                     .forEach((valueData) => {
-                    const yearStr = valueData.year?.toString() || valueData.year;
-                    if (yearStr) {
-                        yearsSet.add(yearStr);
+                    const key = valueData.period_key?.toString() || valueData.year?.toString() || '';
+                    if (key) {
+                        periodsSet.add(key);
+                        if (valueData.label) {
+                            labels[key] = valueData.label;
+                        }
                     }
                 });
             }
         });
 
-        // Convert set to array and sort
-        years.value = Array.from(yearsSet).sort((a, b) => parseInt(a) - parseInt(b));
+        // Convert set to array and sort (all period_key formats are lexicographically sortable)
+        years.value = Array.from(periodsSet).sort((a, b) => a.localeCompare(b));
+        periodLabelMap.value = labels;
         if (years.value.length > 0) {
             currentYear.value = years.value[years.value.length - 1];
         }
@@ -366,15 +406,15 @@ onMounted(() => {
                 definition.values
                     .filter((valueData) => valueData?.is_active !== false)
                     .forEach((valueData) => {
-                    const yearStr = valueData.year?.toString() || valueData.year;
-                    if (yearStr) {
-                        sortedYears[yearStr] = {
-                            title: yearStr,
+                    const key = valueData.period_key?.toString() || valueData.year?.toString() || '';
+                    if (key) {
+                        sortedYears[key] = {
+                            title: valueData.label || labels[key] || key,
                             value: valueData.value,
                         };
                         yearsArray.push({
-                            year: yearStr,
-                            title: yearStr,
+                            year: key,
+                            title: valueData.label || labels[key] || key,
                             value: valueData.value,
                         });
                     }

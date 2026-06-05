@@ -18,7 +18,7 @@ class StoreMetricValueRequest extends FormRequest
     /**
      * Define the validation rules for storing a metric value.
      *
-     * Validates that `metric_definition_id` and `tile_year_id` are required integers that exist
+     * Validates that `metric_definition_id` and `time_period_id` are required integers that exist
      * in their respective tables, and that `value` is required and numeric. `tenant_id` is not
      * accepted from input and is provided by request context.
      *
@@ -34,10 +34,10 @@ class StoreMetricValueRequest extends FormRequest
                 'integer',
                 Rule::exists('metric_definitions', 'id')->where('tenant_id', $tenantId),
             ],
-            'tile_year_id' => [
+            'time_period_id' => [
                 'required',
                 'integer',
-                Rule::exists('tile_years', 'id')->where('tenant_id', $tenantId),
+                Rule::exists('time_periods', 'id')->where('tenant_id', $tenantId),
             ],
             'value' => ['required', 'numeric'],
             'is_active' => ['sometimes', 'boolean'],
