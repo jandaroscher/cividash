@@ -89,9 +89,8 @@ class CategoryResource extends Resource
                         Forms\Components\TextInput::make('key')
                             ->label(__('filament.resources.category.key'))
                             ->maxLength(255)
-                            ->regex('/^[a-z][a-z0-9_-]*$/')
-                            ->helperText(__('filament.resources.category.key_helper'))
-                            ->disabled(fn ($record) => $record !== null && filled($record->key)),
+                            ->disabled()
+                            ->dehydrated(),
                         Forms\Components\TextInput::make('slug')
                             ->label(__('filament.resources.category.title'))
                             ->required()

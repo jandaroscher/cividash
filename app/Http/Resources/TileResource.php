@@ -84,9 +84,12 @@ class TileResource extends JsonResource
                 $this->whenLoaded('metricDefinitions')
             ),
 
-            // Years: delegate to their Resources
-            'years' => TileYearResource::collection(
-                $this->whenLoaded('tileYears')
+            // Time granularity for this tile
+            'time_granularity' => $this->time_granularity ?? 'year',
+
+            // Time periods: delegate to their Resources
+            'time_periods' => TimePeriodResource::collection(
+                $this->whenLoaded('timePeriods')
             ),
         ];
     }

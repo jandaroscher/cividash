@@ -13,7 +13,7 @@ class MetricValue extends Model
 
     protected $fillable = [
         'metric_definition_id',
-        'tile_year_id',
+        'time_period_id',
         'value',
         'is_active',
         'sort_order',
@@ -30,14 +30,9 @@ class MetricValue extends Model
         return $this->belongsTo(MetricDefinition::class);
     }
 
-    /**
-     * Get the TileYear associated with this metric value.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\TileYear> The belongs-to relationship for the TileYear.
-     */
-    public function tileYear()
+    public function timePeriod()
     {
-        return $this->belongsTo(TileYear::class);
+        return $this->belongsTo(TimePeriod::class);
     }
 
     /**

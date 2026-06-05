@@ -12,9 +12,10 @@ use App\Models\Navigation;
 use App\Models\Page;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class TenancyBackfillCommand extends Command
@@ -81,7 +82,7 @@ class TenancyBackfillCommand extends Command
         $models = [
             Category::class,
             Tile::class,
-            TileYear::class,
+            TimePeriod::class,
             Navigation::class,
             FooterNavigation::class,
             MetricDefinition::class,

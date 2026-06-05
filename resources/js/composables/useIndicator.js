@@ -5,7 +5,7 @@ import { useLocale } from './useLocale';
  * Composable for shared indicator logic used by IndicatorBig and IndicatorSmall components.
  * 
  * @param {Object} indicator - The indicator object with years/sortedYears data
- * @param {String|Number} currentYear - The current year to display
+ * @param {String|Number} currentYear - The current period key to display
  * @returns {Object} Object containing all computed properties, refs, functions, and watchers
  */
 export function useIndicator(indicator, currentYear) {
@@ -20,9 +20,8 @@ export function useIndicator(indicator, currentYear) {
     const unit = ref('');
     const arrow = ref(false);
 
-    // Normalize currentYear to number for comparison
-    const currentYearNum = computed(() => parseInt(currentYear.value) || 0);
-    const currentYearStr = computed(() => currentYear.value?.toString() || '');
+    // Normalize currentYear to string for comparison (period_key based)
+    const currentPeriodKey = computed(() => currentYear.value?.toString() || '');
 
     // Arrow URLs with SSR fallback
     const arrowUpUrl = computed(() => {
@@ -39,12 +38,13 @@ export function useIndicator(indicator, currentYear) {
     });
 
     // Use sortedYears object like reference app, fallback to years array
+    // Sort by string comparison — all period_key formats are lexicographically sortable
     const sortedKeys = computed(() => {
         if (indicator.value?.sortedYears) {
-            return Object.keys(indicator.value.sortedYears).sort((a, b) => parseInt(a) - parseInt(b));
+            return Object.keys(indicator.value.sortedYears).sort((a, b) => a.localeCompare(b));
         }
         if (indicator.value?.years) {
-            return indicator.value.years.map(y => y.year || y.title).sort((a, b) => parseInt(a) - parseInt(b));
+            return indicator.value.years.map(y => y.year || y.title).sort((a, b) => String(a).localeCompare(String(b)));
         }
         return [];
     });
@@ -53,7 +53,7 @@ export function useIndicator(indicator, currentYear) {
         if (!currentYear.value) {
             return null;
         }
-        const yearStr = currentYear.value.toString();
+        const yearStr = currentPeriodKey.value;
         
         // Try sortedYears object first (like reference app)
         if (indicator.value?.sortedYears?.[yearStr]) {
@@ -92,7 +92,7 @@ export function useIndicator(indicator, currentYear) {
             return 'normal';
         }
 
-        const currentIndex = keys.findIndex(key => parseInt(key) === currentYearNum.value);
+        const currentIndex = keys.findIndex(key => key === currentPeriodKey.value);
 
         if (currentIndex === 0 || currentIndex === -1) {
             return 'normal';
@@ -102,7 +102,7 @@ export function useIndicator(indicator, currentYear) {
         let currentValue, previousValue;
         
         if (indicator.value?.sortedYears) {
-            const currentYearData = indicator.value.sortedYears[currentYearStr.value];
+            const currentYearData = indicator.value.sortedYears[currentPeriodKey.value];
             const previousYearData = indicator.value.sortedYears[keys[currentIndex - 1]];
             
             if (!currentYearData || !previousYearData) {
@@ -117,7 +117,7 @@ export function useIndicator(indicator, currentYear) {
             previousValue = typeof previousVal === 'string' ? parseFloat(previousVal.replace(/[^\d.-]/g, '')) : parseFloat(previousVal);
         } else if (indicator.value?.years) {
             const currentYearData = indicator.value.years.find(
-                (y) => (y.year?.toString() || y.year) === currentYearStr.value || (y.title?.toString() || y.title) === currentYearStr.value
+                (y) => (y.year?.toString() || y.year) === currentPeriodKey.value || (y.title?.toString() || y.title) === currentPeriodKey.value
             );
             const previousYearStr = keys[currentIndex - 1];
             const previousYearData = indicator.value.years.find(
@@ -161,7 +161,7 @@ export function useIndicator(indicator, currentYear) {
         // Show arrows if explicitly set OR if there are multiple years AND current year is not the first year
         const keys = sortedKeys.value;
         const hasMultipleYears = keys.length > 1;
-        const currentIndex = keys.findIndex(key => parseInt(key) === currentYearNum.value);
+        const currentIndex = keys.findIndex(key => key === currentPeriodKey.value);
         const hasPreviousYear = currentIndex > 0;
         
         if (indicator.value.show_arrow === true || indicator.value.pfeilausgabe === 'ja' || (hasMultipleYears && hasPreviousYear)) {
@@ -216,8 +216,7 @@ export function useIndicator(indicator, currentYear) {
         arrow,
         
         // Computed
-        currentYearNum,
-        currentYearStr,
+        currentPeriodKey,
         arrowUpUrl,
         arrowStraightUrl,
         arrowDownUrl,

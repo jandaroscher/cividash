@@ -8,7 +8,7 @@ use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -55,8 +55,8 @@ class ExportFilteredTest extends TestCase
         $this->co2 = MetricDefinition::factory()->forTile($this->mobility)->create(['metric_key' => 'co2']);
 
         foreach ([2018, 2020, 2022, 2024] as $year) {
-            $ty = TileYear::factory()->forTile($this->mobility)->create(['year' => $year]);
-            MetricValue::factory()->forDefinition($this->co2)->forTileYear($ty)->create(['value' => $year]);
+            $ty = TimePeriod::factory()->forTile($this->mobility)->year($year)->create();
+            MetricValue::factory()->forDefinition($this->co2)->forTimePeriod($ty)->create(['value' => $year]);
         }
     }
 

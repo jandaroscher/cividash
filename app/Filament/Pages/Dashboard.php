@@ -4,9 +4,10 @@ namespace App\Filament\Pages;
 
 use App\Models\Category;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Settings\DashboardSettings;
 use Filament\Pages\Dashboard as BaseDashboard;
+use Illuminate\Support\Facades\DB;
 use PDO;
 
 class Dashboard extends BaseDashboard
@@ -37,16 +38,16 @@ class Dashboard extends BaseDashboard
      *   showServerTime: bool,
      *   serverTime: string|null,
      *   tileCount: int,
-     *   tileYearCount: int,
+     *   timePeriodCount: int,
      *   categoryCount: int,
      *   madeWithText: string|null,
      *   serverInfo: array<string, mixed>
-     * } An associative array containing configuration values from DashboardSettings, counts for tiles and tile years, optionally the current server time, and a `serverInfo` map with server-related metadata (PHP version, Laravel version, DB info, app environment, timezone, and server_time). */
+     * } An associative array containing configuration values from DashboardSettings, counts for tiles and time periods, optionally the current server time, and a `serverInfo` map with server-related metadata. */
     protected function getViewData(): array
     {
         $settings = app(DashboardSettings::class);
         $tileCount = Tile::query()->count();
-        $tileYearCount = TileYear::query()->count();
+        $timePeriodCount = TimePeriod::query()->count();
         $categoryCount = Category::query()->count();
         $serverInfo = $this->getServerInfo();
 
@@ -59,7 +60,7 @@ class Dashboard extends BaseDashboard
             'showServerTime' => $settings->show_server_time,
             'serverTime' => $settings->show_server_time ? $serverInfo['server_time'] : null,
             'tileCount' => $tileCount,
-            'tileYearCount' => $tileYearCount,
+            'timePeriodCount' => $timePeriodCount,
             'categoryCount' => $categoryCount,
             'madeWithText' => $settings->made_with_text,
             'serverInfo' => $serverInfo,

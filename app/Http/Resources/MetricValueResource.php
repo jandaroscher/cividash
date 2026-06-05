@@ -9,7 +9,8 @@ class MetricValueResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'year' => $this->whenLoaded('tileYear') ? $this->tileYear->year : null,
+            'period_key' => $this->whenLoaded('timePeriod', fn ($timePeriod) => $timePeriod->period_key),
+            'label' => $this->whenLoaded('timePeriod', fn ($timePeriod) => $timePeriod->label),
             'value' => (float) $this->value,
         ];
     }

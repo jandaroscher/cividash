@@ -222,7 +222,7 @@ Domain- und User-Zuordnungen der Tenants bleiben erhalten.
    - Alle Inhalte des Tenants löschen → leere Sandbox
 
 **Löschreihenfolge** (respektiert Foreign-Key-Constraints):
-MetricValue → Metric → TileYear → MetricDefinition → BackgroundPage → category_tile (Pivot) → Tile → Category → CategoryGroup → Navigation → FooterNavigation → Page
+MetricValue → Metric → TimePeriod → MetricDefinition → BackgroundPage → category_tile (Pivot) → Tile → Category → CategoryGroup → Navigation → FooterNavigation → Page
 
 **Optionen:**
 - `--force` : Überspringt die Bestätigungsabfrage (für Cron-Einsatz)

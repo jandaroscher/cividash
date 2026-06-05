@@ -6,7 +6,7 @@ use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Models\User;
 use App\Settings\DashboardSettings;
 use Filament\Facades\Filament;
@@ -52,17 +52,23 @@ class DashboardStatsTest extends TestCase
             'description' => ['de' => 'Desc', 'en' => 'Desc'],
         ]);
 
-        TileYear::create([
+        TimePeriod::create([
             'tile_id' => $tileB->id,
-            'year' => 2023,
+            'period_key' => '2023',
+            'granularity' => 'year',
+            'label' => '2023',
         ]);
-        TileYear::create([
+        TimePeriod::create([
             'tile_id' => $tileB->id,
-            'year' => 2024,
+            'period_key' => '2024',
+            'granularity' => 'year',
+            'label' => '2024',
         ]);
-        TileYear::create([
+        TimePeriod::create([
             'tile_id' => $tileB->id,
-            'year' => 2025,
+            'period_key' => '2025',
+            'granularity' => 'year',
+            'label' => '2025',
         ]);
 
         $group = CategoryGroup::factory()->forTenant($this->tenant)->create();
@@ -77,7 +83,7 @@ class DashboardStatsTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Statistiken', false);
         $response->assertSee('2 aktive Kacheln', false);
-        $response->assertSee('3 Jahresdaten', false);
+        $response->assertSee('3 Zeitraumdaten', false);
         $response->assertSee('3 Kategorien', false);
         $response->assertSee('Kontakt', false);
         $response->assertSee('Made with ❤️ in Demo City', false);

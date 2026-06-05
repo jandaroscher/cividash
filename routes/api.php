@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\Admin\AdminMetricDefinitionController;
 use App\Http\Controllers\Api\Admin\AdminMetricValueController;
 use App\Http\Controllers\Api\Admin\AdminPageController;
 use App\Http\Controllers\Api\Admin\AdminTileController;
-use App\Http\Controllers\Api\Admin\AdminTileYearController;
+use App\Http\Controllers\Api\Admin\AdminTimePeriodController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ConfigController;
 use App\Http\Controllers\Api\Content\PageController as ContentPageController;
@@ -79,10 +79,10 @@ Route::middleware(['throttle:120,1', 'auth:sanctum', 'admin.api', 'resolve.tenan
     Route::patch('/tiles/{id}', [AdminTileController::class, 'update'])->where('id', '[0-9]+');
     Route::delete('/tiles/{id}', [AdminTileController::class, 'destroy'])->where('id', '[0-9]+');
 
-    // TileYear management
-    Route::post('/tile-years', [AdminTileYearController::class, 'store']);
-    Route::patch('/tile-years/{id}', [AdminTileYearController::class, 'update'])->where('id', '[0-9]+');
-    Route::delete('/tile-years/{id}', [AdminTileYearController::class, 'destroy'])->where('id', '[0-9]+');
+    // TimePeriod management
+    Route::post('/time-periods', [AdminTimePeriodController::class, 'store']);
+    Route::patch('/time-periods/{id}', [AdminTimePeriodController::class, 'update'])->where('id', '[0-9]+');
+    Route::delete('/time-periods/{id}', [AdminTimePeriodController::class, 'destroy'])->where('id', '[0-9]+');
 
     // MetricDefinition management
     Route::post('/metric-definitions', [AdminMetricDefinitionController::class, 'store']);

@@ -8,7 +8,7 @@ use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -183,32 +183,32 @@ class CrossTenantSecurityTest extends TestCase
         $response->assertNotFound();
     }
 
-    // ========== TileYear Cross-Tenant ==========
+    // ========== TimePeriod Cross-Tenant ==========
 
-    public function test_cannot_update_tile_year_from_other_tenant(): void
+    public function test_cannot_update_time_period_from_other_tenant(): void
     {
-        $tileYear = $this->createInTenant($this->tenantB, function () {
+        $timePeriod = $this->createInTenant($this->tenantB, function () {
             $tile = Tile::factory()->create();
 
-            return TileYear::factory()->create(['tile_id' => $tile->id]);
+            return TimePeriod::factory()->create(['tile_id' => $tile->id]);
         });
 
         $response = $this->withToken($this->tokenA)
-            ->patchJson("/api/admin/tile-years/{$tileYear->id}", ['year' => 2020]);
+            ->patchJson("/api/admin/time-periods/{$timePeriod->id}", ['period_key' => '2020']);
 
         $response->assertNotFound();
     }
 
-    public function test_cannot_delete_tile_year_from_other_tenant(): void
+    public function test_cannot_delete_time_period_from_other_tenant(): void
     {
-        $tileYear = $this->createInTenant($this->tenantB, function () {
+        $timePeriod = $this->createInTenant($this->tenantB, function () {
             $tile = Tile::factory()->create();
 
-            return TileYear::factory()->create(['tile_id' => $tile->id]);
+            return TimePeriod::factory()->create(['tile_id' => $tile->id]);
         });
 
         $response = $this->withToken($this->tokenA)
-            ->deleteJson("/api/admin/tile-years/{$tileYear->id}");
+            ->deleteJson("/api/admin/time-periods/{$timePeriod->id}");
 
         $response->assertNotFound();
     }

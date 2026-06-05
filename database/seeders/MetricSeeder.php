@@ -6,7 +6,7 @@ use App\Models\Metric;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Services\MediaDownloadService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 /**
  * Seeder for Metrics (Kennzahlen) from dashboard.json.
  *
- * Seeds TileYear and Metric entries based on Kennzahlen data and years from daten array.
+ * Seeds TimePeriod and Metric entries based on Kennzahlen data and years from daten array.
  * Supports idempotent upserts.
  */
 class MetricSeeder extends Seeder
@@ -94,14 +94,18 @@ class MetricSeeder extends Seeder
                     // Convert value to decimal
                     $decimalValue = $this->convertToDecimal($value);
 
-                    // Find or create TileYear
-                    $tileYear = TileYear::firstOrCreate(
+                    // Find or create TimePeriod
+                    $periodKey = (string) $year;
+                    $timePeriod = TimePeriod::firstOrCreate(
                         [
                             'tile_id' => $tileId,
-                            'year' => $year,
+                            'period_key' => $periodKey,
                         ],
                         [
+                            'granularity' => 'year',
+                            'label' => $periodKey,
                             'sort' => 0,
+                            'tenant_id' => $tile->tenant_id,
                         ]
                     );
 
@@ -109,7 +113,7 @@ class MetricSeeder extends Seeder
                     MetricValue::updateOrCreate(
                         [
                             'metric_definition_id' => $definition->id,
-                            'tile_year_id' => $tileYear->id,
+                            'time_period_id' => $timePeriod->id,
                         ],
                         [
                             'value' => $decimalValue,

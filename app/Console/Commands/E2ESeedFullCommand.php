@@ -6,9 +6,10 @@ use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Seed comprehensive test data for E2E multi-tenant tests.
@@ -185,9 +186,10 @@ class E2ESeedFullCommand extends Command
                 $tile->categories()->syncWithoutDetaching([$categories[$i - 1]->id]);
             }
 
-            // Create a tile year
-            TileYear::updateOrCreate(
-                ['tile_id' => $tile->id, 'year' => 2024, 'tenant_id' => $tenant->id],
+            // Create a time period
+            TimePeriod::updateOrCreate(
+                ['tile_id' => $tile->id, 'period_key' => '2024'],
+                ['granularity' => 'year', 'label' => '2024', 'tenant_id' => $tenant->id],
             );
         }
     }
@@ -202,7 +204,7 @@ class E2ESeedFullCommand extends Command
         // Clean up tiles and categories for E2E tenants
         $tenantIds = Tenant::whereIn('slug', ['e2e-tenant-a', 'e2e-tenant-b'])->pluck('id');
         if ($tenantIds->isNotEmpty()) {
-            TileYear::whereIn('tenant_id', $tenantIds)->delete();
+            TimePeriod::whereIn('tenant_id', $tenantIds)->delete();
             Tile::whereIn('tenant_id', $tenantIds)->delete();
             Category::whereIn('tenant_id', $tenantIds)->delete();
             CategoryGroup::whereIn('tenant_id', $tenantIds)->delete();
