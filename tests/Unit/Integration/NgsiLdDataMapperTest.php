@@ -144,33 +144,65 @@ class NgsiLdDataMapperTest extends TestCase
     {
         $entity = [
             'dataPoints' => [
-                ['year' => 2023, 'value' => 1.5],
-                ['year' => 2024, 'value' => null],
+                ['period' => '2023', 'value' => 1.5],
+                ['period' => '2024', 'value' => null],
             ],
         ];
 
         $result = $this->mapper->mapToMetricValues($entity);
 
         $this->assertCount(2, $result);
-        $this->assertSame(['year' => 2023, 'value' => 1.5], $result[0]);
-        $this->assertSame(2024, $result[1]['year']);
+        $this->assertSame(['period' => '2023', 'value' => 1.5], $result[0]);
+        $this->assertSame('2024', $result[1]['period']);
         $this->assertNull($result[1]['value']);
     }
 
-    public function test_map_to_metric_values_skips_malformed_or_missing_year(): void
+    public function test_map_to_metric_values_skips_entries_without_usable_period(): void
     {
         $entity = [
             'dataPoints' => [
-                ['year' => 2023, 'value' => 1.5],
-                ['value' => 9.9],                 // missing year
-                ['year' => 'abc', 'value' => 2.2], // non-numeric year
+                ['period' => '2023', 'value' => 1.5],
+                ['value' => 9.9],                  // missing period
+                ['period' => '', 'value' => 2.2],  // empty period
             ],
         ];
 
         $result = $this->mapper->mapToMetricValues($entity);
 
         $this->assertCount(1, $result);
-        $this->assertSame(['year' => 2023, 'value' => 1.5], $result[0]);
+        $this->assertSame(['period' => '2023', 'value' => 1.5], $result[0]);
+    }
+
+    public function test_map_to_metric_values_accepts_non_year_granularities(): void
+    {
+        $entity = [
+            'dataPoints' => [
+                ['period' => '2024-Q1', 'value' => 1.5],
+                ['period' => '2024-03', 'value' => 2.5],
+                ['period' => '2024-01-15', 'value' => 3.5],
+            ],
+        ];
+
+        $result = $this->mapper->mapToMetricValues($entity);
+
+        $this->assertSame('2024-Q1', $result[0]['period']);
+        $this->assertSame('2024-03', $result[1]['period']);
+        $this->assertSame('2024-01-15', $result[2]['period']);
+    }
+
+    public function test_map_to_metric_values_tolerates_legacy_year_key(): void
+    {
+        $entity = [
+            'dataPoints' => [
+                ['year' => 2023, 'value' => 1.5],
+                ['year' => 'abc', 'value' => 2.2], // non-numeric year => skipped
+            ],
+        ];
+
+        $result = $this->mapper->mapToMetricValues($entity);
+
+        $this->assertCount(1, $result);
+        $this->assertSame(['period' => '2023', 'value' => 1.5], $result[0]);
     }
 
     public function test_map_to_metric_values_tolerates_property_wrapped_list(): void
@@ -179,8 +211,8 @@ class NgsiLdDataMapperTest extends TestCase
             'dataPoints' => [
                 'type' => 'Property',
                 'value' => [
-                    ['year' => 2023, 'value' => 1.5],
-                    ['year' => 2024, 'value' => 2.5],
+                    ['period' => '2023', 'value' => 1.5],
+                    ['period' => '2024', 'value' => 2.5],
                 ],
             ],
         ];
@@ -188,8 +220,21 @@ class NgsiLdDataMapperTest extends TestCase
         $result = $this->mapper->mapToMetricValues($entity);
 
         $this->assertCount(2, $result);
-        $this->assertSame(['year' => 2023, 'value' => 1.5], $result[0]);
-        $this->assertSame(['year' => 2024, 'value' => 2.5], $result[1]);
+        $this->assertSame(['period' => '2023', 'value' => 1.5], $result[0]);
+        $this->assertSame(['period' => '2024', 'value' => 2.5], $result[1]);
+    }
+
+    public function test_map_to_tile_sets_time_granularity_defaulting_to_year(): void
+    {
+        $base = ['id' => 'urn:ngsi-ld:Indicator:x', 'name' => 'X'];
+
+        $this->assertSame('year', $this->mapper->mapToTile($base)['time_granularity']);
+
+        $withQuarter = $base + ['timeGranularity' => ['type' => 'Property', 'value' => 'quarter']];
+        $this->assertSame('quarter', $this->mapper->mapToTile($withQuarter)['time_granularity']);
+
+        $unknown = $base + ['timeGranularity' => ['type' => 'Property', 'value' => 'decade']];
+        $this->assertSame('year', $this->mapper->mapToTile($unknown)['time_granularity']);
     }
 
     // -----------------------------------------------------------------
@@ -200,12 +245,12 @@ class NgsiLdDataMapperTest extends TestCase
     {
         $this->assertSame(
             ['value' => 1.5, 'is_active' => true],
-            $this->mapper->mapToMetricValue(['year' => 2023, 'value' => 1.5]),
+            $this->mapper->mapToMetricValue(['period' => '2023', 'value' => 1.5]),
         );
 
         $this->assertSame(
             ['value' => null, 'is_active' => true],
-            $this->mapper->mapToMetricValue(['year' => 2024]),
+            $this->mapper->mapToMetricValue(['period' => '2024']),
         );
     }
 

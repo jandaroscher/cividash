@@ -9,7 +9,7 @@ use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Models\User;
 use App\Services\Integration\NgsiLdDataMapper;
 use App\Services\Integration\SyncService;
@@ -40,7 +40,7 @@ class SyncServiceTest extends TestCase
     /**
      * A canonical NGSI-LD Indicator entity used across tests.
      */
-    private function indicator(string $id, string $deName, array $values, ?string $category = null): array
+    private function indicator(string $id, string $deName, array $values, ?string $category = null, ?string $granularity = null): array
     {
         $entity = [
             'id' => $id,
@@ -49,6 +49,10 @@ class SyncServiceTest extends TestCase
             'unit' => ['type' => 'Property', 'value' => 't'],
             'dataPoints' => ['type' => 'Property', 'value' => $values],
         ];
+
+        if ($granularity !== null) {
+            $entity['timeGranularity'] = ['type' => 'Property', 'value' => $granularity];
+        }
 
         if ($category !== null) {
             $entity['category'] = ['type' => 'Relationship', 'object' => $category];
@@ -105,12 +109,12 @@ class SyncServiceTest extends TestCase
         return new SyncService($source, $this->app->make(DataMapperInterface::class));
     }
 
-    public function test_creates_tile_metric_definition_tile_years_and_metric_values_for_new_indicator(): void
+    public function test_creates_tile_metric_definition_time_periods_and_metric_values_for_new_indicator(): void
     {
         $source = $this->fakeSource([
             $this->indicator('urn:ngsi-ld:Indicator:co2', 'CO2', [
-                ['year' => 2022, 'value' => 12.34],
-                ['year' => 2023, 'value' => null],
+                ['period' => '2022', 'value' => 12.34],
+                ['period' => '2023', 'value' => null],
             ]),
         ]);
 
@@ -123,6 +127,7 @@ class SyncServiceTest extends TestCase
         $this->assertNotNull($tile);
         $this->assertSame('CO2', $tile->getTranslation('title', 'de'));
         $this->assertSame(NgsiLdDataMapper::SOURCE_KEY, $tile->external_source);
+        $this->assertSame('year', $this->granularityValue($tile->time_granularity));
         $this->assertNotNull($tile->source_hash);
         $this->assertNotNull($tile->last_synced_at);
 
@@ -130,22 +135,71 @@ class SyncServiceTest extends TestCase
         $this->assertNotNull($definition);
         $this->assertSame('co2', $definition->metric_key);
 
-        $this->assertSame(2, TileYear::withoutGlobalScopes()->where('tile_id', $tile->id)->count());
+        $this->assertSame(2, TimePeriod::withoutGlobalScopes()->where('tile_id', $tile->id)->count());
         $this->assertSame(2, MetricValue::withoutGlobalScopes()->where('metric_definition_id', $definition->id)->count());
 
-        $year2022 = TileYear::withoutGlobalScopes()->where('tile_id', $tile->id)->where('year', 2022)->first();
+        $period2022 = TimePeriod::withoutGlobalScopes()->where('tile_id', $tile->id)->where('period_key', '2022')->first();
+        $this->assertNotNull($period2022);
         $value2022 = MetricValue::withoutGlobalScopes()
             ->where('metric_definition_id', $definition->id)
-            ->where('tile_year_id', $year2022->id)
+            ->where('time_period_id', $period2022->id)
             ->first();
         $this->assertSame('12.34', (string) $value2022->value);
 
-        $year2023 = TileYear::withoutGlobalScopes()->where('tile_id', $tile->id)->where('year', 2023)->first();
+        $period2023 = TimePeriod::withoutGlobalScopes()->where('tile_id', $tile->id)->where('period_key', '2023')->first();
         $value2023 = MetricValue::withoutGlobalScopes()
             ->where('metric_definition_id', $definition->id)
-            ->where('tile_year_id', $year2023->id)
+            ->where('time_period_id', $period2023->id)
             ->first();
         $this->assertNull($value2023->value);
+    }
+
+    public function test_tolerates_legacy_year_data_points(): void
+    {
+        $source = $this->fakeSource([
+            $this->indicator('urn:ngsi-ld:Indicator:legacy', 'Legacy', [
+                ['year' => 2021, 'value' => 5.0],
+            ]),
+        ]);
+
+        $this->service($source)->syncAll($this->tenant);
+
+        $tile = Tile::withoutGlobalScopes()->where('external_id', 'urn:ngsi-ld:Indicator:legacy')->first();
+        $period = TimePeriod::withoutGlobalScopes()->where('tile_id', $tile->id)->first();
+
+        $this->assertNotNull($period);
+        $this->assertSame('2021', $period->period_key);
+        $this->assertSame('year', $this->granularityValue($period->granularity));
+    }
+
+    public function test_quarter_granularity_creates_quarter_time_periods(): void
+    {
+        $source = $this->fakeSource([
+            $this->indicator('urn:ngsi-ld:Indicator:pm10', 'PM10', [
+                ['period' => '2024-Q1', 'value' => 18.4],
+                ['period' => '2024-Q2', 'value' => 12.1],
+            ], null, 'quarter'),
+        ]);
+
+        $this->service($source)->syncAll($this->tenant);
+
+        $tile = Tile::withoutGlobalScopes()->where('external_id', 'urn:ngsi-ld:Indicator:pm10')->first();
+        $this->assertSame('quarter', $this->granularityValue($tile->time_granularity));
+
+        $this->assertSame(2, TimePeriod::withoutGlobalScopes()->where('tile_id', $tile->id)->count());
+
+        $q1 = TimePeriod::withoutGlobalScopes()->where('tile_id', $tile->id)->where('period_key', '2024-Q1')->first();
+        $this->assertNotNull($q1);
+        $this->assertSame('quarter', $this->granularityValue($q1->granularity));
+        $this->assertSame('Q1 2024', $q1->label);
+    }
+
+    /**
+     * Normalize a granularity value that may be a string or a TimeGranularity enum.
+     */
+    private function granularityValue(mixed $granularity): string
+    {
+        return $granularity instanceof \App\Enums\TimeGranularity ? $granularity->value : (string) $granularity;
     }
 
     public function test_links_category_via_belongs_to_many(): void

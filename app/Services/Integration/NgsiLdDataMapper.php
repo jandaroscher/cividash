@@ -9,7 +9,8 @@ use App\Contracts\Integration\DataMapperInterface;
  *
  * Mapping convention (NGSI-LD → Dashboard):
  *   Indicator (entity)        → Tile + MetricDefinition
- *   Indicator.values[]        → MetricValue (+ TileYear derived from the year)
+ *   Indicator.dataPoints[]    → MetricValue (+ TimePeriod derived from the period_key)
+ *   Indicator.timeGranularity → Tile.time_granularity
  *   Indicator.category (rel)  → Category key for assignment
  *
  * NGSI-LD encodes attributes as typed nodes: Property ({type,value}),
@@ -35,6 +36,7 @@ class NgsiLdDataMapper implements DataMapperInterface
             'title' => $this->extractLanguageMap($entity['name'] ?? null) ?: null,
             'description' => $this->extractLanguageMap($entity['description'] ?? null) ?: null,
             'is_public' => true,
+            'time_granularity' => $this->extractGranularity($entity),
             'external_source' => self::SOURCE_KEY,
             'external_id' => isset($entity['id']) ? (string) $entity['id'] : null,
         ], fn ($v) => $v !== null);
@@ -98,10 +100,13 @@ class NgsiLdDataMapper implements DataMapperInterface
     }
 
     /**
-     * Fan out an entity's time-series into a list of ['year'=>int,'value'=>float|null] pairs.
+     * Fan out an entity's time-series into a list of ['period'=>string,'value'=>float|null] pairs.
      *
-     * Tolerates a Property-wrapped `dataPoints` node ({type:Property,value:[...]}).
-     * Pairs without a numeric year are skipped.
+     * The `period` is a period_key (ISO) whose format depends on the entity's
+     * timeGranularity: 'YYYY', 'YYYY-Qn', 'YYYY-MM', 'YYYY-Wnn' or
+     * 'YYYY-MM-DD'. Tolerates a Property-wrapped `dataPoints` node
+     * ({type:Property,value:[...]}) and a legacy numeric `year` key (mapped to a
+     * yearly period_key). Entries without a usable period are skipped.
      *
      * NOTE: the time-series attribute is `dataPoints`, NOT `values`. Under the
      * NGSI-LD core context `values` expands to the reserved term hasValues, which
@@ -128,21 +133,63 @@ class NgsiLdDataMapper implements DataMapperInterface
                 continue;
             }
 
-            $year = $entry['year'] ?? null;
+            $period = $this->extractPeriodKey($entry);
 
-            if ($year === null || ! is_numeric($year)) {
+            if ($period === null) {
                 continue;
             }
 
             $value = $entry['value'] ?? null;
 
             $pairs[] = [
-                'year' => (int) $year,
+                'period' => $period,
                 'value' => $value === null ? null : (float) $value,
             ];
         }
 
         return $pairs;
+    }
+
+    /**
+     * Derive a period_key from a single data point.
+     *
+     * Accepts a non-empty string `period` (canonical period_key) or a numeric
+     * `period`/`year` (legacy yearly time-series, stringified to a 4-digit year
+     * key). Returns null when neither yields a usable key.
+     */
+    private function extractPeriodKey(array $entry): ?string
+    {
+        $period = $entry['period'] ?? null;
+
+        if (is_string($period) && trim($period) !== '') {
+            return trim($period);
+        }
+
+        if (is_int($period) || (is_float($period) && $period == (int) $period)) {
+            return (string) (int) $period;
+        }
+
+        $year = $entry['year'] ?? null;
+
+        if ($year !== null && is_numeric($year)) {
+            return (string) (int) $year;
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract the tile-level time granularity.
+     *
+     * Reads `timeGranularity` (Property or raw scalar) and validates it against
+     * the supported set; defaults to 'year' when absent or unrecognised.
+     */
+    private function extractGranularity(array $entity): string
+    {
+        $raw = $this->extractScalar($entity['timeGranularity'] ?? null);
+        $value = is_string($raw) ? strtolower(trim($raw)) : '';
+
+        return in_array($value, ['year', 'quarter', 'month', 'week', 'day'], true) ? $value : 'year';
     }
 
     public function computeSourceHash(array $entity): string

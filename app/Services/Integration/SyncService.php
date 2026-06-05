@@ -5,13 +5,14 @@ namespace App\Services\Integration;
 use App\Contracts\Integration\DataMapperInterface;
 use App\Contracts\Integration\ExternalDataSourceInterface;
 use App\Contracts\Integration\SyncServiceInterface;
+use App\Enums\TimeGranularity;
 use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
-use App\Models\TileYear;
+use App\Models\TimePeriod;
 use App\Settings\IntegrationSettings;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Cache;
@@ -161,8 +162,9 @@ class SyncService implements SyncServiceInterface
         }
 
         DB::transaction(function () use ($tenant, $entity, $existing, $hash, $externalId) {
+            $tileAttrs = $this->mapper->mapToTile($entity);
             $tile = $existing ?? new Tile;
-            $tile->fill($this->fillableOnly($tile, $this->mapper->mapToTile($entity)));
+            $tile->fill($this->fillableOnly($tile, $tileAttrs));
             $tile->tenant_id = $tenant->id;
             $tile->external_source = self::SOURCE_KEY;
             $tile->external_id = $externalId;
@@ -187,28 +189,32 @@ class SyncService implements SyncServiceInterface
             $definition->last_synced_at = now();
             $definition->save();
 
+            $granularity = TimeGranularity::tryFrom($tileAttrs['time_granularity'] ?? 'year') ?? TimeGranularity::Year;
+
             foreach ($this->mapper->mapToMetricValues($entity) as $pair) {
-                $tileYear = TileYear::withoutGlobalScopes()
+                $timePeriod = TimePeriod::withoutGlobalScopes()
                     ->where('tile_id', $tile->id)
-                    ->where('year', $pair['year'])
+                    ->where('period_key', $pair['period'])
                     ->first();
 
-                if ($tileYear === null) {
-                    $tileYear = new TileYear;
-                    $tileYear->tile_id = $tile->id;
-                    $tileYear->year = $pair['year'];
-                    $tileYear->tenant_id = $tenant->id;
-                    $tileYear->save();
+                if ($timePeriod === null) {
+                    $timePeriod = new TimePeriod;
+                    $timePeriod->tile_id = $tile->id;
+                    $timePeriod->granularity = $granularity;
+                    $timePeriod->period_key = $pair['period'];
+                    $timePeriod->label = $granularity->generateLabel($pair['period']);
+                    $timePeriod->tenant_id = $tenant->id;
+                    $timePeriod->save();
                 }
 
                 $metricValue = MetricValue::withoutGlobalScopes()
                     ->where('metric_definition_id', $definition->id)
-                    ->where('tile_year_id', $tileYear->id)
+                    ->where('time_period_id', $timePeriod->id)
                     ->first() ?? new MetricValue;
 
                 $metricValue->fill($this->fillableOnly($metricValue, $this->mapper->mapToMetricValue($pair)));
                 $metricValue->metric_definition_id = $definition->id;
-                $metricValue->tile_year_id = $tileYear->id;
+                $metricValue->time_period_id = $timePeriod->id;
                 $metricValue->tenant_id = $tenant->id;
                 $metricValue->save();
             }
