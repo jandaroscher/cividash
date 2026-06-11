@@ -118,7 +118,7 @@
             height="17"
             viewBox="0 0 24 25"
             aria-hidden="true"
-            class="text-gray-600 flex-shrink-0"
+            class="text-gray-600 flex-shrink-0 relative -top-px"
           >
             <g transform="translate(0 1)">
               <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
