@@ -37,7 +37,7 @@
           </h4>
           <p
             v-if="metric.description"
-            class="text-sm text-gray-600 mt-2.5"
+            class="text-sm text-gray-400 mt-2.5"
           >
             {{ metric.description?.[currentLocale.value] || metric.description }}
           </p>
