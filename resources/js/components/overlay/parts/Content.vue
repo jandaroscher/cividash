@@ -65,6 +65,7 @@ import ListBlock from '../../blocks/ListBlock.vue';
 import FAQBlock from '../../blocks/FAQBlock.vue';
 import LinkBlock from '../../blocks/LinkBlock.vue';
 import SliderBlock from '../../blocks/SliderBlock.vue';
+import DownloadBlock from '../../blocks/DownloadBlock.vue';
 
 const props = defineProps({
     tile: {
@@ -88,6 +89,7 @@ const blockComponentMap = {
     faq: FAQBlock,
     link: LinkBlock,
     slider: SliderBlock,
+    download: DownloadBlock,
 };
 
 function getBlockComponent(blockType) {
