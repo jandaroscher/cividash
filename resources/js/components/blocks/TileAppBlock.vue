@@ -9,7 +9,7 @@
 
     <div
       v-if="!tilesStore.loading && !tilesStore.error && tilesStore.tiles.length > 0"
-      class="container flex flex-col items-center gap-4 mb-5 mt-10 sm:mt-0 sm:flex-row sm:items-center sm:justify-end"
+      class="container flex flex-col items-center gap-4 mb-5 mt-10 xl:mt-0 sm:flex-row sm:items-center sm:justify-end"
     >
       <!--
         The hardcoded "Change from previous year" banner was removed
