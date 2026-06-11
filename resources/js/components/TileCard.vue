@@ -133,7 +133,7 @@
 
         <div
           v-if="hint"
-          class="text-sm italic text-gray-600 mt-1"
+          class="text-sm italic text-gray-400 mt-2.5"
         >
           {{ hint }}
         </div>
