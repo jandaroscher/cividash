@@ -110,7 +110,7 @@
 
         <p
           v-if="years.length > 1 && currentYear !== years[0]"
-          class="text-theme-base text-gray-400 font-semibold flex flex-row gap-2 justify-end text-sm"
+          class="text-theme-base text-gray-400 font-semibold flex flex-row items-center gap-2 justify-end text-sm"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
