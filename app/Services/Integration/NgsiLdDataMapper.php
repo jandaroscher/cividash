@@ -3,6 +3,8 @@
 namespace App\Services\Integration;
 
 use App\Contracts\Integration\DataMapperInterface;
+use App\Models\Tile;
+use Illuminate\Support\Str;
 
 /**
  * Maps ETSI NGSI-LD entities from CIVITAS/CORE to dashboard models.
@@ -197,6 +199,177 @@ class NgsiLdDataMapper implements DataMapperInterface
         $clean = $this->normalizeForHash($entity);
 
         return md5(json_encode($clean, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+
+    // -----------------------------------------------------------------
+    // Reverse mapping: Dashboard Tile → NGSI-LD entity (write-back)
+    // -----------------------------------------------------------------
+
+    /**
+     * Map a dashboard Tile to an NGSI-LD entity body for publishing to CORE.
+     *
+     * The produced entity round-trips with the forward mapper: name/description
+     * are LanguageProperty nodes, the time-series is a `dataPoints` Property
+     * (never `values` — Stellio rejects that reserved term with HTTP 400), unit
+     * and timeGranularity are Property nodes, and the category
+     * (when present) is a Relationship pointing at the category's external URN.
+     *
+     * The entity `id` reuses the Tile's `external_id` when set (so re-publishing
+     * targets the same broker entity) and is otherwise minted from the Tile slug.
+     *
+     * @return array<string,mixed> NGSI-LD entity body (no @context — the client adds it).
+     */
+    public function mapTileToEntity(Tile $tile): array
+    {
+        $tile->loadMissing([
+            'metricDefinitions.metricValues.timePeriod',
+            'categories',
+        ]);
+
+        $entity = [
+            'id' => $this->resolveEntityId($tile),
+            'type' => SyncService::ENTITY_TYPE,
+        ];
+
+        if (($name = $this->buildLanguageProperty($tile->getTranslations('title'))) !== null) {
+            $entity['name'] = $name;
+        }
+
+        if (($description = $this->buildLanguageProperty($tile->getTranslations('description'))) !== null) {
+            $entity['description'] = $description;
+        }
+
+        $definition = $tile->metricDefinitions->first();
+
+        if (($unit = $this->resolveUnit($definition)) !== null) {
+            $entity['unit'] = ['type' => 'Property', 'value' => $unit];
+        }
+
+        $entity['timeGranularity'] = [
+            'type' => 'Property',
+            'value' => (string) ($tile->time_granularity ?: 'year'),
+        ];
+
+        $entity['dataPoints'] = [
+            'type' => 'Property',
+            'value' => $this->buildDataPoints($definition),
+        ];
+
+        if (($categoryUrn = $this->resolveCategoryUrn($tile)) !== null) {
+            $entity['category'] = ['type' => 'Relationship', 'object' => $categoryUrn];
+        }
+
+        return $entity;
+    }
+
+    /**
+     * Reuse the Tile's external_id (round-trip) or mint a URN from its slug.
+     */
+    private function resolveEntityId(Tile $tile): string
+    {
+        $externalId = $tile->external_id;
+
+        if (is_string($externalId) && trim($externalId) !== '') {
+            return $externalId;
+        }
+
+        $slug = $tile->getTranslation('slug', 'de', false)
+            ?: $tile->getTranslation('slug', 'en', false)
+            ?: $tile->getTranslation('title', 'de', false)
+            ?: (string) $tile->id;
+
+        $segment = Str::slug((string) $slug) ?: 'indicator';
+
+        return 'urn:ngsi-ld:'.SyncService::ENTITY_TYPE.':'.$segment;
+    }
+
+    /**
+     * Build a LanguageProperty node from a {de,en} translation array.
+     *
+     * Returns null when no non-empty translation exists, so empty optional
+     * fields are simply omitted from the published entity.
+     *
+     * @param  array<string,mixed>  $translations
+     * @return array{type:string,languageMap:array<string,string>}|null
+     */
+    private function buildLanguageProperty(array $translations): ?array
+    {
+        $languageMap = [];
+
+        foreach ($translations as $locale => $value) {
+            if (is_string($locale) && is_string($value) && trim($value) !== '') {
+                $languageMap[$locale] = $value;
+            }
+        }
+
+        if ($languageMap === []) {
+            return null;
+        }
+
+        return ['type' => 'LanguageProperty', 'languageMap' => $languageMap];
+    }
+
+    /**
+     * Resolve the scalar unit string from a MetricDefinition's translatable unit.
+     */
+    private function resolveUnit(mixed $definition): ?string
+    {
+        if ($definition === null) {
+            return null;
+        }
+
+        $unit = $definition->getTranslations('unit');
+
+        if (! is_array($unit)) {
+            return null;
+        }
+
+        $value = $unit['de'] ?? $unit['en'] ?? (reset($unit) ?: null);
+
+        return (is_string($value) && trim($value) !== '') ? $value : null;
+    }
+
+    /**
+     * Build the dataPoints value list from a definition's metric values.
+     *
+     * Each entry is {period:<period_key>, value:<float|null>}, matching the
+     * shape the forward mapper (mapToMetricValues) reads back, so the time-series
+     * round-trips. Values are cast to float; missing values become null.
+     *
+     * @return array<int,array{period:string,value:float|null}>
+     */
+    private function buildDataPoints(mixed $definition): array
+    {
+        if ($definition === null) {
+            return [];
+        }
+
+        return $definition->metricValues
+            ->filter(fn ($value) => $value->timePeriod !== null
+                && is_string($value->timePeriod->period_key)
+                && $value->timePeriod->period_key !== '')
+            ->map(fn ($value) => [
+                'period' => (string) $value->timePeriod->period_key,
+                'value' => $value->value === null ? null : (float) $value->value,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Resolve the external URN of the Tile's first category that carries one.
+     */
+    private function resolveCategoryUrn(Tile $tile): ?string
+    {
+        foreach ($tile->categories as $category) {
+            $urn = $category->external_id;
+
+            if (is_string($urn) && trim($urn) !== '') {
+                return $urn;
+            }
+        }
+
+        return null;
     }
 
     // -----------------------------------------------------------------

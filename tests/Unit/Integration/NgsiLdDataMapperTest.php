@@ -3,9 +3,14 @@
 namespace Tests\Unit\Integration;
 
 use App\Contracts\Integration\DataMapperInterface;
+use App\Models\Category;
+use App\Models\MetricDefinition;
+use App\Models\MetricValue;
+use App\Models\Tile;
+use App\Models\TimePeriod;
 use App\Services\Integration\NgsiLdDataMapper;
-use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use Tests\TestCase;
 
 class NgsiLdDataMapperTest extends TestCase
 {
@@ -323,5 +328,159 @@ class NgsiLdDataMapperTest extends TestCase
     public function test_map_to_category_returns_empty_when_no_category(): void
     {
         $this->assertSame([], $this->mapper->mapToCategory(['id' => 'urn:ngsi-ld:Indicator:x']));
+    }
+
+    // -----------------------------------------------------------------
+    // mapTileToEntity (reverse mapping, write-back)
+    // -----------------------------------------------------------------
+
+    /**
+     * Build an in-memory Tile graph exposing exactly what mapTileToEntity reads.
+     *
+     * Genuine Eloquent models are hydrated via forceFill + setRelation so this
+     * stays a pure unit test (no DB / RefreshDatabase) while mirroring the
+     * eager-loaded graph: title/description/slug translations, time_granularity,
+     * external_id, metricDefinitions->metricValues->timePeriod, categories.
+     *
+     * @param  array<string,mixed>  $overrides
+     */
+    private function makeTileModel(array $overrides = []): Tile
+    {
+        $defaults = [
+            'title' => ['de' => 'CO2-Emissionen', 'en' => 'CO2 Emissions'],
+            'description' => ['de' => 'Beschreibung', 'en' => 'Description'],
+            'slug' => ['de' => 'co2-emissionen', 'en' => 'co2-emissions'],
+            'time_granularity' => 'year',
+            'external_id' => null,
+            'unit' => ['de' => 't', 'en' => 't'],
+            'dataPoints' => [
+                ['period' => '2023', 'value' => 1.5],
+                ['period' => '2024', 'value' => null],
+            ],
+            'categoryUrn' => null,
+        ];
+
+        $d = array_merge($defaults, $overrides);
+
+        $tile = (new Tile)->forceFill([
+            'title' => $d['title'],
+            'description' => $d['description'],
+            'slug' => $d['slug'],
+            'time_granularity' => $d['time_granularity'],
+            'external_id' => $d['external_id'],
+        ]);
+
+        $metricValues = collect($d['dataPoints'])->map(function (array $point) {
+            $period = (new TimePeriod)->forceFill(['period_key' => $point['period']]);
+            $value = (new MetricValue)->forceFill(['value' => $point['value']]);
+            $value->setRelation('timePeriod', $period);
+
+            return $value;
+        });
+
+        $definition = (new MetricDefinition)->forceFill(['unit' => $d['unit']]);
+        $definition->setRelation('metricValues', $metricValues);
+        $tile->setRelation('metricDefinitions', collect([$definition]));
+
+        $categories = $d['categoryUrn'] === null
+            ? collect()
+            : collect([(new Category)->forceFill(['external_id' => $d['categoryUrn']])]);
+        $tile->setRelation('categories', $categories);
+
+        return $tile;
+    }
+
+    public function test_map_tile_to_entity_sets_type_and_language_properties(): void
+    {
+        $entity = $this->mapper->mapTileToEntity($this->makeTileModel());
+
+        $this->assertSame('NachhaltigkeitsIndikator', $entity['type']);
+
+        // name + description must be LanguageProperty with a {de,en} languageMap.
+        $this->assertSame('LanguageProperty', $entity['name']['type']);
+        $this->assertSame(['de' => 'CO2-Emissionen', 'en' => 'CO2 Emissions'], $entity['name']['languageMap']);
+        $this->assertSame('LanguageProperty', $entity['description']['type']);
+        $this->assertSame(['de' => 'Beschreibung', 'en' => 'Description'], $entity['description']['languageMap']);
+    }
+
+    public function test_map_tile_to_entity_mints_urn_from_slug_when_no_external_id(): void
+    {
+        $entity = $this->mapper->mapTileToEntity($this->makeTileModel(['slug' => ['de' => 'co2-emissionen']]));
+
+        $this->assertSame('urn:ngsi-ld:NachhaltigkeitsIndikator:co2-emissionen', $entity['id']);
+    }
+
+    public function test_map_tile_to_entity_reuses_external_id_for_round_trip(): void
+    {
+        $entity = $this->mapper->mapTileToEntity(
+            $this->makeTileModel(['external_id' => 'urn:ngsi-ld:NachhaltigkeitsIndikator:existing-id'])
+        );
+
+        $this->assertSame('urn:ngsi-ld:NachhaltigkeitsIndikator:existing-id', $entity['id']);
+    }
+
+    public function test_map_tile_to_entity_uses_data_points_never_values(): void
+    {
+        $entity = $this->mapper->mapTileToEntity($this->makeTileModel());
+
+        // CRITICAL: the time-series attribute MUST be `dataPoints`,
+        // never `values` (Stellio rejects the reserved `values` term with 400).
+        $this->assertArrayHasKey('dataPoints', $entity);
+        $this->assertArrayNotHasKey('values', $entity);
+
+        $this->assertSame('Property', $entity['dataPoints']['type']);
+        $this->assertSame(
+            [
+                ['period' => '2023', 'value' => 1.5],
+                ['period' => '2024', 'value' => null],
+            ],
+            $entity['dataPoints']['value'],
+        );
+    }
+
+    public function test_map_tile_to_entity_emits_unit_and_granularity_properties(): void
+    {
+        $entity = $this->mapper->mapTileToEntity($this->makeTileModel(['time_granularity' => 'quarter']));
+
+        $this->assertSame('Property', $entity['unit']['type']);
+        $this->assertSame('t', $entity['unit']['value']);
+        $this->assertSame('Property', $entity['timeGranularity']['type']);
+        $this->assertSame('quarter', $entity['timeGranularity']['value']);
+    }
+
+    public function test_map_tile_to_entity_emits_category_relationship_when_present(): void
+    {
+        $entity = $this->mapper->mapTileToEntity(
+            $this->makeTileModel(['categoryUrn' => 'urn:ngsi-ld:Category:mobility-transport'])
+        );
+
+        $this->assertSame('Relationship', $entity['category']['type']);
+        $this->assertSame('urn:ngsi-ld:Category:mobility-transport', $entity['category']['object']);
+    }
+
+    public function test_map_tile_to_entity_omits_category_when_absent(): void
+    {
+        $entity = $this->mapper->mapTileToEntity($this->makeTileModel(['categoryUrn' => null]));
+
+        $this->assertArrayNotHasKey('category', $entity);
+    }
+
+    /**
+     * Round-trip: publishing a Tile then reading the same entity back through the
+     * forward mapper must reproduce the same logical content (title, dataPoints).
+     */
+    public function test_round_trip_with_forward_mapper(): void
+    {
+        $entity = $this->mapper->mapTileToEntity($this->makeTileModel());
+
+        $this->assertSame(['de' => 'CO2-Emissionen', 'en' => 'CO2 Emissions'], $this->mapper->mapToTile($entity)['title']);
+
+        $this->assertSame(
+            [
+                ['period' => '2023', 'value' => 1.5],
+                ['period' => '2024', 'value' => null],
+            ],
+            $this->mapper->mapToMetricValues($entity),
+        );
     }
 }
