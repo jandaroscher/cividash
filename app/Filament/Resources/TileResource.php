@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\TimeGranularity;
+use App\Exceptions\Integration\ForeignProvenanceException;
 use App\Filament\Concerns\HasBlockActiveToggleAction;
 use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Fabricator\PageBlocks\FAQBlock;
@@ -16,6 +17,7 @@ use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tile;
 use App\Models\TimePeriod;
+use App\Services\Integration\PublishService;
 use Closure;
 use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Components\Builder;
@@ -33,6 +35,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -530,6 +533,16 @@ class TileResource extends Resource
                         return $record->getFrontendUrl(['locale' => $locale]);
                     })
                     ->openUrlInNewTab(),
+                Tables\Actions\Action::make('publishToCore')
+                    ->label(__('filament.resources.tile.actions.publish'))
+                    ->icon('heroicon-o-cloud-arrow-up')
+                    ->color('primary')
+                    ->visible(fn (): bool => static::canPublishToCore())
+                    ->requiresConfirmation()
+                    ->modalHeading(__('filament.resources.tile.actions.publish_confirm_heading'))
+                    ->modalDescription(__('filament.resources.tile.actions.publish_confirm_description'))
+                    ->modalSubmitActionLabel(__('filament.resources.tile.actions.publish_confirm_submit'))
+                    ->action(fn (Tile $record) => static::handlePublishToCore($record)),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->reorderable('position')
@@ -880,5 +893,60 @@ class TileResource extends Resource
         $data['time_period_id'] = $timePeriod->id;
 
         return $data;
+    }
+
+    /**
+     * Whether the "publish to CORE" action should be offered.
+     *
+     * Gated on the CIVITAS integration being enabled and using the NGSI-LD
+     * driver (the only write-capable one — SensorThings is read-only).
+     */
+    public static function canPublishToCore(): bool
+    {
+        return (bool) config('integrations.civitas.enabled')
+            && config('integrations.civitas.driver', 'ngsi-ld') === 'ngsi-ld';
+    }
+
+    /**
+     * Publish a Tile to CIVITAS/CORE and surface the outcome as a notification.
+     *
+     * Shared by the EditTile header action and the ListTiles row action. The
+     * actual write, provenance stamping and idempotency live in PublishService;
+     * this only translates the outcome into user-facing notifications. Only this
+     * explicit user click writes to the live broker.
+     */
+    public static function handlePublishToCore(Tile $record): void
+    {
+        try {
+            $result = app(PublishService::class)->publishTile($record);
+
+            if ($result->skipped) {
+                Notification::make()
+                    ->title(__('filament.resources.tile.actions.publish_skipped'))
+                    ->body(__('filament.resources.tile.actions.publish_skipped_body'))
+                    ->info()
+                    ->send();
+
+                return;
+            }
+
+            Notification::make()
+                ->title(__('filament.resources.tile.actions.publish_success'))
+                ->body(__('filament.resources.tile.actions.publish_success_body', ['id' => $result->externalId]))
+                ->success()
+                ->send();
+        } catch (ForeignProvenanceException $e) {
+            Notification::make()
+                ->title(__('filament.resources.tile.actions.publish_foreign_provenance'))
+                ->body(__('filament.resources.tile.actions.publish_foreign_provenance_body'))
+                ->danger()
+                ->send();
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title(__('filament.resources.tile.actions.publish_error'))
+                ->body(__('filament.resources.tile.actions.publish_error_body', ['error' => $e->getMessage()]))
+                ->danger()
+                ->send();
+        }
     }
 }
