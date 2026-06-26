@@ -20,7 +20,7 @@ class Tile extends Model
         static::creating(function (self $tile) {
             if (is_null($tile->position)) {
                 DB::transaction(function () use ($tile) {
-                    $tile->position = (int) static::where('tenant_id', $tile->tenant_id)->lockForUpdate()->max('position') + 1;
+                    $tile->position = (int) static::where('tenant_id', $tile->tenant_id)->lockForUpdateForAggregate()->max('position') + 1;
                 });
             }
         });

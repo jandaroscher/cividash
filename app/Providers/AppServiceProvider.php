@@ -16,6 +16,7 @@ use App\Services\Integration\SyncService;
 use BezhanSalleh\FilamentLanguageSwitch\Events\LocaleChanged;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
@@ -55,6 +56,42 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        // Apply a FOR UPDATE row lock only on drivers that permit it together with
+        // aggregate functions. PostgreSQL rejects "SELECT max(...) ... FOR UPDATE"
+        // ("FOR UPDATE is not allowed with aggregate functions"), so the lock is
+        // skipped there; the surrounding DB::transaction() still provides the
+        // consistency needed for sequential position/id assignment.
+        EloquentBuilder::macro('lockForUpdateForAggregate', function () {
+            /** @var EloquentBuilder $this */
+            $driver = $this->getConnection()->getDriverName();
+
+            if (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+                return $this;
+            }
+
+            return $this->lockForUpdate();
+        });
+
+        // Match a translatable JSON column on an exact locale value, portably.
+        // Laravel's whereJsonContains()/where('col->de', ...) emit the json `->`
+        // operator, which PostgreSQL rejects on columns physically stored as varchar
+        // (several translatable columns are). This builds the right per-driver
+        // expression (see App\Traits\BuildsJsonLocaleExpressions for the dialects).
+        EloquentBuilder::macro('whereTranslation', function (string $column, string $locale, string $value) {
+            /** @var EloquentBuilder $this */
+            $driver = $this->getConnection()->getDriverName();
+
+            if (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+                $expr = sprintf("CAST(%s AS json)->>'%s'", $column, $locale);
+            } elseif ($driver === 'sqlite') {
+                $expr = sprintf("json_extract(%s, '$.\"%s\"')", $column, $locale);
+            } else {
+                $expr = sprintf("JSON_UNQUOTE(JSON_EXTRACT(%s, '$.\"%s\"'))", $column, $locale);
+            }
+
+            return $this->whereRaw("{$expr} = ?", [$value]);
+        });
 
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
             $switch

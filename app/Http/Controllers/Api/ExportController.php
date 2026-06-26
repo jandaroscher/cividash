@@ -161,6 +161,8 @@ class ExportController extends Controller
             return $tile;
         }
 
+        // SQLite needs an explicit json_extract() comparison; the JSON arrow operator
+        // alone does not reliably match there.
         if ($base->getConnection()->getDriverName() === 'sqlite') {
             $path = '$."'.$locale.'"';
             $tile = (clone $base)
@@ -169,15 +171,15 @@ class ExportController extends Controller
             if ($tile) {
                 return $tile;
             }
-
-            return (clone $base)->get()->first(function (Tile $candidate) use ($slug, $locale): bool {
-                $t = $candidate->getTranslations('slug');
-
-                return ($t[$locale] ?? null) === $slug;
-            });
         }
 
-        return null;
+        // Driver-agnostic fallback: resolve the slug in PHP. Covers PostgreSQL,
+        // MySQL/MariaDB and SQLite edge cases the SQL paths above may miss.
+        return (clone $base)->get()->first(function (Tile $candidate) use ($slug, $locale): bool {
+            $t = $candidate->getTranslations('slug');
+
+            return ($t[$locale] ?? null) === $slug;
+        });
     }
 
     private function translate(Tile $tile, string $attribute, string $locale): ?string

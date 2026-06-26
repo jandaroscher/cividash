@@ -243,7 +243,7 @@ class MetaTagService
 
         foreach ($locales as $loc) {
             // Try exact slug match (works for flat, single-segment pages)
-            $page = Page::where("slug->{$loc}", $slugPath)
+            $page = Page::whereTranslation('slug', $loc, $slugPath)
                 ->where('is_public', true)
                 ->first();
 
@@ -258,7 +258,7 @@ class MetaTagService
             $expectedPath = $locale === 'en' ? "/en/{$slugPath}" : "/{$slugPath}";
 
             foreach ($locales as $loc) {
-                $candidates = Page::where("slug->{$loc}", $lastSegment)
+                $candidates = Page::whereTranslation('slug', $loc, $lastSegment)
                     ->where('is_public', true)
                     ->get();
 

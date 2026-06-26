@@ -133,7 +133,7 @@ class CategorySeeder extends Seeder
 
             $sourceHash = $this->calculateSourceHash($parsedCategory);
 
-            $category = Category::whereJsonContains('slug->de', $slugDe)->first();
+            $category = Category::whereTranslation('slug', 'de', $slugDe)->first();
 
             $needsUpdate = false;
 
@@ -227,7 +227,7 @@ class CategorySeeder extends Seeder
             }
 
             $category = Category::where('category_group_id', $group->id)
-                ->whereJsonContains('slug->de', $data['title']['de'])
+                ->whereTranslation('slug', 'de', $data['title']['de'])
                 ->first();
 
             if (! $category) {
@@ -312,7 +312,7 @@ class CategorySeeder extends Seeder
             ];
 
             $category = Category::where('category_group_id', $group->id)
-                ->whereJsonContains('slug->de', $titles['de'])
+                ->whereTranslation('slug', 'de', $titles['de'])
                 ->first();
 
             if (! $category) {

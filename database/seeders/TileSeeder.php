@@ -44,7 +44,7 @@ class TileSeeder extends Seeder
         foreach ($tiles as $parsedTile) {
             $titleDe = $parsedTile->title;
 
-            $tile = Tile::whereJsonContains('title->de', $titleDe)->first();
+            $tile = Tile::whereTranslation('title', 'de', $titleDe)->first();
 
             $sourceHash = $this->calculateSourceHash($parsedTile);
 

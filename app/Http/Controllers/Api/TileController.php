@@ -157,20 +157,26 @@ class TileController extends Controller
             ->where('slug->'.$locale, $slug)
             ->first();
 
-        if ($tile || $baseQuery->getConnection()->getDriverName() !== 'sqlite') {
-            return $tile;
-        }
-
-        $path = '$."'.$locale.'"';
-
-        $tile = (clone $baseQuery)
-            ->whereRaw('json_extract(slug, ?) = ?', [$path, $slug])
-            ->first();
-
         if ($tile) {
             return $tile;
         }
 
+        // SQLite needs an explicit json_extract() comparison; the JSON arrow operator
+        // alone does not reliably match there.
+        if ($baseQuery->getConnection()->getDriverName() === 'sqlite') {
+            $path = '$."'.$locale.'"';
+
+            $tile = (clone $baseQuery)
+                ->whereRaw('json_extract(slug, ?) = ?', [$path, $slug])
+                ->first();
+
+            if ($tile) {
+                return $tile;
+            }
+        }
+
+        // Driver-agnostic fallback: resolve the slug in PHP. Covers PostgreSQL,
+        // MySQL/MariaDB and SQLite edge cases the SQL paths above may miss.
         return (clone $baseQuery)
             ->get()
             ->first(function (Tile $candidate) use ($slug, $locale): bool {

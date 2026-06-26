@@ -20,7 +20,7 @@ class CategoryGroup extends Model
         static::creating(function (self $group) {
             if (is_null($group->position)) {
                 DB::transaction(function () use ($group) {
-                    $group->position = (int) static::where('tenant_id', $group->tenant_id)->lockForUpdate()->max('position') + 1;
+                    $group->position = (int) static::where('tenant_id', $group->tenant_id)->lockForUpdateForAggregate()->max('position') + 1;
                 });
             }
         });

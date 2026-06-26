@@ -18,7 +18,7 @@ class Category extends Model
         static::creating(function (self $category) {
             if (is_null($category->position)) {
                 DB::transaction(function () use ($category) {
-                    $category->position = (int) static::where('category_group_id', $category->category_group_id)->lockForUpdate()->max('position') + 1;
+                    $category->position = (int) static::where('category_group_id', $category->category_group_id)->lockForUpdateForAggregate()->max('position') + 1;
                 });
             }
         });

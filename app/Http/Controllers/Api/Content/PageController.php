@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Content;
 use App\Http\Controllers\Controller;
 use App\Models\Page;
 use App\Services\Content\FabricatorPageTransformer;
+use App\Traits\BuildsJsonLocaleExpressions;
 use App\Traits\GetsTenantCacheKeySegment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PageController extends Controller
 {
+    use BuildsJsonLocaleExpressions;
     use GetsTenantCacheKeySegment;
 
     public function __construct(
@@ -186,7 +188,10 @@ class PageController extends Controller
 
         // If locale is specified, validate and try to find root page for that locale
         if ($requestedLocale && in_array($requestedLocale, $allowedLocales)) {
-            // Locale is validated, safe to use in JSON_EXTRACT
+            // Locale is whitelisted; jsonLocaleExpression() builds a driver-aware,
+            // injection-safe SQL fragment for the slug JSON column.
+            $localeExpr = $this->jsonLocaleExpression('slug', $requestedLocale);
+
             $query = Page::query();
 
             if (Schema::hasColumn($tableName, 'is_public')) {
@@ -194,15 +199,17 @@ class PageController extends Controller
             }
 
             $page = $query
-                ->where(function ($q) use ($requestedLocale) {
-                    $q->whereRaw("JSON_EXTRACT(slug, '$.{$requestedLocale}') = ?", ['/'])
-                        ->orWhereRaw("JSON_EXTRACT(slug, '$.{$requestedLocale}') = ?", ['home']);
+                ->where(function ($q) use ($localeExpr) {
+                    $q->whereRaw("{$localeExpr} = ?", ['/'])
+                        ->orWhereRaw("{$localeExpr} = ?", ['home']);
                 })
-                ->orderByRaw("CASE WHEN JSON_EXTRACT(slug, '$.{$requestedLocale}') = '/' THEN 0 ELSE 1 END")
+                ->orderByRaw("CASE WHEN {$localeExpr} = '/' THEN 0 ELSE 1 END")
                 ->first();
 
             // If not found for requested locale, try default locale (de)
             if (! $page && $requestedLocale !== 'de') {
+                $deExpr = $this->jsonLocaleExpression('slug', 'de');
+
                 $query = Page::query();
 
                 if (Schema::hasColumn($tableName, 'is_public')) {
@@ -210,16 +217,19 @@ class PageController extends Controller
                 }
 
                 $page = $query
-                    ->where(function ($q) {
-                        $q->whereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['/'])
-                            ->orWhereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['home']);
+                    ->where(function ($q) use ($deExpr) {
+                        $q->whereRaw("{$deExpr} = ?", ['/'])
+                            ->orWhereRaw("{$deExpr} = ?", ['home']);
                     })
-                    ->orderByRaw("CASE WHEN JSON_EXTRACT(slug, '$.de') = '/' THEN 0 ELSE 1 END")
+                    ->orderByRaw("CASE WHEN {$deExpr} = '/' THEN 0 ELSE 1 END")
                     ->first();
             }
         } else {
             // No locale specified or invalid: try to find any root page (prefer DE, then EN)
             // Using hardcoded locale values for safety
+            $deExpr = $this->jsonLocaleExpression('slug', 'de');
+            $enExpr = $this->jsonLocaleExpression('slug', 'en');
+
             $query = Page::query();
 
             if (Schema::hasColumn($tableName, 'is_public')) {
@@ -227,17 +237,17 @@ class PageController extends Controller
             }
 
             $page = $query
-                ->where(function ($q) {
-                    $q->where(function ($q2) {
-                        $q2->whereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['/'])
-                            ->orWhereRaw("JSON_EXTRACT(slug, '$.de') = ?", ['home']);
+                ->where(function ($q) use ($deExpr, $enExpr) {
+                    $q->where(function ($q2) use ($deExpr) {
+                        $q2->whereRaw("{$deExpr} = ?", ['/'])
+                            ->orWhereRaw("{$deExpr} = ?", ['home']);
                     })
-                        ->orWhere(function ($q2) {
-                            $q2->whereRaw("JSON_EXTRACT(slug, '$.en') = ?", ['/'])
-                                ->orWhereRaw("JSON_EXTRACT(slug, '$.en') = ?", ['home']);
+                        ->orWhere(function ($q2) use ($enExpr) {
+                            $q2->whereRaw("{$enExpr} = ?", ['/'])
+                                ->orWhereRaw("{$enExpr} = ?", ['home']);
                         });
                 })
-                ->orderByRaw("CASE WHEN JSON_EXTRACT(slug, '$.de') = '/' THEN 0 WHEN JSON_EXTRACT(slug, '$.en') = '/' THEN 1 ELSE 2 END")
+                ->orderByRaw("CASE WHEN {$deExpr} = '/' THEN 0 WHEN {$enExpr} = '/' THEN 1 ELSE 2 END")
                 ->first();
         }
 
