@@ -1,14 +1,14 @@
-name: open-source-dashboard-worktree
+name: open-source-dashboard
 type: laravel
 docroot: public
 php_version: "8.2"
 webserver_type: nginx-fpm
 xdebug_enabled: false
 additional_hostnames:
-  - a.open-source-dashboard-worktree
-  - b.open-source-dashboard-worktree
-  - demo-city.open-source-dashboard-worktree
-  - regensburg.open-source-dashboard-worktree
+  - a.open-source-dashboard
+  - b.open-source-dashboard
+  - demo-city.open-source-dashboard
+  - regensburg.open-source-dashboard
 additional_fqdns: []
 database:
     type: mariadb
