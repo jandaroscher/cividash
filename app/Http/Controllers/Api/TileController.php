@@ -154,29 +154,15 @@ class TileController extends Controller
     protected function findTileBySlug(EloquentBuilder $baseQuery, string $slug, string $locale): ?Tile
     {
         $tile = (clone $baseQuery)
-            ->where('slug->'.$locale, $slug)
+            ->whereTranslation('slug', $locale, $slug)
             ->first();
 
         if ($tile) {
             return $tile;
         }
 
-        // SQLite needs an explicit json_extract() comparison; the JSON arrow operator
-        // alone does not reliably match there.
-        if ($baseQuery->getConnection()->getDriverName() === 'sqlite') {
-            $path = '$."'.$locale.'"';
-
-            $tile = (clone $baseQuery)
-                ->whereRaw('json_extract(slug, ?) = ?', [$path, $slug])
-                ->first();
-
-            if ($tile) {
-                return $tile;
-            }
-        }
-
-        // Driver-agnostic fallback: resolve the slug in PHP. Covers PostgreSQL,
-        // MySQL/MariaDB and SQLite edge cases the SQL paths above may miss.
+        // Driver-agnostic emergency fallback: resolve the slug in PHP for any
+        // edge case the portable SQL path above may miss.
         return (clone $baseQuery)
             ->get()
             ->first(function (Tile $candidate) use ($slug, $locale): bool {

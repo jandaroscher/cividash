@@ -57,16 +57,21 @@ class AppServiceProvider extends ServiceProvider
     {
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 
-        // Apply a FOR UPDATE row lock only on drivers that permit it together with
-        // aggregate functions. PostgreSQL rejects "SELECT max(...) ... FOR UPDATE"
-        // ("FOR UPDATE is not allowed with aggregate functions"), so the lock is
-        // skipped there; the surrounding DB::transaction() still provides the
-        // consistency needed for sequential position/id assignment.
-        EloquentBuilder::macro('lockForUpdateForAggregate', function () {
+        // Serialise an aggregate (max) read against concurrent writers. MySQL/
+        // MariaDB/SQLite use "SELECT max(...) ... FOR UPDATE". PostgreSQL forbids
+        // FOR UPDATE with aggregate functions, so instead we take a transaction-
+        // scoped advisory lock keyed on $lockName; the caller MUST run this inside
+        // the same transaction that performs the subsequent write, so the lock
+        // spans the read+write window (it is released on commit/rollback).
+        EloquentBuilder::macro('lockForUpdateForAggregate', function (string $lockName) {
             /** @var EloquentBuilder $this */
-            $driver = $this->getConnection()->getDriverName();
+            $connection = $this->getConnection();
+            $driver = $connection->getDriverName();
 
             if (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+                $key = (int) hexdec(substr(hash('sha256', $lockName), 0, 15));
+                $connection->statement('SELECT pg_advisory_xact_lock(?)', [$key]);
+
                 return $this;
             }
 
@@ -80,6 +85,12 @@ class AppServiceProvider extends ServiceProvider
         // expression (see App\Traits\BuildsJsonLocaleExpressions for the dialects).
         EloquentBuilder::macro('whereTranslation', function (string $column, string $locale, string $value) {
             /** @var EloquentBuilder $this */
+            // Whitelist the locale before interpolating it into raw SQL, mirroring
+            // App\Traits\BuildsJsonLocaleExpressions.
+            if (! in_array($locale, ['de', 'en'], true)) {
+                throw new \InvalidArgumentException("Unsupported locale [{$locale}] for whereTranslation().");
+            }
+
             $driver = $this->getConnection()->getDriverName();
 
             if (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
