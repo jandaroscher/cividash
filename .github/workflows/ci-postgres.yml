@@ -1,0 +1,87 @@
+name: CI - PostgreSQL
+
+# Runs Pint and the backend test suite against a real PostgreSQL database, the
+# primary production target. sqlite does not exercise PostgreSQL-specific SQL, so
+# migrations and queries that are portable on sqlite but break on PostgreSQL would
+# otherwise go uncaught.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  # Test on the composer floor (PHP 8.2).
+  PHP_VERSION: '8.2'
+
+concurrency:
+  group: ci-postgres-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  postgres-test:
+    name: Test on PostgreSQL
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: cividash_test
+          POSTGRES_USER: cividash
+          POSTGRES_PASSWORD: cividash_test_pw
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cividash -d cividash_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: '5432'
+      DB_DATABASE: cividash_test
+      DB_USERNAME: cividash
+      DB_PASSWORD: cividash_test_pw
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring,intl,bcmath,gd,curl,xml,zip,pdo_pgsql,redis
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-pg-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-pg-
+
+      - name: Install Composer dependencies (with dev for phpunit)
+        run: composer install --prefer-dist --no-progress --no-interaction
+        env:
+          COMPOSER_PROCESS_TIMEOUT: 200
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Run migrations on PostgreSQL
+        run: php artisan migrate --force
+
+      - name: Run PHP tests on PostgreSQL
+        run: php artisan test
