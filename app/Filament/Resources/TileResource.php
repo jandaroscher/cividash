@@ -42,6 +42,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Log;
 
 class TileResource extends Resource
 {
@@ -538,6 +540,9 @@ class TileResource extends Resource
                     ->icon('heroicon-o-cloud-arrow-up')
                     ->color('primary')
                     ->visible(fn (): bool => static::canPublishToCore())
+                    // Server-side gate: visible() is render-only, so authorize()
+                    // also blocks direct Livewire invocation by non-admins.
+                    ->authorize(fn (): bool => static::canUserPublishToCore())
                     ->requiresConfirmation()
                     ->modalHeading(__('filament.resources.tile.actions.publish_confirm_heading'))
                     ->modalDescription(__('filament.resources.tile.actions.publish_confirm_description'))
@@ -908,6 +913,18 @@ class TileResource extends Resource
     }
 
     /**
+     * Server-side authorization gate for the "publish to CORE" action.
+     *
+     * Used by authorize() on both the EditTile header action and the ListTiles
+     * row action. Unlike visible() (render-only), this also blocks a direct
+     * Livewire invocation. Mirrors the admin gate used by ManageIntegrations.
+     */
+    public static function canUserPublishToCore(): bool
+    {
+        return static::canPublishToCore() && (bool) auth()->user()?->is_admin;
+    }
+
+    /**
      * Publish a Tile to CIVITAS/CORE and surface the outcome as a notification.
      *
      * Shared by the EditTile header action and the ListTiles row action. The
@@ -941,10 +958,35 @@ class TileResource extends Resource
                 ->body(__('filament.resources.tile.actions.publish_foreign_provenance_body'))
                 ->danger()
                 ->send();
-        } catch (\Throwable $e) {
+        } catch (RequestException $e) {
+            // The broker rejected the write. The exception message can contain
+            // the token URL and the raw IdP/broker response, so it is logged
+            // server-side only; the user sees a generic message + HTTP status.
+            Log::error('CORE publish failed (broker error).', [
+                'tile_id' => $record->id,
+                'tenant_id' => $record->tenant_id,
+                'status' => $e->response?->status(),
+                'exception' => $e,
+            ]);
+
             Notification::make()
                 ->title(__('filament.resources.tile.actions.publish_error'))
-                ->body(__('filament.resources.tile.actions.publish_error_body', ['error' => $e->getMessage()]))
+                ->body(__('filament.resources.tile.actions.publish_error_body', ['status' => $e->response?->status() ?? '—']))
+                ->danger()
+                ->send();
+        } catch (\Throwable $e) {
+            // Connection failures and any other error: never surface the raw
+            // message (it may carry the broker/IdP URL). Log it, show a generic
+            // notification.
+            Log::error('CORE publish failed (unexpected error).', [
+                'tile_id' => $record->id,
+                'tenant_id' => $record->tenant_id,
+                'exception' => $e,
+            ]);
+
+            Notification::make()
+                ->title(__('filament.resources.tile.actions.publish_error'))
+                ->body(__('filament.resources.tile.actions.publish_error_generic'))
                 ->danger()
                 ->send();
         }

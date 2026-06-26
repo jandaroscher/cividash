@@ -176,22 +176,22 @@ class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInt
      */
     public function upsertEntity(array $entity): void
     {
-        $response = $this->applyWriteContext($this->http())
-            ->post($this->apiUrl.'/entities', $entity);
+        $response = $this->writeRequest($entity)
+            ->post($this->apiUrl.'/entities');
 
         // Entity already exists: switch to a partial-attribute update.
         if ($response->status() === 409) {
             $id = (string) ($entity['id'] ?? '');
 
             if ($id === '') {
-                $response->throw();
+                throw new \InvalidArgumentException('Cannot PATCH attrs: entity id is empty');
             }
 
             $attrs = $entity;
             unset($attrs['id'], $attrs['type']);
 
-            $patch = $this->applyWriteContext($this->http())
-                ->patch($this->apiUrl.'/entities/'.rawurlencode($id).'/attrs', $attrs);
+            $patch = $this->writeRequest($attrs)
+                ->patch($this->apiUrl.'/entities/'.rawurlencode($id).'/attrs');
 
             $patch->throw();
 
@@ -227,20 +227,25 @@ class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInt
     }
 
     /**
-     * Apply the JSON-LD negotiation headers for a write request.
+     * Build a write request carrying the entity body as application/ld+json.
      *
-     * Mirrors applyContext() (Accept + Link @context) and additionally sets
-     * Content-Type: application/ld+json so the broker expands the request body
-     * against the configured context — consistent with how reads negotiate.
+     * The body is JSON-encoded and attached via withBody() with an explicit
+     * application/ld+json content type — set EXACTLY once. (Using asJson() would
+     * first set application/json and then array_merge_recursive a second
+     * Content-Type, so the broker would receive "application/json,
+     * application/ld+json" and reject the request with HTTP 415.)
+     *
+     * Negotiation otherwise mirrors reads (Accept + Link @context via
+     * applyContext) and reuses the http() retry + timeout policy.
+     *
+     * @param  array<string,mixed>  $body
      */
-    private function applyWriteContext(PendingRequest $request): PendingRequest
+    private function writeRequest(array $body): PendingRequest
     {
-        // asJson() first so the body is JSON-encoded, then override the
-        // Content-Type to application/ld+json (asJson would otherwise set
-        // application/json, which Stellio rejects for @context expansion).
-        return $this->applyContext($request)
-            ->asJson()
-            ->withHeader('Content-Type', 'application/ld+json');
+        $json = json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return $this->applyContext($this->http())
+            ->withBody($json, 'application/ld+json');
     }
 
     // ---------------------------------------------------------------

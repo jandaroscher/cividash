@@ -146,4 +146,58 @@ class PublishTileActionTest extends TestCase
 
         Http::assertNothingSent();
     }
+
+    public function test_non_admin_user_cannot_invoke_publish_action(): void
+    {
+        // visible() is render-only; the server-side authorize() gate must also
+        // deny a non-admin. For a non-admin the action is both hidden AND not
+        // authorized, so a direct Livewire invocation is refused.
+        $nonAdmin = \App\Models\User::factory()->create(['is_admin' => false]);
+        $this->actingAs($nonAdmin);
+
+        Http::fake();
+
+        $tile = $this->makePublishableTile();
+
+        // The action is not rendered for a non-admin...
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->assertActionHidden('publishToCore');
+
+        // ...and the server-side authorization gate itself denies the non-admin
+        // (this is what authorize() consults, blocking direct invocation).
+        $this->assertFalse(\App\Filament\Resources\TileResource::canUserPublishToCore());
+
+        // An admin in the same context IS authorized — proving the gate is the
+        // discriminator, not some unrelated config.
+        $this->actingAs(\App\Models\User::factory()->admin()->create());
+        $this->assertTrue(\App\Filament\Resources\TileResource::canUserPublishToCore());
+
+        Http::assertNothingSent();
+    }
+
+    public function test_publish_error_notification_does_not_leak_broker_detail(): void
+    {
+        app()->setLocale('de');
+
+        // Broker rejects with a body that embeds the IdP/token URL — exactly the
+        // kind of detail that must NOT reach the user-facing notification.
+        $leakyDetail = 'token endpoint https://keycloak.example.com/token returned invalid_grant for client dashboard';
+
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response(['detail' => $leakyDetail], 422),
+        ]);
+
+        $tile = $this->makePublishableTile();
+
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->callAction('publishToCore')
+            ->assertNotified(__('filament.resources.tile.actions.publish_error'))
+            // The generic body carries only the HTTP status, never the raw detail.
+            ->assertDontSee($leakyDetail)
+            ->assertDontSee('keycloak.example.com');
+
+        // Nothing was stamped on a failed publish.
+        $this->assertNull($tile->fresh()->external_source);
+    }
 }

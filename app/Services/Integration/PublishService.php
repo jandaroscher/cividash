@@ -37,6 +37,8 @@ class PublishService
      */
     public function publishTile(Tile $tile, bool $force = false): PublishResult
     {
+        throw_if(is_null($tile->tenant_id), \InvalidArgumentException::class, 'Cannot publish a tile without a tenant.');
+
         $this->guardProvenance($tile);
 
         $entity = $this->mapper->mapTileToEntity($tile);

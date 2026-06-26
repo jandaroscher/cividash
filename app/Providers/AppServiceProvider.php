@@ -44,9 +44,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(SyncServiceInterface::class, SyncService::class);
 
         // Write-back: only NGSI-LD/Stellio supports publishing back to
-        // CORE. SensorThings stays read-only, so the writable binding is NGSI-LD
-        // exclusively — resolving it under another driver is a programming error.
-        $this->app->bind(WritableDataSourceInterface::class, fn () => NgsiLdClient::fromConfig());
+        // CORE. SensorThings stays read-only, so resolving the writable binding
+        // under any other driver is a programming error — fail loudly instead of
+        // handing out a silently broken client.
+        $this->app->bind(WritableDataSourceInterface::class, function () {
+            if (config('integrations.civitas.driver', 'ngsi-ld') !== 'ngsi-ld') {
+                throw new \LogicException('Write-back to CORE requires the ngsi-ld driver; the current driver is read-only.');
+            }
+
+            return NgsiLdClient::fromConfig();
+        });
     }
 
     /**

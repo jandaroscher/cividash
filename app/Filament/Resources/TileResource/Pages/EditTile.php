@@ -57,6 +57,9 @@ class EditTile extends EditRecord
                 ->icon('heroicon-o-cloud-arrow-up')
                 ->color('primary')
                 ->visible(fn (): bool => TileResource::canPublishToCore())
+                // Server-side gate: visible() is render-only, so authorize()
+                // also blocks direct Livewire invocation by non-admins.
+                ->authorize(fn (): bool => TileResource::canUserPublishToCore())
                 ->requiresConfirmation()
                 ->modalHeading(__('filament.resources.tile.actions.publish_confirm_heading'))
                 ->modalDescription(__('filament.resources.tile.actions.publish_confirm_description'))

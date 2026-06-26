@@ -215,4 +215,82 @@ class PublishServiceTest extends TestCase
         Http::assertSent(fn (Request $request) => $request->method() === 'PATCH'
             && str_contains($request->url(), 'co2-core/attrs'));
     }
+
+    public function test_forced_republish_over_existing_entity_patches_attrs(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities/*/attrs' => Http::response('', 204),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response(['detail' => 'exists'], 409),
+        ]);
+
+        $tile = $this->makeTileWithMetrics();
+        $tile->forceFill([
+            'external_source' => NgsiLdDataMapper::SOURCE_KEY,
+            'external_id' => 'urn:ngsi-ld:NachhaltigkeitsIndikator:co2-core',
+        ])->save();
+
+        // Pre-stamp the current hash so an unforced publish would be skipped —
+        // proving force pushes through the POST->409->PATCH /attrs path anyway.
+        $entity = app(NgsiLdDataMapper::class)->mapTileToEntity($tile->fresh());
+        $tile->forceFill(['source_hash' => app(NgsiLdDataMapper::class)->computeSourceHash($entity)])->save();
+
+        $result = $this->service()->publishTile($tile->fresh(), force: true);
+
+        $this->assertTrue($result->published);
+        Http::assertSent(fn (Request $request) => $request->method() === 'POST' && str_ends_with($request->url(), '/entities'));
+        Http::assertSent(fn (Request $request) => $request->method() === 'PATCH' && str_contains($request->url(), 'co2-core/attrs'));
+    }
+
+    public function test_publishing_one_tenants_tile_does_not_touch_another_tenants_tile(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response('', 201),
+        ]);
+
+        // Tenant A is the active tenant ($this->tenant). Build a second tenant B
+        // with its own tile that must stay untouched.
+        $tileA = $this->makeTileWithMetrics();
+
+        $tenantB = Tenant::create(['name' => 'Tenant B', 'slug' => 'tenant-b']);
+        $tileB = Tile::factory()->create([
+            'tenant_id' => $tenantB->id,
+            'title' => ['de' => 'B-Indikator', 'en' => 'B Indicator'],
+            'slug' => ['de' => 'b-indikator', 'en' => 'b-indicator'],
+            'time_granularity' => 'year',
+        ]);
+
+        $this->service()->publishTile($tileA);
+
+        $tileA->refresh();
+        $tileB->refresh();
+
+        // Only tenant A's tile is stamped; tenant B's tile is left completely alone.
+        $this->assertSame(NgsiLdDataMapper::SOURCE_KEY, $tileA->external_source);
+        $this->assertSame($this->tenant->id, $tileA->tenant_id);
+
+        $this->assertNull($tileB->external_source);
+        $this->assertNull($tileB->external_id);
+        $this->assertNull($tileB->source_hash);
+        $this->assertNull($tileB->last_synced_at);
+        $this->assertSame($tenantB->id, $tileB->tenant_id);
+    }
+
+    public function test_refuses_tile_without_tenant(): void
+    {
+        Http::fake();
+
+        $tile = $this->makeTileWithMetrics();
+        // Detach the tenant in memory to simulate a tenantless tile.
+        $tile->tenant_id = null;
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        try {
+            $this->service()->publishTile($tile);
+        } finally {
+            Http::assertNothingSent();
+        }
+    }
 }

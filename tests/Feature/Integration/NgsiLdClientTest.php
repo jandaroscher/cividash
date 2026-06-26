@@ -364,4 +364,45 @@ class NgsiLdClientTest extends TestCase
             'type' => 'NachhaltigkeitsIndikator',
         ]);
     }
+
+    public function test_upsert_entity_sends_exactly_one_ld_json_content_type_header(): void
+    {
+        // Regression guard: the write body must carry a SINGLE Content-Type of
+        // application/ld+json. A duplicate (application/json, application/ld+json)
+        // makes Stellio reject the request with HTTP 415 in production.
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response('', 201),
+        ]);
+
+        $this->client()->upsertEntity([
+            'id' => 'urn:ngsi-ld:NachhaltigkeitsIndikator:co2',
+            'type' => 'NachhaltigkeitsIndikator',
+        ]);
+
+        Http::assertSent(function (Request $request) {
+            if ($request->method() !== 'POST' || ! str_ends_with($request->url(), '/entities')) {
+                return false;
+            }
+
+            $contentType = $request->header('Content-Type');
+
+            return is_array($contentType)
+                && count($contentType) === 1
+                && $contentType[0] === 'application/ld+json';
+        });
+    }
+
+    public function test_upsert_entity_throws_invalid_argument_on_409_with_empty_id(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response(['detail' => 'exists'], 409),
+        ]);
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        // No usable id => cannot build the PATCH /attrs URL on the 409 fallback.
+        $this->client()->upsertEntity(['type' => 'NachhaltigkeitsIndikator', 'id' => '']);
+    }
 }
