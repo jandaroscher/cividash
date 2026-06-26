@@ -152,9 +152,9 @@ class CategorySeederTest extends TestCase
 
         $this->seeder->run($categories);
 
-        $first = Category::whereJsonContains('slug->de', 'First')->first();
-        $second = Category::whereJsonContains('slug->de', 'Second')->first();
-        $third = Category::whereJsonContains('slug->de', 'Third')->first();
+        $first = Category::whereTranslation('slug', 'de', 'First')->first();
+        $second = Category::whereTranslation('slug', 'de', 'Second')->first();
+        $third = Category::whereTranslation('slug', 'de', 'Third')->first();
 
         $this->assertEquals(0, $first->position);
         $this->assertEquals(1, $second->position);
