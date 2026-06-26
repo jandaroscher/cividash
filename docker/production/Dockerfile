@@ -75,7 +75,8 @@ WORKDIR /var/www/html
 # --- PHP extensions -------------------------------------------------------
 # Runtime libs are kept; build-only deps are installed in a virtual package
 # and dropped in the same layer to keep the image small.
-#   pdo_mysql  -> MariaDB driver
+#   pdo_mysql  -> MariaDB/MySQL driver
+#   pdo_pgsql  -> PostgreSQL driver
 #   mbstring   -> Laravel string handling
 #   bcmath     -> precise numeric ops (Filament, money)
 #   intl       -> localization (de/en)
@@ -92,7 +93,8 @@ RUN set -eux; \
         libpng \
         libzip \
         icu-libs \
-        oniguruma; \
+        oniguruma \
+        libpq; \
     apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         freetype-dev \
@@ -100,10 +102,12 @@ RUN set -eux; \
         libpng-dev \
         libzip-dev \
         icu-dev \
-        oniguruma-dev; \
+        oniguruma-dev \
+        postgresql-dev; \
     docker-php-ext-configure gd --with-freetype --with-jpeg; \
     docker-php-ext-install -j"$(nproc)" \
         pdo_mysql \
+        pdo_pgsql \
         mbstring \
         bcmath \
         intl \

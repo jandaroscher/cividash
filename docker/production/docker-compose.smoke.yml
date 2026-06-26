@@ -1,7 +1,7 @@
 # CiviDash production smoke stack.
 #
 # A self-contained, throwaway environment to verify the production images build
-# and boot together: nginx (cividash-web) -> PHP-FPM (cividash-fpm) -> MariaDB (cividash-db),
+# and boot together: nginx (cividash-web) -> PHP-FPM (cividash-fpm) -> PostgreSQL (cividash-db),
 # with a one-shot migrate job. Values inline below are SMOKE-ONLY (non-secret).
 #
 # Run from the repository root:
@@ -26,9 +26,9 @@ x-app-env: &app-env
   APP_KEY: base64:0pCDS0r5o7mFcvVtE3qg2lWg7xJ0mF1nM6n6cYV7H2A=
   APP_URL: http://localhost:8088
 
-  DB_CONNECTION: mariadb
+  DB_CONNECTION: pgsql
   DB_HOST: cividash-db
-  DB_PORT: "3306"
+  DB_PORT: "5432"
   DB_DATABASE: cividash
   DB_USERNAME: cividash
   DB_PASSWORD: cividash_smoke_pw
@@ -49,17 +49,16 @@ x-app-env: &app-env
 
 services:
   # -------------------------------------------------------------------------
-  # MariaDB — smoke database. Health-gated so dependants wait for readiness.
+  # PostgreSQL — smoke database. Health-gated so dependants wait for readiness.
   # -------------------------------------------------------------------------
   cividash-db:
-    image: mariadb:11
+    image: postgres:16
     environment:
-      MARIADB_DATABASE: cividash
-      MARIADB_USER: cividash
-      MARIADB_PASSWORD: cividash_smoke_pw
-      MARIADB_ROOT_PASSWORD: root_smoke_pw
+      POSTGRES_DB: cividash
+      POSTGRES_USER: cividash
+      POSTGRES_PASSWORD: cividash_smoke_pw
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test: ["CMD-SHELL", "pg_isready -U cividash -d cividash"]
       interval: 10s
       timeout: 5s
       retries: 20
