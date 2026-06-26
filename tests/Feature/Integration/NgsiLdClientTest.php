@@ -245,4 +245,123 @@ class NgsiLdClientTest extends TestCase
 
         Http::assertSent(fn (Request $request) => str_contains($request->url(), 'settings-keycloak.example.com/token'));
     }
+
+    // -----------------------------------------------------------------
+    // Write-back: upsertEntity
+    // -----------------------------------------------------------------
+
+    public function test_implements_writable_data_source_interface(): void
+    {
+        $this->assertInstanceOf(
+            \App\Contracts\Integration\WritableDataSourceInterface::class,
+            $this->client(),
+        );
+    }
+
+    public function test_upsert_entity_posts_to_entities_with_bearer_and_context(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response('', 201),
+        ]);
+
+        $contextUrl = 'https://broker.example.com/jsonldContexts/default';
+        $entity = [
+            'id' => 'urn:ngsi-ld:NachhaltigkeitsIndikator:co2',
+            'type' => 'NachhaltigkeitsIndikator',
+            'dataPoints' => ['type' => 'Property', 'value' => [['period' => '2023', 'value' => 1.5]]],
+        ];
+
+        $this->client($contextUrl)->upsertEntity($entity);
+
+        Http::assertSent(function (Request $request) use ($contextUrl, $entity) {
+            if ($request->method() !== 'POST' || ! str_ends_with($request->url(), '/entities')) {
+                return false;
+            }
+
+            $bearer = collect($request->header('Authorization'))->contains('Bearer tok-123');
+            $contentType = collect($request->header('Content-Type'))->contains(fn ($v) => str_contains($v, 'application/ld+json'));
+            $link = collect($request->header('Link'))->contains(fn ($v) => str_contains($v, $contextUrl));
+
+            return $bearer
+                && $contentType
+                && $link
+                && $request['id'] === $entity['id']
+                && $request['dataPoints'] === $entity['dataPoints'];
+        });
+    }
+
+    public function test_upsert_entity_falls_back_to_patch_attrs_on_409_conflict(): void
+    {
+        $entityId = 'urn:ngsi-ld:NachhaltigkeitsIndikator:co2';
+
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities/'.urlencode($entityId).'/attrs' => Http::response('', 204),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response(['detail' => 'already exists'], 409),
+        ]);
+
+        $entity = [
+            'id' => $entityId,
+            'type' => 'NachhaltigkeitsIndikator',
+            'name' => ['type' => 'LanguageProperty', 'languageMap' => ['de' => 'X']],
+        ];
+
+        $this->client()->upsertEntity($entity);
+
+        // First a POST /entities (409), then a PATCH /entities/{id}/attrs (204).
+        Http::assertSent(fn (Request $request) => $request->method() === 'POST'
+            && str_ends_with($request->url(), '/entities'));
+
+        Http::assertSent(function (Request $request) use ($entityId) {
+            if ($request->method() !== 'PATCH') {
+                return false;
+            }
+
+            // The PATCH body carries attributes, not the id/type envelope.
+            return str_contains($request->url(), '/entities/'.urlencode($entityId).'/attrs')
+                && ! isset($request['id'])
+                && ! isset($request['type'])
+                && isset($request['name']);
+        });
+    }
+
+    public function test_upsert_entity_treats_204_create_as_success_without_patch(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response('', 204),
+        ]);
+
+        $this->client()->upsertEntity([
+            'id' => 'urn:ngsi-ld:NachhaltigkeitsIndikator:co2',
+            'type' => 'NachhaltigkeitsIndikator',
+        ]);
+
+        $patchCount = 0;
+        Http::recorded(function (Request $request) use (&$patchCount) {
+            if ($request->method() === 'PATCH') {
+                $patchCount++;
+            }
+
+            return false;
+        });
+
+        $this->assertSame(0, $patchCount, 'A 204 create must NOT trigger a PATCH fallback.');
+    }
+
+    public function test_upsert_entity_surfaces_non_conflict_4xx(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response(['detail' => 'bad request'], 400),
+        ]);
+
+        $this->expectException(\Illuminate\Http\Client\RequestException::class);
+
+        $this->client()->upsertEntity([
+            'id' => 'urn:ngsi-ld:NachhaltigkeitsIndikator:co2',
+            'type' => 'NachhaltigkeitsIndikator',
+        ]);
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Services\Integration;
 
 use App\Contracts\Integration\ExternalDataSourceInterface;
+use App\Contracts\Integration\WritableDataSourceInterface;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Log;
  *
  * @see https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.06.01_60/gs_CIM009v010601p.pdf
  */
-class NgsiLdClient implements ExternalDataSourceInterface
+class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInterface
 {
     private ?string $accessToken = null;
 
@@ -153,6 +154,54 @@ class NgsiLdClient implements ExternalDataSourceInterface
     }
 
     // ---------------------------------------------------------------
+    // WritableDataSourceInterface (write-back)
+    // ---------------------------------------------------------------
+
+    /**
+     * Create or update an NGSI-LD entity (idempotent upsert).
+     *
+     * Tries POST {api_url}/entities (201/204). When the broker reports the
+     * entity already exists (409 Conflict), falls back to a partial-attribute
+     * update via PATCH {api_url}/entities/{id}/attrs (204). The id/type envelope
+     * is stripped from the PATCH body since attrs updates carry attributes only.
+     *
+     * The JSON-LD @context is negotiated the same way reads do (Accept + Link),
+     * with Content-Type set to application/ld+json so the broker expands the
+     * request body against the configured context. Reuses the http() retry +
+     * timeout policy (5xx retried, 4xx surfaced immediately).
+     *
+     * @param  array<string,mixed>  $entity
+     *
+     * @throws \Illuminate\Http\Client\RequestException on any non-recoverable HTTP error.
+     */
+    public function upsertEntity(array $entity): void
+    {
+        $response = $this->applyWriteContext($this->http())
+            ->post($this->apiUrl.'/entities', $entity);
+
+        // Entity already exists: switch to a partial-attribute update.
+        if ($response->status() === 409) {
+            $id = (string) ($entity['id'] ?? '');
+
+            if ($id === '') {
+                $response->throw();
+            }
+
+            $attrs = $entity;
+            unset($attrs['id'], $attrs['type']);
+
+            $patch = $this->applyWriteContext($this->http())
+                ->patch($this->apiUrl.'/entities/'.rawurlencode($id).'/attrs', $attrs);
+
+            $patch->throw();
+
+            return;
+        }
+
+        $response->throw();
+    }
+
+    // ---------------------------------------------------------------
     // Request helpers
     // ---------------------------------------------------------------
 
@@ -175,6 +224,23 @@ class NgsiLdClient implements ExternalDataSourceInterface
         }
 
         return $request;
+    }
+
+    /**
+     * Apply the JSON-LD negotiation headers for a write request.
+     *
+     * Mirrors applyContext() (Accept + Link @context) and additionally sets
+     * Content-Type: application/ld+json so the broker expands the request body
+     * against the configured context — consistent with how reads negotiate.
+     */
+    private function applyWriteContext(PendingRequest $request): PendingRequest
+    {
+        // asJson() first so the body is JSON-encoded, then override the
+        // Content-Type to application/ld+json (asJson would otherwise set
+        // application/json, which Stellio rejects for @context expansion).
+        return $this->applyContext($request)
+            ->asJson()
+            ->withHeader('Content-Type', 'application/ld+json');
     }
 
     // ---------------------------------------------------------------
