@@ -17,6 +17,7 @@ use App\Services\Integration\SyncService;
 use BezhanSalleh\FilamentLanguageSwitch\Events\LocaleChanged;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
@@ -68,6 +69,53 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        // Serialise an aggregate (max) read against concurrent writers. MySQL/
+        // MariaDB/SQLite use "SELECT max(...) ... FOR UPDATE". PostgreSQL forbids
+        // FOR UPDATE with aggregate functions, so instead we take a transaction-
+        // scoped advisory lock keyed on $lockName; the caller MUST run this inside
+        // the same transaction that performs the subsequent write, so the lock
+        // spans the read+write window (it is released on commit/rollback).
+        EloquentBuilder::macro('lockForUpdateForAggregate', function (string $lockName) {
+            /** @var EloquentBuilder $this */
+            $connection = $this->getConnection();
+            $driver = $connection->getDriverName();
+
+            if (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+                $key = (int) hexdec(substr(hash('sha256', $lockName), 0, 15));
+                $connection->statement('SELECT pg_advisory_xact_lock(?)', [$key]);
+
+                return $this;
+            }
+
+            return $this->lockForUpdate();
+        });
+
+        // Match a translatable JSON column on an exact locale value, portably.
+        // Laravel's whereJsonContains()/where('col->de', ...) emit the json `->`
+        // operator, which PostgreSQL rejects on columns physically stored as varchar
+        // (several translatable columns are). This builds the right per-driver
+        // expression (see App\Traits\BuildsJsonLocaleExpressions for the dialects).
+        EloquentBuilder::macro('whereTranslation', function (string $column, string $locale, string $value) {
+            /** @var EloquentBuilder $this */
+            // Whitelist the locale before interpolating it into raw SQL, mirroring
+            // App\Traits\BuildsJsonLocaleExpressions.
+            if (! in_array($locale, ['de', 'en'], true)) {
+                throw new \InvalidArgumentException("Unsupported locale [{$locale}] for whereTranslation().");
+            }
+
+            $driver = $this->getConnection()->getDriverName();
+
+            if (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+                $expr = sprintf("CAST(%s AS json)->>'%s'", $column, $locale);
+            } elseif ($driver === 'sqlite') {
+                $expr = sprintf("json_extract(%s, '$.\"%s\"')", $column, $locale);
+            } else {
+                $expr = sprintf("JSON_UNQUOTE(JSON_EXTRACT(%s, '$.\"%s\"'))", $column, $locale);
+            }
+
+            return $this->whereRaw("{$expr} = ?", [$value]);
+        });
 
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
             $switch

@@ -156,28 +156,19 @@ class ExportController extends Controller
 
     private function findBySlugInLocale(EloquentBuilder $base, string $slug, string $locale): ?Tile
     {
-        $tile = (clone $base)->where('slug->'.$locale, $slug)->first();
+        $tile = (clone $base)->whereTranslation('slug', $locale, $slug)->first();
         if ($tile) {
             return $tile;
         }
 
-        if ($base->getConnection()->getDriverName() === 'sqlite') {
-            $path = '$."'.$locale.'"';
-            $tile = (clone $base)
-                ->whereRaw('json_extract(slug, ?) = ?', [$path, $slug])
-                ->first();
-            if ($tile) {
-                return $tile;
-            }
+        // Driver-agnostic emergency fallback: resolve the slug in PHP. Stays
+        // tenant-scoped because it clones $base (which carries the BelongsToTenant
+        // global scope + is_public filter) rather than querying Tile unscoped.
+        return (clone $base)->get()->first(function (Tile $candidate) use ($slug, $locale): bool {
+            $t = $candidate->getTranslations('slug');
 
-            return (clone $base)->get()->first(function (Tile $candidate) use ($slug, $locale): bool {
-                $t = $candidate->getTranslations('slug');
-
-                return ($t[$locale] ?? null) === $slug;
-            });
-        }
-
-        return null;
+            return ($t[$locale] ?? null) === $slug;
+        });
     }
 
     private function translate(Tile $tile, string $attribute, string $locale): ?string

@@ -95,7 +95,7 @@ class NavigationSeederTest extends TestCase
         $navigationItems = $navigation->getTranslation('navigation_items', 'de', false) ?? [];
 
         // Find Download page item
-        $downloadPage = Page::whereJsonContains('slug->de', 'download')->first();
+        $downloadPage = Page::whereTranslation('slug', 'de', 'download')->first();
         $downloadItem = collect($navigationItems)->first(function ($item) use ($downloadPage) {
             return $item['type'] === 'page' && $item['page_id'] === $downloadPage->id;
         });
@@ -188,7 +188,7 @@ class NavigationSeederTest extends TestCase
         $navigationItems = $navigation->getTranslation('navigation_items', 'de', false) ?? [];
 
         // Find Download item
-        $downloadPage = Page::whereJsonContains('slug->de', 'download')->first();
+        $downloadPage = Page::whereTranslation('slug', 'de', 'download')->first();
         $downloadItem = collect($navigationItems)->first(function ($item) use ($downloadPage) {
             return $item['type'] === 'page' && $item['page_id'] === $downloadPage->id;
         });
@@ -198,7 +198,7 @@ class NavigationSeederTest extends TestCase
         $this->assertEquals('Download', $downloadItem['label']['de'] ?? '');
 
         // Find Kontakt item
-        $contactPage = Page::whereJsonContains('slug->de', 'kontakt')->first();
+        $contactPage = Page::whereTranslation('slug', 'de', 'kontakt')->first();
         $contactItem = collect($navigationItems)->first(function ($item) use ($contactPage) {
             return $item['type'] === 'page' && $item['page_id'] === $contactPage->id;
         });

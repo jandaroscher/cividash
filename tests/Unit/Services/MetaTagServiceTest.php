@@ -110,6 +110,25 @@ class MetaTagServiceTest extends TestCase
         $this->assertSame('en', $meta->locale);
     }
 
+    public function test_resolve_tile_uses_cross_locale_slug_fallback(): void
+    {
+        // Tile has only an EN slug; resolving the DE tiles path must still find it
+        // via the cross-locale orWhere fallback in resolveForTile(). This exercises
+        // the driver-aware whereTranslation() path (raw slug->locale arrow operator
+        // would error on PostgreSQL).
+        Tile::create([
+            'title' => ['de' => 'Energie', 'en' => 'Energy'],
+            'slug' => ['de' => '', 'en' => 'energy'],
+            'meta_title' => ['de' => 'Energie SEO', 'en' => 'Energy SEO'],
+            'meta_description' => ['de' => 'Energie Meta', 'en' => 'Energy Meta'],
+        ]);
+
+        $meta = $this->service->resolveForTile('energy', 'de');
+
+        $this->assertStringContainsString('Energie SEO', $meta->title);
+        $this->assertSame('Energie Meta', $meta->description);
+    }
+
     public function test_resolve_cms_page(): void
     {
         Page::create([
