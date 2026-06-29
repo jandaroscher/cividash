@@ -6,6 +6,7 @@ use App\Enums\TimeGranularity;
 use App\Exceptions\Integration\ForeignProvenanceException;
 use App\Filament\Concerns\HasBlockActiveToggleAction;
 use App\Filament\Concerns\HasSortableTranslations;
+use App\Filament\Fabricator\PageBlocks\DownloadBlock;
 use App\Filament\Fabricator\PageBlocks\FAQBlock;
 use App\Filament\Fabricator\PageBlocks\IntroTextBlock;
 use App\Filament\Fabricator\PageBlocks\SliderBlock;
@@ -776,6 +777,7 @@ class TileResource extends Resource
         $blocks = [];
         $registeredBlocks = config('filament-fabricator.page-blocks.register', []);
         $allowedBlocks = [
+            DownloadBlock::class,
             FAQBlock::class,
             IntroTextBlock::class,
             SliderBlock::class,

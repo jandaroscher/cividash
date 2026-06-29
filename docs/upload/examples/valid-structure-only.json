@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "mode": "upsert",
+  "category_groups": [
+    {
+      "key": "handlungsfelder",
+      "title": { "de": "Handlungsfelder", "en": "Action Fields" },
+      "is_filterable": true,
+      "is_color_source": true,
+      "selection_type": "multi"
+    },
+    {
+      "key": "dimensionen",
+      "title": { "de": "Dimensionen", "en": "Dimensions" },
+      "is_filterable": false,
+      "is_color_source": false,
+      "selection_type": "single"
+    }
+  ],
+  "categories": [
+    { "group_key": "handlungsfelder", "key": "energie", "slug": { "de": "energie", "en": "energy" }, "color": "#FF6B35" },
+    { "group_key": "handlungsfelder", "key": "mobilitaet", "slug": { "de": "mobilitaet", "en": "mobility" }, "color": "#0073CF" },
+    { "group_key": "handlungsfelder", "key": "wasser", "slug": { "de": "wasser", "en": "water" }, "color": "#00A3E0" },
+    { "group_key": "dimensionen", "key": "oekologisch", "slug": { "de": "oekologisch", "en": "ecological" } },
+    { "group_key": "dimensionen", "key": "oekonomisch", "slug": { "de": "oekonomisch", "en": "economic" } },
+    { "group_key": "dimensionen", "key": "sozial", "slug": { "de": "sozial", "en": "social" } }
+  ],
+  "data": []
+}

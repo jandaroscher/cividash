@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-04-20T10:00:00Z",
+  "tenant": { "slug": "stadt-regensburg", "name": "Stadt Regensburg" },
+  "locale": "de",
+  "mode": "upsert",
+  "fields": [
+    "tile.slug",
+    "tile.title",
+    "tile.description",
+    "tile.position",
+    "category.keys",
+    "metric.key",
+    "metric.label",
+    "metric.unit",
+    "metric.indicator_type",
+    "value.year",
+    "value.value"
+  ],
+  "category_groups": [
+    {
+      "key": "handlungsfelder",
+      "title": { "de": "Handlungsfelder", "en": "Action Fields" },
+      "is_filterable": true,
+      "is_color_source": true,
+      "selection_type": "multi"
+    }
+  ],
+  "categories": [
+    {
+      "group_key": "handlungsfelder",
+      "key": "energie",
+      "slug": { "de": "energie", "en": "energy" },
+      "color": "#FF6B35",
+      "is_active": true
+    },
+    {
+      "group_key": "handlungsfelder",
+      "key": "mobilitaet",
+      "slug": { "de": "mobilitaet", "en": "mobility" },
+      "color": "#0073CF",
+      "is_active": true
+    }
+  ],
+  "data": [
+    {
+      "tile.slug": "energieverbrauch",
+      "tile.title": { "de": "Energieverbrauch", "en": "Energy Consumption" },
+      "tile.description": { "de": "Gesamter Energieverbrauch nach Sektoren", "en": "Total energy consumption by sector" },
+      "tile.position": 1,
+      "category.keys": ["handlungsfelder/energie"],
+      "metric.key": "kwh_total",
+      "metric.label": { "de": "Gesamtverbrauch", "en": "Total Consumption" },
+      "metric.unit": { "de": "GWh", "en": "GWh" },
+      "metric.indicator_type": "number",
+      "value.year": 2023,
+      "value.value": 3620
+    },
+    {
+      "tile.slug": "energieverbrauch",
+      "tile.title": { "de": "Energieverbrauch", "en": "Energy Consumption" },
+      "tile.position": 1,
+      "metric.key": "kwh_total",
+      "metric.label": { "de": "Gesamtverbrauch", "en": "Total Consumption" },
+      "metric.unit": { "de": "GWh", "en": "GWh" },
+      "metric.indicator_type": "number",
+      "value.year": 2024,
+      "value.value": 3750
+    },
+    {
+      "tile.slug": "oepnv-nutzung",
+      "tile.title": { "de": "ÖPNV-Nutzung", "en": "Public Transit Use" },
+      "tile.description": { "de": "Fahrgäste pro Jahr" },
+      "tile.position": 2,
+      "category.keys": ["handlungsfelder/mobilitaet"],
+      "metric.key": "passengers_per_year",
+      "metric.label": { "de": "Fahrgäste" },
+      "metric.unit": { "de": "Mio." },
+      "metric.indicator_type": "number",
+      "value.year": 2024,
+      "value.value": 42.5
+    }
+  ]
+}

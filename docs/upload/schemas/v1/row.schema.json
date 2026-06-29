@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Upload Row",
+  "description": "One row = one (tile, metric_definition, metric_value) tuple. Field names follow the `entity.attribute` convention from App\\Services\\Export\\FieldWhitelist so the row shape is symmetric with the JSON export.",
+  "type": "object",
+  "required": ["tile.slug"],
+  "additionalProperties": false,
+  "properties": {
+    "tile.id": {
+      "type": ["integer", "null"],
+      "description": "Ignored on import; tenant-local IDs are regenerated."
+    },
+    "tile.slug": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "URL-safe de-slug; natural key of the tile within the tenant."
+    },
+    "tile.title": {
+      "$ref": "#/definitions/translatable_string",
+      "description": "Required on create. de locale required, en optional."
+    },
+    "tile.description": {
+      "$ref": "#/definitions/translatable_rich_text"
+    },
+    "tile.hint": {
+      "$ref": "#/definitions/translatable_rich_text"
+    },
+    "tile.position": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "category.keys": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_-]+/[a-z0-9_-]+$",
+        "description": "Format: `<group.key>/<category.key>`, e.g. `handlungsfelder/energie`."
+      },
+      "uniqueItems": true
+    },
+    "category.labels": {
+      "type": "array",
+      "items": { "type": ["string", "null"] },
+      "description": "Ignored on import; informational only (comes from export)."
+    },
+    "category.groups": {
+      "type": "array",
+      "items": { "type": ["string", "null"] },
+      "description": "Ignored on import; informational only (comes from export)."
+    },
+    "metric.key": {
+      "type": ["string", "null"],
+      "maxLength": 255,
+      "description": "Required if any value.* fields are set. Unique per tile."
+    },
+    "metric.label": {
+      "oneOf": [
+        { "$ref": "#/definitions/translatable_string" },
+        { "type": "null" }
+      ],
+      "description": "Required on new metric definition."
+    },
+    "metric.unit": {
+      "oneOf": [
+        { "$ref": "#/definitions/translatable_string" },
+        { "type": "null" }
+      ]
+    },
+    "metric.indicator_type": {
+      "type": ["string", "null"],
+      "maxLength": 50,
+      "examples": ["number", "percentage"]
+    },
+    "metric.source": {
+      "type": ["string", "null"],
+      "description": "Reserved for a post-follow-up. Accepted but currently not persisted."
+    },
+    "metric.source_url": {
+      "type": ["string", "null"],
+      "description": "Reserved. Accepted but currently not persisted."
+    },
+    "metric.methodology": {
+      "type": ["string", "null"],
+      "description": "Reserved. Accepted but currently not persisted."
+    },
+    "metric.formula": {
+      "type": ["string", "null"],
+      "description": "Reserved. Accepted but currently not persisted."
+    },
+    "value.year": {
+      "type": ["integer", "null"],
+      "minimum": 1900,
+      "maximum": 2100,
+      "description": "Calendar year; the natural key of a value, symmetric with the export. Required if value.value is set. v1 is year-only: it maps internally to a year-granularity TimePeriod (period_key = the 4-digit year). Sub-year granularities (quarter/month/week/day) are a planned v1.1 extension and are not accepted in v1."
+    },
+    "value.value": {
+      "type": ["number", "null"]
+    },
+    "value.sort_order": {
+      "type": ["integer", "null"]
+    }
+  },
+  "allOf": [
+    {
+      "description": "If value.value is provided, value.year and metric.key are required.",
+      "if": {
+        "properties": { "value.value": { "type": "number" } },
+        "required": ["value.value"]
+      },
+      "then": {
+        "required": ["value.year", "metric.key"],
+        "properties": {
+          "value.year": { "type": "integer" },
+          "metric.key": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "translatable_string": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "de": { "type": ["string", "null"], "maxLength": 255 },
+        "en": { "type": ["string", "null"], "maxLength": 255 }
+      }
+    },
+    "translatable_rich_text": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "de": { "type": ["string", "null"] },
+            "en": { "type": ["string", "null"] }
+          }
+        },
+        { "type": "null" },
+        {
+          "type": "string",
+          "description": "Accepted as plain text (e.g. from CSV round-trip). Will be wrapped into {de: value} during import based on bundle.locale."
+        }
+      ]
+    }
+  }
+}

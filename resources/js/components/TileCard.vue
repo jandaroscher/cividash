@@ -110,7 +110,7 @@
 
         <p
           v-if="years.length > 1 && currentYear !== years[0]"
-          class="text-theme-base text-gray-400 font-semibold flex flex-row gap-2 justify-end text-sm"
+          class="text-theme-base text-gray-400 font-semibold flex flex-row items-center gap-2 justify-end text-sm"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -118,7 +118,7 @@
             height="17"
             viewBox="0 0 24 25"
             aria-hidden="true"
-            class="text-gray-600 flex-shrink-0"
+            class="text-gray-600 flex-shrink-0 relative -top-px"
           >
             <g transform="translate(0 1)">
               <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
@@ -133,7 +133,7 @@
 
         <div
           v-if="hint"
-          class="text-sm italic text-gray-600 mt-1"
+          class="text-sm italic text-gray-400 mt-2.5"
         >
           {{ hint }}
         </div>

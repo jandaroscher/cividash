@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Category",
+  "description": "Category within a category group. `group_key` references a category_group.key in the same bundle or already in the DB.",
+  "type": "object",
+  "required": ["group_key", "key"],
+  "additionalProperties": false,
+  "properties": {
+    "group_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^[a-z0-9_-]+$",
+      "description": "References category_group.key."
+    },
+    "key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^[a-z0-9_-]+$",
+      "description": "Natural key, unique per group."
+    },
+    "slug": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "de": { "type": ["string", "null"], "maxLength": 255 },
+        "en": { "type": ["string", "null"], "maxLength": 255 }
+      }
+    },
+    "icon": {
+      "type": ["string", "null"],
+      "maxLength": 255
+    },
+    "color": {
+      "type": ["string", "null"],
+      "pattern": "^#[0-9A-Fa-f]{6}$"
+    },
+    "is_active": {
+      "type": ["boolean", "null"],
+      "default": true
+    },
+    "position": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    }
+  }
+}
