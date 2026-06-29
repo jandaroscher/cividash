@@ -34,7 +34,7 @@ class PageSeeder extends Seeder
 
             // Find existing page by DE slug, scoped to current Filament tenant
             // (global tenant scope is bypassed in console commands)
-            $page = Page::whereJsonContains('slug->de', $slugDe)
+            $page = Page::whereTranslation('slug', 'de', $slugDe)
                 ->when(Filament::getTenant(), fn ($q, $t) => $q->where('tenant_id', $t->id))
                 ->first();
 

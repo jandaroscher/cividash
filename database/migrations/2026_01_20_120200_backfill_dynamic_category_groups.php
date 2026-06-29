@@ -186,7 +186,7 @@ return new class extends Migration
 
             $category = Category::query()
                 ->where('category_group_id', $group->id)
-                ->whereJsonContains('slug->de', $titleDe)
+                ->whereTranslation('slug', 'de', $titleDe)
                 ->first();
 
             if (! $category) {
@@ -228,7 +228,7 @@ return new class extends Migration
 
             $category = Category::query()
                 ->where('category_group_id', $group->id)
-                ->whereJsonContains('slug->de', $titleDe)
+                ->whereTranslation('slug', 'de', $titleDe)
                 ->first();
 
             if (! $category) {

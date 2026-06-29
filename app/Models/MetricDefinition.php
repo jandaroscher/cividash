@@ -34,6 +34,7 @@ class MetricDefinition extends Model
         'label' => 'array',
         'unit' => 'array',
         'is_active' => 'boolean',
+        'last_synced_at' => 'datetime',
     ];
 
     public function tile()

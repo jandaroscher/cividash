@@ -1,0 +1,138 @@
+# Local Stellio NGSI-LD context broker — CORE V1.6.2-aligned dev stack.
+#
+# Validates the dashboard's NGSI-LD Pull pipeline against a real, ETSI
+# NGSI-LD-compliant broker. Stellio is the same FIWARE Generic Enabler that
+# sits behind APISIX in CORE production, so a bare local Stellio is a valid
+# stand-in for Pull validation.
+#
+# Topology (minimal): postgres (timescale-postgis) + kafka + api-gateway +
+# search-service + subscription-service. The api-gateway is THE NGSI-LD entry
+# point (port 8080 internally), published to the host on ${API_GATEWAY_HOST_PORT}.
+#
+# Authentication is DISABLED (STELLIO_AUTHENTICATION_ENABLED=false) so the
+# broker is fully open — no JWT needed. This mirrors the official .env default
+# at the pinned 2.21.0 tag and lets our NgsiLdClient skip OAuth entirely.
+#
+# All image tags / ports / credentials are driven by .env (see .env.example).
+
+name: civitas-stellio-local
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 16 + TimescaleDB + PostGIS — the NGSI-LD entity store backend.
+  # The entrypoint creates BOTH databases (search + subscription) and installs
+  # the required extensions.
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: stellio/stellio-timescale-postgis:${POSTGRES_IMAGE_TAG}
+    container_name: stellio-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASS: ${POSTGRES_PASSWORD}
+      POSTGRES_DBNAME: stellio_search,stellio_subscription
+      POSTGRES_MULTIPLE_EXTENSIONS: postgis,timescaledb,pgcrypto
+      ACCEPT_TIMESCALE_TUNING: "TRUE"
+    volumes:
+      # Kartoza/Debian image stores data at /var/lib/postgresql/16/main, NOT
+      # /var/lib/postgresql/data — mount the real data dir so it actually persists.
+      - postgres-data:/var/lib/postgresql/16/main
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Kafka (Confluent cp-kafka) in KRaft mode — no Zookeeper. The Stellio
+  # services reach it in-network as stellio-kafka:9092; the 29092 host port is
+  # only for external tooling.
+  # ---------------------------------------------------------------------------
+  kafka:
+    image: confluentinc/cp-kafka:${KAFKA_IMAGE_TAG}
+    container_name: stellio-kafka
+    hostname: stellio-kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: CONTROLLER://stellio-kafka:29093,PLAINTEXT://stellio-kafka:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://stellio-kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@stellio-kafka:29093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      CLUSTER_ID: ZGE2MTQ4NDk4NGU3NDE2Mm
+    ports:
+      - "${KAFKA_HOST_PORT}:29092"
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # search-service — the NGSI-LD entity store (GET/POST /entities live here,
+  # routed through the api-gateway). Backed by TimescaleDB.
+  # ---------------------------------------------------------------------------
+  search-service:
+    image: stellio/stellio-search-service:${STELLIO_DOCKER_TAG}
+    container_name: stellio-search-service
+    environment:
+      SPRING_PROFILES_ACTIVE: ${ENVIRONMENT}
+      SPRING_R2DBC_URL: r2dbc:pool:postgresql://postgres/stellio_search
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres/stellio_search
+      SPRING_R2DBC_USERNAME: ${POSTGRES_USER}
+      SPRING_R2DBC_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP-SERVERS: stellio-kafka:9092
+      APPLICATION_AUTHENTICATION_ENABLED: ${STELLIO_AUTHENTICATION_ENABLED}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # subscription-service — part of the canonical Stellio set. Not required to
+  # GET/POST entities, but kept for completeness. Backed by TimescaleDB.
+  # ---------------------------------------------------------------------------
+  subscription-service:
+    image: stellio/stellio-subscription-service:${STELLIO_DOCKER_TAG}
+    container_name: stellio-subscription-service
+    environment:
+      SPRING_PROFILES_ACTIVE: ${ENVIRONMENT}
+      SPRING_R2DBC_URL: r2dbc:pool:postgresql://postgres/stellio_subscription
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres/stellio_subscription
+      SPRING_R2DBC_USERNAME: ${POSTGRES_USER}
+      SPRING_R2DBC_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP-SERVERS: stellio-kafka:9092
+      APPLICATION_AUTHENTICATION_ENABLED: ${STELLIO_AUTHENTICATION_ENABLED}
+      SUBSCRIPTION_ENTITY-SERVICE-URL: http://search-service:8083
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # api-gateway — THE NGSI-LD entry point. Routes /ngsi-ld/v1/* to the
+  # services. Published to the host so DDEV can reach it via
+  # host.docker.internal:${API_GATEWAY_HOST_PORT}.
+  # ---------------------------------------------------------------------------
+  api-gateway:
+    image: stellio/stellio-api-gateway:${STELLIO_DOCKER_TAG}
+    container_name: stellio-api-gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: ${ENVIRONMENT}
+    ports:
+      - "${API_GATEWAY_HOST_PORT}:8080"
+    depends_on:
+      - search-service
+      - subscription-service
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    name: civitas-stellio-postgres-data

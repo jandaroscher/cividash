@@ -1,0 +1,117 @@
+[
+  {
+    "id": "urn:ngsi-ld:NachhaltigkeitsIndikator:erneuerbare-energien",
+    "type": "NachhaltigkeitsIndikator",
+    "name": {
+      "type": "LanguageProperty",
+      "languageMap": {
+        "de": "Erneuerbare Energien",
+        "en": "Renewable Energy"
+      }
+    },
+    "description": {
+      "type": "LanguageProperty",
+      "languageMap": {
+        "de": "Ausbau der Erneuerbaren Energien im Stadtgebiet",
+        "en": "Expansion of renewable energy in the urban area"
+      }
+    },
+    "unit": {
+      "type": "Property",
+      "value": "MW"
+    },
+    "category": {
+      "type": "Relationship",
+      "object": "urn:ngsi-ld:Category:energie"
+    },
+    "dataPoints": {
+      "type": "Property",
+      "value": [
+        { "year": 2015, "value": 26.1 },
+        { "year": 2018, "value": 35.4 },
+        { "year": 2020, "value": 44.2 },
+        { "year": 2022, "value": 55.8 },
+        { "year": 2023, "value": 64.0 }
+      ]
+    },
+    "@context": [
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.8.jsonld"
+    ]
+  },
+  {
+    "id": "urn:ngsi-ld:NachhaltigkeitsIndikator:radverkehr",
+    "type": "NachhaltigkeitsIndikator",
+    "name": {
+      "type": "LanguageProperty",
+      "languageMap": {
+        "de": "Radverkehr",
+        "en": "Cycling"
+      }
+    },
+    "description": {
+      "type": "LanguageProperty",
+      "languageMap": {
+        "de": "Steigerung des Radverkehrsanteils am Gesamtverkehr",
+        "en": "Increase of cycling share in total traffic"
+      }
+    },
+    "unit": {
+      "type": "Property",
+      "value": "%"
+    },
+    "category": {
+      "type": "Relationship",
+      "object": "urn:ngsi-ld:Category:mobilitaet"
+    },
+    "dataPoints": {
+      "type": "Property",
+      "value": [
+        { "year": 2015, "value": 18.5 },
+        { "year": 2018, "value": 20.1 },
+        { "year": 2020, "value": 21.8 },
+        { "year": 2022, "value": 23.4 }
+      ]
+    },
+    "@context": [
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.8.jsonld"
+    ]
+  },
+  {
+    "id": "urn:ngsi-ld:NachhaltigkeitsIndikator:co2-emissionen",
+    "type": "NachhaltigkeitsIndikator",
+    "name": {
+      "type": "LanguageProperty",
+      "languageMap": {
+        "de": "CO2-Emissionen",
+        "en": "CO2 Emissions"
+      }
+    },
+    "description": {
+      "type": "LanguageProperty",
+      "languageMap": {
+        "de": "Reduktion der städtischen CO2-Emissionen",
+        "en": "Reduction of urban CO2 emissions"
+      }
+    },
+    "unit": {
+      "type": "Property",
+      "value": "t CO2/a"
+    },
+    "category": {
+      "type": "Relationship",
+      "object": "urn:ngsi-ld:Category:klima"
+    },
+    "dataPoints": {
+      "type": "Property",
+      "value": [
+        { "year": 2015, "value": 8.2 },
+        { "year": 2018, "value": 7.5 },
+        { "year": 2020, "value": 6.8 },
+        { "year": 2022, "value": 6.1 }
+      ]
+    },
+    "@context": [
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.8.jsonld"
+    ]
+  }
+]

@@ -251,7 +251,19 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                     ->options($availableAbilities)
                     ->query(fn (Builder $query, array $data) => $query->when(
                         $data['value'],
-                        fn (Builder $q, string $v) => $q->whereJsonContains('abilities', $v)
+                        function (Builder $q, string $v) {
+                            // personal_access_tokens.abilities is Sanctum's default `text`
+                            // column holding a JSON array, e.g. ["read","write"]. PostgreSQL
+                            // cannot apply whereJsonContains (text @> jsonb) to it, so cast to
+                            // jsonb there; keep whereJsonContains on mysql/mariadb/sqlite.
+                            $driver = $q->getConnection()->getDriverName();
+
+                            if (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+                                return $q->whereRaw('abilities::jsonb @> ?::jsonb', [json_encode([$v])]);
+                            }
+
+                            return $q->whereJsonContains('abilities', $v);
+                        }
                     )),
                 TernaryFilter::make('is_active')
                     ->label(__('filament.pages.manage_api_keys.column_active')),

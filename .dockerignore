@@ -1,0 +1,61 @@
+# Keep the Docker build context lean and reproducible.
+# The vendor stage does `COPY . .` from the repo root, so anything here is
+# excluded from that copy. Host-built artifacts MUST be excluded so the image
+# uses only what the build stages produce.
+
+# Host dependency trees — rebuilt inside the image (vendor/assets stages).
+/vendor
+/node_modules
+
+# Host-built frontend output — produced by the assets stage instead.
+/public/build
+/public/hot
+/public/storage
+
+# Secrets / local env — never bake into an image.
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# VCS & CI
+.git
+.github
+.gitignore
+.gitattributes
+
+# Local/IDE/tooling state
+.ddev
+.idea
+.vscode
+.fleet
+.nova
+.zed
+.claude
+.gstack
+.superpowers
+.planning
+.phpactor.json
+.editorconfig
+
+# Tests, reports and generated docs (not needed at runtime).
+/tests
+/playwright-report
+/test-results
+.phpunit.result.cache
+.phpunit.cache
+/.scribe
+playwright.config.ts
+vitest.config.js
+
+# Local dev container/orchestration assets (not part of the app image).
+# NOTE: docker/production/ (Dockerfiles, entrypoint, php + nginx config) is
+# required at build time, so only the non-production docker dirs are excluded.
+/docker/civitas
+/deploy
+
+# Misc
+*.log
+.DS_Store
+README.md
+LICENSE

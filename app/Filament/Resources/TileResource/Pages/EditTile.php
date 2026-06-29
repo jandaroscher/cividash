@@ -52,6 +52,19 @@ class EditTile extends EditRecord
                     return $this->record->getFrontendUrl(['locale' => $locale]);
                 })
                 ->openUrlInNewTab(),
+            Action::make('publishToCore')
+                ->label(__('filament.resources.tile.actions.publish'))
+                ->icon('heroicon-o-cloud-arrow-up')
+                ->color('primary')
+                ->visible(fn (): bool => TileResource::canPublishToCore())
+                // Server-side gate: visible() is render-only, so authorize()
+                // also blocks direct Livewire invocation by non-admins.
+                ->authorize(fn (): bool => TileResource::canUserPublishToCore())
+                ->requiresConfirmation()
+                ->modalHeading(__('filament.resources.tile.actions.publish_confirm_heading'))
+                ->modalDescription(__('filament.resources.tile.actions.publish_confirm_description'))
+                ->modalSubmitActionLabel(__('filament.resources.tile.actions.publish_confirm_submit'))
+                ->action(fn () => TileResource::handlePublishToCore($this->record)),
             Action::make('save_header')
                 ->label(__('filament.actions.save'))
                 ->action('save'),

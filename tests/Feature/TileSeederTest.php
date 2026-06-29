@@ -63,7 +63,7 @@ class TileSeederTest extends TestCase
         $this->seeder->run($tiles, $categoryIdMap, $handlungsdimensionIdMap, $sdgZielIdMap);
 
         $this->assertDatabaseCount('tiles', 1);
-        $tile = Tile::whereJsonContains('title->de', 'Test Tile')->first();
+        $tile = Tile::whereTranslation('title', 'de', 'Test Tile')->first();
         $this->assertNotNull($tile);
         $this->assertEquals('Test Tile', $tile->getTranslation('title', 'de'));
         $this->assertEquals('Test Tile EN', $tile->getTranslation('title', 'en'));
@@ -134,7 +134,7 @@ class TileSeederTest extends TestCase
 
         $this->seeder->run($tiles, $categoryIdMap, $handlungsdimensionIdMap, $sdgZielIdMap);
 
-        $tile = Tile::whereJsonContains('title->de', 'Deutscher Titel')->first();
+        $tile = Tile::whereTranslation('title', 'de', 'Deutscher Titel')->first();
         $this->assertNotNull($tile);
 
         // Title should be translatable
@@ -221,7 +221,7 @@ class TileSeederTest extends TestCase
 
         $this->seeder->run($tiles, $categoryIdMap);
 
-        $tile = Tile::whereJsonContains('title->de', 'Test Tile')->first();
+        $tile = Tile::whereTranslation('title', 'de', 'Test Tile')->first();
         $this->assertCount(2, $tile->categories);
         $this->assertTrue($tile->categories->contains($cat1));
         $this->assertTrue($tile->categories->contains($cat2));
@@ -256,7 +256,7 @@ class TileSeederTest extends TestCase
 
         $this->seeder->run($tiles, $categoryIdMap, $handlungsdimensionIdMap, $sdgZielIdMap);
 
-        $tile = Tile::whereJsonContains('title->de', 'Test Tile')->first();
+        $tile = Tile::whereTranslation('title', 'de', 'Test Tile')->first();
         $deBlocks = $tile->getTranslation('background_blocks', 'de');
         $this->assertNotNull($deBlocks);
         $this->assertIsArray($deBlocks);
@@ -299,7 +299,7 @@ class TileSeederTest extends TestCase
 
         $this->seeder->run($tiles, $categoryIdMap, $handlungsdimensionIdMap, $sdgZielIdMap);
 
-        $tile = Tile::whereJsonContains('title->de', 'Test Tile')->first();
+        $tile = Tile::whereTranslation('title', 'de', 'Test Tile')->first();
         $deBlocks = $tile->getTranslation('background_blocks', 'de');
         $this->assertNotNull($deBlocks);
 
@@ -338,7 +338,7 @@ class TileSeederTest extends TestCase
 
         $this->seeder->run($tiles, $categoryIdMap, $handlungsdimensionIdMap, $sdgZielIdMap);
 
-        $tile = Tile::whereJsonContains('title->de', 'Test Tile')->first();
+        $tile = Tile::whereTranslation('title', 'de', 'Test Tile')->first();
         $this->assertNotNull($tile->source_hash);
         $this->assertNotNull($tile->last_synced_at);
         $this->assertEquals(64, strlen($tile->source_hash)); // SHA256 is 64 chars
@@ -385,7 +385,7 @@ class TileSeederTest extends TestCase
 
         $this->seeder->run($tiles, $categoryIdMap, $handlungsdimensionIdMap, $sdgZielIdMap);
 
-        $tile = Tile::whereJsonContains('title->de', 'Test Tile')->first();
+        $tile = Tile::whereTranslation('title', 'de', 'Test Tile')->first();
         $deBlocks = $tile->getTranslation('background_blocks', 'de');
         $this->assertNotNull($deBlocks);
 

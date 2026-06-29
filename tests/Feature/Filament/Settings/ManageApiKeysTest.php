@@ -75,6 +75,25 @@ class ManageApiKeysTest extends TestCase
             ->assertCanNotSeeTableRecords([$otherToken->accessToken]);
     }
 
+    public function test_abilities_filter_matches_tokens_by_ability(): void
+    {
+        // Exercises the abilities SelectFilter, which queries the Sanctum
+        // `abilities` text column. On PostgreSQL whereJsonContains() errors
+        // (text @> jsonb); the driver-aware abilities::jsonb @> cast must work.
+        $readToken = $this->user->createToken('Read Token', ['public-read']);
+        $readToken->accessToken->tenant_id = $this->tenant->id;
+        $readToken->accessToken->save();
+
+        $writeToken = $this->user->createToken('Write Token', ['admin-write']);
+        $writeToken->accessToken->tenant_id = $this->tenant->id;
+        $writeToken->accessToken->save();
+
+        Livewire::test(ManageApiKeys::class)
+            ->filterTable('abilities', 'public-read')
+            ->assertCanSeeTableRecords([$readToken->accessToken])
+            ->assertCanNotSeeTableRecords([$writeToken->accessToken]);
+    }
+
     public function test_clear_token_display_resets_state(): void
     {
         Livewire::test(ManageApiKeys::class)

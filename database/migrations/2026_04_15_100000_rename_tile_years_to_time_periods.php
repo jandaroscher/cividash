@@ -23,8 +23,12 @@ return new class extends Migration
             $table->string('label', 30)->nullable()->after('period_key');
         });
 
-        // 4. Backfill: convert integer year to period_key string
-        DB::statement("UPDATE time_periods SET period_key = CAST(year AS CHAR), granularity = 'year', label = CAST(year AS CHAR)");
+        // 4. Backfill: convert integer year to period_key string.
+        //    MySQL/MariaDB cast integers to char with CAST(... AS CHAR); PostgreSQL/SQLite use TEXT.
+        $yearAsText = in_array(Schema::getConnection()->getDriverName(), ['mysql', 'mariadb'], true)
+            ? 'CAST(year AS CHAR)'
+            : 'CAST(year AS TEXT)';
+        DB::statement("UPDATE time_periods SET period_key = {$yearAsText}, granularity = 'year', label = {$yearAsText}");
 
         // 5. Make period_key not nullable and drop year column
         Schema::table('time_periods', function (Blueprint $table) {
@@ -45,6 +49,22 @@ return new class extends Migration
             // SQLite: simple column rename (no FK enforcement issues)
             Schema::table('metric_values', function (Blueprint $table) {
                 $table->renameColumn('tile_year_id', 'time_period_id');
+            });
+        } elseif (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+            // PostgreSQL: drop dependent constraints/indexes via the portable
+            // Schema Builder, rename the column, then recreate them. PostgreSQL has
+            // no MySQL-style "DROP FOREIGN KEY"/"CHANGE", so we use Laravel's grammar.
+            Schema::table('metric_values', function (Blueprint $table) {
+                $table->dropForeign('metric_values_tile_year_id_foreign');
+                $table->dropUnique('metric_values_metric_definition_id_tile_year_id_unique');
+            });
+            Schema::table('metric_values', function (Blueprint $table) {
+                $table->renameColumn('tile_year_id', 'time_period_id');
+            });
+            Schema::table('metric_values', function (Blueprint $table) {
+                $table->foreign('time_period_id', 'metric_values_time_period_id_foreign')
+                    ->references('id')->on('time_periods')->cascadeOnDelete();
+                $table->unique(['metric_definition_id', 'time_period_id'], 'metric_values_metric_definition_id_time_period_id_unique');
             });
         } else {
             // MariaDB/MySQL: must drop FK + unique + index atomically in one statement
@@ -69,6 +89,20 @@ return new class extends Migration
             Schema::table('metric_values', function (Blueprint $table) {
                 $table->renameColumn('time_period_id', 'tile_year_id');
             });
+        } elseif (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+            // PostgreSQL: mirror the up() approach using the portable Schema Builder.
+            Schema::table('metric_values', function (Blueprint $table) {
+                $table->dropForeign('metric_values_time_period_id_foreign');
+                $table->dropUnique('metric_values_metric_definition_id_time_period_id_unique');
+            });
+            Schema::table('metric_values', function (Blueprint $table) {
+                $table->renameColumn('time_period_id', 'tile_year_id');
+            });
+            Schema::table('metric_values', function (Blueprint $table) {
+                $table->foreign('tile_year_id', 'metric_values_tile_year_id_foreign')
+                    ->references('id')->on('time_periods')->cascadeOnDelete();
+                $table->unique(['metric_definition_id', 'tile_year_id'], 'metric_values_metric_definition_id_tile_year_id_unique');
+            });
         } else {
             DB::statement('
                 ALTER TABLE metric_values
@@ -90,8 +124,19 @@ return new class extends Migration
             $table->integer('year')->nullable()->after('tile_id');
         });
 
-        // Backfill year from period_key (only for 4-digit year values; non-year granularities get NULL)
-        DB::statement("UPDATE time_periods SET year = CASE WHEN period_key REGEXP '^[0-9]{4}$' THEN CAST(period_key AS UNSIGNED) ELSE NULL END");
+        // Backfill year from period_key (only for 4-digit year values; non-year granularities get NULL).
+        // Driver-specific: regex operator and integer cast differ between MySQL/MariaDB, PostgreSQL and SQLite.
+        $downDriver = Schema::getConnection()->getDriverName();
+        if (in_array($downDriver, ['pgsql', 'postgres', 'postgresql'], true)) {
+            // PostgreSQL: ~ for regex match, CAST AS INTEGER (no UNSIGNED type).
+            DB::statement("UPDATE time_periods SET year = CASE WHEN period_key ~ '^[0-9]{4}$' THEN CAST(period_key AS INTEGER) ELSE NULL END");
+        } elseif ($downDriver === 'sqlite') {
+            // SQLite has no REGEXP by default; GLOB matches exactly four digits.
+            DB::statement("UPDATE time_periods SET year = CASE WHEN period_key GLOB '[0-9][0-9][0-9][0-9]' THEN CAST(period_key AS INTEGER) ELSE NULL END");
+        } else {
+            // MySQL / MariaDB
+            DB::statement("UPDATE time_periods SET year = CASE WHEN period_key REGEXP '^[0-9]{4}$' THEN CAST(period_key AS UNSIGNED) ELSE NULL END");
+        }
 
         // Note: non-year granularities will have NULL year after rollback
         Schema::table('time_periods', function (Blueprint $table) {

@@ -28,9 +28,15 @@ return new class extends Migration
         // We'll restore the data after schema change
         DB::table('sdg_ziele')->update(['icon' => null]);
 
-        // Apply schema changes first
-        Schema::table('sdg_ziele', function (Blueprint $table) {
-            if (DB::getDriverName() === 'sqlite') {
+        // Apply schema changes first.
+        // SQLite cannot change a column type in place; PostgreSQL refuses an
+        // implicit varchar->json cast (needs USING). Since the column was just
+        // cleared above, both drop the column and re-add it as JSON instead of
+        // using ->change(). MySQL/MariaDB can change the type directly.
+        $recreateIconColumn = in_array(DB::getDriverName(), ['sqlite', 'pgsql', 'postgres', 'postgresql'], true);
+
+        Schema::table('sdg_ziele', function (Blueprint $table) use ($recreateIconColumn) {
+            if ($recreateIconColumn) {
                 $table->dropColumn('icon');
             } else {
                 $table->json('icon')->nullable()->change();
@@ -38,7 +44,7 @@ return new class extends Migration
             $table->dropColumn('icon_en');
         });
 
-        if (DB::getDriverName() === 'sqlite') {
+        if ($recreateIconColumn) {
             Schema::table('sdg_ziele', function (Blueprint $table) {
                 $table->json('icon')->nullable();
             });
@@ -57,25 +63,33 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Apply schema changes first
-        Schema::table('sdg_ziele', function (Blueprint $table) {
+        // Read existing JSON icon data before dropping the column (the recreate
+        // path below would otherwise lose it).
+        $existingIcons = DB::table('sdg_ziele')->get(['id', 'icon']);
+
+        // Apply schema changes first. As in up(), PostgreSQL cannot implicitly
+        // cast json->varchar and SQLite cannot change types in place, so both
+        // drop and re-add the column instead of using ->change().
+        $recreateIconColumn = in_array(DB::getDriverName(), ['sqlite', 'pgsql', 'postgres', 'postgresql'], true);
+
+        Schema::table('sdg_ziele', function (Blueprint $table) use ($recreateIconColumn) {
             $table->string('icon_en')->nullable()->after('icon');
 
-            if (DB::getDriverName() === 'sqlite') {
+            if ($recreateIconColumn) {
                 $table->dropColumn('icon');
             } else {
                 $table->string('icon')->nullable()->change();
             }
         });
 
-        if (DB::getDriverName() === 'sqlite') {
+        if ($recreateIconColumn) {
             Schema::table('sdg_ziele', function (Blueprint $table) {
                 $table->string('icon')->nullable();
             });
         }
 
         // Then migrate data back after schema changes are applied
-        $sdgZiele = DB::table('sdg_ziele')->get();
+        $sdgZiele = $recreateIconColumn ? $existingIcons : DB::table('sdg_ziele')->get();
 
         foreach ($sdgZiele as $sdg) {
             if ($sdg->icon) {

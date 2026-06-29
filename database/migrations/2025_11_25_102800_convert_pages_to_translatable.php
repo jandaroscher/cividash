@@ -14,13 +14,15 @@ return new class extends Migration
         $tableName = config('filament-fabricator.table_name', 'pages');
 
         // Step 1: Schema changes
-        // Try to drop unique constraint - if it doesn't exist, catch the exception
-        try {
+        // Drop the composite unique constraint only if it actually exists.
+        // NOTE: On PostgreSQL a failed statement aborts the surrounding migration
+        // transaction, so we must NOT rely on try/catch to swallow a missing-index
+        // error — that would poison every subsequent statement in this migration.
+        // An explicit existence check keeps the transaction healthy on all drivers.
+        if ($this->hasIndex($tableName, ['slug', 'parent_id'], 'pages_slug_parent_id_unique')) {
             Schema::table($tableName, function (Blueprint $table) {
                 $table->dropUnique(['slug', 'parent_id']);
             });
-        } catch (\Exception $e) {
-            // Index doesn't exist or already dropped - that's fine, continue
         }
 
         // Add meta_description column as JSON only if it doesn't exist
@@ -99,16 +101,31 @@ return new class extends Migration
             }
         }
 
-        // Step 3: Change column types from string to json
-        // The JSON strings are now valid and will be stored correctly
-        // Try-catch in case columns are already json/longtext
-        try {
-            Schema::table($tableName, function (Blueprint $table) {
-                $table->json('title')->change();
-                $table->json('slug')->change();
-            });
-        } catch (\Exception $e) {
-            // Columns are already json/longtext - that's fine
+        // Step 3: Change column types from string to json.
+        // The JSON strings written above are now valid and will be stored correctly.
+        $driver = DB::getDriverName();
+
+        if (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+            // PostgreSQL: keep title/slug as varchar. The json type has no default
+            // btree operator class (pages keeps a btree index on title, and slug is
+            // referenced by unique constraints elsewhere), and switching to json
+            // would also reject inserts of legacy plain-string values. The stored
+            // values are valid JSON text and are read back with CAST(... AS json) at
+            // query time (see App\Traits\BuildsJsonLocaleExpressions / the
+            // whereTranslation() query macro), so no column retype is needed.
+        } elseif ($driver === 'sqlite') {
+            // SQLite stores JSON as text and has no rigid column types, so leave the
+            // columns as-is; the data is already valid JSON.
+        } else {
+            // MySQL / MariaDB: a direct type change is sufficient.
+            try {
+                Schema::table($tableName, function (Blueprint $table) {
+                    $table->json('title')->change();
+                    $table->json('slug')->change();
+                });
+            } catch (\Exception $e) {
+                // Columns are already json/longtext - that's fine.
+            }
         }
     }
 
@@ -119,7 +136,9 @@ return new class extends Migration
     {
         $tableName = config('filament-fabricator.table_name', 'pages');
 
-        // Migrate data back: extract 'de' value from JSON
+        // Migrate data back: extract 'de' value from JSON.
+        // On PostgreSQL/SQLite title/slug stayed varchar (see up()), so the same
+        // PHP-side conversion works across all drivers.
         $pages = DB::table($tableName)->get();
 
         foreach ($pages as $page) {
@@ -135,7 +154,7 @@ return new class extends Migration
                 }
             }
 
-            // Extract 'de' value from slug JSON
+            // Extract 'de' value from slug JSON.
             if (! empty($page->slug)) {
                 $slugData = is_string($page->slug) ? json_decode($page->slug, true) : $page->slug;
                 if (is_array($slugData) && isset($slugData['de'])) {
@@ -158,17 +177,52 @@ return new class extends Migration
             }
         }
 
-        Schema::table($tableName, function (Blueprint $table) {
-            // Change title back to string
-            $table->string('title')->change();
+        $driver = DB::getDriverName();
+        $titleSlugAreJson = ! in_array($driver, ['pgsql', 'postgres', 'postgresql', 'sqlite'], true);
 
-            // Change slug back to string and restore composite unique constraint
-            $table->string('slug')->change();
+        Schema::table($tableName, function (Blueprint $table) use ($titleSlugAreJson) {
+            if ($titleSlugAreJson) {
+                // MySQL/MariaDB: title/slug were converted to json in up(); revert them.
+                $table->string('title')->change();
+                $table->string('slug')->change();
+            }
+
+            // Restore composite unique constraint and drop the added column.
             $table->unique(['slug', 'parent_id']);
-
-            // Remove meta_description
             $table->dropColumn('meta_description');
         });
+    }
+
+    /**
+     * Check whether a table has an index, matched either by its exact name or by
+     * the set of columns it covers. Works across MySQL/MariaDB, PostgreSQL and
+     * SQLite without throwing (so it is safe inside a PostgreSQL transaction).
+     *
+     * @param  array<int, string>  $columns
+     */
+    private function hasIndex(string $table, array $columns, string $indexName): bool
+    {
+        try {
+            $sortedColumns = $columns;
+            sort($sortedColumns);
+
+            foreach (Schema::getIndexes($table) as $index) {
+                if (($index['name'] ?? null) === $indexName) {
+                    return true;
+                }
+
+                $indexColumns = $index['columns'] ?? [];
+                sort($indexColumns);
+
+                if ($indexColumns === $sortedColumns) {
+                    return true;
+                }
+            }
+        } catch (\Throwable $e) {
+            // If index introspection is unavailable, assume it is absent.
+        }
+
+        return false;
     }
 
     /**

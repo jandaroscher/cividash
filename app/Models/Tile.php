@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AssignsSequentialPosition;
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,20 +12,18 @@ use Spatie\Translatable\HasTranslations;
 
 class Tile extends Model
 {
+    use AssignsSequentialPosition;
     use BelongsToTenant;
     use HasFactory;
     use HasTranslations;
 
+    protected function positionScopeColumn(): string
+    {
+        return 'tenant_id';
+    }
+
     protected static function booted(): void
     {
-        static::creating(function (self $tile) {
-            if (is_null($tile->position)) {
-                DB::transaction(function () use ($tile) {
-                    $tile->position = (int) static::where('tenant_id', $tile->tenant_id)->lockForUpdate()->max('position') + 1;
-                });
-            }
-        });
-
         static::saving(function (self $tile) {
             if (! Schema::hasColumn($tile->getTable(), 'slug')) {
                 return;
@@ -58,8 +57,6 @@ class Tile extends Model
         'meta_title',
         'meta_description',
         'meta_image',
-        'last_synced_at',
-        'source_hash',
         'tenant_id',
     ];
 

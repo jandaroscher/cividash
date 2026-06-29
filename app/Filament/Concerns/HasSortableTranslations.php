@@ -4,6 +4,7 @@ namespace App\Filament\Concerns;
 
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Provides helper methods for sorting by translatable JSON columns in Filament tables.
@@ -53,8 +54,10 @@ trait HasSortableTranslations
         }
 
         if (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+            // Cast to json first: some translatable columns (e.g. pages.slug/title)
+            // are stored as varchar, on which the ->> operator is undefined.
             return sprintf(
-                "COALESCE(NULLIF(%s->>'%s', ''), NULLIF(%s->>'%s', ''))",
+                "COALESCE(NULLIF(CAST(%s AS json)->>'%s', ''), NULLIF(CAST(%s AS json)->>'%s', ''))",
                 $column,
                 $locale,
                 $column,

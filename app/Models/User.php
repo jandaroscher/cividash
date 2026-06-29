@@ -33,6 +33,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
         'first_name',
         'last_name',
         'email',
+        'keycloak_id',
         'phone',
         'password',
         'is_active',

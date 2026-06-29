@@ -101,7 +101,7 @@ class FooterNavigation extends Model
 
                 // If id=1 belongs to another tenant, move it away
                 if ($existingId1 && $existingId1->tenant_id !== $tenant->id) {
-                    $maxId = static::withoutGlobalScope('tenant')->lockForUpdate()->max('id') ?? 0;
+                    $maxId = static::withoutGlobalScope('tenant')->lockForUpdateForAggregate('footer_navigations:id')->max('id') ?? 0;
                     $newId = $maxId + 1;
                     \DB::table($tableName)
                         ->where('id', 1)
@@ -188,7 +188,7 @@ class FooterNavigation extends Model
 
                 // If id=1 belongs to another tenant, move it away
                 if ($existingId1 && (! $tenantRow || $existingId1->tenant_id !== $tenant->id)) {
-                    $maxId = static::withoutGlobalScope('tenant')->lockForUpdate()->max('id') ?? 0;
+                    $maxId = static::withoutGlobalScope('tenant')->lockForUpdateForAggregate('footer_navigations:id')->max('id') ?? 0;
                     $newId = $maxId + 1;
                     \DB::table($tableName)
                         ->where('id', 1)

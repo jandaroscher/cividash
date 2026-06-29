@@ -6,6 +6,7 @@
     "keywords": ["laravel", "framework"],
     "require": {
         "php": "^8.2",
+        "aws/aws-sdk-php": "^3.0",
         "bezhansalleh/filament-language-switch": "^3.1",
         "codewithdennis/filament-simple-alert": "^3.0",
         "fakerphp/faker": "^1.23",
@@ -16,7 +17,10 @@
         "laravel/fortify": "^1.34",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
+        "laravel/socialite": "^5.26",
         "laravel/tinker": "^2.10",
+        "league/flysystem-aws-s3-v3": "^3.0",
+        "socialiteproviders/keycloak": "^5.3",
         "spatie/laravel-permission": "^6.24",
         "z3d0x/filament-fabricator": "^2.7"
     },
@@ -79,6 +83,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "platform": {
         },
         "audit": {
             "abandoned": "report"

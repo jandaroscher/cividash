@@ -50,7 +50,7 @@ class DashboardSeedCommandTest extends TestCase
         $this->assertDatabaseHas('tiles', []); // At least one tile exists
 
         // Verify relationships
-        $tile = Tile::whereJsonContains('title->de', 'Bürgerbeteiligung')->first();
+        $tile = Tile::whereTranslation('title', 'de', 'Bürgerbeteiligung')->first();
         $this->assertNotNull($tile);
         $this->assertGreaterThan(0, $tile->categories()->count());
     }

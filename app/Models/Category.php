@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AssignsSequentialPosition;
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,19 +10,14 @@ use Spatie\Translatable\HasTranslations;
 
 class Category extends Model
 {
+    use AssignsSequentialPosition;
     use BelongsToTenant;
     use HasFactory;
     use HasTranslations;
 
-    protected static function booted(): void
+    protected function positionScopeColumn(): string
     {
-        static::creating(function (self $category) {
-            if (is_null($category->position)) {
-                DB::transaction(function () use ($category) {
-                    $category->position = (int) static::where('category_group_id', $category->category_group_id)->lockForUpdate()->max('position') + 1;
-                });
-            }
-        });
+        return 'category_group_id';
     }
 
     public array $translatable = [
@@ -36,8 +32,6 @@ class Category extends Model
         'is_active',
         'category_group_id',
         'key',
-        'last_synced_at',
-        'source_hash',
         'tenant_id',
     ];
 
