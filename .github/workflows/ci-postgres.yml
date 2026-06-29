@@ -77,6 +77,9 @@ jobs:
         env:
           COMPOSER_PROCESS_TIMEOUT: 200
 
+      - name: Prepare environment file
+        run: cp .env.example .env
+
       - name: Generate application key
         run: php artisan key:generate
 
