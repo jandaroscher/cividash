@@ -154,10 +154,10 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
     /**
      * Create with current tenant_id (0 for global context).
      */
-    public function createProperty(string $group, string $name, $payload): void
+    public function createProperty(string $group, string $name, $payload, bool $locked = false): void
     {
         if (! $this->hasTenantIdColumn()) {
-            parent::createProperty($group, $name, $payload);
+            parent::createProperty($group, $name, $payload, $locked);
 
             return;
         }
@@ -166,7 +166,7 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
             'group' => $group,
             'name' => $name,
             'payload' => $this->encode($payload),
-            'locked' => false,
+            'locked' => $locked,
             'tenant_id' => $this->getCurrentTenantId(),
         ]);
     }

@@ -85,6 +85,9 @@
             "php-http/discovery": true
         },
         "platform": {
+        },
+        "audit": {
+            "abandoned": "report"
         }
     },
     "minimum-stability": "stable",
