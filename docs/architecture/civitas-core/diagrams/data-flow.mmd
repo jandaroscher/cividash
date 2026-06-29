@@ -1,0 +1,31 @@
+%% Datenflussdiagramm — Pull-Sync NGSI-LD -> Dashboard
+%% Labels bewusst Deutsch, passend zum CIVITAS/CORE-Referenzdiagramm.
+sequenceDiagram
+    autonumber
+    participant Quelle as Datenquelle / Initialer Import
+    participant Stellio as NGSI-LD Entity (Stellio)
+    participant Keycloak as Keycloak / IDM
+    participant Backend as Backend-API (Laravel)
+    participant DB as Datenbank
+    participant Frontend as Public Frontend (Vue-SPA)
+    participant Admin as Admin (Filament)
+
+    Note over Quelle,Stellio: Befüllung des Context Brokers (einmalig / extern)
+    Quelle->>Stellio: Write: POST /entities<br/>Auth: Keycloak/OIDC via APISIX<br/>Content-Type: application/ld+json
+
+    Note over Backend,Stellio: Pull-Sync (geplant täglich, idempotent)
+    Backend->>Keycloak: 1. OAuth2 Client-Credentials<br/>grant_type=client_credentials
+    Keycloak-->>Backend: Bearer-Token (Cache ~4 min)
+    Backend->>Stellio: 2. GET /entities?type=NachhaltigkeitsIndikator<br/>Authorization: Bearer, Accept: application/ld+json
+    Stellio-->>Backend: NGSI-LD Entities (paginiert, NGSILD-Results-Count)
+    Backend->>DB: 3. Mapping + idempotenter Upsert via source_hash<br/>(Tile, MetricDefinition, TimePeriod, MetricValue, Category)
+
+    Note over Frontend,DB: Visualisierung für anonyme Nutzer
+    Frontend->>Backend: REST-API (öffentlich, lesen)
+    Backend->>DB: Daten lesen
+    DB-->>Backend: Tiles / Metriken / Zeitreihen
+    Backend-->>Frontend: JSON -> Visualisierung
+
+    Note over Admin,Stellio: Write-Back (admin-triggered)
+    Admin->>Backend: Kachel veröffentlichen
+    Backend-->>Stellio: Write-Back: POST/PATCH NGSI-LD

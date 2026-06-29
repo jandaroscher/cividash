@@ -1,0 +1,45 @@
+%% Architekturdiagramm — Nachhaltigkeits-Dashboard als CIVITAS/CORE Add-on
+%% Labels bewusst Deutsch, passend zum CIVITAS/CORE-Referenzdiagramm.
+flowchart TB
+    anon["Anonyme Nutzer<br/>(öffentlich)"]:::akteur
+    fach["Fachnutzer / Redakteur / Admin"]:::akteur
+
+    subgraph core["Betrieb CIVITAS/CORE — Kubernetes-Cluster (Betrieb durch den Plattformbetreiber)"]
+        apisix["APISIX Web Gateway<br/>(Eingang)"]:::plattform
+        keycloak["Keycloak / IDM"]:::plattform
+        stellio["Stellio Context Broker<br/>(NGSI-LD)"]:::plattform
+
+        subgraph addon["Nachhaltigkeits-Dashboard Add-on"]
+            frontend["Public Frontend<br/>(Vue-SPA)"]:::addon
+            admin["Admin-Oberfläche<br/>(Filament)"]:::addon
+            backend["Backend-API<br/>(Laravel)"]:::addon
+            db[("Datenbank<br/>(Postgres im CORE-Cluster)")]:::addon
+        end
+    end
+
+    quelle["Initialer Datenimport<br/>(externe Datenquelle)"]:::extern
+
+    %% Lesepfad öffentlich
+    anon -->|"öffentlich, lesen"| apisix
+    apisix --> frontend
+    frontend -->|"REST-API"| backend
+    backend --> db
+
+    %% Login-Pfad Fachnutzer
+    fach -->|"Login"| keycloak
+    keycloak --> admin
+    admin -->|"REST-API"| backend
+
+    %% Pull-Sync aus Stellio
+    backend -->|"NGSI-LD Pull (GET /entities)"| stellio
+
+    %% Externer Import schreibt in Stellio
+    quelle -->|"Write: POST /entities"| stellio
+
+    %% Write-Back (admin-triggered)
+    backend -.->|"Write-Back (admin-triggered)"| stellio
+
+    classDef akteur fill:#e8eef7,stroke:#2c5282,stroke-width:1px,color:#1a202c;
+    classDef plattform fill:#eef6ec,stroke:#38803a,stroke-width:1px,color:#1a202c;
+    classDef addon fill:#fff4e0,stroke:#b7791f,stroke-width:1px,color:#1a202c;
+    classDef extern fill:#f5e8f0,stroke:#97266d,stroke-width:1px,color:#1a202c;

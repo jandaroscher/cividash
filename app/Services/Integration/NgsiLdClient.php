@@ -3,6 +3,7 @@
 namespace App\Services\Integration;
 
 use App\Contracts\Integration\ExternalDataSourceInterface;
+use App\Contracts\Integration\WritableDataSourceInterface;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Log;
  *
  * @see https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.06.01_60/gs_CIM009v010601p.pdf
  */
-class NgsiLdClient implements ExternalDataSourceInterface
+class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInterface
 {
     private ?string $accessToken = null;
 
@@ -153,6 +154,54 @@ class NgsiLdClient implements ExternalDataSourceInterface
     }
 
     // ---------------------------------------------------------------
+    // WritableDataSourceInterface (write-back)
+    // ---------------------------------------------------------------
+
+    /**
+     * Create or update an NGSI-LD entity (idempotent upsert).
+     *
+     * Tries POST {api_url}/entities (201/204). When the broker reports the
+     * entity already exists (409 Conflict), falls back to a partial-attribute
+     * update via PATCH {api_url}/entities/{id}/attrs (204). The id/type envelope
+     * is stripped from the PATCH body since attrs updates carry attributes only.
+     *
+     * The JSON-LD @context is negotiated the same way reads do (Accept + Link),
+     * with Content-Type set to application/ld+json so the broker expands the
+     * request body against the configured context. Reuses the http() retry +
+     * timeout policy (5xx retried, 4xx surfaced immediately).
+     *
+     * @param  array<string,mixed>  $entity
+     *
+     * @throws \Illuminate\Http\Client\RequestException on any non-recoverable HTTP error.
+     */
+    public function upsertEntity(array $entity): void
+    {
+        $response = $this->writeRequest($entity)
+            ->post($this->apiUrl.'/entities');
+
+        // Entity already exists: switch to a partial-attribute update.
+        if ($response->status() === 409) {
+            $id = (string) ($entity['id'] ?? '');
+
+            if ($id === '') {
+                throw new \InvalidArgumentException('Cannot PATCH attrs: entity id is empty');
+            }
+
+            $attrs = $entity;
+            unset($attrs['id'], $attrs['type']);
+
+            $patch = $this->writeRequest($attrs)
+                ->patch($this->apiUrl.'/entities/'.rawurlencode($id).'/attrs');
+
+            $patch->throw();
+
+            return;
+        }
+
+        $response->throw();
+    }
+
+    // ---------------------------------------------------------------
     // Request helpers
     // ---------------------------------------------------------------
 
@@ -175,6 +224,28 @@ class NgsiLdClient implements ExternalDataSourceInterface
         }
 
         return $request;
+    }
+
+    /**
+     * Build a write request carrying the entity body as application/ld+json.
+     *
+     * The body is JSON-encoded and attached via withBody() with an explicit
+     * application/ld+json content type — set EXACTLY once. (Using asJson() would
+     * first set application/json and then array_merge_recursive a second
+     * Content-Type, so the broker would receive "application/json,
+     * application/ld+json" and reject the request with HTTP 415.)
+     *
+     * Negotiation otherwise mirrors reads (Accept + Link @context via
+     * applyContext) and reuses the http() retry + timeout policy.
+     *
+     * @param  array<string,mixed>  $body
+     */
+    private function writeRequest(array $body): PendingRequest
+    {
+        $json = json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return $this->applyContext($this->http())
+            ->withBody($json, 'application/ld+json');
     }
 
     // ---------------------------------------------------------------
