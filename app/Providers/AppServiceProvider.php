@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Contracts\Integration\DataMapperInterface;
 use App\Contracts\Integration\ExternalDataSourceInterface;
 use App\Contracts\Integration\SyncServiceInterface;
+use App\Contracts\Integration\WritableDataSourceInterface;
 use App\Models\Page;
 use App\Models\PersonalAccessToken;
 use App\Observers\PageObserver;
@@ -41,6 +42,18 @@ class AppServiceProvider extends ServiceProvider
             ? new CivitasDataMapper
             : new NgsiLdDataMapper);
         $this->app->bind(SyncServiceInterface::class, SyncService::class);
+
+        // Write-back: only NGSI-LD/Stellio supports publishing back to
+        // CORE. SensorThings stays read-only, so resolving the writable binding
+        // under any other driver is a programming error — fail loudly instead of
+        // handing out a silently broken client.
+        $this->app->bind(WritableDataSourceInterface::class, function () {
+            if (config('integrations.civitas.driver', 'ngsi-ld') !== 'ngsi-ld') {
+                throw new \LogicException('Write-back to CORE requires the ngsi-ld driver; the current driver is read-only.');
+            }
+
+            return NgsiLdClient::fromConfig();
+        });
     }
 
     /**
