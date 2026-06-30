@@ -10,9 +10,16 @@
 # tag it cividash-app:dev, then build this image with the repo root as context:
 #   docker build -f docker/production/Dockerfile        -t cividash-app:dev .
 #   docker build -f docker/production/nginx/Dockerfile  -t cividash-web:dev .
+#
+# External pipelines may pass --build-arg APP_IMAGE=... so cividash-web copies
+# public/ from the exact same app image. The smoke stack
+# (docker-compose.smoke.yml) maps the cividash-app:dev default below to the
+# cividash-fpm service build via additional_contexts.
+ARG APP_IMAGE=cividash-app:dev
 
-# Pull public/ from the application image (tag must already exist locally).
-FROM cividash-app:dev AS appsrc
+# Pull public/ from the application image (tag must already exist locally or in
+# the registry, unless the build maps it to another context).
+FROM ${APP_IMAGE} AS appsrc
 
 FROM nginx:alpine
 
