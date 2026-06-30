@@ -13,6 +13,7 @@ use App\Services\Import\Support\ImportDiff;
 use App\Services\Import\Support\ImportError;
 use App\Services\Import\Support\ImportResult;
 use App\Services\Import\Support\ImportWarning;
+use App\Services\Integration\NgsiLdDataMapper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -500,6 +501,25 @@ class BundleImporter
         $existing = Tile::where('tenant_id', $this->tenant->id)
             ->whereTranslation('slug', 'de', $slug)
             ->first();
+
+        // Never overwrite a tile owned by a foreign external source.
+        // A tile provenanced to a system other than CIVITAS/CORE (and other than
+        // locally-authored, where external_source is null) is skipped — the
+        // import logs a warning and continues with the remaining tiles. This
+        // mirrors PublishService::guardProvenance(), which refuses to publish
+        // foreign-owned tiles for the same reason.
+        if ($existing !== null
+            && $existing->external_source !== null
+            && $existing->external_source !== NgsiLdDataMapper::SOURCE_KEY) {
+            Log::warning('Skipping bundle import for tile with foreign provenance.', [
+                'slug' => $slug,
+                'external_source' => $existing->external_source,
+                'tenant_id' => $this->tenant->id,
+            ]);
+            $this->diff->record('tiles', 'unchanged');
+
+            return null;
+        }
 
         $title = $row['tile.title'] ?? null;
         if ($existing === null) {
