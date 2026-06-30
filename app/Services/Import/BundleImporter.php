@@ -16,6 +16,7 @@ use App\Services\Import\Support\ImportWarning;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Exists;
 
 /**
  * Runs a parsed upload bundle against the DB. Supports two modes:
@@ -77,7 +78,7 @@ class BundleImporter
             ->map(fn ($ruleList) => is_array($ruleList)
                 ? array_values(array_filter(
                     $ruleList,
-                    fn ($r) => ! ($r instanceof \Illuminate\Validation\Rules\Exists)
+                    fn ($r) => ! ($r instanceof Exists)
                 ))
                 : $ruleList)
             ->reject(fn ($ruleList, string $field) => in_array($field, [
@@ -497,7 +498,7 @@ class BundleImporter
     private function upsertTile(string $slug, array $row, int $idx): ?Tile
     {
         $existing = Tile::where('tenant_id', $this->tenant->id)
-            ->where('slug->de', $slug)
+            ->whereTranslation('slug', 'de', $slug)
             ->first();
 
         $title = $row['tile.title'] ?? null;
