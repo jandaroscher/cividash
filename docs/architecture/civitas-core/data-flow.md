@@ -11,7 +11,7 @@ broker into the dashboard, step by step. It complements the
 
 ## Overview
 
-The integration is a one-directional **pull**: an external import fills the
+The scheduled synchronisation is a one-directional **pull**: an external import fills the
 Stellio context broker, and the dashboard's backend periodically pulls those
 entities, maps them and persists them locally. The public frontend then reads
 exclusively from the dashboard's own database — it never touches the broker on
@@ -103,11 +103,17 @@ read-only REST API. The backend reads the synced tiles, metrics and time series
 from its **own database** and returns JSON for visualisation. The context broker
 is not involved in this path.
 
-## Planned — Write-back
+## Write-back (admin-triggered)
 
-A write-back from the **admin UI (Filament)** into Stellio (`POST`/`PATCH` of
-NGSI-LD entities) is *planned but not yet implemented*. It is drawn dashed in the
-diagram. Today the integration is strictly pull/read-only.
+A write-back from the **admin UI (Filament)** into Stellio is **implemented**
+An admin-only action maps a tile to a `NachhaltigkeitsIndikator`
+entity and publishes it via `POST /entities`, falling back to
+`PATCH /entities/{id}/attrs` when the entity already exists (`409`). Like the
+pull, it is idempotent via `source_hash` and respects provenance (it does not
+overwrite entities originating from other sources). It is drawn dashed in the
+diagram because it is not yet exercised against the production CORE broker — that
+needs the production Keycloak/OIDC write path. The scheduled
+synchronisation itself remains pull-only.
 
 ## Running a sync
 

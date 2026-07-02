@@ -57,12 +57,17 @@ Sustainability indicators originate **outside** the dashboard. An *initial data
 import* writes `NachhaltigkeitsIndikator` entities into the Stellio context
 broker (`POST /entities`). The dashboard's backend then **pulls** those entities
 on a schedule, maps them to its own data model and stores the result in its
-database. The integration is **read-only (pull) today** — the backend only issues
-`GET` requests against Stellio.
+database. The scheduled synchronisation is **read-only (pull)** — the backend
+issues `GET` requests against Stellio.
 
-A **write-back** path (the admin UI pushing edits back into Stellio via
-`POST`/`PATCH`) is *planned but not yet implemented*; it is drawn dashed in the
-diagram to mark it as a future capability.
+A **write-back** path (the admin UI pushing indicators back into Stellio) is
+**implemented**: an admin-only Filament action publishes a tile as a
+`NachhaltigkeitsIndikator` entity via `POST /entities`, falling back to
+`PATCH /entities/{id}/attrs` when the entity already exists (`409`). Like the
+pull, it is idempotent via `source_hash` and respects provenance, so it never
+overwrites entities from other sources. It is drawn dashed in the diagram because
+because it is not yet exercised against the production CORE broker — that requires
+the production Keycloak/OIDC write path.
 
 ## Related documents
 
