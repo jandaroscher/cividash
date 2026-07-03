@@ -500,4 +500,81 @@ class AdminImportApiTest extends TestCase
             $this->assertNotSame('execution_error', $error['code'] ?? null);
         }
     }
+
+    public function test_value_zero_is_accepted_as_valid_metric_value(): void
+    {
+        // value.value = 0 must not be treated as "missing" (null-check pitfall).
+        $token = $this->token($this->tenant);
+
+        $bundle = [
+            'schema_version' => '1.0',
+            'data' => [[
+                'tile.slug' => 'zero-value',
+                'tile.title' => ['de' => 'Nullwert'],
+                'metric.key' => 'zero_metric',
+                'metric.label' => ['de' => 'Nullwert-Metrik'],
+                'value.year' => 2024,
+                'value.value' => 0,
+            ]],
+        ];
+
+        $response = $this->uploadBundle($token, $bundle, 'commit');
+
+        $response->assertStatus(200)->assertJson(['status' => 'success']);
+
+        $this->assertDatabaseHas('metric_values', ['value' => 0, 'tenant_id' => $this->tenant->id]);
+    }
+
+    public function test_empty_file_returns_422_invalid_json(): void
+    {
+        $token = $this->token($this->tenant);
+        $file = UploadedFile::fake()->createWithContent('empty.json', '');
+
+        $response = $this->postRaw(['file' => $file, 'mode' => 'dry_run'], $token);
+
+        $response->assertStatus(422)->assertJsonFragment(['code' => 'invalid_json']);
+    }
+
+    public function test_whitespace_only_file_returns_422_invalid_json(): void
+    {
+        $token = $this->token($this->tenant);
+        $file = UploadedFile::fake()->createWithContent('whitespace.json', '   ');
+
+        $response = $this->postRaw(['file' => $file, 'mode' => 'dry_run'], $token);
+
+        $response->assertStatus(422)->assertJsonFragment(['code' => 'invalid_json']);
+    }
+
+    public function test_schema_violation_bad_types_returns_422(): void
+    {
+        // Sends a bundle matching docs/upload/examples/invalid-bad-types.json:
+        // slug contains uppercase/underscore, year out of range, non-numeric value.
+        $token = $this->token($this->tenant);
+
+        $bundle = [
+            'schema_version' => '1.0',
+            'data' => [[
+                'tile.slug' => 'Energieverbrauch_MIT_UNDERSCORE', // violates pattern
+                'tile.title' => ['de' => 'Energie'],
+                'tile.position' => 'first', // should be integer
+                'value.year' => 1500, // below minimum 1900
+                'value.value' => 'nicht-numerisch', // should be number
+            ]],
+        ];
+
+        $response = $this->uploadBundle($token, $bundle, 'dry_run');
+
+        $response->assertStatus(422)->assertJson(['status' => 'failed']);
+    }
+
+    public function test_json_array_root_instead_of_object_returns_422(): void
+    {
+        // Bundle root must be an object, not a JSON array.
+        $token = $this->token($this->tenant);
+        $file = UploadedFile::fake()->createWithContent('array.json', '[{"tile.slug": "foo"}]');
+
+        $response = $this->postRaw(['file' => $file, 'mode' => 'dry_run'], $token);
+
+        $response->assertStatus(422)->assertJsonFragment(['code' => 'invalid_type']);
+    }
 }
