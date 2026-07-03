@@ -4,7 +4,7 @@
       v-if="effectiveHeading"
       class="flex flex-col xl:flex-row"
     >
-      <h2 class="text-theme-h3 text-black font-bold mb-6 lg:mb-12 hyphens-auto order-2 xl:order-1">
+      <h2 class="content-heading text-theme-h3 mb-6 lg:mb-12 hyphens-auto order-2 xl:order-1">
         {{ effectiveHeading }}
       </h2>
     </div>

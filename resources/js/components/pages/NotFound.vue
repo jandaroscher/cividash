@@ -3,7 +3,7 @@
         <div class="container">
             <h1
                 id="not-found-title"
-                class="text-theme-h1 text-black font-bold mb-6 hyphens-auto"
+                class="content-heading mb-6 hyphens-auto"
             >
                 404 - {{ messages.title }}
             </h1>

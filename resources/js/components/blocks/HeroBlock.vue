@@ -15,7 +15,7 @@
             <div>
                 <h1
                     v-if="block.props.title"
-                    class="text-theme-h1 text-white font-bold mb-6 hyphens-auto"
+                    class="content-heading text-white mb-6 hyphens-auto"
                 >
                     {{ block.props.title }}
                 </h1>

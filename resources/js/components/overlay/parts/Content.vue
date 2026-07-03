@@ -23,7 +23,7 @@
     </template>
 
     <div v-if="tile?.metrics?.length > 0">
-      <h3 class="text-theme-h2 font-bold mb-4">
+      <h3 class="content-heading text-theme-h2 mb-4">
         {{ currentLocale.value === 'en' ? 'Indicators' : 'Indikatoren' }}
       </h3>
       <div class="space-y-4">

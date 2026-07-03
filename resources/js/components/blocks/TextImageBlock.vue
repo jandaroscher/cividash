@@ -3,7 +3,7 @@
     <div class="container">
       <h2
         v-if="heading"
-        class="text-theme-h2 font-bold mb-6"
+        class="content-heading mb-6"
       >
         {{ heading }}
       </h2>
