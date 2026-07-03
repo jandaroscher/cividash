@@ -54,7 +54,7 @@ class DataImport extends Page implements HasForms, HasTable
 
     public static function getNavigationGroup(): ?string
     {
-        return __('filament.navigation.groups.system');
+        return __('filament.navigation.groups.settings');
     }
 
     public function getTitle(): string|Htmlable
