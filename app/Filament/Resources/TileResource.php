@@ -98,6 +98,15 @@ class TileResource extends Resource
         return $form
             ->columns(1)
             ->schema([
+                Section::make()
+                    ->columnSpanFull()
+                    ->schema([
+                        TextInput::make('title')
+                            ->label(__('filament.resources.tile.title'))
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                    ]),
                 Grid::make()
                     ->schema([
                         Tabs::make(__('filament.tabs.contents'))
@@ -355,10 +364,6 @@ class TileResource extends Resource
 
                                         return $record->getUrl(['locale' => $activeLocale]);
                                     }),
-                                TextInput::make('title')
-                                    ->label(__('filament.resources.tile.title'))
-                                    ->required()
-                                    ->maxLength(255),
                                 TextInput::make('slug')
                                     ->label(__('filament.resources.tile.slug'))
                                     ->maxLength(255)

@@ -14,10 +14,13 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 use Z3d0X\FilamentFabricator\Forms\Components\PageBuilder;
 use Z3d0X\FilamentFabricator\Resources\PageResource as FabricatorPageResource;
 
@@ -106,6 +109,13 @@ class PageResource extends FabricatorPageResource
                                         return $record->getUrl(['locale' => $activeLocale]);
                                     });
 
+                                // Remove the vendor's title field from the sidebar; it
+                                // now lives in the dedicated full-width top Section below.
+                                $sectionChildren = array_values(array_filter(
+                                    $sectionChildren,
+                                    fn ($component) => ! (method_exists($component, 'getName') && $component->getName() === 'title')
+                                ));
+
                                 $existingNames = collect($sectionChildren)
                                     ->filter(fn ($component) => method_exists($component, 'getName'))
                                     ->map(fn ($component) => $component->getName())
@@ -113,10 +123,6 @@ class PageResource extends FabricatorPageResource
                                     ->all();
 
                                 $additionalComponents = [
-                                    TextInput::make('title')
-                                        ->label(__('filament.resources.page.title'))
-                                        ->required()
-                                        ->maxLength(255),
                                     TextInput::make('slug')
                                         ->label(__('filament.resources.page.slug'))
                                         ->required()
@@ -214,6 +220,29 @@ class PageResource extends FabricatorPageResource
         }
 
         static::applyBlockToggleActionToComponents($components);
+
+        // Move the title into a dedicated full-width Section at the very top of the
+        // form, above the existing two-column content/properties layout. The slug and
+        // remaining page properties stay in the right sidebar column (handled above).
+        $titleSection = Section::make()
+            ->columnSpanFull()
+            ->schema([
+                TextInput::make('title')
+                    ->label(__('filament.resources.page.title'))
+                    ->required()
+                    ->maxLength(255)
+                    ->columnSpanFull()
+                    // Preserve the vendor auto-slug behaviour: derive the slug from the
+                    // title for new records until the user edits the slug manually.
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function (Get $get, Set $set, ?string $state, ?Page $record): void {
+                        if (! $get('is_slug_changed_manually') && filled($state) && blank($record)) {
+                            $set('slug', Str::slug($state, language: config('app.locale', 'en')));
+                        }
+                    }),
+            ]);
+
+        $form->schema([$titleSection, ...$components]);
 
         return $form;
     }
