@@ -94,12 +94,12 @@ class CsvExportWriterTest extends TestCase
         $query = new ExportQuery(
             format: ExportQuery::FORMAT_CSV,
             locale: 'de',
-            fields: [FieldWhitelist::METRIC_KEY, FieldWhitelist::CATEGORY_LABELS, FieldWhitelist::METRIC_SOURCE],
+            fields: [FieldWhitelist::METRIC_LABEL, FieldWhitelist::CATEGORY_LABELS, FieldWhitelist::METRIC_SOURCE],
         );
 
         $output = $this->drainWriter($query, [
             [
-                FieldWhitelist::METRIC_KEY => 'co2',
+                FieldWhitelist::METRIC_LABEL => 'co2',
                 FieldWhitelist::CATEGORY_LABELS => ['Verkehr', 'Umwelt'],
                 FieldWhitelist::METRIC_SOURCE => null,
             ],

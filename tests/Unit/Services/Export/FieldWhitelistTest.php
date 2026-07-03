@@ -15,7 +15,7 @@ class FieldWhitelistTest extends TestCase
     public function test_filter_drops_unknown_fields_and_preserves_order(): void
     {
         $filtered = FieldWhitelist::filter([
-            'metric.key',
+            'metric.label',
             'bogus',
             'tile.title',
             'not-a-field',
@@ -24,7 +24,7 @@ class FieldWhitelistTest extends TestCase
 
         // Canonical order from FieldWhitelist::all() must be preserved.
         $this->assertSame(
-            ['tile.id', 'tile.title', 'metric.key'],
+            ['tile.id', 'tile.title', 'metric.label'],
             $filtered,
         );
     }
@@ -44,6 +44,39 @@ class FieldWhitelistTest extends TestCase
         ]);
 
         $this->assertSame(['bogus', 'nope'], $rejected);
+    }
+
+    public function test_all_returns_canonical_field_set_in_order(): void
+    {
+        // 5 internal config/sort/linking fields were dropped from the
+        // exported schema (tile.position, category.keys, metric.key,
+        // metric.indicator_type, value.sort_order).
+        $this->assertSame([
+            'tile.id',
+            'tile.slug',
+            'tile.title',
+            'tile.description',
+            'tile.hint',
+            'category.labels',
+            'category.groups',
+            'metric.label',
+            'metric.unit',
+            'value.year',
+            'value.value',
+            'metric.source',
+            'metric.source_url',
+            'metric.methodology',
+            'metric.formula',
+        ], FieldWhitelist::all());
+    }
+
+    public function test_dropped_internal_fields_are_not_whitelisted(): void
+    {
+        $all = FieldWhitelist::all();
+
+        foreach (['tile.position', 'category.keys', 'metric.key', 'metric.indicator_type', 'value.sort_order'] as $dropped) {
+            $this->assertNotContains($dropped, $all);
+        }
     }
 
     public function test_reserved_placeholder_fields_are_whitelisted(): void

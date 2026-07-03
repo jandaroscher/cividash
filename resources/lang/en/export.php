@@ -8,18 +8,14 @@ return [
             'title' => 'Tile',
             'description' => 'Description',
             'hint' => 'Hint',
-            'position' => 'Position',
         ],
         'category' => [
-            'keys' => 'Category keys',
             'labels' => 'Categories',
             'groups' => 'Category groups',
         ],
         'metric' => [
-            'key' => 'Metric key',
             'label' => 'Metric',
             'unit' => 'Unit',
-            'indicator_type' => 'Indicator type',
             'source' => 'Source',
             'source_url' => 'Source URL',
             'methodology' => 'Methodology',
@@ -28,7 +24,6 @@ return [
         'value' => [
             'year' => 'Year',
             'value' => 'Value',
-            'sort_order' => 'Sort order',
         ],
     ],
 

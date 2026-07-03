@@ -8,18 +8,14 @@ return [
             'title' => 'Kachel',
             'description' => 'Beschreibung',
             'hint' => 'Hinweis',
-            'position' => 'Position',
         ],
         'category' => [
-            'keys' => 'Kategorie-Schlüssel',
             'labels' => 'Kategorien',
             'groups' => 'Kategoriegruppen',
         ],
         'metric' => [
-            'key' => 'Metrik-Schlüssel',
             'label' => 'Metrik',
             'unit' => 'Einheit',
-            'indicator_type' => 'Indikatortyp',
             'source' => 'Quelle',
             'source_url' => 'Quellenlink',
             'methodology' => 'Methodik',
@@ -28,7 +24,6 @@ return [
         'value' => [
             'year' => 'Jahr',
             'value' => 'Wert',
-            'sort_order' => 'Reihenfolge',
         ],
     ],
 

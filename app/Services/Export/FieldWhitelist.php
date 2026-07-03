@@ -14,27 +14,17 @@ class FieldWhitelist
 
     public const TILE_HINT = 'tile.hint';
 
-    public const TILE_POSITION = 'tile.position';
-
-    public const CATEGORY_KEYS = 'category.keys';
-
     public const CATEGORY_LABELS = 'category.labels';
 
     public const CATEGORY_GROUPS = 'category.groups';
-
-    public const METRIC_KEY = 'metric.key';
 
     public const METRIC_LABEL = 'metric.label';
 
     public const METRIC_UNIT = 'metric.unit';
 
-    public const METRIC_INDICATOR_TYPE = 'metric.indicator_type';
-
     public const VALUE_YEAR = 'value.year';
 
     public const VALUE_VALUE = 'value.value';
-
-    public const VALUE_SORT_ORDER = 'value.sort_order';
 
     // Reserved placeholder fields - always null in v1.0. The export schema
     // keeps these keys so that structured source/methodology/formula data
@@ -60,17 +50,12 @@ class FieldWhitelist
             self::TILE_TITLE,
             self::TILE_DESCRIPTION,
             self::TILE_HINT,
-            self::TILE_POSITION,
-            self::CATEGORY_KEYS,
             self::CATEGORY_LABELS,
             self::CATEGORY_GROUPS,
-            self::METRIC_KEY,
             self::METRIC_LABEL,
             self::METRIC_UNIT,
-            self::METRIC_INDICATOR_TYPE,
             self::VALUE_YEAR,
             self::VALUE_VALUE,
-            self::VALUE_SORT_ORDER,
             self::METRIC_SOURCE,
             self::METRIC_SOURCE_URL,
             self::METRIC_METHODOLOGY,

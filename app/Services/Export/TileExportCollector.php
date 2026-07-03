@@ -107,20 +107,15 @@ class TileExportCollector
             FieldWhitelist::TILE_TITLE => $this->translate($tile, 'title', $locale),
             FieldWhitelist::TILE_DESCRIPTION => $this->plainText($this->translate($tile, 'description', $locale)),
             FieldWhitelist::TILE_HINT => $this->plainText($this->translate($tile, 'hint', $locale)),
-            FieldWhitelist::TILE_POSITION => $tile->position,
 
-            FieldWhitelist::CATEGORY_KEYS => $this->categoryKeys($tile),
             FieldWhitelist::CATEGORY_LABELS => $this->categoryLabels($tile, $locale),
             FieldWhitelist::CATEGORY_GROUPS => $this->categoryGroupTitles($tile, $locale),
 
-            FieldWhitelist::METRIC_KEY => $md?->metric_key,
             FieldWhitelist::METRIC_LABEL => $md ? $this->translate($md, 'label', $locale) : null,
             FieldWhitelist::METRIC_UNIT => $md ? $this->translate($md, 'unit', $locale) : null,
-            FieldWhitelist::METRIC_INDICATOR_TYPE => $md?->indicator_type,
 
             FieldWhitelist::VALUE_YEAR => $this->periodYear($mv),
             FieldWhitelist::VALUE_VALUE => $mv !== null ? (float) $mv->value : null,
-            FieldWhitelist::VALUE_SORT_ORDER => $mv?->sort_order,
 
             // Reserved — see FieldWhitelist constants for rationale.
             FieldWhitelist::METRIC_SOURCE => null,
@@ -164,18 +159,6 @@ class TileExportCollector
         $text = preg_replace('/\s+/u', ' ', $text);
 
         return $text !== null ? trim($text) : null;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function categoryKeys(Tile $tile): array
-    {
-        return $tile->categories
-            ->map(fn ($c) => $c->key)
-            ->filter(fn ($k) => $k !== null && $k !== '')
-            ->values()
-            ->all();
     }
 
     /**

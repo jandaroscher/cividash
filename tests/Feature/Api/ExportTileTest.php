@@ -79,8 +79,12 @@ class ExportTileTest extends TestCase
         $this->assertSame('mobilitaet', $body['filter']['tile_slug']);
         $this->assertCount(2, $body['data']);
         $this->assertSame('Mobilität', $body['data'][0]['tile.title']);
-        $this->assertSame('co2', $body['data'][0]['metric.key']);
+        $this->assertSame('CO₂-Emissionen', $body['data'][0]['metric.label']);
         $this->assertSame(2020, $body['data'][0]['value.year']);
+        // Internal config fields are no longer part of the schema.
+        $this->assertArrayNotHasKey('metric.key', $body['data'][0]);
+        $this->assertArrayNotHasKey('tile.position', $body['data'][0]);
+        $this->assertArrayNotHasKey('value.sort_order', $body['data'][0]);
         $this->assertSame(100.5, $body['data'][0]['value.value']);
         $this->assertNull($body['data'][0]['metric.source']);
         $this->assertNull($body['data'][0]['metric.methodology']);
@@ -130,16 +134,16 @@ class ExportTileTest extends TestCase
     public function test_field_whitelist_limits_exported_columns(): void
     {
         $response = $this->getJson(
-            '/api/tiles/mobilitaet/export?format=json&fields[]=tile.title&fields[]=metric.key&fields[]=value.value'
+            '/api/tiles/mobilitaet/export?format=json&fields[]=tile.title&fields[]=metric.label&fields[]=value.value'
         );
 
         $response->assertOk();
         $body = json_decode($response->streamedContent(), true, flags: JSON_THROW_ON_ERROR);
 
-        $this->assertSame(['tile.title', 'metric.key', 'value.value'], $body['fields']);
+        $this->assertSame(['tile.title', 'metric.label', 'value.value'], $body['fields']);
         $row = $body['data'][0];
         $this->assertArrayHasKey('tile.title', $row);
-        $this->assertArrayHasKey('metric.key', $row);
+        $this->assertArrayHasKey('metric.label', $row);
         $this->assertArrayHasKey('value.value', $row);
         $this->assertArrayNotHasKey('tile.description', $row);
         $this->assertArrayNotHasKey('metric.methodology', $row);

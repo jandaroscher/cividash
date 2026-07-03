@@ -263,19 +263,17 @@ let previouslyFocused = null;
 const fieldGroups = [
     {
         key: 'tile',
-        fields: ['tile.id', 'tile.slug', 'tile.title', 'tile.description', 'tile.hint', 'tile.position'],
+        fields: ['tile.id', 'tile.slug', 'tile.title', 'tile.description', 'tile.hint'],
     },
     {
         key: 'category',
-        fields: ['category.keys', 'category.labels', 'category.groups'],
+        fields: ['category.labels', 'category.groups'],
     },
     {
         key: 'metric',
         fields: [
-            'metric.key',
             'metric.label',
             'metric.unit',
-            'metric.indicator_type',
             'metric.source',
             'metric.source_url',
             'metric.methodology',
@@ -284,7 +282,7 @@ const fieldGroups = [
     },
     {
         key: 'value',
-        fields: ['value.year', 'value.value', 'value.sort_order'],
+        fields: ['value.year', 'value.value'],
     },
 ];
 
