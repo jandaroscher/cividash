@@ -52,13 +52,32 @@ describe('FAQBlock', () => {
         expect(wrapper.html()).toContain('<p>The answer</p>');
     });
 
-    it('does not render answer div when answer is empty', () => {
+    it('does not render an item without an answer at all', () => {
         const wrapper = createWrapper({
             items: [{ question: 'Q?' }],
         });
-        const details = wrapper.find('details');
-        // The v-if="item.answer" should prevent the answer div from rendering
-        expect(details.find('.prose').exists()).toBe(false);
+        // Items without an answer must not render as an openable/empty <details>.
+        expect(wrapper.findAll('details')).toHaveLength(0);
+    });
+
+    it('only renders items that have an answer, filtering out empty ones', () => {
+        const wrapper = createWrapper({
+            items: [
+                { question: 'Empty', answer: '' },
+                { question: 'Has answer', answer: '<p>A</p>' },
+                { question: 'No answer key at all' },
+            ],
+        });
+        const details = wrapper.findAll('details');
+        expect(details).toHaveLength(1);
+        expect(details[0].text()).toContain('Has answer');
+    });
+
+    it('does not render the section at all when every item is empty', () => {
+        const wrapper = createWrapper({
+            items: [{ question: 'Q1' }, { question: 'Q2', answer: '' }],
+        });
+        expect(wrapper.find('section').exists()).toBe(false);
     });
 
     it('renders multiple independent items', () => {
