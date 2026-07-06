@@ -168,4 +168,100 @@ describe('Cards', () => {
         const tileCards = wrapper.findAll('.tile-card-stub');
         expect(tileCards.length).toBe(2);
     });
+
+    // Search/filter must still apply when a page pins a fixed set
+    // of tiles via selectedTileIds (e.g. TileAppBlock on a non-home page).
+    describe('selectedTileIds (fixed tile set, e.g. TileAppBlock)', () => {
+        function createWrapperWithSelectedIds(selectedTileIds) {
+            return shallowMount(Cards, {
+                props: { selectedTileIds },
+                global: {
+                    stubs: {
+                        VueFlexWaterfall: {
+                            template: '<div class="waterfall-stub"><slot /></div>',
+                            props: ['col', 'colSpacing', 'breakAt', 'alignContent'],
+                            methods: {
+                                updateOrder: vi.fn(),
+                            },
+                        },
+                        TileCard: {
+                            template: '<div class="tile-card-stub" :data-tile-id="tile.id">{{ tile.title?.de || tile.title }}</div>',
+                            props: ['tile'],
+                        },
+                    },
+                },
+            });
+        }
+
+        it('renders all selected tiles when no search query is set', async () => {
+            tilesStore.tiles = [
+                createTile(1, 'Klimaschutz'),
+                createTile(2, 'Bildung'),
+                createTile(3, 'Klimawandel'),
+            ];
+
+            const wrapper = createWrapperWithSelectedIds(['1', '2']);
+            await wrapper.vm.$nextTick();
+            await wrapper.vm.$nextTick();
+
+            const tileCards = wrapper.findAll('.tile-card-stub');
+            expect(tileCards.length).toBe(2);
+        });
+
+        it('still applies the search query on top of the selected tile IDs', async () => {
+            tilesStore.tiles = [
+                createTile(1, 'Klimaschutz'),
+                createTile(2, 'Bildung'),
+                createTile(3, 'Klimawandel'),
+            ];
+
+            filterStore.searchQuery = 'Klima';
+
+            // All three tiles are pinned onto the page, but only the ones
+            // matching the search term should remain visible.
+            const wrapper = createWrapperWithSelectedIds(['1', '2', '3']);
+            await wrapper.vm.$nextTick();
+            await wrapper.vm.$nextTick();
+
+            const tileCards = wrapper.findAll('.tile-card-stub');
+            expect(tileCards.length).toBe(2);
+            expect(tileCards[0].text()).toContain('Klimaschutz');
+            expect(tileCards[1].text()).toContain('Klimawandel');
+        });
+
+        it('shows the empty state when the search query matches none of the selected tiles', async () => {
+            tilesStore.tiles = [
+                createTile(1, 'Klimaschutz'),
+                createTile(2, 'Bildung'),
+            ];
+
+            filterStore.searchQuery = 'zzzznotfound';
+
+            const wrapper = createWrapperWithSelectedIds(['1', '2']);
+            await wrapper.vm.$nextTick();
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.findAll('.tile-card-stub').length).toBe(0);
+            expect(wrapper.text()).toContain('Keine Tiles gefunden für Suche:');
+        });
+
+        it('does not show tiles outside the selected set even if they match the search', async () => {
+            tilesStore.tiles = [
+                createTile(1, 'Klimaschutz'),
+                createTile(2, 'Klimawandel'),
+            ];
+
+            filterStore.searchQuery = 'Klima';
+
+            // Only tile 1 is pinned to this page - tile 2 matches the search
+            // but must stay excluded since it is not part of the fixed set.
+            const wrapper = createWrapperWithSelectedIds(['1']);
+            await wrapper.vm.$nextTick();
+            await wrapper.vm.$nextTick();
+
+            const tileCards = wrapper.findAll('.tile-card-stub');
+            expect(tileCards.length).toBe(1);
+            expect(tileCards[0].text()).toContain('Klimaschutz');
+        });
+    });
 });

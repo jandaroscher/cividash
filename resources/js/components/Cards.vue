@@ -89,13 +89,18 @@ function matchesSearch(tile, searchQuery) {
 
 // Function to check if a tile should be visible based on current filter
 function isTileVisible(tile) {
-    // First check if tile is in the selected tile IDs (if any are specified)
-    // Compare as strings since Filament stores IDs as strings in JSON
+    // First narrow down to the selected tile IDs (if any are specified).
+    // Compare as strings since Filament stores IDs as strings in JSON.
+    // This only restricts the base set of tiles - search and category
+    // filters below still apply on top of it.
     if (props.selectedTileIds.length > 0) {
-        return props.selectedTileIds.some(id => String(id) === String(tile.id));
+        const isSelected = props.selectedTileIds.some(id => String(id) === String(tile.id));
+        if (!isSelected) {
+            return false;
+        }
     }
 
-    // First check search query
+    // Then check search query
     if (!matchesSearch(tile, filterStore.searchQuery)) {
         return false;
     }
