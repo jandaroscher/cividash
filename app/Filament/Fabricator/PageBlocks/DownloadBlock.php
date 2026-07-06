@@ -3,11 +3,11 @@
 namespace App\Filament\Fabricator\PageBlocks;
 
 use App\Filament\Concerns\HasBlockActiveToggleAction;
+use App\Filament\Support\RichEditorConfig;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
@@ -24,15 +24,8 @@ class DownloadBlock extends PageBlock
                 TextInput::make('heading')
                     ->label(__('filament.blocks.download.heading'))
                     ->maxLength(255),
-                RichEditor::make('text')
-                    ->label(__('filament.blocks.download.text'))
-                    ->toolbarButtons([
-                        'bold',
-                        'italic',
-                        'link',
-                        'bulletList',
-                        'orderedList',
-                    ]),
+                RichEditorConfig::make('text')
+                    ->label(__('filament.blocks.download.text')),
                 Repeater::make('items')
                     ->label(__('filament.blocks.download.items'))
                     ->addActionLabel(__('filament.actions.add_to_download_items'))
