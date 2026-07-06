@@ -101,4 +101,19 @@ describe('DownloadBlock', () => {
         });
         expect(wrapper.html()).toContain('Download these files');
     });
+
+    it('limits the clickable area of the link to its content width', () => {
+        const wrapper = createWrapper({
+            items: [{ file: 'docs/report.pdf', title: 'Report' }],
+        });
+        const link = wrapper.find('a[download]');
+        // The anchor must shrink to its content (inline-flex + w-fit) instead of
+        // spanning the full row width (flex), so empty space next to the entry
+        // is no longer clickable/focusable.
+        expect(link.classes()).toContain('inline-flex');
+        expect(link.classes()).toContain('w-fit');
+        expect(link.classes()).not.toContain('flex');
+        // Keep a large enough touch target for accessibility (WCAG target size).
+        expect(link.classes()).toContain('min-h-11');
+    });
 });
