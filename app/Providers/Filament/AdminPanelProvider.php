@@ -128,6 +128,7 @@ class AdminPanelProvider extends PanelProvider
             })
             ->navigationGroups([
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.content')),
+                NavigationGroup::make(fn (): string => __('filament.navigation.groups.data')),
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.categories')),
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.settings')),
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.system')),
