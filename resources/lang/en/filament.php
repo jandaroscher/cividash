@@ -493,6 +493,7 @@ return [
             'title' => 'Title',
             'slug' => 'Slug',
             'slug_validation' => 'The slug may only contain lowercase letters, numbers and hyphens (no slashes or special characters).',
+            'slug_unique' => 'This slug is already in use by another page with the same parent. Please choose a different slug.',
             'layout' => 'Layout',
             'parent' => 'Parent',
             'url_preview' => 'URL preview',

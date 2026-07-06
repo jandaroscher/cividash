@@ -609,6 +609,7 @@ return [
             'title' => 'Titel',
             'slug' => 'URL-Slug',
             'slug_validation' => 'Der Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten (keine Schrägstriche oder Sonderzeichen).',
+            'slug_unique' => 'Dieser Slug wird bereits von einer anderen Seite mit derselben übergeordneten Seite verwendet. Bitte wähle einen anderen Slug.',
             'layout' => 'Layout',
             'parent' => 'Übergeordnete Seite',
             'url_preview' => 'URL-Vorschau',
