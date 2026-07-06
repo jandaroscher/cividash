@@ -155,6 +155,7 @@
 import { computed, ref } from 'vue';
 import { useLocale } from '../../../composables/useLocale';
 import { useBrandingStore } from '../../../stores/branding';
+import { buildVisibleJumpMarks } from '../../../utils/jumpMarks';
 import ExportDialog from '../../export/ExportDialog.vue';
 
 const brandingStore = useBrandingStore();
@@ -201,14 +202,13 @@ const backgroundCategories = computed(() => {
     return categories.filter(category => category.group?.key === groupKey);
 });
 
+// Only show a jump mark when its target section will actually be rendered with
+// content in Content.vue - otherwise the link scrolls to an empty/non-existent
+// section. The shared `buildVisibleJumpMarks` helper is the single
+// source of truth for this, also used by Content.vue when assigning section ids.
 const jumpMarks = computed(() => {
     if (!props.tile?.background_blocks) return [];
-    return props.tile.background_blocks
-        .map((block, index) => ({
-            label: block.props?.jump_mark_label || null,
-            sectionId: `section-${index}`,
-        }))
-        .filter(item => item.label);
+    return buildVisibleJumpMarks(props.tile.background_blocks);
 });
 
 function categoryIcon(cat) {
