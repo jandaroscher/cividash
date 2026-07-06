@@ -317,4 +317,56 @@ class TileBackgroundBlocksApiTest extends TestCase
         $data = $response->json('data');
         $this->assertEquals('English Heading', $data['background_blocks'][0]['props']['heading']);
     }
+
+    public function test_api_falls_back_to_other_locale_when_locale_was_never_authored(): void
+    {
+        // Simulates an existing tile whose background page (including an FAQ
+        // block) was only ever authored in German - the "en" key is entirely
+        // absent from the stored JSON, not merely an empty array.
+        $tile = Tile::create([
+            'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
+            'background_blocks' => [
+                'de' => [
+                    [
+                        'type' => 'faq',
+                        'data' => [
+                            'items' => [
+                                ['question' => 'Q?', 'answer' => '<p>A</p>'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->getJson("/api/tiles/{$tile->id}?locale=en");
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertNotEmpty($data['background_blocks']);
+        $this->assertEquals('faq', $data['background_blocks'][0]['type']);
+    }
+
+    public function test_api_does_not_fall_back_when_locale_was_explicitly_emptied(): void
+    {
+        // An explicit empty array for a locale (as opposed to a missing key)
+        // reflects a deliberate editorial choice and must NOT trigger a fallback.
+        $tile = Tile::create([
+            'title' => ['de' => 'Test Tile', 'en' => 'Test Tile'],
+            'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
+            'background_blocks' => [
+                'de' => [
+                    ['type' => 'faq', 'data' => ['items' => [['question' => 'Q?', 'answer' => '<p>A</p>']]]],
+                ],
+                'en' => [],
+            ],
+        ]);
+
+        $response = $this->getJson("/api/tiles/{$tile->id}?locale=en");
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertEmpty($data['background_blocks']);
+    }
 }

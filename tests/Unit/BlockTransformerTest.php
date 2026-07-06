@@ -206,6 +206,52 @@ class BlockTransformerTest extends TestCase
         $this->assertEquals('faq', $result[2]['type']);
     }
 
+    public function test_trims_whitespace_from_type(): void
+    {
+        // Legacy/imported data can contain stray whitespace around the type,
+        // which would otherwise fail to match a block's registered name on the
+        // frontend and silently hide the block.
+        $blocks = [
+            [
+                'type' => "faq\n",
+                'data' => ['items' => []],
+            ],
+        ];
+
+        $result = $this->transformer->transform($blocks);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('faq', $result[0]['type']);
+    }
+
+    public function test_trims_whitespace_from_handle_when_used_as_type_alias(): void
+    {
+        $blocks = [
+            [
+                'handle' => '  faq  ',
+                'data' => ['items' => []],
+            ],
+        ];
+
+        $result = $this->transformer->transform($blocks);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('faq', $result[0]['type']);
+    }
+
+    public function test_omits_block_whose_type_is_only_whitespace(): void
+    {
+        $blocks = [
+            ['type' => '   ', 'data' => ['items' => []]],
+            ['type' => 'faq', 'data' => ['items' => []]],
+        ];
+
+        $result = $this->transformer->transform($blocks);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('faq', $result[0]['type']);
+    }
+
     public function test_reindexes_after_filtering(): void
     {
         $blocks = [
