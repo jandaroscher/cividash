@@ -396,7 +396,20 @@ class CategorySeeder extends Seeder
         $title = trim($title);
         $slug = mb_strtolower($title, 'UTF-8');
         $slug = preg_replace('/\s+und\s+/u', '_', $slug);
-        $slug = preg_replace('/[^a-z0-9äöüß]+/u', '_', $slug);
+
+        // Transliterate German umlauts/ß to their ASCII equivalents.
+        // The icon assets on the source server use
+        // ASCII filenames (e.g. "mobilitaet_infrastruktur.svg"), so keeping
+        // the umlaut in the slug (e.g. "mobilität_infrastruktur.svg") builds
+        // a URL that never resolves to the actual asset.
+        $slug = strtr($slug, [
+            'ä' => 'ae',
+            'ö' => 'oe',
+            'ü' => 'ue',
+            'ß' => 'ss',
+        ]);
+
+        $slug = preg_replace('/[^a-z0-9]+/u', '_', $slug);
         $slug = trim($slug, '_');
 
         return $slug;

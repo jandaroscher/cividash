@@ -45,6 +45,7 @@
             width="120"
             height="120"
             loading="lazy"
+            @error="onIconError"
           >
         </span>
         <span
@@ -187,17 +188,35 @@ function getItemTitle(item) {
     return '';
 }
 
+// Icon URLs that failed to load (e.g. broken/missing files on the backend).
+// Once an icon fails, we stop rendering the <img> for it so the browser
+// never shows a broken-image placeholder with alt text inside the circle;
+// the plain colored circle remains as a neutral fallback.
+const brokenIconUrls = ref(new Set());
+
 function getItemIcon(item) {
     if (!item.icon) {
         return null;
     }
+    let icon = null;
     if (typeof item.icon === 'string') {
-        return item.icon;
+        icon = item.icon;
+    } else if (typeof item.icon === 'object' && item.icon !== null) {
+        icon = item.icon[localeValue.value] || item.icon.de || item.icon.en || null;
     }
-    if (typeof item.icon === 'object' && item.icon !== null) {
-        return item.icon[localeValue.value] || item.icon.de || item.icon.en || null;
+    if (icon && brokenIconUrls.value.has(icon)) {
+        return null;
     }
-    return null;
+    return icon;
+}
+
+function onIconError(event) {
+    const src = event?.target?.src;
+    if (!src) {
+        return;
+    }
+    // Replace the Set so Vue reliably detects the change and re-renders.
+    brokenIconUrls.value = new Set(brokenIconUrls.value).add(src);
 }
 
 function getItemKey(item) {
