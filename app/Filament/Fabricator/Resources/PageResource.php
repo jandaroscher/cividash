@@ -169,6 +169,10 @@ class PageResource extends FabricatorPageResource
                                     Select::make('layout')
                                         ->label(__('filament.resources.page.layout'))
                                         ->options(static::getLayoutOptions())
+                                        // Preserve the vendor default (first registered layout,
+                                        // i.e. FilamentFabricator::getDefaultLayoutName()) now that
+                                        // this custom field replaces the vendor's layout field.
+                                        ->default(fn () => array_key_first(static::getLayoutOptions()))
                                         ->required(),
                                     Select::make('parent_id')
                                         ->label(__('filament.resources.page.parent'))
