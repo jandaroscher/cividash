@@ -74,7 +74,7 @@ class TileResource extends JsonResource
 
             // Background blocks: transform from Filament Builder format to API format
             'background_blocks' => $locale
-                ? $blockTransformer->transform(is_array($bg = $this->getTranslation('background_blocks', $locale)) ? $bg : [])
+                ? $blockTransformer->transform($this->resolveBackgroundBlocksForLocale($locale))
                 : collect($this->getTranslations('background_blocks'))
                     ->map(fn ($blocks) => $blockTransformer->transform(is_array($blocks) ? $blocks : []))
                     ->all(),
@@ -92,6 +92,37 @@ class TileResource extends JsonResource
                 $this->whenLoaded('timePeriods')
             ),
         ];
+    }
+
+    /**
+     * Resolves the raw `background_blocks` array for a requested locale, falling
+     * back to another authored locale when the requested one was never edited.
+     *
+     * `getTranslation()` alone would return an empty array whenever the requested
+     * locale key is entirely absent from the stored JSON (e.g. a tile whose
+     * background page - including blocks such as FAQ - was only ever authored in
+     * German), causing the whole background page to disappear in the other locale
+     * even though content exists. A locale that was explicitly authored
+     * with an empty block list (key present, value `[]`) is respected as-is and
+     * does NOT fall back, since that reflects a deliberate editorial choice.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    protected function resolveBackgroundBlocksForLocale(string $locale): array
+    {
+        $translations = $this->getTranslations('background_blocks');
+
+        if (array_key_exists($locale, $translations) && is_array($translations[$locale])) {
+            return $translations[$locale];
+        }
+
+        foreach (['de', 'en'] as $fallbackLocale) {
+            if (is_array($translations[$fallbackLocale] ?? null)) {
+                return $translations[$fallbackLocale];
+            }
+        }
+
+        return [];
     }
 
     /**

@@ -23,6 +23,13 @@ class BlockTransformer
         return collect($blocks)->map(function (array $block): ?array {
             $type = $block['type'] ?? $block['handle'] ?? null;
 
+            // Defensively normalize the type: legacy/imported data can contain
+            // stray whitespace (e.g. "faq\n") which would otherwise silently
+            // fail to match a block's registered name on the frontend.
+            if (is_string($type)) {
+                $type = trim($type);
+            }
+
             if (empty($type)) {
                 return null;
             }

@@ -1,8 +1,11 @@
 <template>
-    <section class="py-12 md:py-16">
+    <section
+        v-if="visibleItems.length > 0"
+        class="py-12 md:py-16"
+    >
         <div class="container">
             <details
-                v-for="(item, index) in block.props.items"
+                v-for="(item, index) in visibleItems"
                 :key="item.id || `faq-${index}`"
                 class="group faq-item"
                 @toggle="isOpen[index] = $event.target.open"
@@ -47,7 +50,7 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 import { sanitizeHtml } from '../../utils/sanitizeHtml';
 import { useBrandingStore } from '../../stores/branding';
 
@@ -61,6 +64,13 @@ const props = defineProps({
 });
 
 const isOpen = reactive({});
+
+// Items without an answer would render an openable/collapsible <details> element
+// with nothing inside it. Filter them out so only items that actually
+// have content are shown and clickable.
+const visibleItems = computed(() => {
+    return (props.block.props.items || []).filter(item => !!item?.answer);
+});
 
 function getSanitizedAnswer(item) {
     if (!item.answer) return '';

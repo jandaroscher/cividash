@@ -66,6 +66,7 @@ import FAQBlock from '../../blocks/FAQBlock.vue';
 import LinkBlock from '../../blocks/LinkBlock.vue';
 import SliderBlock from '../../blocks/SliderBlock.vue';
 import DownloadBlock from '../../blocks/DownloadBlock.vue';
+import { buildJumpMarkSections } from '../../../utils/jumpMarks';
 
 const props = defineProps({
     tile: {
@@ -100,13 +101,18 @@ function getBlockComponent(blockType) {
     return component || null;
 }
 
-// Add section IDs to blocks based on jump_mark_label
+// Add section IDs to blocks that will be exposed as a jump mark in Header.vue.
+// Uses the same shared logic (buildJumpMarkSections) as Header.vue so a section
+// id is only assigned here when Header will actually show a link to it, and
+// Header only shows a link when a section id is assigned here.
 const blocksWithIds = computed(() => {
     if (!props.tile?.background_blocks) return [];
+    const sections = buildJumpMarkSections(props.tile.background_blocks);
     return props.tile.background_blocks.map((block, index) => {
         const blockWithId = { ...block };
-        if (block.props?.jump_mark_label) {
-            blockWithId.sectionId = `section-${index}`;
+        const section = sections[index];
+        if (section?.label && section?.hasContent) {
+            blockWithId.sectionId = section.sectionId;
         }
         return blockWithId;
     });
