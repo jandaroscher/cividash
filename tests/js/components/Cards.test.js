@@ -73,6 +73,27 @@ describe('Cards', () => {
         expect(tileCards.length).toBe(3);
     });
 
+    // TileCard sizes itself to
+    // (100% - (cols - 1) * 40px) / cols using these custom properties (see
+    // TileCard.vue's <style> block), so the grid always spans the full
+    // container width instead of shrink-wrapping to less than that.
+    it('exposes the active column counts as CSS custom properties for tile width sizing', async () => {
+        tilesStore.tiles = [
+            createTile(1, 'Tile A'),
+            createTile(2, 'Tile B'),
+            createTile(3, 'Tile C'),
+        ];
+
+        const wrapper = createWrapper();
+        await vi.dynamicImportSettled();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        const style = wrapper.find('.waterfall-stub').attributes('style');
+        expect(style).toContain('--waterfall-col-desktop: 3');
+        expect(style).toContain('--waterfall-col-tablet: 2');
+    });
+
     it('displays empty state message when no tiles match filter', async () => {
         tilesStore.tiles = [
             createTile(1, 'Tile A', [

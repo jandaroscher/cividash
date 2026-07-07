@@ -190,6 +190,6 @@ describe('TileCard', () => {
         const wrapper = createWrapper(tile);
 
         // v-show should not hide the element
-        expect(wrapper.find('.max-w-\\[363px\\]').element.style.display).not.toBe('none');
+        expect(wrapper.find('.tile-waterfall-item').element.style.display).not.toBe('none');
     });
 });

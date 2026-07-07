@@ -5,7 +5,18 @@
       :key="`waterfall-${currentLocale}`"
       ref="waterfall"
       class="h-full max-w-[363px] mx-auto md:max-w-none md:mx-0"
-      :style="{ minHeight: '200px', visibility: isTransitioning ? 'hidden' : 'visible' }"
+      :style="{
+        minHeight: '200px',
+        visibility: isTransitioning ? 'hidden' : 'visible',
+        // Exposed so TileCard (see its <style> block) can size each
+        // tile to an exact fraction of this container's width per breakpoint.
+        // vue-flex-waterfall only ever shrink-wraps its columns to content,
+        // it never stretches them to fill the container, so without this the
+        // grid drifts out of alignment with the search/filter header above it
+        // whenever the tiles are narrower than their column.
+        '--waterfall-col-desktop': colCount,
+        '--waterfall-col-tablet': mdColCount,
+      }"
       align-content="center"
       :col="colCount"
       col-spacing="40"
