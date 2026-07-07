@@ -169,10 +169,11 @@ class PageResource extends FabricatorPageResource
                                     Select::make('layout')
                                         ->label(__('filament.resources.page.layout'))
                                         ->options(static::getLayoutOptions())
-                                        // Preserve the vendor default (first registered layout,
-                                        // i.e. FilamentFabricator::getDefaultLayoutName()) now that
-                                        // this custom field replaces the vendor's layout field.
-                                        ->default(fn () => array_key_first(static::getLayoutOptions()))
+                                        // A tenant has exactly one landing page (root slug "/").
+                                        // Default a brand-new page to "landingpage" only while none
+                                        // exists yet; once one is present, new pages should default to
+                                        // "subpage" so they don't accidentally overwrite the root slug.
+                                        ->default(fn () => static::getDefaultLayoutForNewPage())
                                         ->required(),
                                     Select::make('parent_id')
                                         ->label(__('filament.resources.page.parent'))
@@ -442,5 +443,27 @@ class PageResource extends FabricatorPageResource
         }
 
         return $options;
+    }
+
+    /**
+     * Default layout for a newly created page.
+     *
+     * A tenant has exactly one landing page (served at the root slug "/").
+     * While no landing page exists yet, a new page defaults to "landingpage";
+     * once one is present, new pages default to "subpage" so saving them does
+     * not get forced onto the root slug by the Page model's saving hook.
+     */
+    protected static function getDefaultLayoutForNewPage(): ?string
+    {
+        $options = static::getLayoutOptions();
+
+        $landingExists = array_key_exists('landingpage', $options)
+            && Page::query()->where('layout', 'landingpage')->exists();
+
+        if ($landingExists) {
+            return array_key_exists('subpage', $options) ? 'subpage' : array_key_first($options);
+        }
+
+        return array_key_exists('landingpage', $options) ? 'landingpage' : array_key_first($options);
     }
 }

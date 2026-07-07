@@ -124,6 +124,22 @@ class PageResourceTest extends TestCase
         $this->assertNotNull($layout, 'Layout should have a default value');
     }
 
+    public function test_create_page_defaults_to_landingpage_when_none_exists(): void
+    {
+        $component = Livewire::test(CreatePage::class);
+
+        $this->assertSame('landingpage', $component->get('data.layout'));
+    }
+
+    public function test_create_page_defaults_to_subpage_when_landingpage_exists(): void
+    {
+        Page::factory()->forTenant($this->tenant)->create(['layout' => 'landingpage']);
+
+        $component = Livewire::test(CreatePage::class);
+
+        $this->assertSame('subpage', $component->get('data.layout'));
+    }
+
     // ========== Edit Page ==========
 
     public function test_edit_page_renders(): void
