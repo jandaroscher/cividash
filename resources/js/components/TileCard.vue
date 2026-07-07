@@ -41,6 +41,7 @@
           :src="imageUrl"
           :alt="header"
           loading="lazy"
+          @error="onImageError"
         >
 
         <div
@@ -455,6 +456,14 @@ onMounted(() => {
         infoButtonVisible.value = true;
     }
 });
+
+// Gracefully degrade when the tile icon/image fails to load (e.g. broken or
+// missing file on the backend) instead of showing the browser's broken-image
+// placeholder with visible alt text. Clearing imageUrl lets the
+// existing v-if fallbacks (e.g. IndicatorBig) take over.
+function onImageError() {
+    imageUrl.value = null;
+}
 
 function onIntersectionObserver([{ isIntersecting }]) {
     if (isIntersecting && !intersected.value) {

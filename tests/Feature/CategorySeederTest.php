@@ -160,4 +160,27 @@ class CategorySeederTest extends TestCase
         $this->assertEquals(1, $second->position);
         $this->assertEquals(2, $third->position);
     }
+
+    /**
+     * @dataProvider iconSlugProvider
+     */
+    public function test_generate_icon_slug_transliterates_umlauts(string $title, string $expected): void
+    {
+        $method = new \ReflectionMethod(CategorySeeder::class, 'generateIconSlug');
+        $method->setAccessible(true);
+
+        $this->assertSame($expected, $method->invoke($this->seeder, $title));
+    }
+
+    public static function iconSlugProvider(): array
+    {
+        return [
+            // The umlaut must become "ae" so the slug matches the
+            // ASCII asset filename on the source server.
+            'umlaut ae + und' => ['Mobilität und Infrastruktur', 'mobilitaet_infrastruktur'],
+            'umlaut oe' => ['Ökologie', 'oekologie'],
+            'sharp s + und' => ['Straßen und Wege', 'strassen_wege'],
+            'plain ascii' => ['Digitalisierung', 'digitalisierung'],
+        ];
+    }
 }

@@ -52,6 +52,16 @@ class MediaDownloadService
                 return null;
             }
 
+            // Same protection as downloadAsset(): the source server answers
+            // unknown paths with its HTML SPA shell under HTTP 200. Guard tile
+            // and metric SVG icons so an HTML page never gets saved as a ".svg"
+            // that then fails to render in the browser.
+            if (str_ends_with(strtolower($decodedFilename), '.svg') && ! $this->looksLikeSvg($fileContent)) {
+                Log::warning("Downloaded media file does not look like a valid SVG, skipping save: {$downloadUrl}");
+
+                return null;
+            }
+
             // Ensure directory exists
             Storage::disk('public')->makeDirectory($localDirectory);
 
@@ -185,6 +195,18 @@ class MediaDownloadService
                 return null;
             }
 
+            // The source server responds with HTTP 200 and its SPA's HTML
+            // shell for unknown asset paths instead of a real 404 (e.g. when
+            // an icon slug does not match any file on the server). Without
+            // this check that HTML page gets silently saved with a ".svg"
+            // extension, which then fails to render as an icon in the
+            // browser.
+            if (str_ends_with(strtolower($filename), '.svg') && ! $this->looksLikeSvg($fileContent)) {
+                Log::warning("Downloaded asset does not look like a valid SVG, skipping save: {$downloadUrl}");
+
+                return null;
+            }
+
             // Ensure directory exists
             Storage::disk('public')->makeDirectory($localDirectory);
 
@@ -202,5 +224,16 @@ class MediaDownloadService
 
             return null;
         }
+    }
+
+    /**
+     * Heuristically check whether downloaded content is a valid SVG document
+     * rather than e.g. an HTML error/fallback page served with a 200 status.
+     *
+     * @param  string  $content  Raw downloaded file content.
+     */
+    protected function looksLikeSvg(string $content): bool
+    {
+        return stripos(substr($content, 0, 1024), '<svg') !== false;
     }
 }
