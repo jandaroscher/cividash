@@ -17,7 +17,7 @@
         '--waterfall-col-desktop': colCount,
         '--waterfall-col-tablet': mdColCount,
       }"
-      align-content="center"
+      align-content="flex-start"
       :col="colCount"
       col-spacing="40"
       :break-at="{ 1280: mdColCount, 825: 1 }"
@@ -65,6 +65,11 @@ const filterStore = useFilterStore();
 const { currentLocale } = useLocale();
 
 const waterfall = ref(null);
+// Column counts are fixed per breakpoint (desktop=3, tablet=2) regardless of
+// how many tiles are visible, so tiles keep a fixed 1/3 (desktop) / 1/2
+// (tablet) width even when only 1-2 tiles are shown. The responsive
+// reduction to fewer columns on narrower viewports is still handled entirely
+// by the `:break-at="{ 1280: mdColCount, 825: 1 }"` prop below.
 const colCount = ref(3);
 const mdColCount = ref(2);
 const isReady = ref(false); // Control when waterfall renders to prevent MutationObserver errors
@@ -338,20 +343,7 @@ function refreshLayout(filter) {
     
     // Use requestAnimationFrame to batch updates and prevent flicker
     refreshLayoutTimeout = requestAnimationFrame(() => {
-        const cardCount = visibleTilesCount.value;
-
-        if (cardCount === 1) {
-            colCount.value = 1;
-            mdColCount.value = 1;
-        } else if (cardCount === 2) {
-            colCount.value = 2;
-            mdColCount.value = 2;
-        } else {
-            colCount.value = 3;
-            mdColCount.value = 2;
-        }
-
-        // Use setTimeout with 1ms delay like the reference app
+        // A 1ms setTimeout after nextTick
         // This ensures the DOM is ready before updating the layout
         nextTick(() => {
             setTimeout(() => {

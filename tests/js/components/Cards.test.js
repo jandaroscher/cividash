@@ -32,6 +32,7 @@ describe('Cards', () => {
             global: {
                 stubs: {
                     VueFlexWaterfall: {
+                        name: 'VueFlexWaterfall',
                         template: '<div class="waterfall-stub"><slot /></div>',
                         props: ['col', 'colSpacing', 'breakAt', 'alignContent'],
                         methods: {
@@ -92,6 +93,49 @@ describe('Cards', () => {
         const style = wrapper.find('.waterfall-stub').attributes('style');
         expect(style).toContain('--waterfall-col-desktop: 3');
         expect(style).toContain('--waterfall-col-tablet: 2');
+    });
+
+    // (review fix): the column count must stay at the fixed
+    // desktop/tablet fraction (3 / 2) regardless of how many tiles are
+    // actually visible - it must NOT be reduced to the tile count anymore.
+    // Otherwise tiles end up at 1/1 or 1/2 width instead of the reference
+    // app's fixed 1/3 width for partial rows.
+    it.each([
+        ['a single tile', [createTile(1, 'Tile A')]],
+        ['two tiles', [createTile(1, 'Tile A'), createTile(2, 'Tile B')]],
+    ])('keeps colCount at 3 and mdColCount at 2 with %s visible', async (_label, tiles) => {
+        tilesStore.tiles = tiles;
+
+        const wrapper = createWrapper();
+        await vi.dynamicImportSettled();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        const waterfallStub = wrapper.find('.waterfall-stub');
+        const style = waterfallStub.attributes('style');
+        expect(style).toContain('--waterfall-col-desktop: 3');
+        expect(style).toContain('--waterfall-col-tablet: 2');
+    });
+
+    // Partial rows must stay left-aligned (flush with
+    // the filter/search header) instead of being centered - centering was
+    // the root cause of tiles visually looking "too wide"/misaligned when
+    // fewer than a full row of tiles is shown. vue-flex-waterfall inserts
+    // invisible "split" spacer columns after each real column (see its
+    // source), so with fewer tiles than `col` the real column(s) + trailing
+    // spacers no longer sum up to the container's full width - `align-content`
+    // then decides whether that group sits flush left or is centered.
+    it('aligns waterfall columns to the start (left) instead of centering them', async () => {
+        tilesStore.tiles = [createTile(1, 'Tile A')];
+
+        const wrapper = createWrapper();
+        await vi.dynamicImportSettled();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        const waterfall = wrapper.findComponent({ name: 'VueFlexWaterfall' });
+        expect(waterfall.exists()).toBe(true);
+        expect(waterfall.props('alignContent')).toBe('flex-start');
     });
 
     it('displays empty state message when no tiles match filter', async () => {
