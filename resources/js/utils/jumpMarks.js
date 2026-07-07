@@ -10,6 +10,18 @@
  */
 
 /**
+ * Whether an image prop resolves to something renderable. The blocks accept an
+ * image either as a plain path string or as an array (of which the first entry is
+ * used), mirroring the normalisation in TextImageBlock.vue / IntroTextBlock.vue.
+ *
+ * @param {string|Array|undefined|null} image
+ * @returns {boolean}
+ */
+function hasImage(image) {
+    return Array.isArray(image) ? !!image[0] : !!image;
+}
+
+/**
  * Determines whether a background block actually renders visible content.
  * Mirrors the "empty" conditions of each block component so a jump mark is only
  * exposed when there is something to scroll to.
@@ -22,14 +34,33 @@ export function blockHasVisibleContent(block) {
 
     switch (block?.type) {
         case 'slider':
-            return Array.isArray(props.items) && props.items.length > 0;
+            // Mirror SliderBlock.vue's `slides` computed: it drops inactive items
+            // (is_active === false) and any item without a title/description/image,
+            // then renders `<section v-if="slides.length > 0">`. Checking only
+            // items.length here would re-expose the empty-section bug (jump mark to an
+            // empty section) for a slider whose items are all inactive or all blank.
+            return Array.isArray(props.items) && props.items.some(
+                item => item?.is_active !== false
+                    && (item?.title || item?.description || hasImage(item?.image)),
+            );
         case 'faq':
             return Array.isArray(props.items) && props.items.some(item => !!item?.answer);
         case 'download':
             return Array.isArray(props.items) && props.items.some(item => item?.is_active !== false);
         case 'text-image':
+            // TextImageBlock.vue renders its image independently of heading/text,
+            // so an image-only block still has visible content.
+            return !!(props.text || props.heading || hasImage(props.image));
         case 'intro-text':
-            return !!(props.text || props.heading);
+            // IntroTextBlock.vue renders heading, subheading, text, image and
+            // image_secondary independently of one another.
+            return !!(
+                props.text
+                || props.heading
+                || props.subheading
+                || hasImage(props.image)
+                || hasImage(props.image_secondary)
+            );
         default:
             // Unknown/other block types: assume they render something rather than
             // hiding a valid jump mark for a type we don't explicitly know about.

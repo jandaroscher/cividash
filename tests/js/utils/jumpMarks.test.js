@@ -37,6 +37,41 @@ describe('jumpMarks utils', () => {
             expect(blockHasVisibleContent({ type: 'text-image', props: { heading: 'Title' } })).toBe(true);
         });
 
+        it('returns false for a slider whose items are all inactive', () => {
+            expect(blockHasVisibleContent({
+                type: 'slider',
+                props: { items: [{ title: 'A', is_active: false }, { title: 'B', is_active: false }] },
+            })).toBe(false);
+        });
+
+        it('returns false for a slider whose items have no title/description/image', () => {
+            expect(blockHasVisibleContent({
+                type: 'slider',
+                props: { items: [{ link_url: 'https://example.com' }] },
+            })).toBe(false);
+        });
+
+        it('returns true for a slider with an active image-only item', () => {
+            expect(blockHasVisibleContent({
+                type: 'slider',
+                props: { items: [{ image: 'seeds/slider/x.jpg' }] },
+            })).toBe(true);
+        });
+
+        it('returns true for a text-image block with an image only', () => {
+            expect(blockHasVisibleContent({ type: 'text-image', props: { image: 'seeds/x.jpg' } })).toBe(true);
+            expect(blockHasVisibleContent({ type: 'text-image', props: { image: ['seeds/x.jpg'] } })).toBe(true);
+        });
+
+        it('returns true for an intro-text block with only a subheading or image', () => {
+            expect(blockHasVisibleContent({ type: 'intro-text', props: { subheading: 'Sub' } })).toBe(true);
+            expect(blockHasVisibleContent({ type: 'intro-text', props: { image_secondary: 'seeds/x.jpg' } })).toBe(true);
+        });
+
+        it('returns false for an intro-text block with no renderable content', () => {
+            expect(blockHasVisibleContent({ type: 'intro-text', props: {} })).toBe(false);
+        });
+
         it('defaults to true for unknown block types', () => {
             expect(blockHasVisibleContent({ type: 'hero', props: {} })).toBe(true);
         });
