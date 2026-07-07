@@ -188,7 +188,7 @@ const props = defineProps({
 const { currentLocale } = useLocale();
 
 const heading = computed(() => {
-    return props.block?.props?.heading || '';
+    return props.block?.props?.heading || props.block?.props?.jump_mark_label || '';
 });
 
 const flicking = ref(null);

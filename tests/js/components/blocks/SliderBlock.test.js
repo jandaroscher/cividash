@@ -65,6 +65,32 @@ describe('SliderBlock', () => {
         expect(wrapper.find('h2').exists()).toBe(false);
     });
 
+    it('falls back to jump_mark_label when heading is empty', () => {
+        const wrapper = createWrapper({
+            jump_mark_label: 'Unser Engagement',
+            items: [{ title: 'Slide 1' }],
+        });
+        expect(wrapper.find('h2').exists()).toBe(true);
+        expect(wrapper.find('h2').text()).toBe('Unser Engagement');
+    });
+
+    it('prefers heading over jump_mark_label when both are set', () => {
+        const wrapper = createWrapper({
+            heading: 'Our Slides',
+            jump_mark_label: 'Unser Engagement',
+            items: [{ title: 'Slide 1' }],
+        });
+        expect(wrapper.find('h2').text()).toBe('Our Slides');
+    });
+
+    it('does not render heading when both heading and jump_mark_label are empty', () => {
+        const wrapper = createWrapper({
+            items: [{ title: 'Slide 1' }],
+        });
+        expect(wrapper.find('h2').exists()).toBe(false);
+        expect(wrapper.text()).toContain('Slide 1');
+    });
+
     it('renders slides from items', () => {
         const wrapper = createWrapper({
             items: [
