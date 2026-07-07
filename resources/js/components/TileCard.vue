@@ -210,6 +210,7 @@ import { useOverlayStore } from '../stores/overlay';
 import { useBrandingStore } from '../stores/branding';
 import { useLocale } from '../composables/useLocale';
 import { useHelpContext } from '../composables/useHelpContext';
+import { blockHasVisibleContent } from '../utils/jumpMarks';
 
 const props = defineProps({
     tile: {
@@ -336,7 +337,12 @@ const imageUrl = ref(null);
 const lottieUrl = ref(null);
 const lottiePlayer = ref(null);
 const intersected = ref(false);
-const infoButtonVisible = ref(false);
+// The info/"+" button opens the tile's background-page overlay, so it should
+// only be shown when at least one background block actually renders visible
+// content - otherwise the button is clickable but the overlay is empty.
+const infoButtonVisible = computed(
+    () => (props.tile.background_blocks || []).some(blockHasVisibleContent),
+);
 const isSliderInteracting = ref(false);
 
 // Process indicators from metric definitions (new API structure)
@@ -449,11 +455,6 @@ onMounted(() => {
         } else {
             imageUrl.value = url;
         }
-    }
-
-    // Check if overlay should be available (if tile has background content or additional data)
-    if (props.tile.background_blocks?.length > 0) {
-        infoButtonVisible.value = true;
     }
 });
 

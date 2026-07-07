@@ -160,6 +160,31 @@ describe('TileCard', () => {
         expect(infoButton.exists()).toBe(false);
     });
 
+    // The info button opens the background-page overlay, so it must
+    // stay hidden when the background_blocks exist but render no visible
+    // content - otherwise the button is clickable but the overlay is empty.
+    it('hides info button when background_blocks have no visible content', async () => {
+        const tile = createTile({
+            background_blocks: [{ type: 'slider', props: { items: [{ description: '' }] } }],
+        });
+        const wrapper = createWrapper(tile);
+        await wrapper.vm.$nextTick();
+
+        const infoButton = wrapper.find('button[aria-label="Info"]');
+        expect(infoButton.exists()).toBe(false);
+    });
+
+    it('shows info button when at least one background_block has visible content', async () => {
+        const tile = createTile({
+            background_blocks: [{ type: 'slider', props: { items: [{ title: 'A' }] } }],
+        });
+        const wrapper = createWrapper(tile);
+        await wrapper.vm.$nextTick();
+
+        const infoButton = wrapper.find('button[aria-label="Info"]');
+        expect(infoButton.exists()).toBe(true);
+    });
+
     it('is visible by default when no filter is active', () => {
         const tile = createTile();
         const wrapper = createWrapper(tile);
