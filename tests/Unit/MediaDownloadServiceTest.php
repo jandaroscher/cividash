@@ -26,7 +26,7 @@ class MediaDownloadServiceTest extends TestCase
 
         $service->expects($this->once())
             ->method('downloadFileContent')
-            ->willReturn('file-content-here');
+            ->willReturn('<svg xmlns="http://www.w3.org/2000/svg"></svg>');
 
         $result = $service->downloadFile('/fm/496/test-icon.svg', 'tiles');
 
@@ -145,7 +145,7 @@ class MediaDownloadServiceTest extends TestCase
 
         $service->expects($this->once())
             ->method('downloadFileContent')
-            ->willReturn('svg-content');
+            ->willReturn('<svg xmlns="http://www.w3.org/2000/svg"></svg>');
 
         $result = $service->downloadFile('/fm/496/SREG%20Dashboard.svg', 'tiles');
 
@@ -164,7 +164,7 @@ class MediaDownloadServiceTest extends TestCase
 
         $service->expects($this->once())
             ->method('downloadFileContent')
-            ->willReturn('asset-content');
+            ->willReturn('<svg xmlns="http://www.w3.org/2000/svg"></svg>');
 
         $result = $service->downloadAsset('handlungsfelder/umwelt.svg', 'dimensions');
 
@@ -189,5 +189,62 @@ class MediaDownloadServiceTest extends TestCase
         $result = $this->service->downloadFile('/', 'tiles');
 
         $this->assertNull($result);
+    }
+
+    public function test_download_file_rejects_html_masquerading_as_svg(): void
+    {
+        Storage::fake('public');
+
+        $service = $this->getMockBuilder(MediaDownloadService::class)
+            ->onlyMethods(['downloadFileContent'])
+            ->getMock();
+
+        $service->expects($this->once())
+            ->method('downloadFileContent')
+            ->willReturn('<!DOCTYPE html><html><head><title>App</title></head><body></body></html>');
+
+        $result = $service->downloadFile('/fm/496/broken-icon.svg', 'tiles');
+
+        $this->assertNull($result);
+        Storage::disk('public')->assertMissing('seeds/tiles/broken-icon.svg');
+    }
+
+    public function test_download_asset_rejects_html_masquerading_as_svg(): void
+    {
+        Storage::fake('public');
+
+        $service = $this->getMockBuilder(MediaDownloadService::class)
+            ->onlyMethods(['downloadFileContent'])
+            ->getMock();
+
+        $service->expects($this->once())
+            ->method('downloadFileContent')
+            ->willReturn('<!DOCTYPE html><html><body>SPA shell</body></html>');
+
+        $result = $service->downloadAsset('handlungsfelder/mobilitaet_infrastruktur.svg', 'handlungsfelder');
+
+        $this->assertNull($result);
+        Storage::disk('public')->assertMissing('seeds/handlungsfelder/mobilitaet_infrastruktur.svg');
+    }
+
+    public function test_download_file_saves_non_svg_content_unchanged(): void
+    {
+        Storage::fake('public');
+
+        $service = $this->getMockBuilder(MediaDownloadService::class)
+            ->onlyMethods(['downloadFileContent'])
+            ->getMock();
+
+        // The SVG-content guard only applies to *.svg targets; other file types
+        // (e.g. raster images) must still be saved with their raw bytes.
+        $service->expects($this->once())
+            ->method('downloadFileContent')
+            ->willReturn('binary-png-bytes');
+
+        $result = $service->downloadFile('/fm/496/photo.png', 'tiles');
+
+        $this->assertNotNull($result);
+        $this->assertEquals('seeds/tiles/photo.png', $result);
+        Storage::disk('public')->assertExists('seeds/tiles/photo.png');
     }
 }

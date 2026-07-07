@@ -52,6 +52,16 @@ class MediaDownloadService
                 return null;
             }
 
+            // Same protection as downloadAsset(): the source server answers
+            // unknown paths with its HTML SPA shell under HTTP 200. Guard tile
+            // and metric SVG icons so an HTML page never gets saved as a ".svg"
+            // that then fails to render in the browser.
+            if (str_ends_with(strtolower($decodedFilename), '.svg') && ! $this->looksLikeSvg($fileContent)) {
+                Log::warning("Downloaded media file does not look like a valid SVG, skipping save: {$downloadUrl}");
+
+                return null;
+            }
+
             // Ensure directory exists
             Storage::disk('public')->makeDirectory($localDirectory);
 

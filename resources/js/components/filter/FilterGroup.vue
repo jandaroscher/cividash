@@ -211,7 +211,11 @@ function getItemIcon(item) {
 }
 
 function onIconError(event) {
-    const src = event?.target?.src;
+    // Use the raw `src` attribute (not the `.src` IDL property, which the browser
+    // resolves to an absolute URL) so it matches the value returned by getItemIcon()
+    // — item.icon is a root-relative "/storage/..." path. Comparing against the
+    // resolved absolute URL would never match, leaving the broken icon on screen.
+    const src = event?.target?.getAttribute('src');
     if (!src) {
         return;
     }
