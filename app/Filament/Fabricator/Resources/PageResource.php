@@ -130,10 +130,49 @@ class PageResource extends FabricatorPageResource
                                         ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
                                         ->validationMessages([
                                             'regex' => __('filament.resources.page.slug_validation'),
-                                        ]),
+                                        ])
+                                        ->rule(function (Get $get, ?Page $record, $livewire) {
+                                            return function (string $attribute, $value, \Closure $fail) use ($get, $record, $livewire) {
+                                                if (blank($value)) {
+                                                    return;
+                                                }
+
+                                                $locale = property_exists($livewire, 'activeLocale')
+                                                    ? $livewire->activeLocale
+                                                    : app()->getLocale();
+
+                                                // Mirror the config-driven locale list used by
+                                                // PageObserver::invalidateUrlCache(); hardcoding ['de','en']
+                                                // would skip uniqueness checks for any newly configured locale.
+                                                if (! in_array($locale, config('app.available_locales', ['de', 'en']), true)) {
+                                                    return;
+                                                }
+
+                                                // slug is stored as a translatable JSON column, so a plain
+                                                // ->unique() rule can't compare against it directly (and
+                                                // would error on PostgreSQL, where the column is jsonb).
+                                                // Use the app-wide whereTranslation() macro instead, scoped
+                                                // to the same parent (siblings must have distinct slugs;
+                                                // the tenant scope is already applied by BelongsToTenant).
+                                                $query = Page::whereTranslation('slug', $locale, $value)
+                                                    ->where('parent_id', $get('parent_id'));
+
+                                                if ($record) {
+                                                    $query->whereKeyNot($record->getKey());
+                                                }
+
+                                                if ($query->exists()) {
+                                                    $fail(__('filament.resources.page.slug_unique'));
+                                                }
+                                            };
+                                        }),
                                     Select::make('layout')
                                         ->label(__('filament.resources.page.layout'))
                                         ->options(static::getLayoutOptions())
+                                        // Preserve the vendor default (first registered layout,
+                                        // i.e. FilamentFabricator::getDefaultLayoutName()) now that
+                                        // this custom field replaces the vendor's layout field.
+                                        ->default(fn () => array_key_first(static::getLayoutOptions()))
                                         ->required(),
                                     Select::make('parent_id')
                                         ->label(__('filament.resources.page.parent'))
@@ -176,13 +215,15 @@ class PageResource extends FabricatorPageResource
                                     $name = method_exists($component, 'getName') ? $component->getName() : null;
 
                                     if ($name && in_array($name, $existingNames, true)) {
-                                        // Replace vendor parent_id with our locale-aware version
-                                        if ($name === 'parent_id') {
-                                            foreach ($sectionChildren as $k => $existing) {
-                                                if (method_exists($existing, 'getName') && $existing->getName() === 'parent_id') {
-                                                    $sectionChildren[$k] = $component;
-                                                    break;
-                                                }
+                                        // Replace the vendor field of the same name with our
+                                        // customized version (e.g. locale-aware parent_id options,
+                                        // our slug regex/uniqueness validation, our labels). Without
+                                        // this, the vendor's original field silently stays active and
+                                        // all of our overrides below become dead code.
+                                        foreach ($sectionChildren as $k => $existing) {
+                                            if (method_exists($existing, 'getName') && $existing->getName() === $name) {
+                                                $sectionChildren[$k] = $component;
+                                                break;
                                             }
                                         }
 

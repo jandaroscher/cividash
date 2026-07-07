@@ -56,7 +56,8 @@ class PageObserver
      */
     protected function invalidateUrlCache(Page $page): void
     {
-        $locales = ['de', 'en'];
+        $locales = config('app.available_locales', ['de', 'en']);
+        $locales = array_values(array_filter($locales));
 
         foreach ($locales as $locale) {
             $cacheKey = $page->getUrlCacheKey(['locale' => $locale]);
