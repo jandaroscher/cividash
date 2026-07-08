@@ -503,23 +503,14 @@ function handleSliderInteractionEnd() {
 
 <style scoped>
 /*
- * vue-flex-waterfall (`display: flex; flex-flow: column wrap`) sizes
- * each column to shrink-wrap its widest tile, then positions the resulting
- * column group with `align-content` (see Cards.vue) - it never stretches
- * columns to fill the container. A plain `max-w-[363px]` therefore only
- * looked "full width" by coincidence, whenever tile content happened to be
- * wide enough to reach that cap; with shorter content the grid fell short of
- * `.container`'s width and drifted out of alignment with the filter header.
- *
- * Giving every tile an explicit `width` - matching exactly
- * (100% - (columns - 1) * col-spacing) / columns for the column count that is
- * actually active (see Cards.vue's colCount/mdColCount, forwarded here as CSS
- * custom properties) - makes every column the same size and the whole grid
- * sum up to exactly the container's width, at every breakpoint.
- *
- * The breakpoints below intentionally mirror Cards.vue's `break-at` prop
- * (825 / 1280) rather than Tailwind's default scale, so the column count
- * used here always matches what vue-flex-waterfall actually renders.
+ * Tiles use the fixed design card width of 363px (matching the
+ * reference at zukunft.regensburg.de). The grid fits as many 363px columns as
+ * the container allows (3 at desktop where .container maxes at 1230/inner 1170
+ * = 3×363 + 2×40 gap; 2 on tablet; 1 on mobile), controlled by Cards.vue's
+ * `:col` / `break-at`. A fixed width (not `max-w`, not a container fraction)
+ * keeps tiles at 363px regardless of content amount or result count, so sparse
+ * rows stay left-aligned at the standard size instead of shrinking or being
+ * stretched to fill the row.
  */
 .tile-waterfall-item {
     width: 100%; /* <=825px: single column, wrapper below already caps + centers at 363px */
@@ -527,13 +518,7 @@ function handleSliderInteractionEnd() {
 
 @media (min-width: 826px) {
     .tile-waterfall-item {
-        width: calc((100% - (var(--waterfall-col-tablet, 2) - 1) * 40px) / var(--waterfall-col-tablet, 2));
-    }
-}
-
-@media (min-width: 1281px) {
-    .tile-waterfall-item {
-        width: calc((100% - (var(--waterfall-col-desktop, 3) - 1) * 40px) / var(--waterfall-col-desktop, 3));
+        width: 363px;
     }
 }
 

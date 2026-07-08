@@ -74,11 +74,10 @@ describe('Cards', () => {
         expect(tileCards.length).toBe(3);
     });
 
-    // TileCard sizes itself to
-    // (100% - (cols - 1) * 40px) / cols using these custom properties (see
-    // TileCard.vue's <style> block), so the grid always spans the full
-    // container width instead of shrink-wrapping to less than that.
-    it('exposes the active column counts as CSS custom properties for tile width sizing', async () => {
+    // Tiles are a fixed 363px wide (see TileCard.vue's <style>), and
+    // the waterfall fits as many 363px columns as the container allows via its
+    // `col` (3) and responsive `break-at` (1230 -> 2 cols, 825 -> 1 col) props.
+    it('renders the waterfall with 3 columns and the responsive break-at thresholds', async () => {
         tilesStore.tiles = [
             createTile(1, 'Tile A'),
             createTile(2, 'Tile B'),
@@ -90,20 +89,20 @@ describe('Cards', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        const style = wrapper.find('.waterfall-stub').attributes('style');
-        expect(style).toContain('--waterfall-col-desktop: 3');
-        expect(style).toContain('--waterfall-col-tablet: 2');
+        const waterfall = wrapper.findComponent({ name: 'VueFlexWaterfall' });
+        expect(waterfall.props('col')).toBe(3);
+        expect(waterfall.props('breakAt')).toEqual({ 1230: 2, 825: 1 });
     });
 
-    // (review fix): the column count must stay at the fixed
-    // desktop/tablet fraction (3 / 2) regardless of how many tiles are
-    // actually visible - it must NOT be reduced to the tile count anymore.
-    // Otherwise tiles end up at 1/1 or 1/2 width instead of the reference
-    // app's fixed 1/3 width for partial rows.
+    // The column count must stay fixed (3 desktop /
+    // 2 tablet, via break-at) regardless of how many tiles are actually
+    // visible - it must NOT be reduced to the tile count. Otherwise the
+    // fixed-width tiles would be laid out into fewer/stretched columns instead
+    // of the reference app's fixed 363px width for partial rows.
     it.each([
         ['a single tile', [createTile(1, 'Tile A')]],
         ['two tiles', [createTile(1, 'Tile A'), createTile(2, 'Tile B')]],
-    ])('keeps colCount at 3 and mdColCount at 2 with %s visible', async (_label, tiles) => {
+    ])('keeps col at 3 and break-at tablet at 2 with %s visible', async (_label, tiles) => {
         tilesStore.tiles = tiles;
 
         const wrapper = createWrapper();
@@ -111,10 +110,9 @@ describe('Cards', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        const waterfallStub = wrapper.find('.waterfall-stub');
-        const style = waterfallStub.attributes('style');
-        expect(style).toContain('--waterfall-col-desktop: 3');
-        expect(style).toContain('--waterfall-col-tablet: 2');
+        const waterfall = wrapper.findComponent({ name: 'VueFlexWaterfall' });
+        expect(waterfall.props('col')).toBe(3);
+        expect(waterfall.props('breakAt')).toEqual({ 1230: 2, 825: 1 });
     });
 
     // Partial rows must stay left-aligned (flush with

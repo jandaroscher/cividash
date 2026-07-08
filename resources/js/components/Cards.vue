@@ -8,19 +8,11 @@
       :style="{
         minHeight: '200px',
         visibility: isTransitioning ? 'hidden' : 'visible',
-        // Exposed so TileCard (see its <style> block) can size each
-        // tile to an exact fraction of this container's width per breakpoint.
-        // vue-flex-waterfall only ever shrink-wraps its columns to content,
-        // it never stretches them to fill the container, so without this the
-        // grid drifts out of alignment with the search/filter header above it
-        // whenever the tiles are narrower than their column.
-        '--waterfall-col-desktop': colCount,
-        '--waterfall-col-tablet': mdColCount,
       }"
       align-content="flex-start"
       :col="colCount"
       col-spacing="40"
-      :break-at="{ 1280: mdColCount, 825: 1 }"
+      :break-at="{ 1230: mdColCount, 825: 1 }"
     >
       <TileCard
         v-for="tile in filteredTiles"
