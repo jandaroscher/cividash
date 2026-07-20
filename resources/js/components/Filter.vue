@@ -1,46 +1,85 @@
 <template>
   <div class="container">
     <div
-      v-if="effectiveHeading"
-      class="flex flex-col xl:flex-row"
+      v-if="effectiveHeading || showSearch"
+      class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-5 md:mb-10 xl:mb-12"
     >
-      <h2 class="content-heading text-theme-h3 mb-6 lg:mb-12 hyphens-auto order-2 xl:order-1">
+      <h2
+        v-if="effectiveHeading"
+        class="content-heading text-theme-h3 hyphens-auto order-2 xl:order-1 mb-0"
+      >
         {{ effectiveHeading }}
       </h2>
-    </div>
 
-    <!-- Search Input -->
-    <div
-      v-if="showSearch"
-      class="mb-5 md:mb-10"
-    >
-      <Tooltip
-        :text="getSearchTooltip()"
-        position="top"
-        wrapper-class="w-full"
-        trigger-class="w-full"
+      <!-- Search Input -->
+      <div
+        v-if="showSearch"
+        class="order-1 xl:order-2 xl:shrink-0 xl:w-[508px]"
       >
-        <input
-          v-model="searchQuery"
-          type="text"
-          :placeholder="searchPlaceholder"
-          class="w-full px-4 border focus:outline-none focus:ring-2 focus:ring-offset-0"
-          :style="{
-            '--tw-ring-color': brandingStore.primaryColor,
-            borderColor: '#191919',
-            height: '4rem',
-            fontSize: '1.25rem',
-            lineHeight: '2rem'
-          }"
-          :aria-label="currentLocale === 'en' ? 'Search tiles' : 'Kacheln durchsuchen'"
-          @input="handleSearchInput"
+        <Tooltip
+          :text="getSearchTooltip()"
+          position="top"
+          wrapper-class="w-full"
+          trigger-class="w-full"
         >
-      </Tooltip>
+          <div
+            class="search-field flex items-center gap-[18px] border pl-[30px] pr-[20px] py-[16px] focus-within:ring-2 focus-within:ring-offset-0"
+            :style="{ '--tw-ring-color': brandingStore.primaryColor, borderColor: '#9B9B9B' }"
+          >
+            <svg
+              class="shrink-0"
+              width="22"
+              height="22"
+              viewBox="0 0 22 22"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M9.68848 0C15.0306 0.00012322 19.377 4.3466 19.377 9.68848C19.3769 12.0384 18.5345 14.1948 17.1377 15.874L21.7383 20.4736C22.0873 20.8227 22.0874 21.3893 21.7383 21.7383C21.5636 21.9129 21.3341 22 21.1055 22C20.8767 22 20.6482 21.9127 20.4736 21.7383L15.873 17.1377C14.1939 18.5342 12.0382 19.3769 9.68848 19.377C4.3466 19.377 0.000123217 15.0306 0 9.68848C0 4.34652 4.34652 0 9.68848 0ZM9.68848 1.78906C5.33264 1.78906 1.78906 5.33264 1.78906 9.68848C1.78916 14.0442 5.33271 17.5879 9.68848 17.5879C14.0441 17.5878 17.5878 14.0441 17.5879 9.68848C17.5879 5.33272 14.0442 1.78919 9.68848 1.78906Z"
+                :fill="brandingStore.primaryColor"
+              />
+            </svg>
+            <input
+              v-model="searchQuery"
+              type="text"
+              :placeholder="searchPlaceholder"
+              class="flex-1 min-w-0 border-0 bg-transparent focus:outline-none focus:ring-0 p-0"
+              :style="{ color: '#191919', fontSize: '1.25rem', lineHeight: 'normal' }"
+              :aria-label="currentLocale === 'en' ? 'Search tiles' : 'Kacheln durchsuchen'"
+              @input="handleSearchInput"
+            >
+            <button
+              type="button"
+              class="search-clear-button shrink-0"
+              :class="searchQuery ? 'is-visible' : ''"
+              :tabindex="searchQuery ? 0 : -1"
+              :aria-hidden="!searchQuery"
+              :aria-label="currentLocale === 'en' ? 'Clear search' : 'Suche leeren'"
+              @click="clearSearch"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M1 1L15 15M15 1L1 15"
+                  stroke="#9B9B9B"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </Tooltip>
+      </div>
     </div>
 
     <div
       v-if="showFilter && filterGroups.length > 0"
-      class="flex flex-wrap mb-5 md:mb-10"
+      class="filter-tabs flex flex-wrap mb-5 md:mb-10"
       role="tablist"
       :aria-label="currentLocale === 'en' ? 'Filter navigation' : 'Filter-Navigation'"
     >
@@ -56,11 +95,11 @@
           'filter-button',
           { 'filter-button--active': filterStore.level1Filter === group.key }
         ]"
-        :style="getButtonStyles(group.key)"
+        :style="getButtonStyles()"
         @click="changeLevel1Filter(group.key)"
         @keydown="handleTabKeydown($event, group.key, index)"
       >
-        {{ getGroupTitle(group) }}
+        <span class="filter-button__fill">{{ getGroupTitle(group) }}</span>
       </button>
     </div>
 
@@ -86,6 +125,7 @@ import { useBrandingStore } from '../stores/branding';
 import { useLocale } from '../composables/useLocale';
 import { useHelpContext } from '../composables/useHelpContext';
 import { getApiBaseUrl } from '../utils/api';
+import { hexToRgba } from '../utils/color';
 import Tooltip from './help/Tooltip.vue';
 import FilterGroup from './filter/FilterGroup.vue';
 
@@ -112,9 +152,7 @@ const { getTooltip } = useHelpContext();
 const searchQuery = ref(filterStore.searchQuery || '');
 let searchTimeout = null;
 
-const searchPlaceholder = computed(() => {
-    return currentLocale.value === 'en' ? 'Search tiles...' : 'Kacheln durchsuchen...';
-});
+const searchPlaceholder = computed(() => t('searchPlaceholder', currentLocale.value));
 
 const filterGroups = computed(() => filterStore.groups || []);
 const activeGroup = computed(() => {
@@ -138,6 +176,15 @@ function handleSearchInput(event) {
     searchTimeout = setTimeout(() => {
         filterStore.setSearchQuery(value);
     }, 300);
+}
+
+function clearSearch() {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+        searchTimeout = null;
+    }
+    searchQuery.value = '';
+    filterStore.setSearchQuery('');
 }
 
 watch(
@@ -216,7 +263,7 @@ function handleTabKeydown(event, filter, currentIndex) {
 
     switch (key) {
         case 'ArrowLeft':
-        case 'ArrowRight':
+        case 'ArrowRight': {
             event.preventDefault();
             let targetIndex = currentIndex;
             if (key === 'ArrowLeft') {
@@ -235,6 +282,7 @@ function handleTabKeydown(event, filter, currentIndex) {
                 }
             }, 0);
             break;
+        }
         case 'Enter':
         case ' ':
             event.preventDefault();
@@ -249,14 +297,13 @@ function getSearchTooltip() {
     return getTooltip('searchInput') || (currentLocale.value === 'en' ? 'Search tiles by title or description' : 'Durchsuchen Sie Kacheln nach Titel oder Beschreibung');
 }
 
-function getButtonStyles(filter) {
-    const isActive = filterStore.level1Filter === filter;
+function getButtonStyles() {
+    // Active fill uses the full tenant primary color; hover uses a soft tint
+    // of the same color so the hover state reads as a preview, not a
+    // selection (active !== hover).
     return {
-        '--hover-bg': brandingStore.primaryColor,
-        '--hover-border': brandingStore.primaryColor,
-        backgroundColor: isActive ? brandingStore.primaryColor : 'transparent',
-        borderColor: isActive ? brandingStore.primaryColor : '#191919',
-        color: isActive ? 'white' : '#191919',
+        '--active-fill': brandingStore.primaryColor,
+        '--hover-fill': hexToRgba(brandingStore.primaryColor, 0.12),
     };
 }
 </script>
@@ -320,42 +367,73 @@ function getButtonStyles(filter) {
     box-shadow: 0px 3px 6px #00000029;
 }
 
-.filter-button {
-    flex: 1 1 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 4rem;
-    font-size: 1.25rem;
-    line-height: 2rem;
-    border: 1px solid;
-    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+/* v05: light-grey bar with an inset color fill for the active tab (Figma
+   node 2314:1245, category-filters) - no borders, active state is a solid
+   color block, hover is a soft tint of the same color so it never reads
+   as "selected". */
+.filter-tabs {
+    background-color: rgba(229, 229, 229, 0.6);
 }
 
-/* Mobile (stacked column): collapse adjacent borders so the active state's
-   border still shows above the neighbour's. */
-.filter-button + .filter-button {
-    margin-top: -1px;
+.filter-button {
+    flex: 1 1 100%;
+    box-sizing: border-box;
+    display: flex;
+    padding: 6px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
 }
 
 @media (min-width: 768px) {
     .filter-button {
-        flex: 1 1 calc(33.333% - 0.5rem);
-        border-right-width: 0;
-    }
-
-    .filter-button + .filter-button {
-        margin-top: 0;
-    }
-
-    .filter-button:last-child {
-        border-right-width: 1px;
+        flex: 1 1 33.333%;
     }
 }
 
-.filter-button:not(.filter-button--active):hover {
-    background-color: var(--hover-bg) !important;
-    border-color: var(--hover-border) !important;
-    color: white !important;
+.filter-button__fill {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 52px;
+    font-size: 1.25rem;
+    line-height: 2rem;
+    color: #191919;
+    background-color: transparent;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.filter-button--active .filter-button__fill {
+    background-color: var(--active-fill);
+    color: white;
+}
+
+.filter-button:not(.filter-button--active):hover .filter-button__fill {
+    background-color: var(--hover-fill);
+}
+
+/* Search field */
+.search-field input::placeholder {
+    color: rgba(25, 25, 25, 0.5);
+}
+
+.search-clear-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+}
+
+.search-clear-button.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.search-clear-button:hover svg path,
+.search-clear-button:focus-visible svg path {
+    stroke: #191919;
 }
 </style>
