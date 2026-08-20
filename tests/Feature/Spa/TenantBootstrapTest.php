@@ -2,8 +2,11 @@
 
 namespace Tests\Feature\Spa;
 
+use App\Http\Controllers\SpaController;
 use App\Models\Tenant;
+use App\Services\MetaTagService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class TenantBootstrapTest extends TestCase
@@ -27,5 +30,24 @@ class TenantBootstrapTest extends TestCase
             ->assertOk()
             ->assertSee('window.__TENANT__', false)
             ->assertSee('"slug":"default"', false);
+    }
+
+    public function test_spa_shell_falls_back_when_no_tenant_resolved_at_all(): void
+    {
+        // Bypasses resolve.tenant entirely (no 'resolved_tenant' request attribute set),
+        // e.g. the middleware chain didn't run or found nothing — forces the controller's
+        // own ternary-else guard, not the middleware's default-tenant lookup.
+        $request = Request::create('/');
+
+        $response = $this->app->call([$this->app->make(SpaController::class), 'index'], [
+            'request' => $request,
+            'metaTagService' => $this->app->make(MetaTagService::class),
+        ]);
+
+        $html = $response->render();
+
+        $this->assertStringContainsString('window.__TENANT__', $html);
+        $this->assertStringContainsString('"slug":"default"', $html);
+        $this->assertStringContainsString('"name":null', $html);
     }
 }
