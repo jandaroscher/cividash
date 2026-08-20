@@ -50,6 +50,7 @@ export const useBrandingStore = defineStore('branding', {
         // means "use the CSS default in app.css" (square, no border).
         cardRadius: null,
         cardBorderWidth: null,
+        cardBorderColor: null,
     }),
     actions: {
         async fetch() {
@@ -93,6 +94,7 @@ export const useBrandingStore = defineStore('branding', {
                     tile_background_category_group_key,
                     card_radius,
                     card_border_width,
+                    card_border_color,
                 } = json.data;
 
                 this.primaryColor = primary_color || this.primaryColor;
@@ -144,6 +146,7 @@ export const useBrandingStore = defineStore('branding', {
                 // Structural card tokens
                 this.cardRadius = card_radius !== undefined ? card_radius : this.cardRadius;
                 this.cardBorderWidth = card_border_width !== undefined ? card_border_width : this.cardBorderWidth;
+                this.cardBorderColor = card_border_color !== undefined ? card_border_color : this.cardBorderColor;
 
                 // Load font (Google Font or Custom Font)
                 if (this.customFontFile && this.customFontName) {
@@ -226,6 +229,9 @@ export const useBrandingStore = defineStore('branding', {
                 }
                 if (this.cardBorderWidth) {
                     document.documentElement.style.setProperty('--card-border-width', this.cardBorderWidth);
+                }
+                if (this.cardBorderColor) {
+                    document.documentElement.style.setProperty('--card-border-color', this.cardBorderColor);
                 }
             } catch (error) {
                 logError('Failed to fetch branding settings:', error);

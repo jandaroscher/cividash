@@ -329,14 +329,16 @@ const backgroundColorStyle = computed(() => {
 
 // Structural card tokens: defaults (0)
 // match the pre-existing look, so untouched tenants render unchanged.
-// overflow: hidden clips the header/body sections to a non-zero radius.
-const cardContainerStyle = {
+// overflow: hidden is only needed to clip descendants to a non-zero radius;
+// applying it unconditionally would clip descendants for every tenant even
+// when the radius is 0, changing behavior for no visual benefit.
+const cardContainerStyle = computed(() => ({
     borderRadius: 'var(--card-radius, 0)',
     borderWidth: 'var(--card-border-width, 0)',
     borderStyle: 'solid',
     borderColor: 'var(--card-border-color, transparent)',
-    overflow: 'hidden',
-};
+    overflow: brandingStore.cardRadius && parseFloat(brandingStore.cardRadius) !== 0 ? 'hidden' : 'visible',
+}));
 
 const shouldShow = computed(() => {
     if (!filterStore.level2Filter?.key) {

@@ -44,4 +44,27 @@ class TenantDeepMergeTest extends TestCase
             $props['slider_colors']
         );
     }
+
+    public function test_tenant_shorter_list_value_replaces_global_wholesale(): void
+    {
+        // global typography_font_weights (tenant_id=0)
+        DB::table('settings')->updateOrInsert(
+            ['group' => 'branding', 'name' => 'typography_font_weights', 'tenant_id' => 0],
+            ['payload' => json_encode([400, 600, 700])],
+        );
+
+        $tenant = Tenant::factory()->create(['slug' => 'demo-city']);
+        DB::table('settings')->insert([
+            'group' => 'branding', 'name' => 'typography_font_weights', 'tenant_id' => $tenant->id,
+            'payload' => json_encode([400]), // shorter list, must replace the global one entirely
+        ]);
+
+        Filament::setTenant($tenant, isQuiet: true);
+
+        /** @var TenantAwareDatabaseSettingsRepository $repo */
+        $repo = SettingsRepositoryFactory::create();
+        $props = $repo->getPropertiesInGroup('branding');
+
+        $this->assertSame([400], $props['typography_font_weights']);
+    }
 }

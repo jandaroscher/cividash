@@ -71,6 +71,8 @@ class BrandingSettings extends Settings
 
     public ?string $card_border_width;
 
+    public ?string $card_border_color;
+
     /**
      * Get the settings group name for branding.
      *

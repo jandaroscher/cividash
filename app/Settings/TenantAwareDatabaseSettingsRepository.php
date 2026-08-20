@@ -81,10 +81,15 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
             ->toArray();
 
         // Deep-merge array payloads (e.g. slider_colors) so a tenant can override
-        // a single sub-key without losing the other global sub-keys.
+        // a single sub-key without losing the other global sub-keys. List
+        // payloads (e.g. typography_font_weights) are replaced wholesale instead -
+        // recursive-merging by index would leave stale tail elements from the
+        // global list dangling behind a shorter tenant list.
         $merged = $globals;
         foreach ($tenantValues as $name => $value) {
-            $merged[$name] = (is_array($value) && isset($globals[$name]) && is_array($globals[$name]))
+            $mergeable = is_array($value) && isset($globals[$name]) && is_array($globals[$name])
+                && ! array_is_list($value);
+            $merged[$name] = $mergeable
                 ? array_replace_recursive($globals[$name], $value)
                 : $value;
         }

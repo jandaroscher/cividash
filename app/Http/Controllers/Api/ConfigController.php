@@ -83,6 +83,7 @@ class ConfigController extends Controller
             'tile_background_category_group_key' => $this->resolveCategoryGroupKey($settings->tile_background_category_group_id),
             'card_radius' => $settings->card_radius,
             'card_border_width' => $settings->card_border_width,
+            'card_border_color' => $settings->card_border_color,
         ]);
     }
 
@@ -807,6 +808,7 @@ class ConfigController extends Controller
             'tile_background_category_group_key' => $this->resolveCategoryGroupKey($settings->tile_background_category_group_id),
             'card_radius' => $settings->card_radius,
             'card_border_width' => $settings->card_border_width,
+            'card_border_color' => $settings->card_border_color,
         ]);
     }
 
