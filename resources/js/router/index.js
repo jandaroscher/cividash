@@ -8,6 +8,7 @@ const DynamicPage = () => import('../components/pages/DynamicPage.vue');
 const NotFound = () => import('../components/pages/NotFound.vue');
 const TilesPage = () => import('../components/pages/TilesPage.vue');
 const TileDetailPage = () => import('../components/pages/TileDetailPage.vue');
+const ThemingPocPage = () => import('../components/pages/ThemingPocPage.vue');
 
 const routes = [
     {
@@ -49,6 +50,15 @@ const routes = [
         component: DynamicPage,
         meta: { locale: 'en' },
     },
+    // Dev-only demo route for the theming-poc comparison, gated
+    // below in beforeEach so it never resolves in production builds. Must
+    // come before the `/:slug+` catch-all below, which would otherwise
+    // swallow this path as a German page slug first.
+    {
+        path: '/theming-poc',
+        name: 'theming-poc',
+        component: ThemingPocPage,
+    },
     {
         path: '/:slug+',
         name: 'page',
@@ -69,6 +79,11 @@ const router = createRouter({
 
 // Router guard for locale handling
 router.beforeEach((to, from, next) => {
+    // Dev-only demo route: never reachable in a production build.
+    if (to.name === 'theming-poc' && !import.meta.env.DEV) {
+        return next('/');
+    }
+
     // Redirect /en/ routes to German equivalent when English translation is disabled
     if (/^\/en(\/|$)/.test(to.path)) {
         const headerStore = useHeaderStore();
