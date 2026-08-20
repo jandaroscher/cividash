@@ -3,6 +3,7 @@
 namespace App\Filament\Pages\Tenancy;
 
 use App\Models\Tenant;
+use App\Models\Theme;
 use Closure;
 use Filament\Facades\Filament;
 use Filament\Forms;
@@ -107,6 +108,16 @@ class EditTenantProfile extends BaseEditTenantProfile
                         ->nullable()
                         ->maxLength(255)
                         ->url(),
+                ]),
+
+            Forms\Components\Section::make(__('filament.pages.edit_dashboard_config.form.sections.theme'))
+                ->schema([
+                    Forms\Components\Select::make('theme_id')
+                        ->label(__('filament.pages.edit_dashboard_config.form.fields.theme_id.label'))
+                        ->helperText(__('filament.pages.edit_dashboard_config.form.fields.theme_id.helper'))
+                        ->options(fn () => Theme::query()->pluck('name', 'id'))
+                        ->searchable()
+                        ->nullable(),
                 ]),
         ]);
     }

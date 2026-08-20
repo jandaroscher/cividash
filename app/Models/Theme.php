@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\ThemeInUseException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,6 +22,18 @@ class Theme extends Model
     protected $casts = [
         'settings' => 'array',
     ];
+
+    /**
+     * Guard against deleting a theme that is still assigned to a dashboard.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (Theme $theme) {
+            if ($theme->tenants()->exists()) {
+                throw new ThemeInUseException;
+            }
+        });
+    }
 
     public function tenants(): HasMany
     {

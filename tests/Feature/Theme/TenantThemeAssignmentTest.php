@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Theme;
 
+use App\Exceptions\ThemeInUseException;
 use App\Models\Tenant;
 use App\Models\Theme;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -40,15 +41,18 @@ class TenantThemeAssignmentTest extends TestCase
         $this->assertTrue($theme->tenants->contains($tenant));
     }
 
-    public function test_deleting_theme_nulls_theme_id_on_tenants_without_deleting_them(): void
+    public function test_deleting_theme_still_assigned_to_a_tenant_is_rejected(): void
     {
+        // Product rule: an in-use theme cannot be deleted. The DB's
+        // nullOnDelete on tenants.theme_id remains only as a safety net for
+        // deletes that bypass Eloquent (see ThemeDeleteGuardTest).
         $theme = Theme::factory()->create();
         $tenant = Tenant::factory()->create(['theme_id' => $theme->id]);
 
-        $theme->delete();
-        $tenant->refresh();
+        $this->expectException(ThemeInUseException::class);
 
-        $this->assertNull($tenant->theme_id);
-        $this->assertDatabaseHas('tenants', ['id' => $tenant->id]);
+        $theme->delete();
+
+        $this->assertDatabaseHas('tenants', ['id' => $tenant->id, 'theme_id' => $theme->id]);
     }
 }
