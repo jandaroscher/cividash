@@ -527,6 +527,7 @@ return [
             'used_by_dashboards_count' => '{0} Not used by any dashboard|{1} Used by 1 dashboard|[2,*] Used by :count dashboards',
             'created_at' => 'Created at',
             'delete_blocked_tooltip' => 'This theme is still used by at least one dashboard and cannot be deleted.',
+            'in_use_exception_message' => 'Cannot delete a theme that is still assigned to one or more dashboards.',
         ],
         'user' => [
             'navigation_label' => 'User Management',

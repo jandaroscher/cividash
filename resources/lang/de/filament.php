@@ -503,6 +503,7 @@ return [
             'used_by_dashboards_count' => '{0} Von keinem Dashboard genutzt|{1} Von 1 Dashboard genutzt|[2,*] Von :count Dashboards genutzt',
             'created_at' => 'Erstellt am',
             'delete_blocked_tooltip' => 'Dieses Theme wird noch von mindestens einem Dashboard genutzt und kann nicht gelöscht werden.',
+            'in_use_exception_message' => 'Ein Theme, das noch mindestens einem Dashboard zugewiesen ist, kann nicht gelöscht werden.',
         ],
         'user' => [
             'navigation_label' => 'Benutzerverwaltung',

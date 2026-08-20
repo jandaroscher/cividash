@@ -12,12 +12,14 @@ class EditTheme extends EditRecord
 
     protected function getHeaderActions(): array
     {
+        // Single record on this page: query the guard condition once and
+        // reuse it, instead of re-querying it for disabled() and tooltip().
+        $isInUse = $this->record->tenants()->exists();
+
         return [
             Actions\DeleteAction::make()
-                ->disabled(fn () => $this->record->tenants()->exists())
-                ->tooltip(fn () => $this->record->tenants()->exists()
-                    ? __('filament.resources.theme.delete_blocked_tooltip')
-                    : null),
+                ->disabled($isInUse)
+                ->tooltip($isInUse ? __('filament.resources.theme.delete_blocked_tooltip') : null),
         ];
     }
 }

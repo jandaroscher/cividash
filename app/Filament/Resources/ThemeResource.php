@@ -108,8 +108,8 @@ class ThemeResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
-                    ->disabled(fn (Theme $record) => $record->tenants()->exists())
-                    ->tooltip(fn (Theme $record) => $record->tenants()->exists()
+                    ->disabled(fn (Theme $record) => $record->tenants_count > 0)
+                    ->tooltip(fn (Theme $record) => $record->tenants_count > 0
                         ? __('filament.resources.theme.delete_blocked_tooltip')
                         : null),
             ]);
