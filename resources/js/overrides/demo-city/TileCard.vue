@@ -5,7 +5,7 @@
     :class="{ 'pb-5 md:pb-10': !isIframe }"
   >
     <div
-      class="shadow-card"
+      class="shadow-card demo-city-card"
       :style="cardContainerStyle"
     >
       <div
@@ -13,10 +13,13 @@
         :style="backgroundColorStyle"
         class="py-6 text-black relative"
       >
-        <div class="flex flex-row justify-between gap-2 px-4">
+        <div class="flex flex-row justify-between items-start gap-2 px-4">
           <div class="text-theme-h3 font-bold mb-4 hyphens-auto">
             {{ header }}
           </div>
+          <!-- Demo City look: a badge next to the title (structural change, not
+               achievable via color/font tokens alone - Approach A). -->
+          <span class="demo-city-badge shrink-0">Demo City</span>
         </div>
 
         <div
@@ -25,6 +28,32 @@
         >
           {{ subheader }}
         </div>
+
+        <!-- Trend moved next to the value/subheader (was rendered near the
+             footer in the default TileCard) - "Wert/Trend umsortiert". -->
+        <p
+          v-if="years.length > 1 && currentYear !== years[0]"
+          class="text-theme-base text-gray-400 font-semibold flex flex-row items-center gap-2 px-4 mb-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="17"
+            viewBox="0 0 24 25"
+            aria-hidden="true"
+            class="text-gray-600 flex-shrink-0 relative -top-px"
+          >
+            <g transform="translate(0 1)">
+              <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
+              <g transform="translate(0 15.48) rotate(-45)">
+                <path d="M0,0H18.789" transform="translate(0 4.311)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+                <path d="M0,0,4.359,4.359,0,8.719" transform="translate(14.705)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+              </g>
+            </g>
+          </svg>
+          <span>{{ trendLabel }}</span>
+        </p>
+
         <template
           v-for="indicator in indicators"
           :key="indicator.id"
@@ -88,7 +117,7 @@
             trigger-class="w-full"
             :disabled="isSliderInteracting"
           >
-            <div 
+            <div
               class="w-full"
               @mousedown="handleSliderInteractionStart"
               @mouseup="handleSliderInteractionEnd"
@@ -111,29 +140,6 @@
         >
           {{ periodLabelMap[currentYear] || currentYear }}
         </div>
-
-        <p
-          v-if="years.length > 1 && currentYear !== years[0]"
-          class="text-theme-base text-gray-400 font-semibold flex flex-row items-center gap-2 justify-end text-sm"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="17"
-            viewBox="0 0 24 25"
-            aria-hidden="true"
-            class="text-gray-600 flex-shrink-0 relative -top-px"
-          >
-            <g transform="translate(0 1)">
-              <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
-              <g transform="translate(0 15.48) rotate(-45)">
-                <path d="M0,0H18.789" transform="translate(0 4.311)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
-                <path d="M0,0,4.359,4.359,0,8.719" transform="translate(14.705)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
-              </g>
-            </g>
-          </svg>
-          <span>{{ trendLabel }}</span>
-        </p>
 
         <div
           v-if="hint"
@@ -201,19 +207,23 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+// Demo City tenant override of TileCard.vue (theming PoC, Approach A -
+// component-override registry). Based on the default TileCard; the
+// restructuring this override demonstrates (trend moved next to the value,
+// badge added) cannot be expressed through color/font tokens alone.
+import { ref, computed, onMounted } from 'vue';
 import { DotLottiePlayer } from '@johanaarstein/dotlottie-player';
 import VueSlider from 'vue-slider-component/lib/vue-slider.vue';
 import 'vue-slider-component/theme/default.css';
-import IndicatorBig from './cards/indicators/IndicatorBig.vue';
-import IndicatorSmall from './cards/indicators/IndicatorSmall.vue';
-import Tooltip from './help/Tooltip.vue';
-import { useFilterStore } from '../stores/filter';
-import { useOverlayStore } from '../stores/overlay';
-import { useBrandingStore } from '../stores/branding';
-import { useLocale } from '../composables/useLocale';
-import { useHelpContext } from '../composables/useHelpContext';
-import { blockHasVisibleContent } from '../utils/jumpMarks';
+import IndicatorBig from '../../components/cards/indicators/IndicatorBig.vue';
+import IndicatorSmall from '../../components/cards/indicators/IndicatorSmall.vue';
+import Tooltip from '../../components/help/Tooltip.vue';
+import { useFilterStore } from '../../stores/filter';
+import { useOverlayStore } from '../../stores/overlay';
+import { useBrandingStore } from '../../stores/branding';
+import { useLocale } from '../../composables/useLocale';
+import { useHelpContext } from '../../composables/useHelpContext';
+import { blockHasVisibleContent } from '../../utils/jumpMarks';
 
 const props = defineProps({
     tile: {
@@ -281,7 +291,6 @@ const hint = computed(() => {
 });
 
 const footnote = computed(() => {
-    // Footnote is not part of the tile API yet.
     return null;
 });
 
@@ -310,14 +319,16 @@ const backgroundColorStyle = computed(() => {
     return {};
 });
 
-// Structural card tokens: defaults (0)
-// match the pre-existing look, so untouched tenants render unchanged.
-// overflow: hidden clips the header/body sections to a non-zero radius.
+// Demo City structural look: square corners + a red border. --card-radius is
+// scoped to 0 locally (matches the site-wide default, kept explicit here to
+// show the override can set its own value independent of BrandingSettings);
+// --card-border-color is Demo City-specific styling, not a generic branding
+// token, so it lives here rather than in the Settings/API channel.
 const cardContainerStyle = {
     borderRadius: 'var(--card-radius, 0)',
-    borderWidth: 'var(--card-border-width, 0)',
+    borderWidth: 'var(--card-border-width, 3px)',
     borderStyle: 'solid',
-    borderColor: 'var(--card-border-color, transparent)',
+    borderColor: 'var(--card-border-color, #D00000)',
     overflow: 'hidden',
 };
 
@@ -325,7 +336,7 @@ const shouldShow = computed(() => {
     if (!filterStore.level2Filter?.key) {
         return true;
     }
-    
+
     const filterType = filterStore.level1Filter;
     const filterKey = filterStore.level2Filter.key;
 
@@ -351,19 +362,15 @@ const imageUrl = ref(null);
 const lottieUrl = ref(null);
 const lottiePlayer = ref(null);
 const intersected = ref(false);
-// The info/"+" button opens the tile's background-page overlay, so it should
-// only be shown when at least one background block actually renders visible
-// content - otherwise the button is clickable but the overlay is empty.
 const infoButtonVisible = computed(
     () => (props.tile.background_blocks || []).some(blockHasVisibleContent),
 );
 const isSliderInteracting = ref(false);
 
-// Process indicators from metric definitions (new API structure)
+// Process indicators from metric definitions (new API structure) - identical
+// to the default TileCard so the Demo City override renders real tile data.
 onMounted(() => {
-    // New API structure: tile.metric_definitions[] -> each definition has values[]
     if (props.tile.metric_definitions && Array.isArray(props.tile.metric_definitions)) {
-        // Collect all unique period keys from metric values
         const periodsSet = new Set();
         const labels = {};
 
@@ -385,44 +392,36 @@ onMounted(() => {
             }
         });
 
-        // Convert set to array and sort (all period_key formats are lexicographically sortable)
         years.value = Array.from(periodsSet).sort((a, b) => a.localeCompare(b));
         periodLabelMap.value = labels;
         if (years.value.length > 0) {
             currentYear.value = years.value[years.value.length - 1];
         }
 
-        // Build indicators from metric definitions
         props.tile.metric_definitions
             .filter((definition) => definition?.is_active !== false)
             .forEach((definition) => {
             const label = definition.label?.[currentLocale.value] || definition.label || '';
             const labelEn = definition.label?.en || '';
-            
-            // Handle unit - can be string, object, or empty array
+
             let unitValue = '';
             let unitEnValue = '';
             if (Array.isArray(definition.unit)) {
-                // Empty array - no unit
                 unitValue = '';
                 unitEnValue = '';
             } else if (typeof definition.unit === 'object' && definition.unit !== null) {
-                // Object with translations
                 unitValue = definition.unit[currentLocale.value] || definition.unit.de || '';
                 unitEnValue = definition.unit.en || '';
             } else {
-                // String
                 unitValue = definition.unit || '';
                 unitEnValue = definition.unit || '';
             }
-            
-            // Determine indicator type from API field
+
             const indicatorType = definition.indicator_type || 'small';
-            
-            // Build sortedYears object from values
+
             const sortedYears = {};
             const yearsArray = [];
-            
+
             if (definition.values && Array.isArray(definition.values)) {
                 definition.values
                     .filter((valueData) => valueData?.is_active !== false)
@@ -441,9 +440,9 @@ onMounted(() => {
                     }
                 });
             }
-            
+
             const indicator = {
-                id: definition.metric_key, // Use metric_key as stable ID
+                id: definition.metric_key,
                 title: label,
                 title_en: labelEn,
                 unit: unitValue,
@@ -451,17 +450,16 @@ onMounted(() => {
                 type: indicatorType,
                 indicator_type: indicatorType,
                 indikatortyp: indicatorType === 'big' ? 'groß' : 'normal',
-                years: yearsArray, // Keep for compatibility
-                sortedYears: sortedYears, // Object with years as keys (like reference app)
+                years: yearsArray,
+                sortedYears: sortedYears,
                 show_arrow: definition.show_arrow || false,
-                icon: definition.icon || null, // Icon URL from API (already full URL)
+                icon: definition.icon || null,
             };
-            
+
             indicators.value.push(indicator);
         });
     }
 
-    // Check for tile image/lottie
     if (props.tile.icon) {
         const url = props.tile.icon;
         if (url.endsWith('.lottie')) {
@@ -472,10 +470,6 @@ onMounted(() => {
     }
 });
 
-// Gracefully degrade when the tile icon/image fails to load (e.g. broken or
-// missing file on the backend) instead of showing the browser's broken-image
-// placeholder with visible alt text. Clearing imageUrl lets the
-// existing v-if fallbacks (e.g. IndicatorBig) take over.
 function onImageError() {
     imageUrl.value = null;
 }
@@ -497,7 +491,6 @@ function getInfoButtonTooltip() {
     return getTooltip('tileInfoButton') || (currentLocale.value === 'en' ? 'Shows additional information about this tile' : 'Zeigt weitere Informationen zu dieser Kachel');
 }
 
-
 function getYearSliderTooltip() {
     return getTooltip('yearSlider') || (currentLocale.value === 'en' ? 'Select a year to display values for that year' : 'Wählen Sie ein Jahr aus, um die Werte für dieses Jahr anzuzeigen');
 }
@@ -507,36 +500,17 @@ function handleSliderInteractionStart() {
 }
 
 function handleSliderInteractionEnd() {
-    // Small delay to prevent tooltip from showing immediately after interaction
     setTimeout(() => {
         isSliderInteracting.value = false;
     }, 100);
 }
-
 </script>
 
 <style scoped>
-/*
- * vue-flex-waterfall (`display: flex; flex-flow: column wrap`) sizes
- * each column to shrink-wrap its widest tile, then positions the resulting
- * column group with `align-content` (see Cards.vue) - it never stretches
- * columns to fill the container. A plain `max-w-[363px]` therefore only
- * looked "full width" by coincidence, whenever tile content happened to be
- * wide enough to reach that cap; with shorter content the grid fell short of
- * `.container`'s width and drifted out of alignment with the filter header.
- *
- * Giving every tile an explicit `width` - matching exactly
- * (100% - (columns - 1) * col-spacing) / columns for the column count that is
- * actually active (see Cards.vue's colCount/mdColCount, forwarded here as CSS
- * custom properties) - makes every column the same size and the whole grid
- * sum up to exactly the container's width, at every breakpoint.
- *
- * The breakpoints below intentionally mirror Cards.vue's `break-at` prop
- * (825 / 1280) rather than Tailwind's default scale, so the column count
- * used here always matches what vue-flex-waterfall actually renders.
- */
+/* See TileCard.vue for the column-width rationale - mirrored here
+   so the Demo City override sizes identically inside the waterfall grid. */
 .tile-waterfall-item {
-    width: 100%; /* <=825px: single column, wrapper below already caps + centers at 363px */
+    width: 100%;
 }
 
 @media (min-width: 826px) {
@@ -551,7 +525,17 @@ function handleSliderInteractionEnd() {
     }
 }
 
-/* Vue slider styles - use :deep() to style child components */
+.demo-city-badge {
+    background-color: #D00000;
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+}
+
 :deep(.vue-slider-rail),
 :deep(.vue-slider-process) {
     background: var(--slider-rail-color, #191919);

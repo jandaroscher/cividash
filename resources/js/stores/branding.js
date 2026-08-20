@@ -46,6 +46,10 @@ export const useBrandingStore = defineStore('branding', {
         navHoverColor: '#e30613',
         tileColorSourceGroupKey: null,
         tileBackgroundCategoryGroupKey: null,
+        // Structural card tokens. Null
+        // means "use the CSS default in app.css" (square, no border).
+        cardRadius: null,
+        cardBorderWidth: null,
     }),
     actions: {
         async fetch() {
@@ -87,6 +91,8 @@ export const useBrandingStore = defineStore('branding', {
                     nav_hover_color,
                     tile_color_source_group_key,
                     tile_background_category_group_key,
+                    card_radius,
+                    card_border_width,
                 } = json.data;
 
                 this.primaryColor = primary_color || this.primaryColor;
@@ -134,6 +140,10 @@ export const useBrandingStore = defineStore('branding', {
                 // Tile configuration
                 this.tileColorSourceGroupKey = tile_color_source_group_key || null;
                 this.tileBackgroundCategoryGroupKey = tile_background_category_group_key || null;
+
+                // Structural card tokens
+                this.cardRadius = card_radius !== undefined ? card_radius : this.cardRadius;
+                this.cardBorderWidth = card_border_width !== undefined ? card_border_width : this.cardBorderWidth;
 
                 // Load font (Google Font or Custom Font)
                 if (this.customFontFile && this.customFontName) {
@@ -208,6 +218,15 @@ export const useBrandingStore = defineStore('branding', {
                 document.documentElement.style.setProperty('--nav-text-color', this.navTextColor || '#374151');
                 document.documentElement.style.setProperty('--nav-text-color-inactive', this.navTextColorInactive || '#9CA3AF');
                 document.documentElement.style.setProperty('--nav-hover-color', this.navHoverColor || '#e30613');
+
+                // Set structural card tokens as CSS variables (only when configured -
+                // otherwise the CSS var(..., default) fallback in app.css applies)
+                if (this.cardRadius) {
+                    document.documentElement.style.setProperty('--card-radius', this.cardRadius);
+                }
+                if (this.cardBorderWidth) {
+                    document.documentElement.style.setProperty('--card-border-width', this.cardBorderWidth);
+                }
             } catch (error) {
                 logError('Failed to fetch branding settings:', error);
             }

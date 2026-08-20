@@ -106,6 +106,12 @@
     --dimension-green-color-200: #69A985;
     --dimension-green-color-300: #469267;
     --dimension-green-color-400: #0D7B56;
+
+    /* Structural card tokens. Defaults
+       match the pre-existing TileCard look (square corners, no border) so
+       tenants without these settings render unchanged. */
+    --card-radius: 0;
+    --card-border-width: 0;
 }
 
 /* Custom container class - un-layered to override Tailwind 4's utility-layer .container */

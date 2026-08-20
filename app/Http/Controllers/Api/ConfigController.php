@@ -81,6 +81,8 @@ class ConfigController extends Controller
                 : null,
             'tile_color_source_group_key' => $this->resolveCategoryGroupKey($settings->tile_color_source_group_id),
             'tile_background_category_group_key' => $this->resolveCategoryGroupKey($settings->tile_background_category_group_id),
+            'card_radius' => $settings->card_radius,
+            'card_border_width' => $settings->card_border_width,
         ]);
     }
 
@@ -803,6 +805,8 @@ class ConfigController extends Controller
                 : null,
             'tile_color_source_group_key' => $this->resolveCategoryGroupKey($settings->tile_color_source_group_id),
             'tile_background_category_group_key' => $this->resolveCategoryGroupKey($settings->tile_background_category_group_id),
+            'card_radius' => $settings->card_radius,
+            'card_border_width' => $settings->card_border_width,
         ]);
     }
 
