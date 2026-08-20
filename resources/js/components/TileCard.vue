@@ -17,6 +17,10 @@
           <div class="text-theme-h3 font-bold mb-4 hyphens-auto">
             {{ header }}
           </div>
+          <!-- Approach B: additive region, renders nothing unless a
+               tenant slot override provides content (e.g. a badge like the
+               Demo City Approach-A override adds via its own template). -->
+          <slot name="badge" />
         </div>
 
         <div
@@ -25,16 +29,20 @@
         >
           {{ subheader }}
         </div>
-        <template
-          v-for="indicator in indicators"
-          :key="indicator.id"
-        >
-          <IndicatorBig
-            v-if="(indicator.type === 'big' || indicator.indicator_type === 'big' || indicator.indikatortyp === 'groß') && !lottieUrl && !imageUrl"
-            :indicator="indicator"
-            :current-year="currentYear"
-          />
-        </template>
+        <!-- Named slot, default content = today's markup,
+             so no override means pixel-identical output. -->
+        <slot name="value">
+          <template
+            v-for="indicator in indicators"
+            :key="indicator.id"
+          >
+            <IndicatorBig
+              v-if="(indicator.type === 'big' || indicator.indicator_type === 'big' || indicator.indikatortyp === 'groß') && !lottieUrl && !imageUrl"
+              :indicator="indicator"
+              :current-year="currentYear"
+            />
+          </template>
+        </slot>
 
         <img
           v-if="imageUrl"
@@ -66,16 +74,21 @@
         class="py-6 px-4"
         :style="{ backgroundColor: 'var(--card-background-color, #FFFFFF)' }"
       >
-        <template
-          v-for="indicator in indicators"
-          :key="indicator.id"
-        >
-          <IndicatorSmall
-            v-if="indicator.type === 'small' || indicator.indikatortyp === 'normal' || lottieUrl || imageUrl"
-            :indicator="indicator"
-            :current-year="currentYear"
-          />
-        </template>
+        <!-- Separate name from #value above: both regions can
+             render for the same tile (a big + a small indicator at once),
+             so one slot override must not duplicate into both spots. -->
+        <slot name="value-small">
+          <template
+            v-for="indicator in indicators"
+            :key="indicator.id"
+          >
+            <IndicatorSmall
+              v-if="indicator.type === 'small' || indicator.indikatortyp === 'normal' || lottieUrl || imageUrl"
+              :indicator="indicator"
+              :current-year="currentYear"
+            />
+          </template>
+        </slot>
 
         <div
           v-if="years.length > 0"
@@ -112,28 +125,32 @@
           {{ periodLabelMap[currentYear] || currentYear }}
         </div>
 
-        <p
-          v-if="years.length > 1 && currentYear !== years[0]"
-          class="text-theme-base text-gray-400 font-semibold flex flex-row items-center gap-2 justify-end text-sm"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="17"
-            viewBox="0 0 24 25"
-            aria-hidden="true"
-            class="text-gray-600 flex-shrink-0 relative -top-px"
+        <!-- Named slot, default content = today's trend arrow +
+             label markup, so no override renders identically. -->
+        <slot name="trend">
+          <p
+            v-if="years.length > 1 && currentYear !== years[0]"
+            class="text-theme-base text-gray-400 font-semibold flex flex-row items-center gap-2 justify-end text-sm"
           >
-            <g transform="translate(0 1)">
-              <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
-              <g transform="translate(0 15.48) rotate(-45)">
-                <path d="M0,0H18.789" transform="translate(0 4.311)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
-                <path d="M0,0,4.359,4.359,0,8.719" transform="translate(14.705)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="17"
+              viewBox="0 0 24 25"
+              aria-hidden="true"
+              class="text-gray-600 flex-shrink-0 relative -top-px"
+            >
+              <g transform="translate(0 1)">
+                <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
+                <g transform="translate(0 15.48) rotate(-45)">
+                  <path d="M0,0H18.789" transform="translate(0 4.311)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+                  <path d="M0,0,4.359,4.359,0,8.719" transform="translate(14.705)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+                </g>
               </g>
-            </g>
-          </svg>
-          <span>{{ trendLabel }}</span>
-        </p>
+            </svg>
+            <span>{{ trendLabel }}</span>
+          </p>
+        </slot>
 
         <div
           v-if="hint"
