@@ -80,7 +80,16 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
             ->mapWithKeys(fn (object $row) => [$row->name => $this->decode($row->payload, true)])
             ->toArray();
 
-        return array_merge($globals, $tenantValues);
+        // Deep-merge array payloads (e.g. slider_colors) so a tenant can override
+        // a single sub-key without losing the other global sub-keys.
+        $merged = $globals;
+        foreach ($tenantValues as $name => $value) {
+            $merged[$name] = (is_array($value) && isset($globals[$name]) && is_array($globals[$name]))
+                ? array_replace_recursive($globals[$name], $value)
+                : $value;
+        }
+
+        return $merged;
     }
 
     /**

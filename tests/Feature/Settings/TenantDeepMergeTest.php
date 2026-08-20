@@ -1,0 +1,47 @@
+<?php
+
+namespace Tests\Feature\Settings;
+
+use App\Models\Tenant;
+use App\Settings\TenantAwareDatabaseSettingsRepository;
+use Filament\Facades\Filament;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\LaravelSettings\Factories\SettingsRepositoryFactory;
+use Tests\TestCase;
+
+class TenantDeepMergeTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function tearDown(): void
+    {
+        Filament::setTenant(null, isQuiet: true);
+        parent::tearDown();
+    }
+
+    public function test_tenant_partial_array_override_keeps_global_subkeys(): void
+    {
+        // global slider_colors (tenant_id=0)
+        DB::table('settings')->updateOrInsert(
+            ['group' => 'branding', 'name' => 'slider_colors', 'tenant_id' => 0],
+            ['payload' => json_encode(['rail' => '#eee', 'handle' => '#111', 'handle_border' => '#000'])],
+        );
+
+        $tenant = Tenant::factory()->create(['slug' => 'demo-city']);
+        DB::table('settings')->insert([
+            'group' => 'branding', 'name' => 'slider_colors', 'tenant_id' => $tenant->id,
+            'payload' => json_encode(['handle' => '#d00000']), // nur ein Sub-Key
+        ]);
+
+        Filament::setTenant($tenant, isQuiet: true);
+
+        /** @var TenantAwareDatabaseSettingsRepository $repo */
+        $repo = SettingsRepositoryFactory::create();
+        $props = $repo->getPropertiesInGroup('branding');
+
+        $this->assertSame(
+            ['rail' => '#eee', 'handle' => '#d00000', 'handle_border' => '#000'],
+            $props['slider_colors']
+        );
+    }
+}
