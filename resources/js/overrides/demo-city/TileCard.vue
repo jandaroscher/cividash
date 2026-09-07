@@ -8,20 +8,18 @@
       class="shadow-card demo-city-card"
       :style="cardContainerStyle"
     >
+      <!-- Demo City look: bold blue title bar with white heading + inverted tag,
+           mirroring the full-colour cards on demo-city.de. A structural change
+           not achievable via color/font tokens alone (Approach A). -->
+      <div class="demo-city-title-bar">
+        <span class="demo-city-title-text hyphens-auto">{{ header }}</span>
+        <span class="demo-city-badge shrink-0">Demo City</span>
+      </div>
       <div
         :class="backgroundClass ? [backgroundClass] : []"
         :style="backgroundColorStyle"
         class="py-6 text-black relative"
       >
-        <div class="flex flex-row justify-between items-start gap-2 px-4">
-          <div class="text-theme-h3 font-bold mb-4 hyphens-auto">
-            {{ header }}
-          </div>
-          <!-- Demo City look: a badge next to the title (structural change, not
-               achievable via color/font tokens alone - Approach A). -->
-          <span class="demo-city-badge shrink-0">Demo City</span>
-        </div>
-
         <div
           v-if="subheader"
           class="text-lg font-bold px-4"
@@ -328,7 +326,7 @@ const cardContainerStyle = {
     borderRadius: 'var(--card-radius, 0)',
     borderWidth: 'var(--card-border-width, 3px)',
     borderStyle: 'solid',
-    borderColor: 'var(--card-border-color, #D00000)',
+    borderColor: 'var(--card-border-color, #1465A4)',
     overflow: 'hidden',
 };
 
@@ -525,15 +523,33 @@ function handleSliderInteractionEnd() {
     }
 }
 
-.demo-city-badge {
-    background-color: #D00000;
+/* Demo City look: full-width blue title bar with white bold heading. */
+.demo-city-title-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    background-color: #1465A4;
+    padding: 1rem;
+}
+.demo-city-title-text {
     color: #FFFFFF;
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
+    font-size: 1.35rem;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+}
+/* Inverted tag inside the blue bar: white block, blue caps, kantig. */
+.demo-city-badge {
+    background-color: #FFFFFF;
+    color: #1465A4;
+    font-size: 0.7rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    padding: 0.25rem 0.6rem;
-    border-radius: 9999px;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0;
+    align-self: flex-start;
 }
 
 :deep(.vue-slider-rail),

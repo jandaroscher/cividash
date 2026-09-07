@@ -15,8 +15,8 @@ class SpaController extends Controller
         return view('app', [
             'meta' => $meta,
             'tenant' => $tenant
-                ? ['slug' => $tenant->slug, 'name' => $tenant->name]
-                : ['slug' => 'default', 'name' => null],
+                ? ['slug' => $tenant->slug, 'name' => $tenant->name, 'theme_slug' => $tenant->theme?->slug]
+                : ['slug' => 'default', 'name' => null, 'theme_slug' => null],
         ]);
     }
 }

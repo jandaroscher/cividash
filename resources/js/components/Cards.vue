@@ -22,7 +22,8 @@
       col-spacing="40"
       :break-at="{ 1280: mdColCount, 825: 1 }"
     >
-      <TileCard
+      <component
+        :is="tileComponent"
         v-for="tile in filteredTiles"
         :key="tile.id"
         :tile="tile"
@@ -48,9 +49,10 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { VueFlexWaterfall } from 'vue-flex-waterfall';
-import TileCard from './TileCard.vue';
+import { resolveTileComponent } from '../lib/componentRegistry';
 import { useTilesStore } from '../stores/tiles';
 import { useFilterStore } from '../stores/filter';
+import { useTenantStore } from '../stores/tenant';
 import { useLocale } from '../composables/useLocale';
 
 const props = defineProps({
@@ -62,7 +64,12 @@ const props = defineProps({
 
 const tilesStore = useTilesStore();
 const filterStore = useFilterStore();
+const tenantStore = useTenantStore();
 const { currentLocale } = useLocale();
+
+// Resolve the tile component for the active theme (theme-slug keyed override,
+// else default TileCard). This wires the override registry into the real grid.
+const tileComponent = computed(() => resolveTileComponent(tenantStore.themeSlug));
 
 const waterfall = ref(null);
 // Column counts are fixed per breakpoint (desktop=3, tablet=2) regardless of
