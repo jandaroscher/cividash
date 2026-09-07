@@ -240,6 +240,7 @@ class ManageSiteSettings extends Page implements HasForms
                                             ->image()
                                             ->directory('footer-social-icons')
                                             ->disk('public')
+                                            ->maxSize(1024) // 1 MB
                                             ->required(),
                                         TextInput::make('link')
                                             ->label(__('filament.pages.manage_footer.profile_url'))
@@ -268,6 +269,7 @@ class ManageSiteSettings extends Page implements HasForms
                                             ->image()
                                             ->directory('footer-sponsors')
                                             ->disk('public')
+                                            ->maxSize(5120) // 5 MB
                                             ->required(),
                                         TextInput::make('url')
                                             ->label(__('filament.pages.manage_footer.sponsor_url'))

@@ -106,6 +106,7 @@ class CategoryResource extends Resource
                             ->disk('public')
                             ->directory('categories')
                             ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'])
+                            ->maxSize(1024) // 1 MB
                             ->preserveFilenames()
                             ->required(false)
                             ->formatStateUsing(function ($state) {

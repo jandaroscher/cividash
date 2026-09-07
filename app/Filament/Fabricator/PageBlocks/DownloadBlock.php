@@ -50,6 +50,7 @@ class DownloadBlock extends PageBlock
                                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                                 'application/zip',
                             ])
+                            ->maxSize(25600) // 25 MB
                             ->required(),
                         Hidden::make('is_active')
                             ->default(true)

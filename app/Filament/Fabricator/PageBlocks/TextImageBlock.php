@@ -35,7 +35,8 @@ class TextImageBlock extends PageBlock
                     ->label(__('filament.blocks.text_image.image'))
                     ->image()
                     ->directory('text-images')
-                    ->disk('public'),
+                    ->disk('public')
+                    ->maxSize(5120), // 5 MB
                 TextInput::make('image_alt')
                     ->label(__('filament.blocks.text_image.image_alt'))
                     ->helperText(__('filament.blocks.text_image.image_alt_helper'))

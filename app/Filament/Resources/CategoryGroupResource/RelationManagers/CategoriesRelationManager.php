@@ -72,6 +72,7 @@ class CategoriesRelationManager extends RelationManager
                     ->disk('public')
                     ->directory('categories')
                     ->image()
+                    ->maxSize(1024) // 1 MB
                     ->preserveFilenames()
                     ->required(false)
                     ->formatStateUsing(function ($state) {
