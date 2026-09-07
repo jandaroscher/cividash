@@ -9,15 +9,15 @@ applicationSuite: CiviDash
 url: "https://gitlab.opencode.de/regensburg_next/cividash"
 softwareType: standalone/web
 
-softwareVersion: "" # TODO: set once a first tagged release exists
-releaseDate: "" # TODO: set release date once a first tagged release exists
+# softwareVersion: # TODO: set once a first tagged release exists
+# releaseDate: # TODO: set release date once a first tagged release exists
 
 platforms:
   - web
 
 categories:
   - data-visualization
-  - dashboard
+  - business-intelligence
 
 developmentStatus: beta
 
@@ -30,7 +30,6 @@ maintenance:
   contacts:
     - name: "JANDA+ROSCHER GmbH & Co. KG" # TODO: confirm this is the correct maintaining organisation for the OpenCoDE listing
       email: "support@janda-roscher.de"
-      # website: # TODO: maintainer website
 
 localisation:
   localisationReady: true
