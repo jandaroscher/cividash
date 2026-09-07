@@ -151,7 +151,7 @@ describe('Cards', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.text()).toContain('Keine Tiles gefunden für Filter:');
+        expect(wrapper.text()).toContain('Keine Kacheln gefunden für Filter:');
         expect(wrapper.text()).toContain('Nonexistent');
     });
 
@@ -166,7 +166,7 @@ describe('Cards', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.text()).toContain('Keine Tiles gefunden für Suche:');
+        expect(wrapper.text()).toContain('Keine Kacheln gefunden für Suche:');
         expect(wrapper.text()).toContain('zzzznotfound');
     });
 
@@ -305,7 +305,7 @@ describe('Cards', () => {
             await wrapper.vm.$nextTick();
 
             expect(wrapper.findAll('.tile-card-stub').length).toBe(0);
-            expect(wrapper.text()).toContain('Keine Tiles gefunden für Suche:');
+            expect(wrapper.text()).toContain('Keine Kacheln gefunden für Suche:');
         });
 
         it('does not show tiles outside the selected set even if they match the search', async () => {

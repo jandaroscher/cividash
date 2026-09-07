@@ -4,18 +4,30 @@ import { createPinia, setActivePinia } from 'pinia';
 import Filter from '@/components/Filter.vue';
 import { useFilterStore } from '@/stores/filter';
 import { useBrandingStore } from '@/stores/branding';
+import { __localeState } from '@/composables/useLocale';
 
-// Mock composables that use vue-router internally
-vi.mock('@/composables/useLocale', () => ({
-    useLocale: () => ({
-        currentLocale: { value: 'de' },
-        setLocale: vi.fn(),
-        getTranslatedSlug: vi.fn(),
-        supportedLocales: ['de', 'en'],
-        defaultLocale: 'de',
-        getLocale: () => 'de',
-    }),
-}));
+// Mock composables that use vue-router internally. currentLocale is a real
+// vue ref (as the actual composable returns), created via a dynamic import
+// inside the factory to sidestep hoisting order - so <script setup>'s
+// automatic template unwrapping is exercised the same way it is in
+// production. A plain { value } object would let a broken
+// `currentLocale === 'en'` template comparison silently read as if it were
+// `.value`-correct.
+vi.mock('@/composables/useLocale', async () => {
+    const { ref } = await import('vue');
+    const localeState = ref('de');
+    return {
+        useLocale: () => ({
+            currentLocale: localeState,
+            setLocale: vi.fn(),
+            getTranslatedSlug: vi.fn(),
+            supportedLocales: ['de', 'en'],
+            defaultLocale: 'de',
+            getLocale: () => localeState.value,
+        }),
+        __localeState: localeState,
+    };
+});
 
 vi.mock('@/composables/useHelpContext', () => ({
     useHelpContext: () => ({
@@ -27,13 +39,13 @@ vi.mock('@/composables/useHelpContext', () => ({
 
 describe('Filter', () => {
     let filterStore;
-    let brandingStore;
     let fetchMock;
 
     beforeEach(() => {
         setActivePinia(createPinia());
         filterStore = useFilterStore();
-        brandingStore = useBrandingStore();
+        useBrandingStore();
+        __localeState.value = 'de';
 
         // Reset URL to avoid state leaking between tests
         window.history.replaceState({}, '', '/');
@@ -192,5 +204,49 @@ describe('Filter', () => {
         expect(filterStore.searchQuery).toBe('Klima');
 
         vi.useRealTimers();
+    });
+
+    it('only marks the active tab with the active class, not other tabs (active !== hover)', async () => {
+        const wrapper = createWrapper();
+        await vi.dynamicImportSettled();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        const buttons = wrapper.findAll('[role="tab"]');
+        expect(buttons[0].classes()).toContain('filter-button--active');
+        expect(buttons[1].classes()).not.toContain('filter-button--active');
+    });
+
+    it('clears the search field, resets the store, and returns focus to the input', async () => {
+        vi.useFakeTimers();
+        const wrapper = createWrapper({ showSearch: true });
+        await wrapper.vm.$nextTick();
+
+        const searchInput = wrapper.find('input[type="text"]');
+        await searchInput.setValue('Klima');
+        await searchInput.trigger('input');
+        vi.advanceTimersByTime(300);
+        await wrapper.vm.$nextTick();
+
+        const focusSpy = vi.spyOn(searchInput.element, 'focus');
+        const clearButton = wrapper.find('.search-clear-button');
+        await clearButton.trigger('click');
+
+        expect(searchInput.element.value).toBe('');
+        expect(filterStore.searchQuery).toBe('');
+        expect(focusSpy).toHaveBeenCalled();
+
+        vi.useRealTimers();
+    });
+
+    it('sets the clear button aria-label per locale (de/en)', async () => {
+        const deWrapper = createWrapper({ showSearch: true });
+        await deWrapper.vm.$nextTick();
+        expect(deWrapper.find('.search-clear-button').attributes('aria-label')).toBe('Suche leeren');
+
+        __localeState.value = 'en';
+        const enWrapper = createWrapper({ showSearch: true });
+        await enWrapper.vm.$nextTick();
+        expect(enWrapper.find('.search-clear-button').attributes('aria-label')).toBe('Clear search');
     });
 });

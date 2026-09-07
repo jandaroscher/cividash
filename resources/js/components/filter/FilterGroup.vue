@@ -34,8 +34,9 @@
         @click="selectItem(item)"
       >
         <span
-          :class="{ 'bg-gray-200/60 rounded-full': isSelected(item) }"
-          class="block rounded-full hover:bg-gray-200/60 mb-3 p-2 transition-colors duration-200"
+          :class="!isSelected(item) ? 'hover:bg-gray-200/60' : ''"
+          class="block rounded-full mb-3 p-2 transition-colors duration-200"
+          :style="isSelected(item) ? activeIconStyle : null"
         >
           <img
             v-if="getItemIcon(item)"
@@ -143,7 +144,9 @@ import { Pagination, Arrow } from '@egjs/flicking-plugins';
 import '@egjs/flicking-plugins/dist/arrow.css';
 import '@egjs/flicking-plugins/dist/pagination.css';
 import { useFilterStore } from '../../stores/filter';
+import { useBrandingStore } from '../../stores/branding';
 import { useLocale } from '../../composables/useLocale';
+import { hexToRgba } from '../../utils/color';
 
 const props = defineProps({
     group: {
@@ -153,7 +156,16 @@ const props = defineProps({
 });
 
 const filterStore = useFilterStore();
+const brandingStore = useBrandingStore();
 const { currentLocale } = useLocale();
+
+// Active state must read distinctly from the neutral grey hover circle:
+// a tinted background plus a ring in the tenant's primary
+// color, instead of reusing the same hover:bg-gray-200/60 treatment.
+const activeIconStyle = computed(() => ({
+    backgroundColor: hexToRgba(brandingStore.primaryColor, 0.12),
+    boxShadow: `inset 0 0 0 2px ${brandingStore.primaryColor}`,
+}));
 
 // Template refs
 const containerRef = ref(null);
