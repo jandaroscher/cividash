@@ -57,6 +57,18 @@ reference.
   `CLAUDE.md`.
 - Do not commit debug code (`dd()`, `console.log`) or secrets.
 
+## Before you open a PR
+
+Run these locally and make sure they pass:
+
+```bash
+ddev exec vendor/bin/pint --test   # PHP formatting check
+npm run lint                       # ESLint for Vue/JS
+ddev exec php artisan test         # Backend test suite
+npx vitest run                     # Frontend test suite
+```
+
+
 ## Submitting changes
 
 1. Fork or branch, make your change, and ensure tests and linters pass.

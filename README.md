@@ -12,6 +12,46 @@ related CIVITAS/CORE add-on is maintained separately.
 - Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Security policy: [SECURITY.md](SECURITY.md)
 
+## Features
+
+- KPI tiles with time series
+- Filtering by category groups
+- Full-text search
+- Multilingual content (German/English)
+- Multi-dashboard / multi-tenancy
+- Filament admin with page builder
+- Data import (JSON bundles) and export (JSON/CSV)
+- CIVITAS/CORE integration
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Backend | Laravel 12, PHP 8.2, Sanctum |
+| Admin | Filament 3.3, Filament Fabricator |
+| Frontend | Vue 3, Vue Router 4, Pinia |
+| Styling | Tailwind CSS 4 |
+| Build | Vite 6 |
+| Database | PostgreSQL 16 |
+
+## Quickstart
+
+Local development runs through [DDEV](https://ddev.com/). Node.js 20 or newer is
+required outside of DDEV (e.g. for editor tooling); see `.nvmrc` (`nvm use`).
+
+```bash
+ddev start                              # Start environment
+ddev exec composer install              # Install PHP dependencies
+ddev exec npm install                   # Install Node dependencies
+ddev exec php artisan migrate           # Run migrations
+ddev exec php artisan tenancy:backfill  # Setup multi-tenancy (creates default tenant)
+```
+
+
+```bash
+ddev delete --omit-snapshot && ddev start
+```
+
 ## Deployment
 
 - Standalone (bare server / VM): [docs/deployment/installation-standalone.md](docs/deployment/installation-standalone.md)

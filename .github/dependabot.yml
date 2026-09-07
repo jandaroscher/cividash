@@ -1,0 +1,48 @@
+version: 2
+updates:
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "[CHORE]"
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      - dependency-name: "filament/filament"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "laravel/framework"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "spatie/laravel-permission"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "z3d0x/filament-fabricator"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "filament/spatie-laravel-translatable-plugin"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "[CHORE]"
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "[CHORE]"
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
