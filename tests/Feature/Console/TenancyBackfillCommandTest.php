@@ -6,6 +6,7 @@ use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class TenancyBackfillCommandTest extends TestCase
@@ -89,7 +90,7 @@ class TenancyBackfillCommandTest extends TestCase
     public function test_backfills_null_tenant_id_records(): void
     {
         // Create a tile with null tenant_id directly via DB
-        $tileId = \Illuminate\Support\Facades\DB::table('tiles')->insertGetId([
+        $tileId = DB::table('tiles')->insertGetId([
             'title' => json_encode(['de' => 'Unassigned', 'en' => 'Unassigned']),
             'description' => json_encode(['de' => 'Desc', 'en' => 'Desc']),
             'slug' => json_encode(['de' => 'unassigned', 'en' => 'unassigned']),

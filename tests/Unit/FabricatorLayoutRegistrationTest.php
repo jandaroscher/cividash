@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use App\Filament\Fabricator\Layouts\LandingpageLayout;
+use App\Filament\Fabricator\Layouts\SubpageLayout;
 use Tests\TestCase;
 
 class FabricatorLayoutRegistrationTest extends TestCase
@@ -17,13 +19,13 @@ class FabricatorLayoutRegistrationTest extends TestCase
 
         // Assert that both layouts are registered
         $this->assertContains(
-            \App\Filament\Fabricator\Layouts\LandingpageLayout::class,
+            LandingpageLayout::class,
             $registeredLayouts,
             'LandingpageLayout should be registered in config'
         );
 
         $this->assertContains(
-            \App\Filament\Fabricator\Layouts\SubpageLayout::class,
+            SubpageLayout::class,
             $registeredLayouts,
             'SubpageLayout should be registered in config'
         );

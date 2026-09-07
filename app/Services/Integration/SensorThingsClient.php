@@ -3,6 +3,7 @@
 namespace App\Services\Integration;
 
 use App\Contracts\Integration\ExternalDataSourceInterface;
+use App\Settings\IntegrationSettings;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -40,7 +41,7 @@ class SensorThingsClient implements ExternalDataSourceInterface
      */
     public static function fromConfig(array $overrides = []): static
     {
-        $settings = rescue(fn () => app(\App\Settings\IntegrationSettings::class), null, false);
+        $settings = rescue(fn () => app(IntegrationSettings::class), null, false);
         $config = config('integrations.civitas');
 
         return new static(

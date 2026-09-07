@@ -10,12 +10,12 @@ use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
-use Illuminate\Support\Str;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class CategoryGroupResource extends Resource
 {
@@ -110,8 +110,8 @@ class CategoryGroupResource extends Resource
     /**
      * Configure table columns, row actions, and bulk actions for the CategoryGroup resource.
      *
-     * @param  \Filament\Tables\Table  $table  The table instance to configure.
-     * @return \Filament\Tables\Table The configured table with columns, filters, actions, and bulk actions.
+     * @param  Table  $table  The table instance to configure.
+     * @return Table The configured table with columns, filters, actions, and bulk actions.
      */
     public static function table(Table $table): Table
     {

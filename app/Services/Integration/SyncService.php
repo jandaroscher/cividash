@@ -14,8 +14,11 @@ use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Settings\IntegrationSettings;
+use Carbon\Carbon;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -293,7 +296,7 @@ class SyncService implements SyncServiceInterface
         );
 
         return new SyncStatus(
-            lastSyncedAt: $lastSyncedAt ? \Carbon\Carbon::parse($lastSyncedAt) : null,
+            lastSyncedAt: $lastSyncedAt ? Carbon::parse($lastSyncedAt) : null,
             isConfigured: $isConfigured,
             isConnected: $isConnected,
         );
@@ -317,7 +320,7 @@ class SyncService implements SyncServiceInterface
      * @param  array<string,mixed>  $attributes
      * @return array<string,mixed>
      */
-    private function fillableOnly(\Illuminate\Database\Eloquent\Model $model, array $attributes): array
+    private function fillableOnly(Model $model, array $attributes): array
     {
         $fillable = $model->getFillable();
 

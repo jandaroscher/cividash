@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Exceptions\InvalidTenantContextException;
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Translatable\HasTranslations;
 
 class FooterNavigation extends Model
@@ -57,7 +59,7 @@ class FooterNavigation extends Model
      *
      * @return FooterNavigation The FooterNavigation instance for the resolved tenant.
      *
-     * @throws \App\Exceptions\InvalidTenantContextException If no tenant context is available.
+     * @throws InvalidTenantContextException If no tenant context is available.
      */
     public static function getInstance(): FooterNavigation
     {
@@ -65,11 +67,11 @@ class FooterNavigation extends Model
 
         if (! $tenant) {
             // Fallback: use default tenant
-            $tenant = \App\Models\Tenant::where('slug', 'default')->first();
+            $tenant = Tenant::where('slug', 'default')->first();
         }
 
         if (! $tenant) {
-            throw new \App\Exceptions\InvalidTenantContextException('No tenant context available');
+            throw new InvalidTenantContextException('No tenant context available');
         }
 
         // For the default tenant, ensure id=1 in a transaction to avoid races
@@ -150,7 +152,7 @@ class FooterNavigation extends Model
      *
      * @return FooterNavigation The FooterNavigation instance for the resolved tenant.
      *
-     * @throws \App\Exceptions\InvalidTenantContextException If no tenant context can be resolved.
+     * @throws InvalidTenantContextException If no tenant context can be resolved.
      */
     public static function getOrCreateInstance(): FooterNavigation
     {
@@ -158,11 +160,11 @@ class FooterNavigation extends Model
 
         if (! $tenant) {
             // Fallback: use default tenant
-            $tenant = \App\Models\Tenant::where('slug', 'default')->first();
+            $tenant = Tenant::where('slug', 'default')->first();
         }
 
         if (! $tenant) {
-            throw new \App\Exceptions\InvalidTenantContextException('No tenant context available');
+            throw new InvalidTenantContextException('No tenant context available');
         }
 
         // Default tenant: enforce id=1 with transactional migration
@@ -489,7 +491,7 @@ class FooterNavigation extends Model
     /**
      * Define the owning tenant relationship for the model.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The belongs-to relation linking this record to a Tenant.
+     * @return BelongsTo The belongs-to relation linking this record to a Tenant.
      */
     public function tenant()
     {

@@ -4,6 +4,7 @@ namespace Tests\Feature\Tenancy;
 
 use App\Models\Tenant;
 use App\Models\Tile;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -27,7 +28,7 @@ class TenantNullLeakageTest extends TestCase
      */
     public function test_null_tenant_id_records_are_not_visible(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $tenantA = Tenant::create(['name' => 'Tenant A', 'slug' => 'tenant-a']);
         $tenantB = Tenant::create(['name' => 'Tenant B', 'slug' => 'tenant-b']);
 
@@ -81,7 +82,7 @@ class TenantNullLeakageTest extends TestCase
         // Ensure no default tenant exists to avoid fallback behavior
         Tenant::where('slug', 'default')->delete();
 
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test']);
 
         $user->tenants()->sync([$tenant->id]);

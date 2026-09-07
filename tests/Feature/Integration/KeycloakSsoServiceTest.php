@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\Integration\KeycloakSsoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Socialite\Two\User as SocialiteUser;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\Concerns\InteractsWithTenancy;
 use Tests\TestCase;
 
@@ -147,7 +148,7 @@ class KeycloakSsoServiceTest extends TestCase
         $this->service->syncRolesFromToken($user, $tokenData);
 
         $user->unsetRelation('roles');
-        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
         $this->assertTrue($user->fresh()->hasRole('Redakteur'));
     }
 
@@ -174,7 +175,7 @@ class KeycloakSsoServiceTest extends TestCase
         $this->service->syncRolesFromToken($user, $tokenData);
 
         $user->unsetRelation('roles');
-        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
         $this->assertTrue($user->fresh()->hasRole('Redakteur'));
     }
 
@@ -220,7 +221,7 @@ class KeycloakSsoServiceTest extends TestCase
         $this->service->syncRolesFromToken($user, $tokenData);
 
         $user->unsetRelation('roles');
-        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
         $this->assertTrue($user->fresh()->hasRole('Redakteur'));
     }
 
@@ -252,7 +253,7 @@ class KeycloakSsoServiceTest extends TestCase
             'realm_access' => ['roles' => ['editor']],
         ]);
 
-        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
         $user->unsetRelation('roles');
         $this->assertTrue($user->fresh()->hasRole('Redakteur'));
 
@@ -325,7 +326,7 @@ class KeycloakSsoServiceTest extends TestCase
             'realm_access' => ['roles' => ['admin', 'editor']],
         ]);
 
-        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
         $user->unsetRelation('roles');
         $this->assertTrue($user->fresh()->is_admin);
         $this->assertTrue($user->fresh()->hasRole('Redakteur'));

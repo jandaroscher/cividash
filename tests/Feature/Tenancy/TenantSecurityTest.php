@@ -7,6 +7,7 @@ use App\Models\Tile;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 /**
@@ -75,7 +76,7 @@ class TenantSecurityTest extends TestCase
         $this->actingAs($user);
 
         // Try to access unauthorized tenant via query parameter
-        $request = \Illuminate\Http\Request::create('/api/tiles?tenant='.$unauthorizedTenant->id, 'GET');
+        $request = Request::create('/api/tiles?tenant='.$unauthorizedTenant->id, 'GET');
         $request->setUserResolver(fn () => $user);
         $this->app->instance('request', $request);
 
@@ -112,7 +113,7 @@ class TenantSecurityTest extends TestCase
         $this->actingAs($user);
 
         // Try to access unauthorized tenant via header
-        $request = \Illuminate\Http\Request::create('/api/tiles', 'GET');
+        $request = Request::create('/api/tiles', 'GET');
         $request->headers->set('X-Tenant', $unauthorizedTenant->id);
         $request->setUserResolver(fn () => $user);
         $this->app->instance('request', $request);
@@ -135,7 +136,7 @@ class TenantSecurityTest extends TestCase
         ]);
 
         // No authentication
-        $request = \Illuminate\Http\Request::create('/api/tiles?tenant='.$tenant->id, 'GET');
+        $request = Request::create('/api/tiles?tenant='.$tenant->id, 'GET');
         $this->app->instance('request', $request);
 
         // Should not see tenant data (will fall back to default tenant or empty)

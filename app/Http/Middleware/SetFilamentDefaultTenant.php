@@ -2,6 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Tenant;
+use App\Settings\BrandingSettings;
+use App\Settings\ContentSettings;
+use App\Settings\DashboardSettings;
+use App\Settings\GeneralSettings;
 use Closure;
 use Filament\Facades\Filament;
 use Filament\Models\Contracts\HasDefaultTenant as HasDefaultTenantContract;
@@ -18,8 +23,8 @@ class SetFilamentDefaultTenant
      * - When running unit tests and no user-provided default exists, creates or retrieves a tenant with slug `default`.
      * When a tenant is selected, it sets the Filament tenant and, if the request has a session, stores the tenant key under `filament.tenant`.
      *
-     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request.
-     * @param  \Closure  $next  The next middleware callback.
+     * @param  Request  $request  The incoming HTTP request.
+     * @param  Closure  $next  The next middleware callback.
      * @return mixed The response from the next middleware or request handler.
      */
     public function handle(Request $request, Closure $next)
@@ -32,7 +37,7 @@ class SetFilamentDefaultTenant
             if ($user) {
                 $host = $this->normalizeHost($request);
                 if ($host) {
-                    $domainTenant = \App\Models\Tenant::where('domain', $host)->first();
+                    $domainTenant = Tenant::where('domain', $host)->first();
                     if ($domainTenant && $user->canAccessTenant($domainTenant)) {
                         $tenant = $domainTenant;
                     }
@@ -43,7 +48,7 @@ class SetFilamentDefaultTenant
             if (! $tenant && $user) {
                 $slug = $request->query('tenant') ?? $request->header('X-Tenant');
                 if ($slug) {
-                    $slugTenant = \App\Models\Tenant::where('slug', $slug)->first();
+                    $slugTenant = Tenant::where('slug', $slug)->first();
                     if ($slugTenant && $user->canAccessTenant($slugTenant)) {
                         $tenant = $slugTenant;
                     }
@@ -58,7 +63,7 @@ class SetFilamentDefaultTenant
 
             // Priority 4: Test fallback
             if (! $tenant && app()->runningUnitTests()) {
-                $tenant = \App\Models\Tenant::firstOrCreate(
+                $tenant = Tenant::firstOrCreate(
                     ['slug' => 'default'],
                     ['name' => 'Default Dashboard']
                 );
@@ -71,10 +76,10 @@ class SetFilamentDefaultTenant
                 // with the correct tenant context. Without this, any settings
                 // resolved before this middleware (e.g. during panel registration)
                 // would retain stale global data for the entire request.
-                app()->forgetInstance(\App\Settings\GeneralSettings::class);
-                app()->forgetInstance(\App\Settings\BrandingSettings::class);
-                app()->forgetInstance(\App\Settings\DashboardSettings::class);
-                app()->forgetInstance(\App\Settings\ContentSettings::class);
+                app()->forgetInstance(GeneralSettings::class);
+                app()->forgetInstance(BrandingSettings::class);
+                app()->forgetInstance(DashboardSettings::class);
+                app()->forgetInstance(ContentSettings::class);
 
                 if ($request->hasSession()) {
                     $request->session()->put('filament.tenant', $tenant->getKey());

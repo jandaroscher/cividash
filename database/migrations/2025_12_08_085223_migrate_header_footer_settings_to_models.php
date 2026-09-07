@@ -170,7 +170,7 @@ return new class extends Migration
     {
         // Prevent accidental destructive rollbacks in production
         if (app()->environment('production')) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Rolling back this migration in production will result in data loss. '.
                 'Please restore data manually before rolling back.'
             );

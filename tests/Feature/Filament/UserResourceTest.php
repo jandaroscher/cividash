@@ -12,8 +12,10 @@ use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\Tenant;
 use App\Models\User;
 use Filament\Facades\Filament;
+use Filament\Panel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\Concerns\InteractsWithTenancy;
 use Tests\TestCase;
 
@@ -36,7 +38,7 @@ class UserResourceTest extends TestCase
 
     protected function tearDown(): void
     {
-        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId(null);
+        app(PermissionRegistrar::class)->setPermissionsTeamId(null);
         Filament::setTenant(null);
         parent::tearDown();
     }
@@ -283,7 +285,7 @@ class UserResourceTest extends TestCase
     {
         $user = User::factory()->create(['is_active' => false]);
 
-        $panel = app(\Filament\Panel::class);
+        $panel = app(Panel::class);
         $this->assertFalse($user->canAccessPanel($panel));
     }
 
@@ -291,7 +293,7 @@ class UserResourceTest extends TestCase
     {
         $user = User::factory()->create(['is_active' => true]);
 
-        $panel = app(\Filament\Panel::class);
+        $panel = app(Panel::class);
         $this->assertTrue($user->canAccessPanel($panel));
     }
 

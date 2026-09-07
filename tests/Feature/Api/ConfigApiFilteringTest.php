@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Http\Controllers\Api\ConfigController;
 use App\Models\FooterNavigation;
 use App\Models\Navigation;
 use App\Models\Page;
@@ -27,7 +28,7 @@ class ConfigApiFilteringTest extends TestCase
         Filament::setTenant($this->tenant);
 
         // Reset the static cache for pageHasIsPublic between tests
-        $reflection = new \ReflectionClass(\App\Http\Controllers\Api\ConfigController::class);
+        $reflection = new \ReflectionClass(ConfigController::class);
         $prop = $reflection->getProperty('pageHasIsPublic');
         $prop->setAccessible(true);
         $prop->setValue(null, null);

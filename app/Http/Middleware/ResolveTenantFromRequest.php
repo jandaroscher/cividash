@@ -18,9 +18,9 @@ class ResolveTenantFromRequest
      * Resolves the tenant using the following priority: Bearer token (token->tenant_id) > request host domain > tenant with slug "default".
      * When a tenant is resolved it is attached to the request attributes as `resolved_tenant` and `resolved_tenant_by`. If a Filament user is authenticated, the middleware will attempt to set the Filament tenant. A structured debug log is emitted with resolution details.
      *
-     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request.
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next  The next middleware/action.
-     * @return \Symfony\Component\HttpFoundation\Response The response returned by the next middleware or action.
+     * @param  Request  $request  The incoming HTTP request.
+     * @param  Closure(Request): (Response)  $next  The next middleware/action.
+     * @return Response The response returned by the next middleware or action.
      */
     public function handle(Request $request, Closure $next): Response
     {

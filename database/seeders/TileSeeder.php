@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Tile;
 use App\Services\MediaDownloadService;
+use App\Services\ParsedTile;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -27,7 +28,7 @@ class TileSeeder extends Seeder
     /**
      * Create or update Tile records from parsed tile data and synchronize their category relations.
      *
-     * @param  Collection<int, \App\Services\ParsedTile>  $tiles  Collection of parsed tiles to seed.
+     * @param  Collection<int, ParsedTile>  $tiles  Collection of parsed tiles to seed.
      * @param  array<string, int>  $categoryIdMap  Map of original category ID to database ID (Handlungsfelder).
      * @param  array<string, int>  $dimensionCategoryMap  Map of dimension key to category ID.
      * @param  array<int, int>  $sdgCategoryMap  Map of original SDG ID to category ID.
@@ -154,7 +155,7 @@ class TileSeeder extends Seeder
     /**
      * Set translatable background blocks on a tile (for new tiles).
      */
-    protected function setTranslatableBackgroundBlocks(Tile $tile, \App\Services\ParsedTile $parsedTile): void
+    protected function setTranslatableBackgroundBlocks(Tile $tile, ParsedTile $parsedTile): void
     {
         $blocks = $this->transformBackgroundBlocks($parsedTile);
         if ($blocks === null) {
@@ -169,7 +170,7 @@ class TileSeeder extends Seeder
      *
      * @return array{de: array, en: array}|null
      */
-    protected function transformBackgroundBlocks(\App\Services\ParsedTile $tile): ?array
+    protected function transformBackgroundBlocks(ParsedTile $tile): ?array
     {
         $deBlocks = [];
         $enBlocks = [];
@@ -340,7 +341,7 @@ class TileSeeder extends Seeder
         return $safeFallback;
     }
 
-    protected function calculateSourceHash(\App\Services\ParsedTile $tile): string
+    protected function calculateSourceHash(ParsedTile $tile): string
     {
         $dataToHash = [
             'id' => $tile->id,

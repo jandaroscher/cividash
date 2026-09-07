@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Admin;
 
+use App\Http\Requests\Admin\UpdateTimePeriodRequest;
 use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TimePeriod;
@@ -203,11 +204,11 @@ class AdminTimePeriodApiTest extends TestCase
      * no bound route to extract body parameters, which previously triggered a
      * "no such table: time_periods" QueryException and failed the CI docs step.
      *
-     * @see \App\Http\Requests\Admin\UpdateTimePeriodRequest::resolveTimePeriod()
+     * @see UpdateTimePeriodRequest::resolveTimePeriod()
      */
     public function test_update_rules_do_not_throw_without_route_id(): void
     {
-        $request = new \App\Http\Requests\Admin\UpdateTimePeriodRequest;
+        $request = new UpdateTimePeriodRequest;
 
         $rules = $request->rules();
 

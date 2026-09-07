@@ -6,6 +6,7 @@ use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\Tenancy\EditTenantProfile;
 use App\Filament\Pages\Tenancy\RegisterTenant;
+use App\Http\Middleware\LocaleDetector;
 use App\Http\Middleware\SetFilamentDefaultTenant;
 use App\Models\Tenant;
 use App\Settings\GeneralSettings;
@@ -24,6 +25,8 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentAsset;
+use Filament\Support\Facades\FilamentIcon;
+use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -50,7 +53,7 @@ class AdminPanelProvider extends PanelProvider
         ]);
 
         // Use outline icons consistently across all Filament components
-        \Filament\Support\Facades\FilamentIcon::register([
+        FilamentIcon::register([
             // Table actions
             'actions::delete-action' => 'heroicon-o-trash',
             'actions::edit-action' => 'heroicon-o-pencil-square',
@@ -81,7 +84,7 @@ class AdminPanelProvider extends PanelProvider
         ]);
 
         // Override filter and column toggle icons to outline
-        \Filament\Tables\Table::configureUsing(function (\Filament\Tables\Table $table): void {
+        Table::configureUsing(function (Table $table): void {
             $table->filtersTriggerAction(fn ($action) => $action->icon('heroicon-o-funnel'));
             $table->toggleColumnsTriggerAction(fn ($action) => $action->icon('heroicon-o-view-columns'));
         });
@@ -188,7 +191,7 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
                 // LocaleDetector must run after session is started so Auth::user() works
-                \App\Http\Middleware\LocaleDetector::class,
+                LocaleDetector::class,
             ])
             ->plugins([
                 SpatieLaravelTranslatablePlugin::make()

@@ -6,6 +6,8 @@ use App\Models\Concerns\AssignsSequentialPosition;
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Translatable\HasTranslations;
 
 class Category extends Model
@@ -47,7 +49,7 @@ class Category extends Model
      *
      * Related Tile models are returned ordered by their `position` attribute.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany The relation for Tile models ordered by `position`.
+     * @return BelongsToMany The relation for Tile models ordered by `position`.
      */
     public function tiles()
     {
@@ -57,7 +59,7 @@ class Category extends Model
     /**
      * Get the CategoryGroup this category belongs to.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo BelongsTo relation for the CategoryGroup model.
+     * @return BelongsTo BelongsTo relation for the CategoryGroup model.
      */
     public function group()
     {
@@ -67,7 +69,7 @@ class Category extends Model
     /**
      * Get the tenant that owns the category.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The belongs-to relationship to the Tenant model.
+     * @return BelongsTo The belongs-to relationship to the Tenant model.
      */
     public function tenant()
     {

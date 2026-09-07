@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Exceptions\InvalidTenantContextException;
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Translatable\HasTranslations;
 
 class Navigation extends Model
@@ -46,7 +48,7 @@ class Navigation extends Model
      *
      * @return Navigation The singleton Navigation instance for the resolved tenant.
      *
-     * @throws \App\Exceptions\InvalidTenantContextException If no tenant context is available.
+     * @throws InvalidTenantContextException If no tenant context is available.
      */
     public static function getInstance(): Navigation
     {
@@ -54,11 +56,11 @@ class Navigation extends Model
 
         if (! $tenant) {
             // Fallback: use default tenant
-            $tenant = \App\Models\Tenant::where('slug', 'default')->first();
+            $tenant = Tenant::where('slug', 'default')->first();
         }
 
         if (! $tenant) {
-            throw new \App\Exceptions\InvalidTenantContextException('No tenant context available');
+            throw new InvalidTenantContextException('No tenant context available');
         }
 
         // For the default tenant, ensure id=1 in a transaction to avoid races
@@ -143,11 +145,11 @@ class Navigation extends Model
 
         if (! $tenant) {
             // Fallback: use default tenant
-            $tenant = \App\Models\Tenant::where('slug', 'default')->first();
+            $tenant = Tenant::where('slug', 'default')->first();
         }
 
         if (! $tenant) {
-            throw new \App\Exceptions\InvalidTenantContextException('No tenant context available');
+            throw new InvalidTenantContextException('No tenant context available');
         }
 
         return \DB::transaction(function () use ($tenant) {
@@ -295,7 +297,7 @@ class Navigation extends Model
     /**
      * Get the tenant that owns this navigation.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The tenant relation.
+     * @return BelongsTo The tenant relation.
      */
     public function tenant()
     {

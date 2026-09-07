@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\Tenant;
+use App\Models\User;
 use App\Services\MediaDownloadService;
 use App\Services\ParsedCategory;
 use Database\Seeders\CategorySeeder;
@@ -27,7 +28,7 @@ class CategorySeederTest extends TestCase
         );
 
         // Create user and authenticate for Filament tenant context
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $user->tenants()->sync([$defaultTenant->id]);
         Filament::auth()->login($user);
         Filament::setTenant($defaultTenant);

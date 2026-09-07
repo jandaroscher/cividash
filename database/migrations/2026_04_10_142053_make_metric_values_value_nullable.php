@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        \Illuminate\Support\Facades\DB::table('metric_values')
+        DB::table('metric_values')
             ->whereNull('value')
             ->update(['value' => 0]);
 

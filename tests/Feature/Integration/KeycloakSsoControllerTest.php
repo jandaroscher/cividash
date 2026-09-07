@@ -5,6 +5,8 @@ namespace Tests\Feature\Integration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\AbstractProvider;
+use Laravel\Socialite\Two\InvalidStateException;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Mockery;
 use Tests\Concerns\InteractsWithTenancy;
@@ -18,7 +20,7 @@ class KeycloakSsoControllerTest extends TestCase
     {
         config(['integrations.keycloak_sso.enabled' => true]);
 
-        $provider = Mockery::mock(\Laravel\Socialite\Two\AbstractProvider::class);
+        $provider = Mockery::mock(AbstractProvider::class);
         $provider->shouldReceive('redirect')
             ->once()
             ->andReturn(redirect('http://localhost:8080/realms/civitas/protocol/openid-connect/auth'));
@@ -98,10 +100,10 @@ class KeycloakSsoControllerTest extends TestCase
     {
         config(['integrations.keycloak_sso.enabled' => true]);
 
-        $provider = Mockery::mock(\Laravel\Socialite\Two\AbstractProvider::class);
+        $provider = Mockery::mock(AbstractProvider::class);
         $provider->shouldReceive('user')
             ->once()
-            ->andThrow(new \Laravel\Socialite\Two\InvalidStateException);
+            ->andThrow(new InvalidStateException);
 
         Socialite::shouldReceive('driver')
             ->with('keycloak')
@@ -158,7 +160,7 @@ class KeycloakSsoControllerTest extends TestCase
             'realm_access' => ['roles' => $attributes['roles'] ?? ['editor']],
         ];
 
-        $provider = Mockery::mock(\Laravel\Socialite\Two\AbstractProvider::class);
+        $provider = Mockery::mock(AbstractProvider::class);
         $provider->shouldReceive('user')
             ->once()
             ->andReturn($socialiteUser);

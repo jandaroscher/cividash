@@ -7,6 +7,7 @@ use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Pages\Tenancy\RegisterTenant as BaseRegisterTenant;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class RegisterTenant extends BaseRegisterTenant
@@ -76,7 +77,7 @@ class RegisterTenant extends BaseRegisterTenant
      * @param  array  $data  Associative array with keys:
      *                       - 'name' (string): Tenant display name.
      *                       - 'slug' (string): Unique tenant slug.
-     * @return \App\Models\Tenant The created Tenant model instance.
+     * @return Tenant The created Tenant model instance.
      */
     protected function handleRegistration(array $data): Tenant
     {

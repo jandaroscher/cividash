@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 return new class extends Migration
 {
@@ -69,7 +70,7 @@ return new class extends Migration
                     $label = json_decode($metric->label, true);
                     $labelDe = $label['de'] ?? '';
                     // Generate a slug-based key from the label
-                    $baseKey = \Illuminate\Support\Str::slug($labelDe);
+                    $baseKey = Str::slug($labelDe);
                     if (empty($baseKey)) {
                         $baseKey = 'metric-'.$metric->id;
                     }

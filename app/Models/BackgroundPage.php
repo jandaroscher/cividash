@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Translatable\HasTranslations;
 
 class BackgroundPage extends Model
@@ -27,7 +28,7 @@ class BackgroundPage extends Model
     /**
      * Get the Tile this background page belongs to.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The relationship instance linking this background page to its tile.
+     * @return BelongsTo The relationship instance linking this background page to its tile.
      */
     public function tile()
     {
@@ -37,7 +38,7 @@ class BackgroundPage extends Model
     /**
      * Get the tenant that owns this background page.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The tenant relationship.
+     * @return BelongsTo The tenant relationship.
      */
     public function tenant()
     {

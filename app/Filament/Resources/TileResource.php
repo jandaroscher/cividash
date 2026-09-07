@@ -13,15 +13,18 @@ use App\Filament\Fabricator\PageBlocks\SliderBlock;
 use App\Filament\Fabricator\PageBlocks\TextImageBlock;
 use App\Filament\Resources\TileResource\Pages;
 use App\Filament\Support\RichEditorConfig;
+use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Services\Integration\PublishService;
+use App\Services\TimePeriodService;
 use Closure;
 use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Components\Builder;
+use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -36,6 +39,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
@@ -45,6 +49,7 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class TileResource extends Resource
 {
@@ -177,9 +182,9 @@ class TileResource extends Resource
                                                     ->label(__('filament.resources.tile.label'))
                                                     ->required()
                                                     ->live(onBlur: true)
-                                                    ->afterStateUpdated(function (?string $state, \Filament\Forms\Set $set, ?MetricDefinition $record): void {
+                                                    ->afterStateUpdated(function (?string $state, Set $set, ?MetricDefinition $record): void {
                                                         if ($record === null && filled($state)) {
-                                                            $set('metric_key', \Illuminate\Support\Str::slug($state));
+                                                            $set('metric_key', Str::slug($state));
                                                         }
                                                     }),
                                                 TextInput::make('metric_key')
@@ -370,7 +375,7 @@ class TileResource extends Resource
                                     ->label(__('filament.resources.tile.slug'))
                                     ->maxLength(255)
                                     ->rule(function (TextInput $component) {
-                                        return function (string $attribute, $value, \Closure $fail) use ($component): void {
+                                        return function (string $attribute, $value, Closure $fail) use ($component): void {
                                             if (blank($value)) {
                                                 return;
                                             }
@@ -441,8 +446,8 @@ class TileResource extends Resource
      * filters (category relationship and public ternary), the record edit URL, row actions (edit, frontend view, delete),
      * and grouped bulk delete action.
      *
-     * @param  \Filament\Tables\Table  $table  The table instance to configure.
-     * @return \Filament\Tables\Table The configured table instance.
+     * @param  Table  $table  The table instance to configure.
+     * @return Table The configured table instance.
      */
     public static function table(Table $table): Table
     {
@@ -507,7 +512,7 @@ class TileResource extends Resource
                     ->options(function () {
                         $locale = app()->getLocale();
 
-                        return \App\Models\Category::query()
+                        return Category::query()
                             ->whereHas('group', fn ($q) => $q->where('key', 'handlungsfelder'))
                             ->get()
                             ->mapWithKeys(fn ($cat) => [
@@ -581,7 +586,7 @@ class TileResource extends Resource
      * each configured via makeCategoryGroupField and populated with the group's categories
      * ordered by their position.
      *
-     * @return array<int,\Filament\Forms\Components\Select> Array of Select fields for category groups.
+     * @return array<int,Select> Array of Select fields for category groups.
      */
     protected static function getCategoryGroupFields(): array
     {
@@ -622,7 +627,7 @@ class TileResource extends Resource
                 $locale = app()->getLocale();
                 $loweredSearch = mb_strtolower($search);
 
-                return \App\Models\Category::query()
+                return Category::query()
                     ->where('category_group_id', $groupId)
                     ->orderBy('position')
                     ->get()
@@ -778,7 +783,7 @@ class TileResource extends Resource
      * that are in the allowed set (FAQBlock, IntroTextBlock, SliderBlock, TextImageBlock) and expose
      * a static `getBlockSchema()` method will be included.
      *
-     * @return array<\Filament\Forms\Components\Builder\Block> The Builder block schemas to use in the background blocks.
+     * @return array<Block> The Builder block schemas to use in the background blocks.
      */
     protected static function getBackgroundBlockSchemas(): array
     {
@@ -903,7 +908,7 @@ class TileResource extends Resource
             return $data;
         }
 
-        $timePeriod = app(\App\Services\TimePeriodService::class)->resolveOrCreate($input, $tile);
+        $timePeriod = app(TimePeriodService::class)->resolveOrCreate($input, $tile);
 
         $data['time_period_id'] = $timePeriod->id;
 

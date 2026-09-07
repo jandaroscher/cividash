@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Tenant;
 use App\Models\User;
+use Database\Seeders\TenantSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -13,7 +14,7 @@ class TenantSeederTest extends TestCase
 
     public function test_seeder_creates_demo_user_and_tenant(): void
     {
-        $this->seed(\Database\Seeders\TenantSeeder::class);
+        $this->seed(TenantSeeder::class);
 
         $this->assertDatabaseHas('users', [
             'email' => 'demo@example.com',
@@ -49,8 +50,8 @@ class TenantSeederTest extends TestCase
     public function test_seeder_is_idempotent(): void
     {
         // Run twice - should not crash or create duplicates
-        $this->seed(\Database\Seeders\TenantSeeder::class);
-        $this->seed(\Database\Seeders\TenantSeeder::class);
+        $this->seed(TenantSeeder::class);
+        $this->seed(TenantSeeder::class);
 
         $this->assertEquals(1, User::where('email', 'demo@example.com')->count());
         $this->assertEquals(1, Tenant::where('slug', 'stadt-regensburg')->count());
@@ -67,7 +68,7 @@ class TenantSeederTest extends TestCase
         ]);
 
         // Run the seeder
-        $this->seed(\Database\Seeders\TenantSeeder::class);
+        $this->seed(TenantSeeder::class);
 
         // User should now belong to default, stadt-regensburg, and demo-city tenants
         $user->refresh();

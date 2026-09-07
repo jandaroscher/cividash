@@ -53,7 +53,7 @@ trait InteractsWithTenancy
      */
     protected function withoutTenantScope(callable $callback)
     {
-        $builder = \App\Models\Tenant::withoutGlobalScope('tenant');
+        $builder = Tenant::withoutGlobalScope('tenant');
 
         return $callback($builder);
     }

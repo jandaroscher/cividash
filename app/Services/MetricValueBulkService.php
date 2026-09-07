@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\MetricValue;
 use App\Models\Tile;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class MetricValueBulkService
 {
@@ -24,7 +26,7 @@ class MetricValueBulkService
      *
      * @param  array<string, mixed>  $state  Flat form state keyed by "tile_{id}.metric_{defId}"
      * @param  string  $periodKey  ISO period key (e.g. "2024", "2024-Q1")
-     * @param  \Illuminate\Database\Eloquent\Collection<int, Tile>  $tiles  Eager-loaded tiles with metricDefinitions
+     * @param  Collection<int, Tile>  $tiles  Eager-loaded tiles with metricDefinitions
      */
     public function save(array $state, string $periodKey, $tiles): void
     {

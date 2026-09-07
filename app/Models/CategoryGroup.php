@@ -43,7 +43,7 @@ class CategoryGroup extends Model
     /**
      * Get child categories that belong to this category group.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany A HasMany relation for the Category models related to this group.
+     * @return HasMany A HasMany relation for the Category models related to this group.
      */
     public function categories(): HasMany
     {

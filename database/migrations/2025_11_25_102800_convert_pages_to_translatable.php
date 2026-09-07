@@ -123,7 +123,7 @@ return new class extends Migration
                     $table->json('title')->change();
                     $table->json('slug')->change();
                 });
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Columns are already json/longtext - that's fine.
             }
         }
@@ -218,7 +218,7 @@ return new class extends Migration
                     return true;
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // If index introspection is unavailable, assume it is absent.
         }
 

@@ -8,6 +8,7 @@ use App\Services\Import\Support\ImportDiff;
 use App\Services\Import\Support\ImportError;
 use App\Services\Import\Support\ImportResult;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Facade for the import workflow:
@@ -112,7 +113,7 @@ class ImportService
                 $run->save();
             });
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to persist ImportRun audit entry', [
+            Log::error('Failed to persist ImportRun audit entry', [
                 'tenant_id' => $tenant->id,
                 'mode' => $mode,
                 'filename' => $file->getClientOriginalName(),

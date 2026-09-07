@@ -8,6 +8,7 @@ use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\InvalidStateException;
 
@@ -43,7 +44,7 @@ class KeycloakSsoController extends Controller
 
             $socialiteUser = Socialite::driver('keycloak')->user();
         } catch (InvalidStateException $e) {
-            \Illuminate\Support\Facades\Log::error('Keycloak SSO: InvalidStateException', ['message' => $e->getMessage()]);
+            Log::error('Keycloak SSO: InvalidStateException', ['message' => $e->getMessage()]);
             Notification::make()
                 ->title(__('filament.sso.login_failed'))
                 ->danger()
@@ -51,7 +52,7 @@ class KeycloakSsoController extends Controller
 
             return redirect()->to('/admin/login');
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Keycloak SSO: callback error', ['message' => $e->getMessage(), 'class' => get_class($e)]);
+            Log::error('Keycloak SSO: callback error', ['message' => $e->getMessage(), 'class' => get_class($e)]);
             Notification::make()
                 ->title(__('filament.sso.login_failed'))
                 ->danger()

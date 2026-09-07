@@ -8,6 +8,7 @@ use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
 
 class ManageContent extends SettingsPage
@@ -35,9 +36,9 @@ class ManageContent extends SettingsPage
      * Builds the settings page form schema with a `hero_content` builder containing
      * `heading`, `paragraph`, `image`, and `text_image` blocks for managing hero section content.
      *
-     * @return \Filament\Forms\Form The configured form instance.
+     * @return Form The configured form instance.
      */
-    public function form(\Filament\Forms\Form $form): \Filament\Forms\Form
+    public function form(Form $form): Form
     {
         return $form->schema([
             Builder::make('hero_content')

@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Tenant;
+use App\Models\User;
 use App\Traits\GetsTenantCacheKeySegment;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -40,7 +41,7 @@ class GetsTenantCacheKeySegmentTest extends TestCase
     public function test_returns_filament_tenant_id_when_set(): void
     {
         $tenant = Tenant::where('slug', 'default')->first();
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         // User is already attached to default tenant via User::booted()
         $user->tenants()->syncWithoutDetaching($tenant->id);
         $this->actingAs($user);
@@ -81,7 +82,7 @@ class GetsTenantCacheKeySegmentTest extends TestCase
     public function test_explicit_tenant_id_takes_priority_over_filament(): void
     {
         $tenant = Tenant::where('slug', 'default')->first();
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         // User is already attached to default tenant via User::booted()
         $user->tenants()->syncWithoutDetaching($tenant->id);
         $this->actingAs($user);
@@ -109,7 +110,7 @@ class GetsTenantCacheKeySegmentTest extends TestCase
         // Create a fresh trait instance in this process
         $instance = new class
         {
-            use \App\Traits\GetsTenantCacheKeySegment;
+            use GetsTenantCacheKeySegment;
 
             public function callGetTenantCacheKeySegment(?int $tenantId = null): string
             {

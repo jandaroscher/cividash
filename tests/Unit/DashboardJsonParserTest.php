@@ -3,6 +3,10 @@
 namespace Tests\Unit;
 
 use App\Services\DashboardJsonParser;
+use App\Services\ParsedCategory;
+use App\Services\ParsedLink;
+use App\Services\ParsedMetric;
+use App\Services\ParsedTile;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
@@ -41,7 +45,7 @@ class DashboardJsonParserTest extends TestCase
         $this->assertCount(3, $categories);
 
         $firstCategory = $categories->first();
-        $this->assertInstanceOf(\App\Services\ParsedCategory::class, $firstCategory);
+        $this->assertInstanceOf(ParsedCategory::class, $firstCategory);
         $this->assertEquals(1, $firstCategory->id);
         $this->assertEquals('Partizipation und Teilhabe', $firstCategory->title);
 
@@ -59,7 +63,7 @@ class DashboardJsonParserTest extends TestCase
         $this->assertCount(3, $tiles);
 
         $firstTile = $tiles->first();
-        $this->assertInstanceOf(\App\Services\ParsedTile::class, $firstTile);
+        $this->assertInstanceOf(ParsedTile::class, $firstTile);
         $this->assertEquals(1, $firstTile->id);
         $this->assertEquals('Bürgerbeteiligung', $firstTile->title);
         $this->assertEquals('Citizen Participation', $firstTile->titleEn);
@@ -80,7 +84,7 @@ class DashboardJsonParserTest extends TestCase
         $this->assertGreaterThan(0, $links->count());
 
         $firstLink = $links->first();
-        $this->assertInstanceOf(\App\Services\ParsedLink::class, $firstLink);
+        $this->assertInstanceOf(ParsedLink::class, $firstLink);
         $this->assertIsInt($firstLink->tileId);
         $this->assertIsInt($firstLink->categoryId);
     }
@@ -209,7 +213,7 @@ class DashboardJsonParserTest extends TestCase
         $this->assertGreaterThan(0, $metrics->count());
 
         $firstMetric = $metrics->first();
-        $this->assertInstanceOf(\App\Services\ParsedMetric::class, $firstMetric);
+        $this->assertInstanceOf(ParsedMetric::class, $firstMetric);
         $this->assertEquals(101, $firstMetric->id);
         $this->assertEquals('test_metric', $firstMetric->key);
         $this->assertEquals('Test Kennzahl', $firstMetric->title);

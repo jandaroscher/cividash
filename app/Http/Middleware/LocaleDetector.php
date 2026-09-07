@@ -15,7 +15,7 @@ class LocaleDetector
      * Detects locale from URI prefix (/en/) for public routes.
      * For admin routes, uses the authenticated user's locale preference.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {

@@ -6,6 +6,9 @@ use App\Models\Concerns\AssignsSequentialPosition;
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
@@ -75,7 +78,7 @@ class Tile extends Model
     /**
      * Defines the many-to-many relationship between the tile and Category models.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany Relationship instance for the associated Category models.
+     * @return BelongsToMany Relationship instance for the associated Category models.
      */
     public function categories()
     {
@@ -102,7 +105,7 @@ class Tile extends Model
     /**
      * Get the has-many relationship for metric definitions belonging to this tile.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany A has-many relationship to MetricDefinition models.
+     * @return HasMany A has-many relationship to MetricDefinition models.
      */
     public function metricDefinitions()
     {
@@ -112,7 +115,7 @@ class Tile extends Model
     /**
      * Get the tenant that owns the tile.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The tenant that owns the tile.
+     * @return BelongsTo The tenant that owns the tile.
      */
     public function tenant()
     {

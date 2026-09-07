@@ -3,6 +3,10 @@
 use App\Console\Commands\DashboardSeedCommand;
 use App\Console\Commands\PagesSeedCommand;
 use App\Console\Commands\TenancyBackfillCommand;
+use App\Http\Middleware\EnsureAdminApiAccess;
+use App\Http\Middleware\EnsureAdminTenantResolved;
+use App\Http\Middleware\LocaleDetector;
+use App\Http\Middleware\ResolveTenantFromRequest;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -38,13 +42,13 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $middleware->web(append: [
-            \App\Http\Middleware\LocaleDetector::class,
+            LocaleDetector::class,
         ]);
 
         $middleware->alias([
-            'admin.api' => \App\Http\Middleware\EnsureAdminApiAccess::class,
-            'admin.tenant' => \App\Http\Middleware\EnsureAdminTenantResolved::class,
-            'resolve.tenant' => \App\Http\Middleware\ResolveTenantFromRequest::class,
+            'admin.api' => EnsureAdminApiAccess::class,
+            'admin.tenant' => EnsureAdminTenantResolved::class,
+            'resolve.tenant' => ResolveTenantFromRequest::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -45,7 +45,7 @@ class CategoriesRelationManager extends RelationManager
      *
      * The form defines inputs for `key`, `slug`, `icon` (image upload stored on the `public` disk under `categories`, supporting per-locale JSON or plain path values), `color` (visible only when the owner CategoryGroup is the color source), `is_active`, and numeric `position`.
      *
-     * @return \Filament\Forms\Form The configured form instance.
+     * @return Form The configured form instance.
      */
     public function form(Form $form): Form
     {
@@ -218,7 +218,7 @@ class CategoriesRelationManager extends RelationManager
             ->reorderable('position')
             ->defaultSort('position')
             ->reorderRecordsTriggerAction(
-                fn (Tables\Actions\Action $action, bool $isReordering) => $action
+                fn (Action $action, bool $isReordering) => $action
                     ->link()
                     ->label($isReordering ? __('filament.actions.stop_sorting') : __('filament.actions.start_sorting'))
                     ->color('primary')

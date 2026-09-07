@@ -57,7 +57,7 @@ class FilamentFabricatorPluginTest extends TestCase
      */
     public function test_fabricator_plugin_is_registered(): void
     {
-        $panel = \Filament\Facades\Filament::getPanel('admin');
+        $panel = Filament::getPanel('admin');
 
         $this->assertNotNull($panel, 'Admin panel should exist');
 

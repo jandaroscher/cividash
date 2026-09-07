@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Integration;
 
+use App\Exceptions\Integration\ForeignProvenanceException;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
 use App\Models\Tenant;
@@ -10,6 +11,7 @@ use App\Models\TimePeriod;
 use App\Services\Integration\NgsiLdDataMapper;
 use App\Services\Integration\PublishResult;
 use App\Services\Integration\PublishService;
+use App\Settings\IntegrationSettings;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
@@ -39,7 +41,7 @@ class PublishServiceTest extends TestCase
         // The publish client is built via NgsiLdClient::fromConfig(), which
         // prefers persisted IntegrationSettings over config. Configure the
         // broker through settings, mirroring how an admin sets it up.
-        $settings = app(\App\Settings\IntegrationSettings::class);
+        $settings = app(IntegrationSettings::class);
         $settings->api_url = 'https://broker.example.com/context/ngsi-ld';
         $settings->oauth_token_url = 'https://keycloak.example.com/token';
         $settings->oauth_client_id = 'dashboard';
@@ -182,7 +184,7 @@ class PublishServiceTest extends TestCase
         $tile = $this->makeTileWithMetrics();
         $tile->forceFill(['external_source' => 'some-other-system', 'external_id' => 'urn:foreign:1'])->save();
 
-        $this->expectException(\App\Exceptions\Integration\ForeignProvenanceException::class);
+        $this->expectException(ForeignProvenanceException::class);
 
         try {
             $this->service()->publishTile($tile->fresh());

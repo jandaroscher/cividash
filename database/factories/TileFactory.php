@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Tenant;
 use App\Models\Tile;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Tile>
@@ -21,7 +22,7 @@ class TileFactory extends Factory
         return [
             'title' => ['de' => $titleDe, 'en' => $titleEn],
             'description' => ['de' => fake()->paragraph(), 'en' => fake()->paragraph()],
-            'slug' => ['de' => \Illuminate\Support\Str::slug($titleDe), 'en' => \Illuminate\Support\Str::slug($titleEn)],
+            'slug' => ['de' => Str::slug($titleDe), 'en' => Str::slug($titleEn)],
             'position' => fake()->numberBetween(0, 100),
             'is_public' => true,
             'tenant_id' => Tenant::factory(),

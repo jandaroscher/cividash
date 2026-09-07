@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Services\Content\BlockTransformer;
 use App\Settings\BrandingSettings;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,7 +19,7 @@ class TileResource extends JsonResource
      * for stored images when present, transformed background blocks, metric definitions and years
      * (each included only when their relations are loaded).
      *
-     * @param  \Illuminate\Http\Request  $request  Incoming HTTP request (reads optional `locale` query parameter).
+     * @param  Request  $request  Incoming HTTP request (reads optional `locale` query parameter).
      * @return array Associative array representation of the tile containing keys: `id`, `categories`, `tile_color`,
      *               `title`, `description`, `slug`, `icon`, `is_public`, `meta` (with `title`, `description`, `image`),
      *               `background_blocks`, `metric_definitions`, and `years`.

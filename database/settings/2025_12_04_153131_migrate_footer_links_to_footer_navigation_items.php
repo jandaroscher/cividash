@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Spatie\LaravelSettings\Migrations\SettingsMigration;
 
@@ -104,7 +105,7 @@ return new class extends SettingsMigration
                             }
                         }
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     Log::error('Error parsing footer_links during migration', [
                         'error' => $e->getMessage(),
                         'trace' => $e->getTraceAsString(),
@@ -119,7 +120,7 @@ return new class extends SettingsMigration
 
             // Note: We keep footer_links for backwards compatibility
             // It can be removed in a future migration if needed
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error during footer_links migration', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -140,7 +141,7 @@ return new class extends SettingsMigration
         try {
             // Remove the footer_navigation_items setting
             $this->migrator->delete('footer.footer_navigation_items');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error during footer_links migration rollback', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),

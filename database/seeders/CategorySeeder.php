@@ -6,6 +6,9 @@ use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\Tenant;
 use App\Services\MediaDownloadService;
+use App\Services\ParsedCategory;
+use App\Services\ParsedSDGZiel;
+use Filament\Facades\Filament;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -94,7 +97,7 @@ class CategorySeeder extends Seeder
     /**
      * Seed Handlungsfelder categories from parsed dashboard.json data.
      *
-     * @param  Collection<int, \App\Services\ParsedCategory>  $categories  Parsed categories to seed.
+     * @param  Collection<int, ParsedCategory>  $categories  Parsed categories to seed.
      * @return array<string, int> Map of original category ID to database ID.
      */
     public function run(Collection $categories): array
@@ -256,7 +259,7 @@ class CategorySeeder extends Seeder
     /**
      * Seed the 17 SDG-Ziele as Categories in the "sdg" group.
      *
-     * @param  Collection<int, \App\Services\ParsedSDGZiel>  $sdgZiele  Parsed SDG entries (used for ID mapping).
+     * @param  Collection<int, ParsedSDGZiel>  $sdgZiele  Parsed SDG entries (used for ID mapping).
      * @return array<int, int> Map of original parsed SDG ID to Category database ID.
      */
     public function seedSdgZiele(Collection $sdgZiele): array
@@ -377,8 +380,8 @@ class CategorySeeder extends Seeder
 
     protected function resolveTenantId(): ?int
     {
-        if (class_exists(\Filament\Facades\Filament::class) && \Filament\Facades\Filament::getTenant()) {
-            return \Filament\Facades\Filament::getTenant()->id;
+        if (class_exists(Filament::class) && Filament::getTenant()) {
+            return Filament::getTenant()->id;
         }
 
         return Tenant::where('slug', 'default')->value('id')
@@ -415,7 +418,7 @@ class CategorySeeder extends Seeder
         return $slug;
     }
 
-    protected function calculateSourceHash(\App\Services\ParsedCategory $category): string
+    protected function calculateSourceHash(ParsedCategory $category): string
     {
         $dataToHash = [
             'id' => $category->id,

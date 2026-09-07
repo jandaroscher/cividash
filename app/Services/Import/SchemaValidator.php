@@ -4,6 +4,7 @@ namespace App\Services\Import;
 
 use App\Services\Import\Support\ImportError;
 use JsonSchema\Constraints\Constraint;
+use JsonSchema\Constraints\Factory;
 use JsonSchema\SchemaStorage;
 use JsonSchema\Uri\UriRetriever;
 use JsonSchema\Validator;
@@ -39,7 +40,7 @@ class SchemaValidator
             $storage->addSchema($uri, json_decode(file_get_contents($base."/{$name}.schema.json")));
         }
 
-        $validator = new Validator(new \JsonSchema\Constraints\Factory($storage));
+        $validator = new Validator(new Factory($storage));
         $validator->validate(
             $bundleObj,
             (object) ['$ref' => $mainUri],

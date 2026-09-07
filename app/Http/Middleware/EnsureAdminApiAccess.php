@@ -15,8 +15,8 @@ class EnsureAdminApiAccess
      * - Request is authenticated.
      * - If a personal access token is used, the token has the `admin-api` ability.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next  Callable to dispatch the request to the next middleware/handler.
-     * @return \Symfony\Component\HttpFoundation\Response The response from the next handler when checks pass, or a JSON error response with HTTP 401/403 when access is denied.
+     * @param  Closure(Request): (Response)  $next  Callable to dispatch the request to the next middleware/handler.
+     * @return Response The response from the next handler when checks pass, or a JSON error response with HTTP 401/403 when access is denied.
      */
     public function handle(Request $request, Closure $next): Response
     {

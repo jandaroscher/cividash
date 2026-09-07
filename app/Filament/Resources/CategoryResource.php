@@ -169,8 +169,8 @@ class CategoryResource extends Resource
     /**
      * Configure the resource table's columns, filters, row actions, and bulk actions.
      *
-     * @param  \Filament\Tables\Table  $table  The table to configure.
-     * @return \Filament\Tables\Table The configured table instance.
+     * @param  Table  $table  The table to configure.
+     * @return Table The configured table instance.
      */
     public static function table(Table $table): Table
     {
@@ -260,7 +260,7 @@ class CategoryResource extends Resource
                     ->options(function () {
                         $locale = app()->getLocale();
 
-                        return \App\Models\CategoryGroup::query()
+                        return CategoryGroup::query()
                             ->orderBy('position')
                             ->get()
                             ->mapWithKeys(fn ($group) => [

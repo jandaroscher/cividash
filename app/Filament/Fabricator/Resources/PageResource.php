@@ -6,6 +6,7 @@ use App\Filament\Concerns\HasBlockActiveToggleAction;
 use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Fabricator\Resources\PageResource\Pages;
 use App\Models\Page;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
@@ -66,8 +67,8 @@ class PageResource extends FabricatorPageResource
      * - displays `'-'` when no record is present,
      * - otherwise returns the record URL for the active locale (from the Livewire component's `activeLocale` property or `app()->getLocale()`).
      *
-     * @param  \Filament\Forms\Form  $form  The base form to modify.
-     * @return \Filament\Forms\Form The modified form instance.
+     * @param  Form  $form  The base form to modify.
+     * @return Form The modified form instance.
      */
     public static function form(Form $form): Form
     {
@@ -387,7 +388,7 @@ class PageResource extends FabricatorPageResource
     }
 
     /**
-     * @param  array<\Filament\Forms\Components\Component>  $components
+     * @param  array<Component>  $components
      */
     protected static function applyBlockToggleActionToComponents(array $components): void
     {

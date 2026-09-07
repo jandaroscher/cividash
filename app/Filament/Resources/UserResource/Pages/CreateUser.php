@@ -7,12 +7,14 @@ use App\Models\Tenant;
 use App\Services\RoleService;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
-    protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
+    protected function handleRecordCreation(array $data): Model
     {
         // Skip Filament's automatic tenant attachment (via $tenantOwnershipRelationshipName)
         // since afterCreate() manages all tenant associations manually

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Page;
 use App\Models\Tenant;
+use App\Models\User;
 use Database\Seeders\PageSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,7 +21,7 @@ class PageSeederTest extends TestCase
         parent::setUp();
 
         // Create user and authenticate for Filament tenant context
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $tenant = Tenant::where('slug', 'default')->first();
         if ($tenant) {
             $user->tenants()->sync([$tenant->id]);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasDefaultTenant;
@@ -21,7 +22,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasName, HasTenants
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
@@ -181,7 +182,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     /**
      * Get the many-to-many relationship for tenants associated with the user.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Tenant>
+     * @return BelongsToMany<Tenant>
      */
     public function tenants(): BelongsToMany
     {

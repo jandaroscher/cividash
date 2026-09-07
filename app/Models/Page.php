@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -262,7 +263,7 @@ class Page extends FabricatorPage implements PageContract
     /**
      * Get the tenant that owns the page.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The belongs-to relationship for the Tenant model.
+     * @return BelongsTo The belongs-to relationship for the Tenant model.
      */
     public function tenant()
     {

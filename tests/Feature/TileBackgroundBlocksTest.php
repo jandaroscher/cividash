@@ -8,6 +8,7 @@ use App\Models\Tile;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Forms\Form;
+use Filament\Resources\Pages\EditRecord;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -88,7 +89,7 @@ class TileBackgroundBlocksTest extends TestCase
     public function test_tile_background_blocks_field_is_in_form_schema(): void
     {
         // Create a mock Livewire component
-        $livewire = new class extends \Filament\Resources\Pages\EditRecord
+        $livewire = new class extends EditRecord
         {
             protected static string $resource = TileResource::class;
         };

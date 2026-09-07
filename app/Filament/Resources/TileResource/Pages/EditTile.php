@@ -42,7 +42,7 @@ class EditTile extends EditRecord
         return [
             Actions\LocaleSwitcher::make(),
             Actions\DeleteAction::make(),
-            Actions\Action::make('view_frontend')
+            Action::make('view_frontend')
                 ->label(__('filament.resources.tile.actions.view_frontend'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->color('success')

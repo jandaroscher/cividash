@@ -1,5 +1,28 @@
 <?php
 
+use Knuckles\Scribe\Extracting\Strategies\BodyParameters\GetFromBodyParamAttribute;
+use Knuckles\Scribe\Extracting\Strategies\BodyParameters\GetFromBodyParamTag;
+use Knuckles\Scribe\Extracting\Strategies\Headers\GetFromHeaderAttribute;
+use Knuckles\Scribe\Extracting\Strategies\Headers\GetFromHeaderTag;
+use Knuckles\Scribe\Extracting\Strategies\Metadata\GetFromDocBlocks;
+use Knuckles\Scribe\Extracting\Strategies\Metadata\GetFromMetadataAttributes;
+use Knuckles\Scribe\Extracting\Strategies\QueryParameters\GetFromFormRequest;
+use Knuckles\Scribe\Extracting\Strategies\QueryParameters\GetFromInlineValidator;
+use Knuckles\Scribe\Extracting\Strategies\QueryParameters\GetFromQueryParamAttribute;
+use Knuckles\Scribe\Extracting\Strategies\QueryParameters\GetFromQueryParamTag;
+use Knuckles\Scribe\Extracting\Strategies\ResponseFields\GetFromResponseFieldAttribute;
+use Knuckles\Scribe\Extracting\Strategies\ResponseFields\GetFromResponseFieldTag;
+use Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls;
+use Knuckles\Scribe\Extracting\Strategies\Responses\UseApiResourceTags;
+use Knuckles\Scribe\Extracting\Strategies\Responses\UseResponseAttributes;
+use Knuckles\Scribe\Extracting\Strategies\Responses\UseResponseFileTag;
+use Knuckles\Scribe\Extracting\Strategies\Responses\UseResponseTag;
+use Knuckles\Scribe\Extracting\Strategies\Responses\UseTransformerTags;
+use Knuckles\Scribe\Extracting\Strategies\StaticData;
+use Knuckles\Scribe\Extracting\Strategies\UrlParameters\GetFromLaravelAPI;
+use Knuckles\Scribe\Extracting\Strategies\UrlParameters\GetFromUrlParamAttribute;
+use Knuckles\Scribe\Extracting\Strategies\UrlParameters\GetFromUrlParamTag;
+
 // Only the most common configs are shown. See the https://scribe.knuckles.wtf/laravel/reference/config for all.
 
 return [
@@ -141,15 +164,15 @@ return [
 
     'strategies' => [
         'metadata' => [
-            \Knuckles\Scribe\Extracting\Strategies\Metadata\GetFromDocBlocks::class,
-            \Knuckles\Scribe\Extracting\Strategies\Metadata\GetFromMetadataAttributes::class,
+            GetFromDocBlocks::class,
+            GetFromMetadataAttributes::class,
         ],
         'headers' => [
-            \Knuckles\Scribe\Extracting\Strategies\Headers\GetFromHeaderAttribute::class,
-            \Knuckles\Scribe\Extracting\Strategies\Headers\GetFromHeaderTag::class,
+            GetFromHeaderAttribute::class,
+            GetFromHeaderTag::class,
             // StaticData with settings as tuple format
             [
-                \Knuckles\Scribe\Extracting\Strategies\StaticData::class,
+                StaticData::class,
                 [
                     'data' => [
                         'Content-Type' => 'application/json',
@@ -159,31 +182,31 @@ return [
             ],
         ],
         'urlParameters' => [
-            \Knuckles\Scribe\Extracting\Strategies\UrlParameters\GetFromLaravelAPI::class,
-            \Knuckles\Scribe\Extracting\Strategies\UrlParameters\GetFromUrlParamAttribute::class,
-            \Knuckles\Scribe\Extracting\Strategies\UrlParameters\GetFromUrlParamTag::class,
+            GetFromLaravelAPI::class,
+            GetFromUrlParamAttribute::class,
+            GetFromUrlParamTag::class,
         ],
         'queryParameters' => [
-            \Knuckles\Scribe\Extracting\Strategies\QueryParameters\GetFromFormRequest::class,
-            \Knuckles\Scribe\Extracting\Strategies\QueryParameters\GetFromInlineValidator::class,
-            \Knuckles\Scribe\Extracting\Strategies\QueryParameters\GetFromQueryParamAttribute::class,
-            \Knuckles\Scribe\Extracting\Strategies\QueryParameters\GetFromQueryParamTag::class,
+            GetFromFormRequest::class,
+            GetFromInlineValidator::class,
+            GetFromQueryParamAttribute::class,
+            GetFromQueryParamTag::class,
         ],
         'bodyParameters' => [
-            \Knuckles\Scribe\Extracting\Strategies\BodyParameters\GetFromFormRequest::class,
-            \Knuckles\Scribe\Extracting\Strategies\BodyParameters\GetFromInlineValidator::class,
-            \Knuckles\Scribe\Extracting\Strategies\BodyParameters\GetFromBodyParamAttribute::class,
-            \Knuckles\Scribe\Extracting\Strategies\BodyParameters\GetFromBodyParamTag::class,
+            Knuckles\Scribe\Extracting\Strategies\BodyParameters\GetFromFormRequest::class,
+            Knuckles\Scribe\Extracting\Strategies\BodyParameters\GetFromInlineValidator::class,
+            GetFromBodyParamAttribute::class,
+            GetFromBodyParamTag::class,
         ],
         'responses' => [
-            \Knuckles\Scribe\Extracting\Strategies\Responses\UseResponseAttributes::class,
-            \Knuckles\Scribe\Extracting\Strategies\Responses\UseTransformerTags::class,
-            \Knuckles\Scribe\Extracting\Strategies\Responses\UseApiResourceTags::class,
-            \Knuckles\Scribe\Extracting\Strategies\Responses\UseResponseTag::class,
-            \Knuckles\Scribe\Extracting\Strategies\Responses\UseResponseFileTag::class,
+            UseResponseAttributes::class,
+            UseTransformerTags::class,
+            UseApiResourceTags::class,
+            UseResponseTag::class,
+            UseResponseFileTag::class,
             // ResponseCalls with settings as tuple format
             [
-                \Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls::class,
+                ResponseCalls::class,
                 [
                     'only' => ['GET *'],
                     'config' => [
@@ -193,8 +216,8 @@ return [
             ],
         ],
         'responseFields' => [
-            \Knuckles\Scribe\Extracting\Strategies\ResponseFields\GetFromResponseFieldAttribute::class,
-            \Knuckles\Scribe\Extracting\Strategies\ResponseFields\GetFromResponseFieldTag::class,
+            GetFromResponseFieldAttribute::class,
+            GetFromResponseFieldTag::class,
         ],
     ],
 

@@ -4,6 +4,7 @@ namespace Tests\Feature\Integration;
 
 use App\Contracts\Integration\DataMapperInterface;
 use App\Contracts\Integration\ExternalDataSourceInterface;
+use App\Enums\TimeGranularity;
 use App\Models\Category;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
@@ -199,7 +200,7 @@ class SyncServiceTest extends TestCase
      */
     private function granularityValue(mixed $granularity): string
     {
-        return $granularity instanceof \App\Enums\TimeGranularity ? $granularity->value : (string) $granularity;
+        return $granularity instanceof TimeGranularity ? $granularity->value : (string) $granularity;
     }
 
     public function test_links_category_via_belongs_to_many(): void

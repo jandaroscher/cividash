@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MetricValue extends Model
 {
@@ -38,7 +39,7 @@ class MetricValue extends Model
     /**
      * Get the tenant that owns this metric value.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The tenant relationship.
+     * @return BelongsTo The tenant relationship.
      */
     public function tenant()
     {

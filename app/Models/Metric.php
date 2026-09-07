@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Translatable\HasTranslations;
 
 class Metric extends Model
@@ -35,7 +36,7 @@ class Metric extends Model
     /**
      * Get the tenant that owns the metric.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo The belongs-to relationship for the Tenant model.
+     * @return BelongsTo The belongs-to relationship for the Tenant model.
      */
     public function tenant()
     {

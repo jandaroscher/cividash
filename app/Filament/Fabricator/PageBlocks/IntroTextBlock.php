@@ -22,7 +22,7 @@ class IntroTextBlock extends PageBlock
      * - `image_alt` and `image_secondary_alt`: alt text fields (max 255) with accessibility helper text
      * - `is_active`: hidden boolean defaulting to `true`; if hydrated value is `null`, the state is set to `true`
      *
-     * @return \Filament\Forms\Components\Builder\Block The configured block schema for the `intro-text` block.
+     * @return Block The configured block schema for the `intro-text` block.
      */
     public static function getBlockSchema(): Block
     {

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Filament\Resources;
 
+use App\Filament\Resources\TileResource;
 use App\Filament\Resources\TileResource\Pages\EditTile;
 use App\Filament\Resources\TileResource\Pages\ListTiles;
 use App\Models\MetricDefinition;
@@ -9,6 +10,7 @@ use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TimePeriod;
+use App\Models\User;
 use App\Services\Integration\NgsiLdDataMapper;
 use App\Settings\IntegrationSettings;
 use Filament\Facades\Filament;
@@ -29,7 +31,7 @@ class PublishTileActionTest extends TestCase
         parent::setUp();
 
         $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
-        $user = \App\Models\User::factory()->admin()->create();
+        $user = User::factory()->admin()->create();
         $this->actingAs($user);
         Filament::setTenant($this->tenant);
 
@@ -152,7 +154,7 @@ class PublishTileActionTest extends TestCase
         // visible() is render-only; the server-side authorize() gate must also
         // deny a non-admin. For a non-admin the action is both hidden AND not
         // authorized, so a direct Livewire invocation is refused.
-        $nonAdmin = \App\Models\User::factory()->create(['is_admin' => false]);
+        $nonAdmin = User::factory()->create(['is_admin' => false]);
         $this->actingAs($nonAdmin);
 
         Http::fake();
@@ -165,12 +167,12 @@ class PublishTileActionTest extends TestCase
 
         // ...and the server-side authorization gate itself denies the non-admin
         // (this is what authorize() consults, blocking direct invocation).
-        $this->assertFalse(\App\Filament\Resources\TileResource::canUserPublishToCore());
+        $this->assertFalse(TileResource::canUserPublishToCore());
 
         // An admin in the same context IS authorized — proving the gate is the
         // discriminator, not some unrelated config.
-        $this->actingAs(\App\Models\User::factory()->admin()->create());
-        $this->assertTrue(\App\Filament\Resources\TileResource::canUserPublishToCore());
+        $this->actingAs(User::factory()->admin()->create());
+        $this->assertTrue(TileResource::canUserPublishToCore());
 
         Http::assertNothingSent();
     }

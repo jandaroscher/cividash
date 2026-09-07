@@ -3,6 +3,7 @@
 namespace App\Models\Concerns;
 
 use App\Models\Tenant;
+use App\Models\User;
 use Filament\Facades\Filament;
 
 trait ResolvesCurrentTenant
@@ -69,7 +70,7 @@ trait ResolvesCurrentTenant
                     }
 
                     // Validate that authenticated user has access to the tenant
-                    if ($tenant && $user instanceof \App\Models\User && $user->canAccessTenant($tenant)) {
+                    if ($tenant && $user instanceof User && $user->canAccessTenant($tenant)) {
                         return $tenant;
                     }
 
@@ -99,7 +100,7 @@ trait ResolvesCurrentTenant
                     }
 
                     // Validate that authenticated user has access to the tenant
-                    if ($tenant && $user instanceof \App\Models\User && $user->canAccessTenant($tenant)) {
+                    if ($tenant && $user instanceof User && $user->canAccessTenant($tenant)) {
                         return $tenant;
                     }
 
@@ -137,7 +138,7 @@ trait ResolvesCurrentTenant
 
                         // Validate that authenticated user has access to the tenant
                         // Filament should already validate this, but we check again for security
-                        if ($tenant && $user instanceof \App\Models\User && $user->canAccessTenant($tenant)) {
+                        if ($tenant && $user instanceof User && $user->canAccessTenant($tenant)) {
                             return $tenant;
                         }
 

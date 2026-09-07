@@ -2,6 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Filament\Fabricator\PageBlocks\CardGridBlock;
+use App\Filament\Fabricator\PageBlocks\FAQBlock;
+use App\Filament\Fabricator\PageBlocks\IntroTextBlock;
+use App\Filament\Fabricator\PageBlocks\SliderBlock;
+use App\Filament\Fabricator\PageBlocks\TextImageBlock;
 use Tests\TestCase;
 
 class PageBlockRegistrationTest extends TestCase
@@ -17,11 +22,11 @@ class PageBlockRegistrationTest extends TestCase
 
         // Assert that all blocks are registered
         $expectedBlocks = [
-            \App\Filament\Fabricator\PageBlocks\IntroTextBlock::class,
-            \App\Filament\Fabricator\PageBlocks\TextImageBlock::class,
-            \App\Filament\Fabricator\PageBlocks\SliderBlock::class,
-            \App\Filament\Fabricator\PageBlocks\FAQBlock::class,
-            \App\Filament\Fabricator\PageBlocks\CardGridBlock::class,
+            IntroTextBlock::class,
+            TextImageBlock::class,
+            SliderBlock::class,
+            FAQBlock::class,
+            CardGridBlock::class,
         ];
 
         foreach ($expectedBlocks as $blockClass) {

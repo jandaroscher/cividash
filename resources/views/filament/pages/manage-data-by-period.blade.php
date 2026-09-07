@@ -51,7 +51,7 @@
 
                 <x-filament::input.wrapper
                     inline-prefix
-                    prefix-icon="heroicon-m-magnifying-glass"
+                    prefix-icon="heroicon-o-magnifying-glass"
                 >
                     <x-filament::input
                         type="search"

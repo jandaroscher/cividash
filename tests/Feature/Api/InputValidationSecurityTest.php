@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class InputValidationSecurityTest extends TestCase
@@ -131,6 +132,6 @@ class InputValidationSecurityTest extends TestCase
         // Must not cause 500 (SQL error) — 200 with empty data or 404 are both safe
         $this->assertNotEquals(500, $response->status(), 'SQL injection must not cause server error');
         // Verify tiles table was not dropped
-        $this->assertTrue(\Illuminate\Support\Facades\Schema::hasTable('tiles'), 'Tiles table must still exist after SQL injection attempt');
+        $this->assertTrue(Schema::hasTable('tiles'), 'Tiles table must still exist after SQL injection attempt');
     }
 }

@@ -85,7 +85,7 @@
 
             @if ($hasDropdownContent)
                 <x-filament::icon
-                    icon="heroicon-m-chevron-down"
+                    icon="heroicon-o-chevron-down"
                     icon-alias="panels::tenant-menu.toggle-button"
                     :x-show="filament()->isSidebarCollapsibleOnDesktop() ? '$store.sidebar.isOpen' : null"
                     class="ms-auto h-5 w-5 shrink-0 text-gray-400 transition duration-75 group-hover:text-gray-500 group-focus-visible:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-400 dark:group-focus-visible:text-gray-400"
@@ -100,7 +100,7 @@
                 <x-filament::dropdown.list.item
                     :color="$profileItem?->getColor()"
                     :href="$profileItemUrl ?? filament()->getTenantProfileUrl()"
-                    :icon="$profileItem?->getIcon() ?? \Filament\Support\Facades\FilamentIcon::resolve('panels::tenant-menu.profile-button') ?? 'heroicon-m-cog-6-tooth'"
+                    :icon="$profileItem?->getIcon() ?? \Filament\Support\Facades\FilamentIcon::resolve('panels::tenant-menu.profile-button') ?? 'heroicon-o-cog-6-tooth'"
                     tag="a"
                     :target="($profileItem?->shouldOpenUrlInNewTab() ?? false) ? '_blank' : null"
                 >
@@ -112,7 +112,7 @@
                 <x-filament::dropdown.list.item
                     :color="$billingItem?->getColor() ?? 'gray'"
                     :href="$billingItemUrl ?? filament()->getTenantBillingUrl()"
-                    :icon="$billingItem?->getIcon() ?? \Filament\Support\Facades\FilamentIcon::resolve('panels::tenant-menu.billing-button') ?? 'heroicon-m-credit-card'"
+                    :icon="$billingItem?->getIcon() ?? \Filament\Support\Facades\FilamentIcon::resolve('panels::tenant-menu.billing-button') ?? 'heroicon-o-credit-card'"
                     tag="a"
                     :target="($billingItem?->shouldOpenUrlInNewTab() ?? false) ? '_blank' : null"
                 >
@@ -170,7 +170,7 @@
             <x-filament::dropdown.list.item
                 :color="$registrationItem?->getColor()"
                 :href="$registrationItemUrl ?? filament()->getTenantRegistrationUrl()"
-                :icon="$registrationItem?->getIcon() ?? \Filament\Support\Facades\FilamentIcon::resolve('panels::tenant-menu.registration-button') ?? 'heroicon-m-plus'"
+                :icon="$registrationItem?->getIcon() ?? \Filament\Support\Facades\FilamentIcon::resolve('panels::tenant-menu.registration-button') ?? 'heroicon-o-plus'"
                 tag="a"
                 :target="($registrationItem?->shouldOpenUrlInNewTab() ?? false) ? '_blank' : null"
             >

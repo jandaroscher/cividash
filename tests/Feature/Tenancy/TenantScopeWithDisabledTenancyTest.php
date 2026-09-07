@@ -4,6 +4,7 @@ namespace Tests\Feature\Tenancy;
 
 use App\Models\Tenant;
 use App\Models\Tile;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -30,7 +31,7 @@ class TenantScopeWithDisabledTenancyTest extends TestCase
         $panel = Filament::getPanel('admin');
         $this->assertTrue($panel->hasTenancy(), 'Tenancy should be enabled on panel to allow getTenant() to work in tests');
 
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $tenantA = Tenant::create(['name' => 'Tenant A', 'slug' => 'tenant-a']);
         $tenantB = Tenant::create(['name' => 'Tenant B', 'slug' => 'tenant-b']);
 

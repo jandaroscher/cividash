@@ -5,6 +5,7 @@ namespace App\Services\Integration;
 use App\Contracts\Integration\WritableDataSourceInterface;
 use App\Exceptions\Integration\ForeignProvenanceException;
 use App\Models\Tile;
+use Illuminate\Http\Client\RequestException;
 
 /**
  * Publishes a dashboard-authored indicator (a Tile + its metrics) into
@@ -33,7 +34,7 @@ class PublishService
      * Publish a single Tile to the external broker.
      *
      * @throws ForeignProvenanceException when the Tile belongs to a foreign source.
-     * @throws \Illuminate\Http\Client\RequestException on a broker write error.
+     * @throws RequestException on a broker write error.
      */
     public function publishTile(Tile $tile, bool $force = false): PublishResult
     {

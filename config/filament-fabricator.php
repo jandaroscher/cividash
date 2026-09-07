@@ -1,5 +1,16 @@
 <?php
 
+use App\Filament\Fabricator\Layouts\LandingpageLayout;
+use App\Filament\Fabricator\Layouts\SubpageLayout;
+use App\Filament\Fabricator\PageBlocks\CardGridBlock;
+use App\Filament\Fabricator\PageBlocks\DownloadBlock;
+use App\Filament\Fabricator\PageBlocks\FAQBlock;
+use App\Filament\Fabricator\PageBlocks\IntroTextBlock;
+use App\Filament\Fabricator\PageBlocks\SliderBlock;
+use App\Filament\Fabricator\PageBlocks\TextImageBlock;
+use App\Filament\Fabricator\Resources\PageResource;
+use App\Models\Page;
+
 // config for Z3d0X/FilamentFabricator
 return [
     'routing' => [
@@ -36,8 +47,8 @@ return [
          * in addition to those that are auto-registered
          */
         'register' => [
-            \App\Filament\Fabricator\Layouts\LandingpageLayout::class,
-            \App\Filament\Fabricator\Layouts\SubpageLayout::class,
+            LandingpageLayout::class,
+            SubpageLayout::class,
         ],
     ],
 
@@ -58,12 +69,12 @@ return [
          * in addition to those that are auto-registered
          */
         'register' => [
-            \App\Filament\Fabricator\PageBlocks\IntroTextBlock::class,
-            \App\Filament\Fabricator\PageBlocks\TextImageBlock::class,
-            \App\Filament\Fabricator\PageBlocks\SliderBlock::class,
-            \App\Filament\Fabricator\PageBlocks\FAQBlock::class,
-            \App\Filament\Fabricator\PageBlocks\CardGridBlock::class,
-            \App\Filament\Fabricator\PageBlocks\DownloadBlock::class,
+            IntroTextBlock::class,
+            TextImageBlock::class,
+            SliderBlock::class,
+            FAQBlock::class,
+            CardGridBlock::class,
+            DownloadBlock::class,
         ],
     ],
 
@@ -78,13 +89,13 @@ return [
      * The page model to be used by the package.
      * Replace this if you ever extend it
      */
-    'page-model' => \App\Models\Page::class,
+    'page-model' => Page::class,
 
     /**
      * The page filament resource to be used by the package.
      * Replace this if you ever extend it
      */
-    'page-resource' => \App\Filament\Fabricator\Resources\PageResource::class,
+    'page-resource' => PageResource::class,
 
     /**
      * Whether you want to have a view page as part of your PageResource

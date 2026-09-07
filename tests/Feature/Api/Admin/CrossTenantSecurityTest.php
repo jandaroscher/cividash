@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
+use App\Models\Page;
 use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TimePeriod;
@@ -217,7 +218,7 @@ class CrossTenantSecurityTest extends TestCase
 
     public function test_cannot_update_page_from_other_tenant(): void
     {
-        $page = $this->createInTenant($this->tenantB, fn () => \App\Models\Page::factory()->create());
+        $page = $this->createInTenant($this->tenantB, fn () => Page::factory()->create());
 
         // Send valid payload so validation passes — tenant-scoped lookup must return 404
         $response = $this->withToken($this->tokenA)
@@ -228,7 +229,7 @@ class CrossTenantSecurityTest extends TestCase
 
     public function test_cannot_delete_page_from_other_tenant(): void
     {
-        $page = $this->createInTenant($this->tenantB, fn () => \App\Models\Page::factory()->create());
+        $page = $this->createInTenant($this->tenantB, fn () => Page::factory()->create());
 
         $response = $this->withToken($this->tokenA)
             ->deleteJson("/api/admin/pages/{$page->id}");

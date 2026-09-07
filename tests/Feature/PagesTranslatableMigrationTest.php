@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Page; // Use custom Page model with HasTranslations
 use App\Models\Tenant;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +19,7 @@ class PagesTranslatableMigrationTest extends TestCase
         parent::setUp();
 
         // Create user and authenticate for Filament tenant context
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $tenant = Tenant::where('slug', 'default')->first();
         if ($tenant) {
             $user->tenants()->sync([$tenant->id]);

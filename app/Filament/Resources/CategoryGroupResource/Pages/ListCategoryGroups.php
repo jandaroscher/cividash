@@ -4,6 +4,7 @@ namespace App\Filament\Resources\CategoryGroupResource\Pages;
 
 use App\Filament\Resources\CategoryGroupResource;
 use Filament\Actions;
+use Filament\Pages\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
 
 class ListCategoryGroups extends ListRecords
@@ -15,7 +16,7 @@ class ListCategoryGroups extends ListRecords
     /**
      * Provide the header action buttons for the list page.
      *
-     * @return array<int, \Filament\Pages\Actions\Action> An array of action instances to display in the page header.
+     * @return array<int, Action> An array of action instances to display in the page header.
      */
     protected function getHeaderActions(): array
     {

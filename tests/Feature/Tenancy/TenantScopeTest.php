@@ -4,6 +4,7 @@ namespace Tests\Feature\Tenancy;
 
 use App\Models\Tenant;
 use App\Models\Tile;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -20,7 +21,7 @@ class TenantScopeTest extends TestCase
 
     public function test_records_are_scoped_to_current_tenant(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $tenantA = Tenant::create(['name' => 'Tenant A', 'slug' => 'tenant-a']);
         $tenantB = Tenant::create(['name' => 'Tenant B', 'slug' => 'tenant-b']);
 
@@ -41,7 +42,7 @@ class TenantScopeTest extends TestCase
 
     public function test_creating_sets_tenant_id_from_filament_context(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $tenant = Tenant::create(['name' => 'Tenant A', 'slug' => 'tenant-a']);
         $user->tenants()->sync([$tenant->id]);
         Filament::auth()->login($user);

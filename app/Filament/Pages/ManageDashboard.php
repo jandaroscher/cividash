@@ -56,8 +56,8 @@ class ManageDashboard extends SettingsPage
     /**
      * Builds the settings form schema for the dashboard management page.
      *
-     * @param  \Filament\Forms\Form  $form  The form instance to configure.
-     * @return \Filament\Forms\Form The configured form with sections and fields for content links, contact details, and server display options.
+     * @param  Form  $form  The form instance to configure.
+     * @return Form The configured form with sections and fields for content links, contact details, and server display options.
      */
     public function form(Form $form): Form
     {

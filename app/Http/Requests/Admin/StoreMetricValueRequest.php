@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,7 +23,7 @@ class StoreMetricValueRequest extends FormRequest
      * in their respective tables, and that `value` is required and numeric. `tenant_id` is not
      * accepted from input and is provided by request context.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string> Validation rules keyed by field name.
+     * @return array<string, ValidationRule|array<mixed>|string> Validation rules keyed by field name.
      */
     public function rules(): array
     {
