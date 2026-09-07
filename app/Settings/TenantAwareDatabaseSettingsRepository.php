@@ -57,7 +57,7 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
             return null;
         }
 
-        return static::resolveTenant();
+        return static::resolveTenant()?->loadMissing('theme');
     }
 
     /**

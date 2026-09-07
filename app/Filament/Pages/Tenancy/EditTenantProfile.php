@@ -117,7 +117,8 @@ class EditTenantProfile extends BaseEditTenantProfile
                         ->helperText(__('filament.pages.edit_dashboard_config.form.fields.theme_id.helper'))
                         ->options(fn () => Theme::query()->pluck('name', 'id'))
                         ->searchable()
-                        ->nullable(),
+                        ->nullable()
+                        ->exists(Theme::class, 'id'),
                 ]),
         ]);
     }

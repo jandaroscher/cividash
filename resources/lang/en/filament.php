@@ -523,6 +523,8 @@ return [
             'slug' => 'Slug',
             'settings' => 'Settings (JSON)',
             'settings_helper' => 'Branding values as a JSON object, e.g. {"branding": {"primary_color": "#0d47a1"}}.',
+            'settings_invalid_structure' => 'Settings must be a JSON object of settings groups, e.g. {"branding": {...}}.',
+            'settings_unknown_group' => 'Unknown settings group ":group".',
             'used_by_dashboards' => 'Used by',
             'used_by_dashboards_count' => '{0} Not used by any dashboard|{1} Used by 1 dashboard|[2,*] Used by :count dashboards',
             'created_at' => 'Created at',

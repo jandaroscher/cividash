@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Filament\Resources;
 
+use App\Filament\Resources\ThemeResource;
 use App\Filament\Resources\ThemeResource\Pages\ListThemes;
 use App\Models\Tenant;
 use App\Models\Theme;
@@ -17,17 +18,17 @@ class ThemeResourceTest extends TestCase
 
     protected Tenant $tenant;
 
-    protected User $user;
+    protected User $admin;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->tenant = Tenant::create(['name' => 'Test Tenant', 'slug' => 'test-tenant']);
-        $this->user = User::factory()->create();
-        $this->user->tenants()->attach($this->tenant->id);
+        $this->admin = User::factory()->create(['is_admin' => true]);
+        $this->admin->tenants()->attach($this->tenant->id);
 
-        $this->actingAs($this->user);
+        $this->actingAs($this->admin);
         Filament::setTenant($this->tenant);
     }
 
@@ -50,5 +51,14 @@ class ThemeResourceTest extends TestCase
 
         Livewire::test(ListThemes::class)
             ->assertCanSeeTableRecords([$theme]);
+    }
+
+    public function test_non_admin_cannot_access_theme_resource(): void
+    {
+        $nonAdmin = User::factory()->create(['is_admin' => false]);
+        $nonAdmin->tenants()->attach($this->tenant->id);
+        $this->actingAs($nonAdmin);
+
+        $this->assertFalse(ThemeResource::canAccess());
     }
 }

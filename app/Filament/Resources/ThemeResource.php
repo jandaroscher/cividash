@@ -4,6 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ThemeResource\Pages;
 use App\Models\Theme;
+use App\Settings\BrandingSettings;
+use App\Settings\ContentSettings;
+use App\Settings\DashboardSettings;
+use App\Settings\GeneralSettings;
+use App\Settings\IntegrationSettings;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
@@ -25,6 +31,16 @@ class ThemeResource extends Resource
 
     // Theme is a global entity shared across all dashboards, not tenant-scoped.
     protected static bool $isScopedToTenant = false;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
+    }
+
+    public static function canAccess(): bool
+    {
+        return (bool) Filament::auth()->user()?->is_admin;
+    }
 
     public static function getNavigationLabel(): string
     {
@@ -75,6 +91,37 @@ class ThemeResource extends Resource
                             ->formatStateUsing(fn ($state) => is_array($state) ? json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) : $state)
                             ->dehydrateStateUsing(fn (?string $state) => filled($state) ? json_decode($state, true) : null)
                             ->rule('json')
+                            ->rule(function () {
+                                return function (string $attribute, $value, \Closure $fail) {
+                                    if (! filled($value)) {
+                                        return;
+                                    }
+
+                                    $decoded = json_decode($value, true);
+
+                                    if (! is_array($decoded) || array_is_list($decoded)) {
+                                        $fail(__('filament.resources.theme.settings_invalid_structure'));
+
+                                        return;
+                                    }
+
+                                    $knownGroups = [
+                                        GeneralSettings::group(),
+                                        ContentSettings::group(),
+                                        DashboardSettings::group(),
+                                        BrandingSettings::group(),
+                                        IntegrationSettings::group(),
+                                    ];
+
+                                    foreach (array_keys($decoded) as $group) {
+                                        if (! in_array($group, $knownGroups, true)) {
+                                            $fail(__('filament.resources.theme.settings_unknown_group', ['group' => $group]));
+
+                                            return;
+                                        }
+                                    }
+                                };
+                            })
                             ->nullable(),
                     ]),
             ]);
