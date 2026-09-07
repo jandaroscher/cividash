@@ -13,7 +13,10 @@
            not achievable via color/font tokens alone (Approach A). -->
       <div class="demo-city-title-bar">
         <span class="demo-city-title-text hyphens-auto">{{ header }}</span>
-        <span class="demo-city-badge shrink-0">Demo City</span>
+        <span
+          v-if="tenantStore.name"
+          class="demo-city-badge shrink-0"
+        >{{ tenantStore.name }}</span>
       </div>
       <div
         :class="backgroundClass ? [backgroundClass] : []"
@@ -219,6 +222,7 @@ import Tooltip from '../../components/help/Tooltip.vue';
 import { useFilterStore } from '../../stores/filter';
 import { useOverlayStore } from '../../stores/overlay';
 import { useBrandingStore } from '../../stores/branding';
+import { useTenantStore } from '../../stores/tenant';
 import { useLocale } from '../../composables/useLocale';
 import { useHelpContext } from '../../composables/useHelpContext';
 import { blockHasVisibleContent } from '../../utils/jumpMarks';
@@ -237,6 +241,7 @@ const props = defineProps({
 const filterStore = useFilterStore();
 const overlayStore = useOverlayStore();
 const brandingStore = useBrandingStore();
+const tenantStore = useTenantStore();
 const { getTooltip } = useHelpContext();
 const { currentLocale } = useLocale();
 
