@@ -13,6 +13,15 @@ class TenantBootstrapTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Renders the real app.blade.php shell; the built manifest isn't present
+        // in every CI leg (e.g. the PostgreSQL job never runs `npm run build`).
+        $this->withoutVite();
+    }
+
     public function test_spa_shell_bootstraps_resolved_tenant_slug(): void
     {
         Tenant::factory()->create(['slug' => 'demo-city', 'domain' => 'demo-city.test']);
