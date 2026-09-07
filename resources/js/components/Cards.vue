@@ -26,13 +26,13 @@
       class="text-theme-small text-center py-10 text-gray-600"
     >
       <template v-if="filterStore.searchQuery && filterStore.level2Filter?.key">
-        {{ currentLocale === 'en' ? 'No results found for filter and search:' : 'Keine Ergebnisse gefunden für Filter und Suche:' }} {{ filterStore.level2Filter.title }} / "{{ filterStore.searchQuery }}"
+        {{ currentLocale === 'en' ? 'No tiles found for filter and search:' : 'Keine Kacheln gefunden für Filter und Suche:' }} {{ filterStore.level2Filter.title }} / "{{ filterStore.searchQuery }}"
       </template>
       <template v-else-if="filterStore.searchQuery">
-        {{ currentLocale === 'en' ? 'No results found for search:' : 'Keine Ergebnisse gefunden für Suche:' }} "{{ filterStore.searchQuery }}"
+        {{ currentLocale === 'en' ? 'No tiles found for search:' : 'Keine Kacheln gefunden für Suche:' }} "{{ filterStore.searchQuery }}"
       </template>
       <template v-else-if="filterStore.level2Filter?.key">
-        {{ currentLocale === 'en' ? 'No results found for filter:' : 'Keine Ergebnisse gefunden für Filter:' }} {{ filterStore.level2Filter.title }}
+        {{ currentLocale === 'en' ? 'No tiles found for filter:' : 'Keine Kacheln gefunden für Filter:' }} {{ filterStore.level2Filter.title }}
       </template>
     </div>
   </div>

@@ -40,12 +40,13 @@
               />
             </svg>
             <input
+              ref="searchInputRef"
               v-model="searchQuery"
               type="text"
               :placeholder="searchPlaceholder"
               class="flex-1 min-w-0 border-0 bg-transparent focus:outline-none focus:ring-0 p-0"
               :style="{ color: '#191919', fontSize: '1.25rem', lineHeight: 'normal' }"
-              :aria-label="currentLocale === 'en' ? 'Search tiles' : 'Kacheln durchsuchen'"
+              :aria-label="currentLocale.value === 'en' ? 'Search tiles' : 'Kacheln durchsuchen'"
               @input="handleSearchInput"
             >
             <button
@@ -54,7 +55,8 @@
               :class="searchQuery ? 'is-visible' : ''"
               :tabindex="searchQuery ? 0 : -1"
               :aria-hidden="!searchQuery"
-              :aria-label="currentLocale === 'en' ? 'Clear search' : 'Suche leeren'"
+              :aria-label="currentLocale.value === 'en' ? 'Clear search' : 'Suche leeren'"
+              :style="{ '--focus-ring-color': brandingStore.primaryColor }"
               @click="clearSearch"
             >
               <svg
@@ -81,7 +83,7 @@
       v-if="showFilter && filterGroups.length > 0"
       class="filter-tabs flex flex-wrap mb-5 md:mb-10"
       role="tablist"
-      :aria-label="currentLocale === 'en' ? 'Filter navigation' : 'Filter-Navigation'"
+      :aria-label="currentLocale.value === 'en' ? 'Filter navigation' : 'Filter-Navigation'"
     >
       <button
         v-for="(group, index) in filterGroups"
@@ -150,6 +152,7 @@ const { currentLocale } = useLocale();
 const { getTooltip } = useHelpContext();
 
 const searchQuery = ref(filterStore.searchQuery || '');
+const searchInputRef = ref(null);
 let searchTimeout = null;
 
 const searchPlaceholder = computed(() => t('searchPlaceholder', currentLocale.value));
@@ -185,6 +188,9 @@ function clearSearch() {
     }
     searchQuery.value = '';
     filterStore.setSearchQuery('');
+    // Return focus to the input: the clear button hides once the field is
+    // empty, so without this the focus would vanish along with it.
+    searchInputRef.value?.focus();
 }
 
 watch(
@@ -435,5 +441,11 @@ function getButtonStyles() {
 .search-clear-button:hover svg path,
 .search-clear-button:focus-visible svg path {
     stroke: #191919;
+}
+
+.search-clear-button:focus-visible {
+    outline: 2px solid var(--focus-ring-color, #191919);
+    outline-offset: 2px;
+    border-radius: 2px;
 }
 </style>

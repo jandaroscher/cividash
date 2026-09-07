@@ -6,14 +6,15 @@ import { useFilterStore } from '@/stores/filter';
 import { useBrandingStore } from '@/stores/branding';
 
 // Mock composables that use vue-router internally
+const { localeState } = vi.hoisted(() => ({ localeState: { value: 'de' } }));
 vi.mock('@/composables/useLocale', () => ({
     useLocale: () => ({
-        currentLocale: { value: 'de' },
+        currentLocale: localeState,
         setLocale: vi.fn(),
         getTranslatedSlug: vi.fn(),
         supportedLocales: ['de', 'en'],
         defaultLocale: 'de',
-        getLocale: () => 'de',
+        getLocale: () => localeState.value,
     }),
 }));
 
@@ -27,13 +28,13 @@ vi.mock('@/composables/useHelpContext', () => ({
 
 describe('Filter', () => {
     let filterStore;
-    let brandingStore;
     let fetchMock;
 
     beforeEach(() => {
         setActivePinia(createPinia());
         filterStore = useFilterStore();
-        brandingStore = useBrandingStore();
+        useBrandingStore();
+        localeState.value = 'de';
 
         // Reset URL to avoid state leaking between tests
         window.history.replaceState({}, '', '/');
@@ -192,5 +193,49 @@ describe('Filter', () => {
         expect(filterStore.searchQuery).toBe('Klima');
 
         vi.useRealTimers();
+    });
+
+    it('only marks the active tab with the active class, not other tabs (active !== hover)', async () => {
+        const wrapper = createWrapper();
+        await vi.dynamicImportSettled();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        const buttons = wrapper.findAll('[role="tab"]');
+        expect(buttons[0].classes()).toContain('filter-button--active');
+        expect(buttons[1].classes()).not.toContain('filter-button--active');
+    });
+
+    it('clears the search field, resets the store, and returns focus to the input', async () => {
+        vi.useFakeTimers();
+        const wrapper = createWrapper({ showSearch: true });
+        await wrapper.vm.$nextTick();
+
+        const searchInput = wrapper.find('input[type="text"]');
+        await searchInput.setValue('Klima');
+        await searchInput.trigger('input');
+        vi.advanceTimersByTime(300);
+        await wrapper.vm.$nextTick();
+
+        const focusSpy = vi.spyOn(searchInput.element, 'focus');
+        const clearButton = wrapper.find('.search-clear-button');
+        await clearButton.trigger('click');
+
+        expect(searchInput.element.value).toBe('');
+        expect(filterStore.searchQuery).toBe('');
+        expect(focusSpy).toHaveBeenCalled();
+
+        vi.useRealTimers();
+    });
+
+    it('sets the clear button aria-label per locale (de/en)', async () => {
+        const deWrapper = createWrapper({ showSearch: true });
+        await deWrapper.vm.$nextTick();
+        expect(deWrapper.find('.search-clear-button').attributes('aria-label')).toBe('Suche leeren');
+
+        localeState.value = 'en';
+        const enWrapper = createWrapper({ showSearch: true });
+        await enWrapper.vm.$nextTick();
+        expect(enWrapper.find('.search-clear-button').attributes('aria-label')).toBe('Clear search');
     });
 });
