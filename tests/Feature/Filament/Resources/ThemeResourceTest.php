@@ -10,8 +10,11 @@ use App\Models\Theme;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
+use ZipArchive;
 
 class ThemeResourceTest extends TestCase
 {
@@ -75,5 +78,32 @@ class ThemeResourceTest extends TestCase
             ->assertHasFormErrors(['settings']);
 
         $this->assertDatabaseMissing('themes', ['slug' => 'broken-theme']);
+    }
+
+    public function test_import_action_creates_theme_from_uploaded_zip_bundle(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+
+        $zipPath = tempnam(sys_get_temp_dir(), 'theme-bundle-').'.zip';
+        $zip = new ZipArchive;
+        $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $zip->addFromString('theme.json', json_encode([
+            'name' => 'Imported Theme',
+            'slug' => 'imported-theme',
+            'settings' => ['branding' => ['primary_color' => '#123456']],
+        ]));
+        $zip->close();
+
+        $uploadedFile = UploadedFile::fake()->createWithContent('bundle.zip', file_get_contents($zipPath));
+
+        Livewire::test(ListThemes::class)
+            ->callAction('importThemeBundle', data: [
+                'bundle' => $uploadedFile,
+            ]);
+
+        $this->assertDatabaseHas('themes', ['slug' => 'imported-theme', 'name' => 'Imported Theme']);
+
+        @unlink($zipPath);
     }
 }
