@@ -109,7 +109,7 @@ is not involved in this path.
 
 ## Write-back (admin-triggered)
 
-A write-back from the **admin UI (Filament)** into Stellio is **implemented**
+A write-back from the **admin UI (Filament)** into Stellio is **implemented**.
 An admin-only action maps a tile to a `NachhaltigkeitsIndikator`
 entity and publishes it via `POST /entities`, falling back to
 `PATCH /entities/{id}/attrs` when the entity already exists (`409`). Like the

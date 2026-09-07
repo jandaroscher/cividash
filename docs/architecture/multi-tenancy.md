@@ -1,4 +1,6 @@
-## Multi-Tenancy (Single-DB) – /
+# Multi-tenancy
+
+CiviDash runs all dashboards in a single database. A dashboard in the product is a `Tenant` in code.
 
 - **Tenant-Modell**: `App\Models\Tenant` mit `name`, `slug` (unique, read-only nach Erstellung), `domain` (unique, nullable), `frontend_base_url` (nullable) und Pivot `tenant_user`. Nutzer kann einen `default_tenant_id` haben.
 - **Filament Tenancy**: Admin-Panel ist tenant-fähig (`AdminPanelProvider` mit `->tenant(Tenant::class)`), inkl. Seiten `RegisterTenant` und `EditTenantProfile`.
@@ -29,8 +31,8 @@
 - Bei Seeds/Migrationen ohne Filament-Tenant-Kontext greift kein Scope (Backfill nutzt das).
 - **Tenant-Isolation**: Der Global Scope filtert immer nach Tenant:
   - **Filament-Kontext**: Verwendet `Filament::getTenant()`
-  - **API mit Token**: Verwendet `tenant_id` aus `personal_access_tokens` (neu in)
-  - **API via Domain**: Verwendet `tenants.domain` Mapping (neu in)
+  - **API mit Token**: Verwendet `tenant_id` aus `personal_access_tokens`
+  - **API via Domain**: Verwendet `tenants.domain` Mapping
   - **Ohne Tenant-Kontext**: Verwendet Default-Tenant (Slug `default`) mit Warnung im Log
   - **Console-Commands**: Scope wird übersprungen (Commands sollten `withoutGlobalScope('tenant')` verwenden, wenn nötig)
 - **API-Nutzung (veraltet)**: Die alten Methoden funktionieren weiterhin:
