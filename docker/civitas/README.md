@@ -1,11 +1,11 @@
-# CIVITAS/CORE Local Dev Environment
+# CIVITAS/CORE local dev environment
 
 Local development setup for testing the dashboard's CIVITAS/CORE integration against a real CORE V2 instance.
 
-## Quick Start
+## Quick start
 
 ```bash
-# Infrastructure only (FROST + Keycloak + Kafka — for API integration work)
+# Infrastructure only (FROST + Keycloak + Kafka, for API integration work)
 ./docker/civitas/setup.sh
 
 # Full CORE Portal (includes Backend API, Config Adapter, Frontend UI)
@@ -20,14 +20,13 @@ Local development setup for testing the dashboard's CIVITAS/CORE integration aga
 
 ## Prerequisites
 
-**Infrastructure only** (default):
+Infrastructure only (default):
 - Docker + Docker Compose v2
 - git (setup.sh clones the CORE repo)
 - curl (used for health checks and FROST seeding)
 - jq
 
-**Full mode** (`--full`):
-- All of the above, plus:
+Full mode (`--full`) needs all of the above, plus:
 - Java 21+ JDK (`brew install openjdk@21`)
 - Maven 3.9+ (`brew install maven`)
 - pnpm (for the Next.js frontend)
@@ -54,7 +53,7 @@ Local development setup for testing the dashboard's CIVITAS/CORE integration aga
 | Swagger UI | http://localhost:8089/v1/swagger-ui/index.html | API docs |
 | Config Adapter | http://localhost:8088 | Keycloak sync |
 
-**Portal Login:** `dev@civitas.local` / `dev123`
+Portal login: `dev@civitas.local` / `dev123`
 
 ## Dashboard .env
 
@@ -68,7 +67,7 @@ CIVITAS_OAUTH_CLIENT_ID=cividash-dashboard
 CIVITAS_OAUTH_CLIENT_SECRET=cividash-secret
 ```
 
-## Test Data
+## Test data
 
 The setup script seeds FROST with three sustainability indicators:
 
@@ -78,16 +77,12 @@ The setup script seeds FROST with three sustainability indicators:
 | Radverkehr | Modal Split Radverkehr (%) | 2015-2022 |
 | CO2-Emissionen | CO2 pro Kopf (t CO2/a) | 2015-2022 |
 
-## Known Issues
+## Known issues
 
-- **Config Adapter**: Only the Keycloak adapter is loaded (APISIX/FROST/Redpanda adapters
-  are not bundled in the fat JAR). This means APISIX routes are not auto-configured, so the
-  frontend connects directly to the backend (port 8089) instead of through APISIX (port 9080).
-- **Mailpit port**: If port 8025 is already in use (e.g. by DDEV), Mailpit fails to start.
-  This is non-critical — only affects Keycloak email verification in dev.
+The Config Adapter loads only the Keycloak adapter (the APISIX/FROST/Redpanda adapters aren't bundled in the fat JAR). APISIX routes stay unconfigured as a result, so the frontend connects directly to the backend (port 8089) instead of through APISIX (port 9080).
+
+If port 8025 is already in use (e.g. by DDEV), Mailpit fails to start. This only affects Keycloak email verification in dev, nothing else breaks.
 
 ## Customisation
 
-- **Test data**: Edit `seed-data.json` to add/change indicators
-- **CORE repo location**: Set `CIVITAS_CORE_DIR` env variable (default: `../civitas-core`)
-- **FROST DB password**: Set `FROST_DB_PASSWORD` env variable (default: `frost_secret`)
+Edit `seed-data.json` to add or change test data indicators. Set the `CIVITAS_CORE_DIR` env variable to point at a different CORE repo location (default: `../civitas-core`, a checkout next to this repository). Set `FROST_DB_PASSWORD` to change the FROST DB password (default: `frost_secret`).

@@ -1,6 +1,6 @@
 # Data Import
 
-Tiles, categories, metrics, and yearly values can be imported into a tenant as a JSON bundle — instead of creating each record one-by-one in the backend. The import runs in two steps: first a dry-run with preview, then commit.
+Tiles, categories, metrics, and yearly values can be imported into a tenant as a JSON bundle, instead of creating each record one by one in the backend. The import runs in two steps: first a dry-run with preview, then commit.
 
 The bundle format is identical to the JSON output of the export feature. A bundle exported from one tenant can be imported directly into another tenant (round-trip).
 
@@ -33,53 +33,38 @@ A bundle has an envelope and a `data` array. Each row describes a tile with a me
 }
 ```
 
-**Required fields per row:**
+Required fields per row: `tile.slug` as a URL-safe tile key (lowercase, hyphens), `tile.title.de` when creating a new tile, and `value.year` together with `metric.key` and `metric.label.de`, whenever a value is set.
 
-- `tile.slug` — URL-safe tile key (lowercase, hyphens).
-- `tile.title.de` — Required when creating a new tile.
-- `value.year` + `metric.key` + `metric.label.de` — Required when a value is set.
+Optional structure data at the bundle level: `category_groups` for category groups (e.g. "Action fields") and `categories` for individual categories referencing a `group_key`.
 
-**Optional structure data** at the bundle level:
-
-- `category_groups` — Category groups (e.g. "Action fields").
-- `categories` — Individual categories referencing a `group_key`.
-
-**Download the schema and an example bundle:** Two buttons at the top-right of the import page: _Download schema_ (JSON Schema draft-07 for validation in your editor or CI pipeline) and _Example bundle_ (a complete valid example to start from). The schemas are also available as public API endpoints at `/api/import/schemas/{bundle|row|category|category-group}`.
+Two buttons sit at the top-right of the import page: _Download schema_ gives the JSON Schema draft-07 for validation in your editor or CI pipeline, _Example bundle_ a complete valid example to start from. The schemas are also available as public API endpoints at `/api/import/schemas/{bundle|row|category|category-group}`.
 
 ## Modes
 
 | Mode | Behaviour |
 |---|---|
 | `upsert` (default) | Create new records, update existing ones. No deletions. |
-| `replace` | _(v1.1 — not yet implemented; the server rejects with HTTP 422 `unsupported_mode`)_ Additionally delete records not present in the bundle. |
+| `replace` | _(v1.1, not yet implemented; the server rejects with HTTP 422 `unsupported_mode`)_ Additionally delete records not present in the bundle. |
 
 ## Running an import
 
 1. Navigate to _System → Data Import_ in the backend.
 2. Drag-and-drop or click to upload the JSON file.
-3. Click **Run dry-run** and review the result:
-    - **Changes table**: counts of created, updated, deleted, and unchanged records per entity.
-    - **Errors**: Block the import. Include row number, field path, and explanation.
-    - **Warnings**: Do not block the import (e.g. if the bundle tenant does not match the logged-in tenant).
+3. Click Run dry-run and review the result. The changes table shows counts of created, updated, deleted, and unchanged records per entity. Errors block the import and carry a row number, field path, and explanation. Warnings do not block the import, for example when the bundle tenant does not match the logged-in tenant.
 4. If errors are present: fix the file and upload again.
-5. On a green dry-run: click **Commit import**. All changes are written in a single transaction.
+5. On a green dry-run: click Commit import. All changes are written in a single transaction.
 
 ## Dry-run and commit
 
-Internally, the dry-run runs the same code as the commit but discards the database transaction at the end. A successful dry-run guarantees that the commit will also succeed — assuming the database does not change between dry-run and commit due to other users.
+Internally, the dry-run runs the same code as the commit but discards the database transaction at the end. A successful dry-run guarantees that the commit will also succeed, assuming the database does not change between dry-run and commit due to other users.
 
 ## Atomic transaction
 
-The import is atomic: if a single row fails (wrong type, unknown category, missing required title), the entire import is rolled back — nothing lands in the database.
+The import is atomic: if a single row fails (wrong type, unknown category, missing required title), the entire import is rolled back. Nothing lands in the database.
 
 ## Interpreting error messages
 
-Every error has the following structure:
-
-- **Row number** (where relevant) — index in the `data` array, zero-based.
-- **Code** — Machine-readable. Examples: `required`, `invalid_type`, `invalid_format`, `invalid_enum_value`, `unresolved_reference`.
-- **Path** — Dot-notation of the affected field, e.g. `data[3].tile.title.de`.
-- **Message** — Human-readable explanation.
+Every error has the following structure: a row number where relevant, the zero-based index in the `data` array; a machine-readable code such as `required`, `invalid_type`, `invalid_format`, `invalid_enum_value`, or `unresolved_reference`; a path in dot notation to the affected field, e.g. `data[3].tile.title.de`; and a message explaining the error to the reader.
 
 ## History
 
@@ -87,7 +72,7 @@ Below the result area, the _Recent import runs_ table lists past runs with time,
 
 ## Tenant context
 
-The tenant is always derived from the logged-in session (or the API token). A `tenant.slug` field in the bundle is ignored — only a warning is shown if the bundle tenant differs from the token tenant. Data is always imported into the logged-in tenant.
+The tenant is always derived from the logged-in session (or the API token). A `tenant.slug` field in the bundle is ignored. Only a warning appears if the bundle tenant differs from the token tenant. Data always lands in the logged-in tenant.
 
 ## Admin API (programmatic)
 
@@ -95,6 +80,4 @@ For automated pipelines, use the `POST /api/admin/import` endpoint with bearer t
 
 ## Limitations in v1.0
 
-- **JSON only.** CSV support arrives in v1.1.
-- **No assets** (images, favicon). These are still uploaded in the branding area.
-- **No content pages.** `docs/upload/README.md` describes the planned scope for pages in a later version.
+The import supports JSON only, CSV support arrives in v1.1. Assets such as images and favicon are still uploaded in the branding area. Content pages are not included, `docs/upload/README.md` describes the planned scope for pages in a later version.
