@@ -56,6 +56,5 @@ done
 
 (Hinweis: `invalid-unresolved-references.json` ist _schema-gültig_, der Fehler entsteht erst bei fachlicher Validierung, weil die Kategorie-Referenz erst zur Laufzeit aufgelöst wird.)
 
-## Round-Trip mit-Export
+## Round-Trip mit dem JSON-Export
 
-Der JSON-Export der Tenant-Daten erfüllt dieses Schema. Ein exportiertes Bundle kann ohne Änderung als Upload in einen anderen Tenant eingespielt werden. Siehe [`docs/architecture/upload-workflow.md`](../architecture/upload-workflow.md#round-trip-mit-export).

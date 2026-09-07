@@ -75,7 +75,7 @@
     },
     "metric.source": {
       "type": ["string", "null"],
-      "description": "Reserved for a post-follow-up. Accepted but currently not persisted."
+      "description": "Reserved for a later schema version. Accepted but currently not persisted."
     },
     "metric.source_url": {
       "type": ["string", "null"],
@@ -93,7 +93,7 @@
       "type": ["integer", "null"],
       "minimum": 1900,
       "maximum": 2100,
-      "description": "Calendar year; the natural key of a value, symmetric with the export. Required if value.value is set. v1 is year-only: it maps internally to a year-granularity TimePeriod (period_key = the 4-digit year). Sub-year granularities (quarter/month/week/day) are a planned v1.1 extension and are not accepted in v1."
+      "description": "Calendar year; the natural key of a value, symmetric with the JSON export. Required if value.value is set. v1 is year-only: it maps internally to a year-granularity TimePeriod (period_key = the 4-digit year). Sub-year granularities (quarter/month/week/day) are a planned v1.1 extension and are not accepted in v1."
     },
     "value.value": {
       "type": ["number", "null"]
