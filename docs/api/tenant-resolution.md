@@ -1,7 +1,7 @@
-# Tenant Resolution für Public API –
+# Tenant Resolution für Public API
 
-> **Status:** Implementiert (v1.0)  
-> **Middleware:** `ResolveTenantFromRequest`
+> Status: Implementiert (v1.0)  
+> Middleware: `ResolveTenantFromRequest`
 
 ---
 
@@ -34,7 +34,7 @@ GET /api/tiles
 Authorization: Bearer 1|abc123...
 ```
 
-**Voraussetzung:** Token wurde mit `tenant_id` erstellt:
+Voraussetzung: Der Token wurde mit `tenant_id` erstellt.
 
 ```php
 $token = $user->createToken('API Token', ['public-read']);
@@ -42,7 +42,7 @@ $token->accessToken->tenant_id = $tenant->id;
 $token->accessToken->save();
 ```
 
-**Vorteil:** Ermöglicht API-Zugriff auf spezifischen Tenant unabhängig von der Domain.
+Das ermöglicht API-Zugriff auf einen spezifischen Tenant unabhängig von der Domain.
 
 ---
 
@@ -55,16 +55,14 @@ GET /api/tiles
 Host: regensburg.example.org
 ```
 
-**Tenant-Konfiguration:**
+Tenant-Konfiguration:
 
 | Tenant | Domain |
 |--------|--------|
 | Stadt Regensburg | `regensburg.example.org` |
 | Demo City | `demo-city.example.org` |
 
-**Hinweise:**
-- `www.`-Prefix wird automatisch entfernt
-- Domain-Matching ist case-insensitive
+Ein `www.`-Prefix wird automatisch entfernt, Domain-Matching ist case-insensitive.
 
 ---
 
@@ -89,7 +87,7 @@ GET /api/config/tenant
 Host: regensburg.example.org
 ```
 
-**Response:**
+Response:
 ```json
 {
   "data": {
@@ -102,9 +100,9 @@ Host: regensburg.example.org
 }
 ```
 
-**`resolved_by` Werte:**
-- `token` – Aufgelöst via Bearer Token
-- `domain` – Aufgelöst via Request-Host
+`resolved_by`-Werte:
+- `token` – aufgelöst via Bearer Token
+- `domain` – aufgelöst via Request-Host
 - `default` – Fallback zum Default-Tenant
 
 ---

@@ -1,7 +1,6 @@
-# Admin API –
+# Admin API
 
-> **Status:** Implementiert (v1.0)  
-> **Branch:** `feature/admin-api`  
+> Status: Implementiert (v1.0)
 
 ---
 
@@ -9,11 +8,11 @@
 
 Die vollständige, interaktive API-Dokumentation ist verfügbar unter:
 
-- **HTML-Docs:** `/docs/` (z. B. `https://example.com/docs/`)
-- **OpenAPI 3.0 Spec:** `/docs/openapi.yaml`
-- **Postman Collection:** `/docs/collection.json`
+- HTML-Docs: `/docs/` (z. B. `https://example.com/docs/`)
+- OpenAPI 3.0 Spec: `/docs/openapi.yaml`
+- Postman Collection: `/docs/collection.json`
 
-> **Hinweis:** Die Dokumentation wird als statische Dateien generiert und benötigt kein Scribe-Package zur Laufzeit.
+> Die Dokumentation wird als statische Dateien generiert und benötigt kein Scribe-Package zur Laufzeit.
 
 ### Regenerieren der Dokumentation (lokal)
 
@@ -27,11 +26,7 @@ Die Dokumentation wird automatisch im CI bei jedem Deployment neu generiert.
 
 ## Übersicht
 
-Die Admin API ermöglicht das programmgesteuerte Management von Tiles, Jahren, Metriken und Konfigurationen. Alle Endpoints sind:
-
-- **Authentifiziert** via Laravel Sanctum (Bearer Token)
-- **Autorisiert** via Token-Ability (`admin-api` oder `*`)
-- **Tenant-scoped** – Operationen sind automatisch auf den aktiven Tenant beschränkt
+Die Admin API ermöglicht das programmgesteuerte Management von Tiles, Jahren, Metriken und Konfigurationen. Alle Endpoints authentifizieren via Laravel Sanctum (Bearer Token), autorisieren über die Token-Ability (`admin-api` oder `*`) und scopen Operationen automatisch auf den aktiven Tenant.
 
 ---
 
@@ -39,8 +34,8 @@ Die Admin API ermöglicht das programmgesteuerte Management von Tiles, Jahren, M
 
 ### Voraussetzungen für API-Zugriff
 
-1. **Token-Ability**: Token muss `admin-api` oder `*` Ability haben
-2. **Tenant-Kontext**: Token muss eine `tenant_id` haben
+1. Token-Ability: Token muss `admin-api` oder `*` Ability haben
+2. Tenant-Kontext: Token muss eine `tenant_id` haben
 
 ### Token erstellen (Code-Beispiel)
 
@@ -58,7 +53,7 @@ echo $token->plainTextToken;
 // => "1|abc123def456..."
 ```
 
-> **Wichtig:** Der Token MUSS eine `tenant_id` haben. Tokens ohne Tenant-Kontext werden mit **400 Bad Request** abgelehnt.
+> Der Token muss eine `tenant_id` haben. Tokens ohne Tenant-Kontext werden mit 400 Bad Request abgelehnt.
 
 ### Request-Header
 
@@ -73,7 +68,7 @@ Authorization: Bearer 1|abc123def456...
 | 200 | Erfolg |
 | 201 | Resource erstellt |
 | 204 | Erfolgreich gelöscht (kein Content) |
-| 400 | **Tenant-Kontext fehlt** – Token ohne `tenant_id` oder keine Domain-Auflösung |
+| 400 | Tenant-Kontext fehlt – Token ohne `tenant_id` oder keine Domain-Auflösung |
 | 401 | Nicht authentifiziert |
 | 403 | Nicht autorisiert (fehlende Permission) |
 | 404 | Resource nicht gefunden (oder anderer Tenant) |
@@ -101,7 +96,7 @@ Authorization: Bearer 1|abc123def456...
 }
 ```
 
-**Response (201):**
+Response (201):
 ```json
 {
   "data": {
@@ -123,7 +118,7 @@ Partial Update – nur übergebene Felder werden aktualisiert.
 }
 ```
 
-> **Hinweis:** `tenant_id` kann nicht via PATCH geändert werden (wird ignoriert).
+> `tenant_id` kann nicht via PATCH geändert werden, das Feld wird ignoriert.
 
 ---
 
@@ -210,12 +205,9 @@ Partial Update – nur übergebene Felder werden aktualisiert.
 
 ### Expliziter Tenant-Kontext (Pflicht)
 
-Admin-Operationen erfordern einen **expliziten Tenant-Kontext**:
+Admin-Operationen erfordern einen expliziten Tenant-Kontext: entweder token-basiert (`personal_access_tokens.tenant_id` muss gesetzt sein) oder domain-basiert (Request-Host muss mit `tenants.domain` matchen).
 
-- **Token-basiert:** `personal_access_tokens.tenant_id` muss gesetzt sein
-- **Domain-basiert:** Request-Host muss mit `tenants.domain` matchen
-
-**Ohne expliziten Tenant-Kontext → 400 Bad Request:**
+Ohne expliziten Tenant-Kontext antwortet die API mit 400 Bad Request:
 
 ```json
 {
@@ -226,14 +218,11 @@ Admin-Operationen erfordern einen **expliziten Tenant-Kontext**:
 
 ### Automatisches Scoping
 
-Alle Admin-Operationen sind automatisch auf den aufgelösten Tenant beschränkt:
-
-- **Create:** `tenant_id` wird automatisch aus dem Request-Kontext gesetzt (nicht aus Payload)
-- **Read/Update/Delete:** Nur Ressourcen des eigenen Tenants sind sichtbar
+Alle Admin-Operationen sind automatisch auf den aufgelösten Tenant beschränkt. Bei Create wird `tenant_id` automatisch aus dem Request-Kontext gesetzt, nicht aus dem Payload. Bei Read, Update und Delete sind nur Ressourcen des eigenen Tenants sichtbar.
 
 ### Cross-Tenant-Zugriff
 
-Versuche, Ressourcen eines anderen Tenants zu modifizieren, resultieren in **404 Not Found** (nicht 403):
+Versuche, Ressourcen eines anderen Tenants zu modifizieren, enden mit 404 Not Found, nicht 403:
 
 ```bash
 # User ist Tenant A, versucht Tile von Tenant B zu bearbeiten
@@ -243,7 +232,7 @@ PATCH /api/admin/tiles/999
 
 ### tenant_id Manipulation
 
-Das Feld `tenant_id` wird aus allen Payloads **automatisch entfernt**:
+Das Feld `tenant_id` wird aus allen Payloads automatisch entfernt:
 
 ```json
 // Request
@@ -263,18 +252,12 @@ Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant'
      ->group(...)
 ```
 
-1. **auth:sanctum** – Verifiziert Bearer Token → 401 bei fehlendem/ungültigem Token
-2. **admin.api** (`EnsureAdminApiAccess`) – Prüft:
-   - Token hat `admin-api` oder `*` Ability
-   - → 403 bei fehlender Berechtigung
-3. **resolve.tenant** (`ResolveTenantFromRequest`) – Löst Tenant auf:
-   - Priorität: Token-tenant_id > Domain-Match > ~~Default~~
-   - Setzt `resolved_tenant` + `resolved_tenant_by` auf Request
-4. **admin.tenant** (`EnsureAdminTenantResolved`) – **Hardening:**
-   - Prüft ob `resolved_tenant_by` NICHT `default` ist
-   - → 400 wenn kein expliziter Tenant-Kontext vorhanden
+1. `auth:sanctum` verifiziert den Bearer Token, 401 bei fehlendem oder ungültigem Token.
+2. `admin.api` (`EnsureAdminApiAccess`) prüft, ob der Token die Ability `admin-api` oder `*` hat, sonst 403.
+3. `resolve.tenant` (`ResolveTenantFromRequest`) löst den Tenant auf, mit Priorität Token-tenant_id vor Domain-Match, und setzt `resolved_tenant` sowie `resolved_tenant_by` auf dem Request. Ein Fallback auf den Default-Tenant findet hier nicht statt.
+4. `admin.tenant` (`EnsureAdminTenantResolved`) prüft, ob `resolved_tenant_by` ungleich `default` ist, und antwortet mit 400, wenn kein expliziter Tenant-Kontext vorliegt.
 
-> **Unterschied zur Public API:** Die Public API erlaubt Fallback auf den Default-Tenant. Die Admin API erfordert einen expliziten Tenant-Kontext (Token-tenant_id oder Domain-Match).
+> Unterschied zur Public API: Die Public API erlaubt Fallback auf den Default-Tenant. Die Admin API erfordert einen expliziten Tenant-Kontext (Token-tenant_id oder Domain-Match).
 
 ---
 
@@ -309,7 +292,7 @@ curl -X POST https://example.com/api/admin/metric-values \
   -d '{"metric_definition_id": 1, "time_period_id": 1, "value": 1250}'
 ```
 
-> **Wichtig:** Tokens MÜSSEN mit `tenant_id` versehen sein. Bei Requests ohne Tenant-Kontext:
+> Tokens müssen mit `tenant_id` versehen sein. Bei Requests ohne Tenant-Kontext:
 > ```bash
 > # Token ohne tenant_id führt zu 400
 > {"message": "Tenant context required for admin API...", "error": "missing_tenant_context"}
@@ -331,9 +314,7 @@ Die Admin API ist umfangreich getestet:
 | `TenantResolutionApiTest` | 9 Tests | Token/Domain Resolution |
 | `BrandingConfigApiTest` | 15 Tests | Config-Endpoints |
 
-**Gesamt:** 80+ Admin-spezifische Tests
-
-Jeder Admin-Resource-Test enthält nun einen **expliziten 400-Test** für fehlenden Tenant-Kontext.
+Insgesamt über 80 Admin-spezifische Tests. Jeder Admin-Resource-Test enthält einen expliziten 400-Test für fehlenden Tenant-Kontext.
 
 ---
 
@@ -341,4 +322,3 @@ Jeder Admin-Resource-Test enthält nun einen **expliziten 400-Test** für fehlen
 
 - [Multi-Tenancy](../architecture/multi-tenancy.md) – Tenant-Konzept
 - [Tenant Resolution](./tenant-resolution.md) – Public API Tenant-Auflösung
-- [API-Entwurf v0](./zukunftsbarometer_os_architektur_skizze_api_entwurf_v_0.md) – Original-Entwurf

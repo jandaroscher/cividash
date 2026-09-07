@@ -6,14 +6,14 @@ This document describes how to run the Playwright-based E2E tests for domain-bas
 
 These tests verify the `ResolveTenantFromRequest` middleware behavior, which cannot be reliably tested with Laravel's built-in test client (the `getHost()` method doesn't work as expected in feature tests).
 
-The tests use **Playwright's API testing capabilities** (no browser UI) to make real HTTP requests against a running ddev environment.
+The tests use Playwright's API testing capabilities (no browser UI) to make real HTTP requests against a running ddev environment.
 
 ### What is tested
 
-1. **Domain → Tenant mapping**: Requests to `a.open-source-dashboard.ddev.site` resolve to tenant A
-2. **www. prefix stripping**: Requests to `www.a.open-source-dashboard.ddev.site` resolve to tenant A
-3. **Precedence (Token > Domain > Default)**: A token for tenant A used on tenant B's domain resolves to tenant A
-4. **Default fallback**: Unknown domains without tokens fall back to the default tenant
+1. Domain to tenant mapping: requests to `a.open-source-dashboard.ddev.site` resolve to tenant A.
+2. www. prefix stripping: requests to `www.a.open-source-dashboard.ddev.site` resolve to tenant A.
+3. Precedence (token, then domain, then default): a token for tenant A used on tenant B's domain resolves to tenant A.
+4. Default fallback: unknown domains without tokens fall back to the default tenant.
 
 ## Prerequisites
 
@@ -100,11 +100,11 @@ tests/e2e/
 
 ### Test file organization
 
-- **Domain → Tenant Mapping**: Basic domain-to-tenant resolution
-- **www. Prefix Stripping**: Verifies www. is stripped before domain lookup
-- **Precedence: Token > Domain > Default**: Token always wins over domain
-- **Default Fallback**: Unknown domains resolve to default tenant
-- **API Response Structure**: Verifies /api/config/tenant response format
+- Domain to tenant mapping: basic domain-to-tenant resolution
+- www. prefix stripping: verifies www. is stripped before domain lookup
+- Precedence (token, then domain, then default): token always wins over domain
+- Default fallback: unknown domains resolve to default tenant
+- API response structure: verifies /api/config/tenant response format
 
 ## CI Integration
 
