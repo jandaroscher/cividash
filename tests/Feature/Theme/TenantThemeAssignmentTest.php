@@ -5,7 +5,10 @@ namespace Tests\Feature\Theme;
 use App\Exceptions\ThemeInUseException;
 use App\Models\Tenant;
 use App\Models\Theme;
+use App\Settings\BrandingSettings;
+use Database\Seeders\TenantSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use ReflectionClass;
 use Tests\TestCase;
 
 class TenantThemeAssignmentTest extends TestCase
@@ -57,5 +60,40 @@ class TenantThemeAssignmentTest extends TestCase
         }
 
         $this->assertDatabaseHas('tenants', ['id' => $tenant->id, 'theme_id' => $theme->id]);
+    }
+
+    public function test_demo_city_seed_sets_every_branding_color_token(): void
+    {
+        // Non-color/non-palette fields BrandingSettings also defines (logo upload,
+        // typography, tile group selectors) - the Demo City seed intentionally leaves
+        // these to the global defaults, only the color palette must be complete.
+        $nonColorFields = [
+            'logo_url',
+            'typography_font_family',
+            'typography_font_weights',
+            'typography_font_sizes',
+            'typography_custom_font_name',
+            'typography_custom_font_file',
+            'tile_color_source_group_id',
+            'tile_background_category_group_id',
+        ];
+
+        $allFields = array_map(
+            fn ($property) => $property->getName(),
+            array_filter(
+                (new ReflectionClass(BrandingSettings::class))->getProperties(),
+                fn ($property) => $property->isPublic() && ! $property->isStatic()
+            )
+        );
+
+        $colorFields = array_diff($allFields, $nonColorFields);
+
+        $demoCityTokens = TenantSeeder::demoCityBrandingTokens();
+
+        foreach ($colorFields as $field) {
+            $this->assertArrayHasKey($field, $demoCityTokens, "Demo City theme seed is missing branding token '{$field}'.");
+        }
+
+        $this->assertSame(['rail', 'handle', 'handleBorder'], array_keys($demoCityTokens['slider_colors']));
     }
 }

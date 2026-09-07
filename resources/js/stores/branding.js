@@ -220,7 +220,7 @@ export const useBrandingStore = defineStore('branding', {
                 // Set navigation colors as CSS variables
                 document.documentElement.style.setProperty('--nav-text-color', this.navTextColor || '#374151');
                 document.documentElement.style.setProperty('--nav-text-color-inactive', this.navTextColorInactive || '#9CA3AF');
-                document.documentElement.style.setProperty('--nav-hover-color', this.navHoverColor || '#e30613');
+                document.documentElement.style.setProperty('--nav-hover-color', this.navHoverColor || effectiveAccentColor);
 
                 // Set structural card tokens as CSS variables (only when configured -
                 // otherwise the CSS var(..., default) fallback in app.css applies)

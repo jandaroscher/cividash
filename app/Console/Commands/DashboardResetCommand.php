@@ -12,6 +12,7 @@ use App\Models\MetricValue;
 use App\Models\Navigation;
 use App\Models\Page;
 use App\Models\Tenant;
+use App\Models\Theme;
 use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Models\User;
@@ -19,6 +20,7 @@ use App\Settings\BrandingSettings;
 use App\Settings\ContentSettings;
 use App\Settings\DashboardSettings;
 use App\Settings\GeneralSettings;
+use Database\Seeders\TenantSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -157,6 +159,12 @@ class DashboardResetCommand extends Command
         });
 
         $this->seedMinimalRootPage($tenant);
+
+        $theme = Theme::updateOrCreate(
+            ['slug' => 'demo-city'],
+            ['name' => 'Demo City', 'settings' => ['branding' => TenantSeeder::demoCityBrandingTokens()]]
+        );
+        $tenant->update(['theme_id' => $theme->id]);
 
         $this->info('Demo City reset to empty sandbox.');
     }

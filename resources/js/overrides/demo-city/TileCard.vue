@@ -534,7 +534,7 @@ function handleSliderInteractionEnd() {
     align-items: flex-start;
     justify-content: space-between;
     gap: 0.75rem;
-    background-color: #1465A4;
+    background-color: var(--accent-color, #1465A4);
     padding: 1rem;
 }
 .demo-city-title-text {
@@ -547,7 +547,7 @@ function handleSliderInteractionEnd() {
 /* Inverted tag inside the blue bar: white block, blue caps, kantig. */
 .demo-city-badge {
     background-color: #FFFFFF;
-    color: #1465A4;
+    color: var(--accent-color, #1465A4);
     font-size: 0.7rem;
     font-weight: 800;
     text-transform: uppercase;
