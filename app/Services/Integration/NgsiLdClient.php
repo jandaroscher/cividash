@@ -4,6 +4,7 @@ namespace App\Services\Integration;
 
 use App\Contracts\Integration\ExternalDataSourceInterface;
 use App\Contracts\Integration\WritableDataSourceInterface;
+use App\Settings\IntegrationSettings;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
@@ -23,8 +24,6 @@ use Illuminate\Support\Facades\Log;
  */
 class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInterface
 {
-    private ?string $accessToken = null;
-
     public function __construct(
         private readonly string $apiUrl,
         private readonly string $tokenUrl,
@@ -46,7 +45,7 @@ class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInt
      */
     public static function fromConfig(array $overrides = []): static
     {
-        $settings = rescue(fn () => app(\App\Settings\IntegrationSettings::class), null, false);
+        $settings = rescue(fn () => app(IntegrationSettings::class), null, false);
         $config = config('integrations.civitas');
 
         $apiUrl = (string) (($overrides['api_url'] ?? null) ?: ($settings?->api_url ?: ($config['api_url'] ?? '')));
@@ -72,7 +71,7 @@ class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInt
         }
 
         try {
-            $response = $this->http()->get($this->apiUrl.'/types');
+            $response = $this->withReauth(fn () => $this->http()->get($this->apiUrl.'/types'));
 
             return $response->successful();
         } catch (\Throwable $e) {
@@ -95,8 +94,8 @@ class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInt
             ...$filters,
         ]);
 
-        $response = $this->applyContext($this->http())
-            ->get($this->apiUrl.'/entities', $query);
+        $response = $this->withReauth(fn () => $this->applyContext($this->http())
+            ->get($this->apiUrl.'/entities', $query));
 
         $response->throw();
 
@@ -116,8 +115,8 @@ class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInt
 
     public function fetchEntity(string $id): ?array
     {
-        $response = $this->applyContext($this->http())
-            ->get($this->apiUrl.'/entities/'.$id);
+        $response = $this->withReauth(fn () => $this->applyContext($this->http())
+            ->get($this->apiUrl.'/entities/'.$id));
 
         if ($response->notFound()) {
             return null;
@@ -130,8 +129,8 @@ class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInt
 
     public function getAvailableEntityTypes(): array
     {
-        $response = $this->applyContext($this->http())
-            ->get($this->apiUrl.'/types');
+        $response = $this->withReauth(fn () => $this->applyContext($this->http())
+            ->get($this->apiUrl.'/types'));
 
         $response->throw();
 
@@ -172,12 +171,12 @@ class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInt
      *
      * @param  array<string,mixed>  $entity
      *
-     * @throws \Illuminate\Http\Client\RequestException on any non-recoverable HTTP error.
+     * @throws RequestException on any non-recoverable HTTP error.
      */
     public function upsertEntity(array $entity): void
     {
-        $response = $this->writeRequest($entity)
-            ->post($this->apiUrl.'/entities');
+        $response = $this->withReauth(fn () => $this->writeRequest($entity)
+            ->post($this->apiUrl.'/entities'));
 
         // Entity already exists: switch to a partial-attribute update.
         if ($response->status() === 409) {
@@ -190,8 +189,8 @@ class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInt
             $attrs = $entity;
             unset($attrs['id'], $attrs['type']);
 
-            $patch = $this->writeRequest($attrs)
-                ->patch($this->apiUrl.'/entities/'.rawurlencode($id).'/attrs');
+            $patch = $this->withReauth(fn () => $this->writeRequest($attrs)
+                ->patch($this->apiUrl.'/entities/'.rawurlencode($id).'/attrs'));
 
             $patch->throw();
 
@@ -255,36 +254,86 @@ class NgsiLdClient implements ExternalDataSourceInterface, WritableDataSourceInt
     /**
      * Obtain an OAuth2 access token via Client Credentials grant.
      *
-     * Tokens are cached for 4 minutes (Keycloak default lifetime is 5 min).
+     * Cached under its own TTL, derived from the token response's expires_in
+     * (minus a 30s safety buffer, floor 30s) so tokens issued with a shorter
+     * or longer lifetime than the historical 4-minute assumption are still
+     * refreshed at the right time. Falls back to 240s when expires_in is absent.
      */
     protected function obtainAccessToken(): string
     {
-        if ($this->accessToken) {
-            return $this->accessToken;
+        $cacheKey = $this->tokenCacheKey();
+
+        $cached = Cache::get($cacheKey);
+        if ($cached !== null) {
+            return $cached;
         }
 
-        $cacheKey = 'civitas_oauth_token_'.md5($this->clientId.$this->tokenUrl);
+        $response = Http::connectTimeout(10)->timeout(30)->asForm()->post($this->tokenUrl, array_filter([
+            'grant_type' => 'client_credentials',
+            'client_id' => $this->clientId,
+            'client_secret' => $this->clientSecret,
+            'scope' => $this->scope ?: null,
+        ]));
 
-        $this->accessToken = Cache::remember($cacheKey, 240, function () {
-            $response = Http::asForm()->post($this->tokenUrl, array_filter([
-                'grant_type' => 'client_credentials',
-                'client_id' => $this->clientId,
-                'client_secret' => $this->clientSecret,
-                'scope' => $this->scope ?: null,
-            ]));
+        $response->throw();
 
-            $response->throw();
+        $token = $response->json('access_token');
 
-            $token = $response->json('access_token');
+        if (empty($token) || ! is_string($token)) {
+            throw new \RuntimeException('OAuth2 token response did not contain a valid access_token.');
+        }
 
-            if (empty($token) || ! is_string($token)) {
-                throw new \RuntimeException('OAuth2 token response did not contain a valid access_token.');
-            }
+        $expiresIn = $response->json('expires_in');
 
-            return $token;
-        });
+        if (is_numeric($expiresIn) && (int) $expiresIn <= 0) {
+            throw new \RuntimeException('OAuth2 token response reported a non-positive expires_in; token is already invalid.');
+        }
 
-        return $this->accessToken;
+        $ttl = is_numeric($expiresIn) ? max(30, (int) $expiresIn - 30) : 240;
+
+        Cache::put($cacheKey, $token, $ttl);
+
+        return $token;
+    }
+
+    /**
+     * Cache key for the cached token, scoped by client id, token URL, AND
+     * secret — so rotating the secret (without changing id/URL) can't serve
+     * a token minted under the old credentials.
+     */
+    private function tokenCacheKey(): string
+    {
+        return 'civitas_oauth_token_'.md5($this->clientId.'|'.$this->tokenUrl.'|'.$this->clientSecret);
+    }
+
+    /**
+     * Discard the cached token, forcing the next obtainAccessToken() call to
+     * fetch a fresh one.
+     */
+    private function invalidateAccessToken(): void
+    {
+        Cache::forget($this->tokenCacheKey());
+    }
+
+    /**
+     * Run a request builder, and on a single 401 (expired/rotated token)
+     * discard the cached token and retry exactly once with a fresh one.
+     * A second 401 is returned as-is to the caller.
+     *
+     * @param  \Closure(): Response  $makeRequest  Builds and sends the request;
+     *                                             called again on retry so it
+     *                                             picks up the refreshed token.
+     */
+    private function withReauth(\Closure $makeRequest): Response
+    {
+        $response = $makeRequest();
+
+        if ($response->status() === 401 && $this->tokenUrl && $this->clientId) {
+            $this->invalidateAccessToken();
+            $response = $makeRequest();
+        }
+
+        return $response;
     }
 
     /**

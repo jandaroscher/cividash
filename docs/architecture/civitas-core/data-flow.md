@@ -43,8 +43,12 @@ Content-Type: application/x-www-form-urlencoded
 grant_type=client_credentials&client_id=…&client_secret=…&scope=…
 ```
 
-The token is **cached for ~4 minutes** (Keycloak's default token lifetime is
-5 minutes), so a sync run does not request a new token per request. The
+The token is cached with a TTL derived from the token response's `expires_in`
+(minus a 30s safety buffer; falls back to 240s if `expires_in` is absent), so
+a sync run does not request a new token per request regardless of the actual
+Keycloak-configured lifetime. If the broker responds `401`
+(expired or rotated token), the client discards the cached token, re-authenticates
+once, and retries the request exactly once before surfacing the error. The
 credentials come from `config/integrations.php` (`civitas.oauth.*`) or, tenant-aware,
 from stored integration settings.
 
@@ -111,9 +115,13 @@ entity and publishes it via `POST /entities`, falling back to
 `PATCH /entities/{id}/attrs` when the entity already exists (`409`). Like the
 pull, it is idempotent via `source_hash` and respects provenance (it does not
 overwrite entities originating from other sources). It is drawn dashed in the
-diagram because it is not yet exercised against the production CORE broker — that
-needs the production Keycloak/OIDC write path. The scheduled
-synchronisation itself remains pull-only.
+diagram because it is an optional, admin-triggered path.
+Token acquisition itself (TTL derived from `expires_in`, 401 re-authentication)
+is generic client behaviour; in the CIVITAS/CORE add-on deployment, the
+client_id/secret of the shared `api-access` OAuth2 client are injected as its
+credentials, and write access depends on that client being authorized with
+write scopes. The scheduled synchronisation
+itself remains pull-only.
 
 ## Running a sync
 

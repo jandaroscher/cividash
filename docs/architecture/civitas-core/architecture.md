@@ -66,8 +66,12 @@ A **write-back** path (the admin UI pushing indicators back into Stellio) is
 `PATCH /entities/{id}/attrs` when the entity already exists (`409`). Like the
 pull, it is idempotent via `source_hash` and respects provenance, so it never
 overwrites entities from other sources. It is drawn dashed in the diagram because
-because it is not yet exercised against the production CORE broker — that requires
-the production Keycloak/OIDC write path.
+it is an optional, admin-triggered path. The client's
+token handling (TTL derived from the token response's `expires_in`, automatic
+re-authentication on `401`) is generic; in the CIVITAS/CORE add-on deployment,
+the client_id/secret of the shared `api-access` OAuth2 client are injected as
+its credentials, and write access depends on that client being authorized with
+write scopes.
 
 ## Related documents
 

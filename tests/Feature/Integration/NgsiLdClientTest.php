@@ -2,10 +2,13 @@
 
 namespace Tests\Feature\Integration;
 
+use App\Contracts\Integration\WritableDataSourceInterface;
 use App\Services\Integration\NgsiLdClient;
 use App\Settings\IntegrationSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -157,7 +160,7 @@ class NgsiLdClientTest extends TestCase
     {
         Http::fake([
             'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
-            'broker.example.com/*' => fn () => throw new \Illuminate\Http\Client\ConnectionException('connection refused'),
+            'broker.example.com/*' => fn () => throw new ConnectionException('connection refused'),
         ]);
 
         $this->assertFalse($this->client()->isConnected());
@@ -253,7 +256,7 @@ class NgsiLdClientTest extends TestCase
     public function test_implements_writable_data_source_interface(): void
     {
         $this->assertInstanceOf(
-            \App\Contracts\Integration\WritableDataSourceInterface::class,
+            WritableDataSourceInterface::class,
             $this->client(),
         );
     }
@@ -357,7 +360,7 @@ class NgsiLdClientTest extends TestCase
             'broker.example.com/context/ngsi-ld/entities' => Http::response(['detail' => 'bad request'], 400),
         ]);
 
-        $this->expectException(\Illuminate\Http\Client\RequestException::class);
+        $this->expectException(RequestException::class);
 
         $this->client()->upsertEntity([
             'id' => 'urn:ngsi-ld:NachhaltigkeitsIndikator:co2',
@@ -404,5 +407,204 @@ class NgsiLdClientTest extends TestCase
 
         // No usable id => cannot build the PATCH /attrs URL on the 409 fallback.
         $this->client()->upsertEntity(['type' => 'NachhaltigkeitsIndikator', 'id' => '']);
+    }
+
+    // -----------------------------------------------------------------
+    // OAuth token robustness
+    // -----------------------------------------------------------------
+
+    public function test_token_ttl_is_derived_from_expires_in_with_30s_buffer(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123', 'expires_in' => 100]),
+            'broker.example.com/*' => Http::response([], 200, ['NGSILD-Results-Count' => '0']),
+        ]);
+
+        $client = $this->client();
+        $client->fetchEntities('AirQualityObserved');
+
+        // TTL = 100 - 30 = 70s: still cached just before, expired just after.
+        $this->travel(69)->seconds();
+        $client->fetchEntities('AirQualityObserved');
+        Http::assertSentCount(3); // 1 token + 2 entity calls, still cached
+
+        $this->travel(2)->seconds(); // total 71s since caching
+        $client->fetchEntities('AirQualityObserved');
+        Http::assertSentCount(5); // new token fetched + 3rd entity call
+    }
+
+    public function test_token_ttl_falls_back_to_240s_when_expires_in_missing(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/*' => Http::response([], 200, ['NGSILD-Results-Count' => '0']),
+        ]);
+
+        $client = $this->client();
+        $client->fetchEntities('AirQualityObserved');
+
+        $this->travel(239)->seconds();
+        $client->fetchEntities('AirQualityObserved');
+        Http::assertSentCount(3);
+
+        $this->travel(2)->seconds(); // total 241s
+        $client->fetchEntities('AirQualityObserved');
+        Http::assertSentCount(5);
+    }
+
+    public function test_reauthenticates_once_on_401_and_returns_retry_result(): void
+    {
+        $tokenCalls = 0;
+        $entityCalls = 0;
+
+        Http::fake([
+            'keycloak.example.com/token' => function () use (&$tokenCalls) {
+                $tokenCalls++;
+
+                return Http::response(['access_token' => 'tok-'.$tokenCalls, 'expires_in' => 300]);
+            },
+            'broker.example.com/*' => function () use (&$entityCalls) {
+                $entityCalls++;
+
+                // First broker call: expired/rotated token => 401. Second: success.
+                if ($entityCalls === 1) {
+                    return Http::response(['detail' => 'unauthorized'], 401);
+                }
+
+                return Http::response([], 200, ['NGSILD-Results-Count' => '7']);
+            },
+        ]);
+
+        $result = $this->client()->fetchEntities('AirQualityObserved');
+
+        $this->assertSame(2, $tokenCalls, 'A 401 must trigger exactly one re-authentication.');
+        $this->assertSame(2, $entityCalls, 'The request must be retried exactly once after re-auth.');
+        $this->assertSame(7, $result['total']);
+    }
+
+    public function test_second_consecutive_401_is_not_retried_again(): void
+    {
+        $tokenCalls = 0;
+        $entityCalls = 0;
+
+        Http::fake([
+            'keycloak.example.com/token' => function () use (&$tokenCalls) {
+                $tokenCalls++;
+
+                return Http::response(['access_token' => 'tok-'.$tokenCalls, 'expires_in' => 300]);
+            },
+            'broker.example.com/*' => function () use (&$entityCalls) {
+                $entityCalls++;
+
+                return Http::response(['detail' => 'unauthorized'], 401);
+            },
+        ]);
+
+        $this->expectException(RequestException::class);
+
+        try {
+            $this->client()->fetchEntities('AirQualityObserved');
+        } finally {
+            $this->assertSame(2, $tokenCalls, 'Only one re-authentication attempt is allowed.');
+            $this->assertSame(2, $entityCalls, 'Only one retry is allowed after the first 401.');
+        }
+    }
+
+    public function test_token_ttl_handles_string_expires_in(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123', 'expires_in' => '100']),
+            'broker.example.com/*' => Http::response([], 200, ['NGSILD-Results-Count' => '0']),
+        ]);
+
+        $client = $this->client();
+        $client->fetchEntities('AirQualityObserved');
+
+        // TTL = 100 - 30 = 70s.
+        $this->travel(69)->seconds();
+        $client->fetchEntities('AirQualityObserved');
+        Http::assertSentCount(3); // still cached
+
+        $this->travel(2)->seconds(); // total 71s
+        $client->fetchEntities('AirQualityObserved');
+        Http::assertSentCount(5); // re-fetched
+    }
+
+    public function test_non_positive_expires_in_throws_instead_of_caching(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123', 'expires_in' => 0]),
+        ]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('non-positive expires_in');
+
+        $this->client()->fetchEntities('AirQualityObserved');
+    }
+
+    public function test_reauthenticates_on_401_during_patch_fallback(): void
+    {
+        $entityId = 'urn:ngsi-ld:NachhaltigkeitsIndikator:co2';
+        $tokenCalls = 0;
+        $patchCalls = 0;
+
+        Http::fake([
+            'keycloak.example.com/token' => function () use (&$tokenCalls) {
+                $tokenCalls++;
+
+                return Http::response(['access_token' => 'tok-'.$tokenCalls, 'expires_in' => 300]);
+            },
+            'broker.example.com/context/ngsi-ld/entities/'.urlencode($entityId).'/attrs' => function () use (&$patchCalls) {
+                $patchCalls++;
+
+                // First PATCH: expired/rotated token => 401. Second: success.
+                return $patchCalls === 1
+                    ? Http::response(['detail' => 'unauthorized'], 401)
+                    : Http::response('', 204);
+            },
+            'broker.example.com/context/ngsi-ld/entities' => Http::response(['detail' => 'already exists'], 409),
+        ]);
+
+        $this->client()->upsertEntity([
+            'id' => $entityId,
+            'type' => 'NachhaltigkeitsIndikator',
+            'name' => ['type' => 'LanguageProperty', 'languageMap' => ['de' => 'X']],
+        ]);
+
+        $this->assertSame(2, $tokenCalls, 'A 401 on the PATCH fallback must trigger exactly one re-authentication.');
+        $this->assertSame(2, $patchCalls, 'The PATCH must be retried exactly once after re-auth.');
+    }
+
+    public function test_token_endpoint_500_during_reauth_throws_without_further_broker_calls(): void
+    {
+        $tokenCalls = 0;
+        $entityCalls = 0;
+
+        Http::fake([
+            'keycloak.example.com/token' => function () use (&$tokenCalls) {
+                $tokenCalls++;
+
+                if ($tokenCalls === 1) {
+                    return Http::response(['access_token' => 'tok-1', 'expires_in' => 300]);
+                }
+
+                return Http::response(['detail' => 'server error'], 500);
+            },
+            'broker.example.com/*' => function () use (&$entityCalls) {
+                $entityCalls++;
+
+                return Http::response(['detail' => 'unauthorized'], 401);
+            },
+        ]);
+
+        $this->expectException(RequestException::class);
+
+        try {
+            $this->client()->fetchEntities('AirQualityObserved');
+        } finally {
+            // 1 initial token + 1 failed re-auth attempt (token endpoint has no retry policy).
+            $this->assertSame(2, $tokenCalls);
+            $this->assertSame(1, $entityCalls, 'No further broker call once re-authentication itself fails.');
+        }
     }
 }
