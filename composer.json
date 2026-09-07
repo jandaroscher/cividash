@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "CiviDash, an open-source sustainability dashboard for municipalities.",
     "keywords": ["laravel", "framework"],
     "require": {
         "php": "^8.2",

@@ -1,0 +1,81 @@
+# This repository adheres to publiccode.yml standard by including this
+# metadata file that makes public software easily discoverable.
+# More info at https://yml.publiccode.tools/
+
+publiccodeYmlVersion: "0"
+
+name: CiviDash
+applicationSuite: CiviDash
+url: "https://gitlab.opencode.de/regensburg_next/cividash"
+softwareType: standalone/web
+
+# softwareVersion: # TODO: set once a first tagged release exists
+# releaseDate: # TODO: set release date once a first tagged release exists
+
+platforms:
+  - web
+
+categories:
+  - data-visualization
+  - business-intelligence
+
+developmentStatus: beta
+
+legal:
+  license: EUPL-1.2
+  # authorsFile: # TODO: add AUTHORS file if the project decides to track authors separately
+
+maintenance:
+  type: internal
+  contacts:
+    - name: "JANDA+ROSCHER GmbH & Co. KG" # TODO: confirm this is the correct maintaining organisation for the OpenCoDE listing
+      email: "support@janda-roscher.de"
+
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - de
+    - en
+
+description:
+  de:
+    shortDescription: "Open-Source-Nachhaltigkeitsdashboard für Kommunen"
+    longDescription: >
+      CiviDash ist ein Open-Source-Nachhaltigkeitsdashboard für Kommunen, das
+      auf Laravel (Backend/Admin via Filament) und Vue 3 (Frontend) basiert.
+      Es unterstützt Mehrmandantenfähigkeit (mehrere Dashboards/Tenants) und
+      mehrsprachige Inhalte (Deutsch/Englisch). Das zugehörige CIVITAS/CORE-Add-on wird
+      separat unter https://gitlab.opencode.de/regensburg_next/cividash-addon gepflegt.
+    features:
+      - Kennzahl-Kacheln mit Zeitreihen
+      - Filter nach Kategoriegruppen
+      - Volltextsuche
+      - Mehrsprachigkeit (Deutsch/Englisch)
+      - Multi-Dashboard / Mandantenfähigkeit
+      - Filament-Admin mit Seitenbaukasten
+      - Datenimport (JSON/CSV)
+      - CIVITAS/CORE-Integration
+    # documentation: # TODO
+    # apiDocumentation: # TODO: link to /docs (Scribe) once publicly hosted
+  en:
+    shortDescription: "Open-source sustainability dashboard for municipalities"
+    longDescription: >
+      CiviDash is an open-source sustainability dashboard for municipalities,
+      built on Laravel (backend/admin via Filament) and Vue 3 (frontend). It
+      supports multi-tenancy (multiple dashboards/tenants) and multilingual
+      content (German/English). The related CIVITAS/CORE add-on is maintained
+      separately at https://gitlab.opencode.de/regensburg_next/cividash-addon.
+    features:
+      - KPI tiles with time series
+      - Filtering by category groups
+      - Full-text search
+      - Multilingual content (German/English)
+      - Multi-dashboard / multi-tenancy
+      - Filament admin with page builder
+      - Data import (JSON/CSV)
+      - CIVITAS/CORE integration
+    # documentation: # TODO
+    # apiDocumentation: # TODO: link to /docs (Scribe) once publicly hosted
+
+# it: # TODO: fill in if/when an Italian public-sector context requires the
+#   Italian-specific extension fields (e.g. it.riuso.codiceIPA)
