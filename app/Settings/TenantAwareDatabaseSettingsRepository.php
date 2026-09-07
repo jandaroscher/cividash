@@ -3,6 +3,7 @@
 namespace App\Settings;
 
 use App\Models\Concerns\ResolvesCurrentTenant;
+use App\Models\Tenant;
 use Illuminate\Support\Facades\Schema;
 use Spatie\LaravelSettings\SettingsRepositories\DatabaseSettingsRepository;
 
@@ -33,8 +34,18 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
 
     protected function getCurrentTenantId(): int
     {
+        return $this->resolveActiveTenant()?->id ?? self::GLOBAL_TENANT_ID;
+    }
+
+    /**
+     * Resolve the active tenant, honouring the same guards as getCurrentTenantId()
+     * (no tenant_id column yet, or app not booted). Reused so the theme layer looks
+     * at exactly the tenant the rest of this repository is scoped to.
+     */
+    private function resolveActiveTenant(): ?Tenant
+    {
         if (! $this->hasTenantIdColumn()) {
-            return self::GLOBAL_TENANT_ID;
+            return null;
         }
 
         // Guard: don't resolve tenant during service provider boot.
@@ -43,14 +54,40 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
         // triggers FilamentManager construction which re-resolves PanelRegistry mid-boot,
         // corrupting the panel state and causing null tenant in views.
         if (! app()->isBooted()) {
-            return self::GLOBAL_TENANT_ID;
+            return null;
         }
 
-        return static::resolveTenant()?->id ?? self::GLOBAL_TENANT_ID;
+        return static::resolveTenant()?->loadMissing('theme');
     }
 
     /**
-     * Load global defaults, then overlay tenant-specific values on top.
+     * Deep-merge array payloads (e.g. slider_colors) so an overriding layer can
+     * override a single sub-key without losing the other base sub-keys. List
+     * payloads (e.g. typography_font_weights) are replaced wholesale instead -
+     * recursive-merging by index would leave stale tail elements from the
+     * base list dangling behind a shorter overriding list.
+     *
+     * Shared by every settings layer (theme-over-global, tenant-over-merged)
+     * so all layers merge with identical semantics.
+     */
+    private function deepMergeSettings(array $base, array $over): array
+    {
+        $merged = $base;
+        foreach ($over as $name => $value) {
+            $mergeable = is_array($value) && isset($base[$name]) && is_array($base[$name])
+                && ! array_is_list($base[$name])
+                && ! array_is_list($value);
+            $merged[$name] = $mergeable
+                ? $this->deepMergeSettings($base[$name], $value)
+                : $value;
+        }
+
+        return $merged;
+    }
+
+    /**
+     * Load global defaults, overlay the active tenant's theme (if any), then
+     * overlay tenant-specific values on top: global -> theme -> tenant.
      */
     public function getPropertiesInGroup(string $group): array
     {
@@ -58,7 +95,8 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
             return parent::getPropertiesInGroup($group);
         }
 
-        $tenantId = $this->getCurrentTenantId();
+        $tenant = $this->resolveActiveTenant();
+        $tenantId = $tenant?->id ?? self::GLOBAL_TENANT_ID;
 
         // Start with global defaults (tenant_id = 0)
         $globals = $this->getBuilder()
@@ -72,6 +110,13 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
             return $globals;
         }
 
+        // Overlay the tenant's theme, if it has one that defines this group.
+        $theme = $tenant->theme;
+        $themeSettings = is_array($theme?->settings) ? ($theme->settings[$group] ?? null) : null;
+        $withTheme = is_array($themeSettings)
+            ? $this->deepMergeSettings($globals, $themeSettings)
+            : $globals;
+
         // Overlay tenant-specific values
         $tenantValues = $this->getBuilder()
             ->where('group', $group)
@@ -80,7 +125,7 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
             ->mapWithKeys(fn (object $row) => [$row->name => $this->decode($row->payload, true)])
             ->toArray();
 
-        return array_merge($globals, $tenantValues);
+        return $this->deepMergeSettings($withTheme, $tenantValues);
     }
 
     /**

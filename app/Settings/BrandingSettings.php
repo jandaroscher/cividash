@@ -64,6 +64,15 @@ class BrandingSettings extends Settings
 
     public ?int $tile_background_category_group_id;
 
+    // Structural card tokens: CSS length
+    // values (e.g. "0.5rem", "2px"), nullable so existing tenants fall back to
+    // the CSS defaults in app.css without a migration data backfill.
+    public ?string $card_radius;
+
+    public ?string $card_border_width;
+
+    public ?string $card_border_color;
+
     /**
      * Get the settings group name for branding.
      *

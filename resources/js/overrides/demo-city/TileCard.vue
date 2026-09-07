@@ -5,44 +5,66 @@
     :class="{ 'pb-5 md:pb-10': !isIframe }"
   >
     <div
-      class="shadow-card"
+      class="shadow-card demo-city-card"
       :style="cardContainerStyle"
     >
+      <!-- Demo City look: bold blue title bar with white heading + inverted tag,
+           mirroring the full-colour cards on demo-city.de. A structural change
+           not achievable via color/font tokens alone (Approach A). -->
+      <div class="demo-city-title-bar">
+        <span class="demo-city-title-text hyphens-auto">{{ header }}</span>
+        <span
+          v-if="tenantStore.name"
+          class="demo-city-badge shrink-0"
+        >{{ tenantStore.name }}</span>
+      </div>
       <div
         :class="backgroundClass ? [backgroundClass] : []"
         :style="backgroundColorStyle"
         class="py-6 text-black relative"
       >
-        <div class="flex flex-row justify-between gap-2 px-4">
-          <div class="text-theme-h3 font-bold mb-4 hyphens-auto">
-            {{ header }}
-          </div>
-          <!-- Approach B: additive region, renders nothing unless a
-               tenant slot override provides content (e.g. a badge like the
-               Demo City Approach-A override adds via its own template). -->
-          <slot name="badge" />
-        </div>
-
         <div
           v-if="subheader"
           class="text-lg font-bold px-4"
         >
           {{ subheader }}
         </div>
-        <!-- Named slot, default content = today's markup,
-             so no override means pixel-identical output. -->
-        <slot name="value">
-          <template
-            v-for="indicator in indicators"
-            :key="indicator.id"
+
+        <!-- Trend moved next to the value/subheader (was rendered near the
+             footer in the default TileCard) - "Wert/Trend umsortiert". -->
+        <p
+          v-if="years.length > 1 && currentYear !== years[0]"
+          class="text-theme-base text-gray-400 font-semibold flex flex-row items-center gap-2 px-4 mb-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="17"
+            viewBox="0 0 24 25"
+            aria-hidden="true"
+            class="text-gray-600 flex-shrink-0 relative -top-px"
           >
-            <IndicatorBig
-              v-if="(indicator.type === 'big' || indicator.indicator_type === 'big' || indicator.indikatortyp === 'groß') && !lottieUrl && !imageUrl"
-              :indicator="indicator"
-              :current-year="currentYear"
-            />
-          </template>
-        </slot>
+            <g transform="translate(0 1)">
+              <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
+              <g transform="translate(0 15.48) rotate(-45)">
+                <path d="M0,0H18.789" transform="translate(0 4.311)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+                <path d="M0,0,4.359,4.359,0,8.719" transform="translate(14.705)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+              </g>
+            </g>
+          </svg>
+          <span>{{ trendLabel }}</span>
+        </p>
+
+        <template
+          v-for="indicator in indicators"
+          :key="indicator.id"
+        >
+          <IndicatorBig
+            v-if="(indicator.type === 'big' || indicator.indicator_type === 'big' || indicator.indikatortyp === 'groß') && !lottieUrl && !imageUrl"
+            :indicator="indicator"
+            :current-year="currentYear"
+          />
+        </template>
 
         <img
           v-if="imageUrl"
@@ -74,21 +96,16 @@
         class="py-6 px-4"
         :style="{ backgroundColor: 'var(--card-background-color, #FFFFFF)' }"
       >
-        <!-- Separate name from #value above: both regions can
-             render for the same tile (a big + a small indicator at once),
-             so one slot override must not duplicate into both spots. -->
-        <slot name="value-small">
-          <template
-            v-for="indicator in indicators"
-            :key="indicator.id"
-          >
-            <IndicatorSmall
-              v-if="indicator.type === 'small' || indicator.indikatortyp === 'normal' || lottieUrl || imageUrl"
-              :indicator="indicator"
-              :current-year="currentYear"
-            />
-          </template>
-        </slot>
+        <template
+          v-for="indicator in indicators"
+          :key="indicator.id"
+        >
+          <IndicatorSmall
+            v-if="indicator.type === 'small' || indicator.indikatortyp === 'normal' || lottieUrl || imageUrl"
+            :indicator="indicator"
+            :current-year="currentYear"
+          />
+        </template>
 
         <div
           v-if="years.length > 0"
@@ -101,7 +118,7 @@
             trigger-class="w-full"
             :disabled="isSliderInteracting"
           >
-            <div 
+            <div
               class="w-full"
               @mousedown="handleSliderInteractionStart"
               @mouseup="handleSliderInteractionEnd"
@@ -124,33 +141,6 @@
         >
           {{ periodLabelMap[currentYear] || currentYear }}
         </div>
-
-        <!-- Named slot, default content = today's trend arrow +
-             label markup, so no override renders identically. -->
-        <slot name="trend">
-          <p
-            v-if="years.length > 1 && currentYear !== years[0]"
-            class="text-theme-base text-gray-400 font-semibold flex flex-row items-center gap-2 justify-end text-sm"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="17"
-              viewBox="0 0 24 25"
-              aria-hidden="true"
-              class="text-gray-600 flex-shrink-0 relative -top-px"
-            >
-              <g transform="translate(0 1)">
-                <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
-                <g transform="translate(0 15.48) rotate(-45)">
-                  <path d="M0,0H18.789" transform="translate(0 4.311)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
-                  <path d="M0,0,4.359,4.359,0,8.719" transform="translate(14.705)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
-                </g>
-              </g>
-            </svg>
-            <span>{{ trendLabel }}</span>
-          </p>
-        </slot>
 
         <div
           v-if="hint"
@@ -218,19 +208,24 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+// Demo City tenant override of TileCard.vue (theming PoC, Approach A -
+// component-override registry). Based on the default TileCard; the
+// restructuring this override demonstrates (trend moved next to the value,
+// badge added) cannot be expressed through color/font tokens alone.
+import { ref, computed, onMounted } from 'vue';
 import { DotLottiePlayer } from '@johanaarstein/dotlottie-player';
 import VueSlider from 'vue-slider-component/lib/vue-slider.vue';
 import 'vue-slider-component/theme/default.css';
-import IndicatorBig from './cards/indicators/IndicatorBig.vue';
-import IndicatorSmall from './cards/indicators/IndicatorSmall.vue';
-import Tooltip from './help/Tooltip.vue';
-import { useFilterStore } from '../stores/filter';
-import { useOverlayStore } from '../stores/overlay';
-import { useBrandingStore } from '../stores/branding';
-import { useLocale } from '../composables/useLocale';
-import { useHelpContext } from '../composables/useHelpContext';
-import { blockHasVisibleContent } from '../utils/jumpMarks';
+import IndicatorBig from '../../components/cards/indicators/IndicatorBig.vue';
+import IndicatorSmall from '../../components/cards/indicators/IndicatorSmall.vue';
+import Tooltip from '../../components/help/Tooltip.vue';
+import { useFilterStore } from '../../stores/filter';
+import { useOverlayStore } from '../../stores/overlay';
+import { useBrandingStore } from '../../stores/branding';
+import { useTenantStore } from '../../stores/tenant';
+import { useLocale } from '../../composables/useLocale';
+import { useHelpContext } from '../../composables/useHelpContext';
+import { blockHasVisibleContent } from '../../utils/jumpMarks';
 
 const props = defineProps({
     tile: {
@@ -246,6 +241,7 @@ const props = defineProps({
 const filterStore = useFilterStore();
 const overlayStore = useOverlayStore();
 const brandingStore = useBrandingStore();
+const tenantStore = useTenantStore();
 const { getTooltip } = useHelpContext();
 const { currentLocale } = useLocale();
 
@@ -298,7 +294,6 @@ const hint = computed(() => {
 });
 
 const footnote = computed(() => {
-    // Footnote is not part of the tile API yet.
     return null;
 });
 
@@ -327,49 +322,24 @@ const backgroundColorStyle = computed(() => {
     return {};
 });
 
-// Structural card tokens: defaults (0)
-// match the pre-existing look, so untouched tenants render unchanged.
-// overflow: hidden is only needed to clip descendants to a non-zero radius;
-// applying it unconditionally would clip descendants for every tenant even
-// when the radius is 0, changing behavior for no visual benefit.
-//
-// cardRadius is a free-form CSS-length string (e.g. "0", "0px", "calc(0px)"),
-// so a naive parseFloat() misreads non-numeric-prefixed values like calc(0px)
-// as NaN !== 0. Let the browser resolve the value instead: apply it to a
-// detached probe element and read the computed pixel result back.
-let radiusProbe = null;
-
-function isZeroCssLength(value) {
-    if (!value) return true;
-    if (typeof document === 'undefined') return false;
-
-    if (!radiusProbe) {
-        radiusProbe = document.createElement('div');
-        radiusProbe.style.position = 'absolute';
-        radiusProbe.style.visibility = 'hidden';
-        radiusProbe.style.pointerEvents = 'none';
-        document.body.appendChild(radiusProbe);
-    }
-
-    radiusProbe.style.borderRadius = value;
-    const resolved = getComputedStyle(radiusProbe).borderRadius;
-
-    return parseFloat(resolved) === 0;
-}
-
-const cardContainerStyle = computed(() => ({
+// Demo City structural look: square corners + a red border. --card-radius is
+// scoped to 0 locally (matches the site-wide default, kept explicit here to
+// show the override can set its own value independent of BrandingSettings);
+// --card-border-color is Demo City-specific styling, not a generic branding
+// token, so it lives here rather than in the Settings/API channel.
+const cardContainerStyle = {
     borderRadius: 'var(--card-radius, 0)',
-    borderWidth: 'var(--card-border-width, 0)',
+    borderWidth: 'var(--card-border-width, 3px)',
     borderStyle: 'solid',
-    borderColor: 'var(--card-border-color, transparent)',
-    overflow: isZeroCssLength(brandingStore.cardRadius) ? 'visible' : 'hidden',
-}));
+    borderColor: 'var(--card-border-color, #1465A4)',
+    overflow: 'hidden',
+};
 
 const shouldShow = computed(() => {
     if (!filterStore.level2Filter?.key) {
         return true;
     }
-    
+
     const filterType = filterStore.level1Filter;
     const filterKey = filterStore.level2Filter.key;
 
@@ -395,19 +365,15 @@ const imageUrl = ref(null);
 const lottieUrl = ref(null);
 const lottiePlayer = ref(null);
 const intersected = ref(false);
-// The info/"+" button opens the tile's background-page overlay, so it should
-// only be shown when at least one background block actually renders visible
-// content - otherwise the button is clickable but the overlay is empty.
 const infoButtonVisible = computed(
     () => (props.tile.background_blocks || []).some(blockHasVisibleContent),
 );
 const isSliderInteracting = ref(false);
 
-// Process indicators from metric definitions (new API structure)
+// Process indicators from metric definitions (new API structure) - identical
+// to the default TileCard so the Demo City override renders real tile data.
 onMounted(() => {
-    // New API structure: tile.metric_definitions[] -> each definition has values[]
     if (props.tile.metric_definitions && Array.isArray(props.tile.metric_definitions)) {
-        // Collect all unique period keys from metric values
         const periodsSet = new Set();
         const labels = {};
 
@@ -429,44 +395,36 @@ onMounted(() => {
             }
         });
 
-        // Convert set to array and sort (all period_key formats are lexicographically sortable)
         years.value = Array.from(periodsSet).sort((a, b) => a.localeCompare(b));
         periodLabelMap.value = labels;
         if (years.value.length > 0) {
             currentYear.value = years.value[years.value.length - 1];
         }
 
-        // Build indicators from metric definitions
         props.tile.metric_definitions
             .filter((definition) => definition?.is_active !== false)
             .forEach((definition) => {
             const label = definition.label?.[currentLocale.value] || definition.label || '';
             const labelEn = definition.label?.en || '';
-            
-            // Handle unit - can be string, object, or empty array
+
             let unitValue = '';
             let unitEnValue = '';
             if (Array.isArray(definition.unit)) {
-                // Empty array - no unit
                 unitValue = '';
                 unitEnValue = '';
             } else if (typeof definition.unit === 'object' && definition.unit !== null) {
-                // Object with translations
                 unitValue = definition.unit[currentLocale.value] || definition.unit.de || '';
                 unitEnValue = definition.unit.en || '';
             } else {
-                // String
                 unitValue = definition.unit || '';
                 unitEnValue = definition.unit || '';
             }
-            
-            // Determine indicator type from API field
+
             const indicatorType = definition.indicator_type || 'small';
-            
-            // Build sortedYears object from values
+
             const sortedYears = {};
             const yearsArray = [];
-            
+
             if (definition.values && Array.isArray(definition.values)) {
                 definition.values
                     .filter((valueData) => valueData?.is_active !== false)
@@ -485,9 +443,9 @@ onMounted(() => {
                     }
                 });
             }
-            
+
             const indicator = {
-                id: definition.metric_key, // Use metric_key as stable ID
+                id: definition.metric_key,
                 title: label,
                 title_en: labelEn,
                 unit: unitValue,
@@ -495,17 +453,16 @@ onMounted(() => {
                 type: indicatorType,
                 indicator_type: indicatorType,
                 indikatortyp: indicatorType === 'big' ? 'groß' : 'normal',
-                years: yearsArray, // Keep for compatibility
-                sortedYears: sortedYears, // Object with years as keys (like reference app)
+                years: yearsArray,
+                sortedYears: sortedYears,
                 show_arrow: definition.show_arrow || false,
-                icon: definition.icon || null, // Icon URL from API (already full URL)
+                icon: definition.icon || null,
             };
-            
+
             indicators.value.push(indicator);
         });
     }
 
-    // Check for tile image/lottie
     if (props.tile.icon) {
         const url = props.tile.icon;
         if (url.endsWith('.lottie')) {
@@ -516,10 +473,6 @@ onMounted(() => {
     }
 });
 
-// Gracefully degrade when the tile icon/image fails to load (e.g. broken or
-// missing file on the backend) instead of showing the browser's broken-image
-// placeholder with visible alt text. Clearing imageUrl lets the
-// existing v-if fallbacks (e.g. IndicatorBig) take over.
 function onImageError() {
     imageUrl.value = null;
 }
@@ -541,7 +494,6 @@ function getInfoButtonTooltip() {
     return getTooltip('tileInfoButton') || (currentLocale.value === 'en' ? 'Shows additional information about this tile' : 'Zeigt weitere Informationen zu dieser Kachel');
 }
 
-
 function getYearSliderTooltip() {
     return getTooltip('yearSlider') || (currentLocale.value === 'en' ? 'Select a year to display values for that year' : 'Wählen Sie ein Jahr aus, um die Werte für dieses Jahr anzuzeigen');
 }
@@ -551,36 +503,60 @@ function handleSliderInteractionStart() {
 }
 
 function handleSliderInteractionEnd() {
-    // Small delay to prevent tooltip from showing immediately after interaction
     setTimeout(() => {
         isSliderInteracting.value = false;
     }, 100);
 }
-
 </script>
 
 <style scoped>
-/*
- * Tiles use the fixed design card width of 363px (matching the
- * reference at zukunft.regensburg.de). The grid fits as many 363px columns as
- * the container allows (3 at desktop where .container maxes at 1230/inner 1170
- * = 3×363 + 2×40 gap; 2 on tablet; 1 on mobile), controlled by Cards.vue's
- * `:col` / `break-at`. A fixed width (not `max-w`, not a container fraction)
- * keeps tiles at 363px regardless of content amount or result count, so sparse
- * rows stay left-aligned at the standard size instead of shrinking or being
- * stretched to fill the row.
- */
+/* See TileCard.vue for the column-width rationale - mirrored here
+   so the Demo City override sizes identically inside the waterfall grid. */
 .tile-waterfall-item {
-    width: 100%; /* <=825px: single column, wrapper below already caps + centers at 363px */
+    width: 100%;
 }
 
 @media (min-width: 826px) {
     .tile-waterfall-item {
-        width: 363px;
+        width: calc((100% - (var(--waterfall-col-tablet, 2) - 1) * 40px) / var(--waterfall-col-tablet, 2));
     }
 }
 
-/* Vue slider styles - use :deep() to style child components */
+@media (min-width: 1281px) {
+    .tile-waterfall-item {
+        width: calc((100% - (var(--waterfall-col-desktop, 3) - 1) * 40px) / var(--waterfall-col-desktop, 3));
+    }
+}
+
+/* Demo City look: full-width blue title bar with white bold heading. */
+.demo-city-title-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    background-color: #1465A4;
+    padding: 1rem;
+}
+.demo-city-title-text {
+    color: #FFFFFF;
+    font-weight: 800;
+    font-size: 1.35rem;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+}
+/* Inverted tag inside the blue bar: white block, blue caps, kantig. */
+.demo-city-badge {
+    background-color: #FFFFFF;
+    color: #1465A4;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0;
+    align-self: flex-start;
+}
+
 :deep(.vue-slider-rail),
 :deep(.vue-slider-process) {
     background: var(--slider-rail-color, #191919);

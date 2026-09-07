@@ -405,8 +405,13 @@ return [
                     'basic_information' => 'Basisinformationen',
                     'domain_frontend' => 'Domain & Frontend',
                     'domain_frontend_description' => 'Konfigurieren Sie, wie dieses Dashboard für API-Anfragen aufgelöst wird.',
+                    'theme' => 'Theme',
                 ],
                 'fields' => [
+                    'theme_id' => [
+                        'label' => 'Theme',
+                        'helper' => 'Weist diesem Dashboard ein Theme mit vordefinierten Branding-Werten zu.',
+                    ],
                     'name' => [
                         'label' => 'Dashboard-Name',
                     ],
@@ -484,6 +489,23 @@ return [
                 'created_at' => 'Erstellt am',
                 'updated_at' => 'Aktualisiert am',
             ],
+        ],
+        'theme' => [
+            'navigation_label' => 'Themes',
+            'model_label' => 'Theme',
+            'plural_model_label' => 'Themes',
+            'section_theme' => 'Theme',
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'settings' => 'Einstellungen (JSON)',
+            'settings_helper' => 'Branding-Werte als JSON-Objekt, z. B. {"branding": {"primary_color": "#0d47a1"}}.',
+            'settings_invalid_structure' => 'Die Einstellungen müssen ein JSON-Objekt aus Settings-Gruppen sein, z. B. {"branding": {...}}.',
+            'settings_unknown_group' => 'Unbekannte Settings-Gruppe ":group".',
+            'used_by_dashboards' => 'Genutzt von',
+            'used_by_dashboards_count' => '{0} Von keinem Dashboard genutzt|{1} Von 1 Dashboard genutzt|[2,*] Von :count Dashboards genutzt',
+            'created_at' => 'Erstellt am',
+            'delete_blocked_tooltip' => 'Dieses Theme wird noch von mindestens einem Dashboard genutzt und kann nicht gelöscht werden.',
+            'in_use_exception_message' => 'Ein Theme, das noch mindestens einem Dashboard zugewiesen ist, kann nicht gelöscht werden.',
         ],
         'user' => [
             'navigation_label' => 'Benutzerverwaltung',

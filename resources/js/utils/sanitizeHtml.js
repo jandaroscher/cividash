@@ -59,7 +59,6 @@ function ensureHookRegistered() {
 export function sanitizeHtml(html) {
     ensureHookRegistered();
 
-    return DOMPurify.sanitize(html, {
         ADD_ATTR: ['target', 'rel'],
     });
 }

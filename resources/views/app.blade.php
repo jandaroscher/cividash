@@ -47,6 +47,8 @@
     <link rel="icon" href="{{ $faviconUrl }}">
     @endif
 
+    <script>window.__TENANT__ = @json($tenant);</script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>

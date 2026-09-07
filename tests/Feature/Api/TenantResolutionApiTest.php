@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Tenant;
+use App\Models\Theme;
 use App\Models\Tile;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -205,6 +206,7 @@ class TenantResolutionApiTest extends TestCase
                     'name' => 'Tenant A',
                     'domain' => 'tenant-a.example.com',
                     'resolved_by' => 'token',
+                    'theme_slug' => null,
                 ],
             ]);
     }
@@ -220,6 +222,7 @@ class TenantResolutionApiTest extends TestCase
                     'name' => 'Tenant A',
                     'domain' => 'tenant-a.example.com',
                     'resolved_by' => 'domain',
+                    'theme_slug' => null,
                 ],
             ]);
     }
@@ -235,6 +238,24 @@ class TenantResolutionApiTest extends TestCase
                 'data' => [
                     'slug' => 'default',
                     'resolved_by' => 'default',
+                    'theme_slug' => null,
+                ],
+            ]);
+    }
+
+    public function test_config_tenant_exposes_assigned_theme_slug(): void
+    {
+        $theme = Theme::create(['name' => 'Demo City', 'slug' => 'demo-city']);
+        $this->tenantA->theme_id = $theme->id;
+        $this->tenantA->save();
+
+        $response = $this->getJson('http://tenant-a.example.com/api/config/tenant');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'slug' => 'tenant-a',
+                    'theme_slug' => 'demo-city',
                 ],
             ]);
     }

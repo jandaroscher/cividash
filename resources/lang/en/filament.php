@@ -316,8 +316,13 @@ return [
                     'basic_information' => 'Basic Information',
                     'domain_frontend' => 'Domain & Frontend',
                     'domain_frontend_description' => 'Configure how this dashboard is resolved for API requests.',
+                    'theme' => 'Theme',
                 ],
                 'fields' => [
+                    'theme_id' => [
+                        'label' => 'Theme',
+                        'helper' => 'Assigns a theme with predefined branding values to this dashboard.',
+                    ],
                     'name' => [
                         'label' => 'Dashboard name',
                     ],
@@ -508,6 +513,23 @@ return [
                 'deactivate' => 'Deactivate',
                 'view_frontend' => 'View',
             ],
+        ],
+        'theme' => [
+            'navigation_label' => 'Themes',
+            'model_label' => 'Theme',
+            'plural_model_label' => 'Themes',
+            'section_theme' => 'Theme',
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'settings' => 'Settings (JSON)',
+            'settings_helper' => 'Branding values as a JSON object, e.g. {"branding": {"primary_color": "#0d47a1"}}.',
+            'settings_invalid_structure' => 'Settings must be a JSON object of settings groups, e.g. {"branding": {...}}.',
+            'settings_unknown_group' => 'Unknown settings group ":group".',
+            'used_by_dashboards' => 'Used by',
+            'used_by_dashboards_count' => '{0} Not used by any dashboard|{1} Used by 1 dashboard|[2,*] Used by :count dashboards',
+            'created_at' => 'Created at',
+            'delete_blocked_tooltip' => 'This theme is still used by at least one dashboard and cannot be deleted.',
+            'in_use_exception_message' => 'Cannot delete a theme that is still assigned to one or more dashboards.',
         ],
         'user' => [
             'navigation_label' => 'User Management',

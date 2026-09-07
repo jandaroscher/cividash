@@ -7,6 +7,7 @@ use App\Settings\TenantAwareDatabaseSettingsRepository;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -22,6 +23,7 @@ class Tenant extends Model implements HasAvatar
         'slug',
         'domain',
         'frontend_base_url',
+        'theme_id',
     ];
 
     /**
@@ -62,6 +64,11 @@ class Tenant extends Model implements HasAvatar
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
+    }
+
+    public function theme(): BelongsTo
+    {
+        return $this->belongsTo(Theme::class);
     }
 
     public function getFilamentAvatarUrl(): ?string

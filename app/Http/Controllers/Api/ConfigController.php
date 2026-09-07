@@ -81,6 +81,9 @@ class ConfigController extends Controller
                 : null,
             'tile_color_source_group_key' => $this->resolveCategoryGroupKey($settings->tile_color_source_group_id),
             'tile_background_category_group_key' => $this->resolveCategoryGroupKey($settings->tile_background_category_group_id),
+            'card_radius' => $settings->card_radius,
+            'card_border_width' => $settings->card_border_width,
+            'card_border_color' => $settings->card_border_color,
         ]);
     }
 
@@ -376,9 +379,9 @@ class ConfigController extends Controller
      *
      * @unauthenticated
      *
-     * @response 200 scenario="Tenant resolved via domain" {"data": {"slug": "stadt-regensburg", "name": "Stadt Regensburg", "domain": "regensburg.example.org", "frontend_base_url": "https://regensburg.example.org", "resolved_by": "domain"}}
-     * @response 200 scenario="Tenant resolved via token" {"data": {"slug": "stadt-regensburg", "name": "Stadt Regensburg", "domain": "regensburg.example.org", "frontend_base_url": "https://regensburg.example.org", "resolved_by": "token"}}
-     * @response 200 scenario="Default tenant fallback" {"data": {"slug": "default", "name": "Default", "domain": null, "frontend_base_url": null, "resolved_by": "default"}}
+     * @response 200 scenario="Tenant resolved via domain" {"data": {"slug": "demo-city", "name": "Demo City", "domain": "demo-city.example.org", "frontend_base_url": "https://demo-city.example.org", "resolved_by": "domain", "theme_slug": "demo-city"}}
+     * @response 200 scenario="Tenant resolved via token" {"data": {"slug": "demo-city", "name": "Demo City", "domain": "demo-city.example.org", "frontend_base_url": "https://demo-city.example.org", "resolved_by": "token", "theme_slug": "demo-city"}}
+     * @response 200 scenario="Default tenant fallback" {"data": {"slug": "default", "name": "Default", "domain": null, "frontend_base_url": null, "resolved_by": "default", "theme_slug": null}}
      */
     public function tenant(\Illuminate\Http\Request $request): JsonResource
     {
@@ -397,6 +400,7 @@ class ConfigController extends Controller
             'domain' => $tenant?->domain,
             'frontend_base_url' => $tenant?->frontend_base_url,
             'resolved_by' => $resolvedBy,
+            'theme_slug' => $tenant?->theme?->slug,
         ]);
     }
 
@@ -803,6 +807,9 @@ class ConfigController extends Controller
                 : null,
             'tile_color_source_group_key' => $this->resolveCategoryGroupKey($settings->tile_color_source_group_id),
             'tile_background_category_group_key' => $this->resolveCategoryGroupKey($settings->tile_background_category_group_id),
+            'card_radius' => $settings->card_radius,
+            'card_border_width' => $settings->card_border_width,
+            'card_border_color' => $settings->card_border_color,
         ]);
     }
 
