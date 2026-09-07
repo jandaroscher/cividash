@@ -49,13 +49,6 @@ const routes = [
         component: DynamicPage,
         meta: { locale: 'en' },
     },
-    // page slug first.
-        ? [
-            {
-                name: 'theming-poc',
-            },
-        ]
-        : []),
     {
         path: '/:slug+',
         name: 'page',

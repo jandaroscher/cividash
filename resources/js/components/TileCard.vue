@@ -332,12 +332,37 @@ const backgroundColorStyle = computed(() => {
 // overflow: hidden is only needed to clip descendants to a non-zero radius;
 // applying it unconditionally would clip descendants for every tenant even
 // when the radius is 0, changing behavior for no visual benefit.
+//
+// cardRadius is a free-form CSS-length string (e.g. "0", "0px", "calc(0px)"),
+// so a naive parseFloat() misreads non-numeric-prefixed values like calc(0px)
+// as NaN !== 0. Let the browser resolve the value instead: apply it to a
+// detached probe element and read the computed pixel result back.
+let radiusProbe = null;
+
+function isZeroCssLength(value) {
+    if (!value) return true;
+    if (typeof document === 'undefined') return false;
+
+    if (!radiusProbe) {
+        radiusProbe = document.createElement('div');
+        radiusProbe.style.position = 'absolute';
+        radiusProbe.style.visibility = 'hidden';
+        radiusProbe.style.pointerEvents = 'none';
+        document.body.appendChild(radiusProbe);
+    }
+
+    radiusProbe.style.borderRadius = value;
+    const resolved = getComputedStyle(radiusProbe).borderRadius;
+
+    return parseFloat(resolved) === 0;
+}
+
 const cardContainerStyle = computed(() => ({
     borderRadius: 'var(--card-radius, 0)',
     borderWidth: 'var(--card-border-width, 0)',
     borderStyle: 'solid',
     borderColor: 'var(--card-border-color, transparent)',
-    overflow: brandingStore.cardRadius && parseFloat(brandingStore.cardRadius) !== 0 ? 'hidden' : 'visible',
+    overflow: isZeroCssLength(brandingStore.cardRadius) ? 'visible' : 'hidden',
 }));
 
 const shouldShow = computed(() => {

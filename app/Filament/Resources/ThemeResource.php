@@ -113,9 +113,15 @@ class ThemeResource extends Resource
                                         IntegrationSettings::group(),
                                     ];
 
-                                    foreach (array_keys($decoded) as $group) {
+                                    foreach ($decoded as $group => $groupSettings) {
                                         if (! in_array($group, $knownGroups, true)) {
                                             $fail(__('filament.resources.theme.settings_unknown_group', ['group' => $group]));
+
+                                            return;
+                                        }
+
+                                        if (! is_array($groupSettings) || array_is_list($groupSettings)) {
+                                            $fail(__('filament.resources.theme.settings_invalid_structure'));
 
                                             return;
                                         }

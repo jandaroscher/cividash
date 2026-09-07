@@ -49,9 +49,12 @@ class TenantThemeAssignmentTest extends TestCase
         $theme = Theme::factory()->create();
         $tenant = Tenant::factory()->create(['theme_id' => $theme->id]);
 
-        $this->expectException(ThemeInUseException::class);
-
-        $theme->delete();
+        try {
+            $theme->delete();
+            $this->fail('Expected ThemeInUseException was not thrown.');
+        } catch (ThemeInUseException) {
+            // expected
+        }
 
         $this->assertDatabaseHas('tenants', ['id' => $tenant->id, 'theme_id' => $theme->id]);
     }

@@ -224,14 +224,20 @@ export const useBrandingStore = defineStore('branding', {
 
                 // Set structural card tokens as CSS variables (only when configured -
                 // otherwise the CSS var(..., default) fallback in app.css applies)
-                if (this.cardRadius) {
+                if (this.cardRadius != null) {
                     document.documentElement.style.setProperty('--card-radius', this.cardRadius);
+                } else {
+                    document.documentElement.style.removeProperty('--card-radius');
                 }
-                if (this.cardBorderWidth) {
+                if (this.cardBorderWidth != null) {
                     document.documentElement.style.setProperty('--card-border-width', this.cardBorderWidth);
+                } else {
+                    document.documentElement.style.removeProperty('--card-border-width');
                 }
-                if (this.cardBorderColor) {
+                if (this.cardBorderColor != null) {
                     document.documentElement.style.setProperty('--card-border-color', this.cardBorderColor);
+                } else {
+                    document.documentElement.style.removeProperty('--card-border-color');
                 }
             } catch (error) {
                 logError('Failed to fetch branding settings:', error);

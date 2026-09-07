@@ -67,4 +67,27 @@ class TenantDeepMergeTest extends TestCase
 
         $this->assertSame([400], $props['typography_font_weights']);
     }
+
+    public function test_tenant_nested_list_override_replaces_global_wholesale(): void
+    {
+        // global with a nested list under an associative key
+        DB::table('settings')->updateOrInsert(
+            ['group' => 'branding', 'name' => 'breakpoints', 'tenant_id' => 0],
+            ['payload' => json_encode(['sizes' => ['sm', 'md', 'lg', 'xl']])],
+        );
+
+        $tenant = Tenant::factory()->create(['slug' => 'demo-city']);
+        DB::table('settings')->insert([
+            'group' => 'branding', 'name' => 'breakpoints', 'tenant_id' => $tenant->id,
+            'payload' => json_encode(['sizes' => ['lg']]), // shorter nested list, must replace wholesale
+        ]);
+
+        Filament::setTenant($tenant, isQuiet: true);
+
+        /** @var TenantAwareDatabaseSettingsRepository $repo */
+        $repo = SettingsRepositoryFactory::create();
+        $props = $repo->getPropertiesInGroup('branding');
+
+        $this->assertSame(['sizes' => ['lg']], $props['breakpoints']);
+    }
 }

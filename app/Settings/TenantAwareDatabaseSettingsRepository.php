@@ -75,9 +75,10 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
         $merged = $base;
         foreach ($over as $name => $value) {
             $mergeable = is_array($value) && isset($base[$name]) && is_array($base[$name])
+                && ! array_is_list($base[$name])
                 && ! array_is_list($value);
             $merged[$name] = $mergeable
-                ? array_replace_recursive($base[$name], $value)
+                ? $this->deepMergeSettings($base[$name], $value)
                 : $value;
         }
 

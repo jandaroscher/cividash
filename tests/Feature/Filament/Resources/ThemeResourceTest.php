@@ -3,6 +3,7 @@
 namespace Tests\Feature\Filament\Resources;
 
 use App\Filament\Resources\ThemeResource;
+use App\Filament\Resources\ThemeResource\Pages\CreateTheme;
 use App\Filament\Resources\ThemeResource\Pages\ListThemes;
 use App\Models\Tenant;
 use App\Models\Theme;
@@ -60,5 +61,19 @@ class ThemeResourceTest extends TestCase
         $this->actingAs($nonAdmin);
 
         $this->assertFalse(ThemeResource::canAccess());
+    }
+
+    public function test_settings_group_with_scalar_value_is_rejected(): void
+    {
+        Livewire::test(CreateTheme::class)
+            ->fillForm([
+                'name' => 'Broken Theme',
+                'slug' => 'broken-theme',
+                'settings' => json_encode(['branding' => 'invalid']),
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['settings']);
+
+        $this->assertDatabaseMissing('themes', ['slug' => 'broken-theme']);
     }
 }
