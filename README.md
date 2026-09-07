@@ -23,7 +23,7 @@ related CIVITAS/CORE add-on is maintained separately.
 - Data import (JSON bundles) and export (JSON/CSV)
 - CIVITAS/CORE integration
 
-## Tech Stack
+## Tech stack
 
 | Layer | Technology |
 |-------|------------|

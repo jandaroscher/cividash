@@ -1,10 +1,8 @@
 # Standalone installation guide
 
 This guide covers installing CiviDash on your own
-server, outside of the DDEV/CI setup used for development. It is derived from the current
-repo state (composer.json, .env.example, `.github/workflows/deploy.yml`, `deploy/post_deploy.sh`,
-`.ddev/config.yaml`). See "Open questions" at the end for anything that still needs cross-checking
-against the upstream documentation.
+server, outside of the DDEV/CI setup used for development. It reflects the current repo state
+(composer.json, .env.example, `.ddev/config.yaml`, `.github/workflows/`). See "Known limitations" at the end for what this guide does not cover yet.
 
 ## 1. System requirements
 
@@ -157,7 +155,7 @@ handle it). Adjust the PHP-FPM socket path and TLS termination for your environm
     `config('integrations.civitas.enabled')` and is a no-op (warns and exits) when
     `CIVITAS_ENABLED` is not `true`, so it's safe to leave scheduled even if the feature is unused.
 
-  **⚠️ WARNING: `dashboard:reset` deletes data.** Its description in
+  **Warning: `dashboard:reset` deletes data.** Its description in
   `app/Console/Commands/DashboardResetCommand.php` is explicit: *"Reset demo tenants: Default
   cleaned, Regensburg re-seeded, Demo City emptied."* This is a **demo-data reset command**, not a
   generic maintenance task. On a production instance seeded with real dashboards, running it
@@ -180,7 +178,7 @@ handle it). Adjust the PHP-FPM socket path and TLS termination for your environm
      `DEMO_RESET_ENABLED` env var) before relying on this gate, and rebuild the config cache
      after changing it (`php artisan config:cache` does not pick up new `.env` values on its own).
      and only set the corresponding env flag on actual demo/showcase instances. See
-     `docs/deployment/seeding.md` (Scheduler & Cron-Setup section) for how the schedule currently
+     `docs/deployment/seeding.md` (Scheduler and Cron-Setup section) for how the schedule currently
      behaves.
 
   Add a single cron entry to run Laravel's scheduler every minute:
@@ -275,8 +273,8 @@ package):
 4. In Docker/DDEV setups where the app can't resolve the Keycloak host name normally, set
    `KEYCLOAK_BASE_URL_INTERNAL` to a container-reachable URL.
 
-No automated test/doc found in this repo confirming the Keycloak login flow end-to-end for a
-standalone (non-DDEV) install. Validate manually (see Open questions).
+This repo has no automated test or doc confirming the Keycloak login flow end-to-end for a
+standalone (non-DDEV) install. Validate it manually (see Known limitations).
 
 ## 9. Troubleshooting
 
@@ -286,8 +284,6 @@ standalone (non-DDEV) install. Validate manually (see Open questions).
   webserver user. The post-deploy steps in section 2 set directories to `755` and files to
   `644`; repeat them after every deployment.
 - **Storage symlink missing / uploaded images 404**: Run `php artisan storage:link`.
-  (see `CLAUDE.md`). There is no in-repo migration/export script found. If migrating an
-  dump-and-reload through Laravel model factories/seeders), see Open questions.
 - **`tenancy:backfill` reports tenant already exists**: safe, the command reuses an existing
   tenant matching the given slug rather than failing.
 - **Health check fails after deploy**: verify `/up` (Laravel's built-in health check route)
@@ -296,18 +292,11 @@ standalone (non-DDEV) install. Validate manually (see Open questions).
 
 ## Known limitations
 
-Cross-check these against the upstream documentation and update whichever side is stale:
-
-- Confirm whether `redis` PHP extension is required in production or only used when
-  `REDIS_CLIENT=phpredis` is actually configured.
-- Confirm minimum acceptable PostgreSQL version if less than 16. Not verified in code, treat 16
-  as the target.
-- Confirm with the operators whether a persistent `queue:work` process actually
-  runs in production, or whether queued jobs are processed synchronously / unused so far.
-- Validate the Keycloak OIDC login flow end-to-end for a standalone (non-DDEV) install. No
-  automated test or doc found in this repo covers that path.
-- No in-repo MariaDB→PostgreSQL data migration tooling exists — raise with the team if a live
-  migration of an existing MariaDB installation is actually needed.
-
-## Sources
-
+- The `redis` PHP extension is only needed when `REDIS_CLIENT=phpredis` is configured; the
+  default setup does not use Redis.
+- PostgreSQL 16 is the tested version. The code does not pin a minimum, and older versions are
+  untested.
+- The app does not require a persistent `queue:work` process. Run one if you enable features
+  that dispatch queued jobs.
+- The Keycloak OIDC login flow has no end-to-end test or guide for a standalone (non-DDEV)
+  install.

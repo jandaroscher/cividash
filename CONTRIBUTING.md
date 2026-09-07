@@ -53,8 +53,8 @@ reference.
   npm run lint:fix                   # ESLint fix for Vue/JS
   ```
 
-- Never hardcode user-facing strings — use translation keys (`de`/`en`) as described in
-  `CLAUDE.md`.
+- Never hardcode user-facing strings; use translation keys (`de`/`en`) as described in
+  `AGENTS.md`.
 - Do not commit debug code (`dd()`, `console.log`) or secrets.
 
 ## Before you open a PR

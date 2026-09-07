@@ -66,8 +66,3 @@ npm run test:e2e                                                # Playwright E2E
 
 Run the full suite only for final verification before committing; prefer filtered runs during
 iteration.
-
-## Open questions
-
-None found beyond what's in `.ddev/config.yaml` and `scripts/setup-worktree-ddev.sh`; both were
-read directly.

@@ -90,10 +90,10 @@ Dockerfile is only for local builds.
 
 ## Open questions
 
-- No packaged queue-worker or scheduler compose service exists in this repo; the entrypoint
-  comment names `schedule:run` loop and `queue:work` as valid workloads for the `cividash-app`
-  image, but no concrete compose/k8s definition for either was found. The snippets above are
-  written by us, not verified against a real deployment.
-- No production compose file (as opposed to the smoke stack) or Kubernetes manifests were found
-  in this repo. If your deployment target is a specific orchestrator, adapt the smoke stack's
+- This repo has no packaged queue-worker or scheduler compose service. The entrypoint comment
+  names a `schedule:run` loop and `queue:work` as valid workloads for the `cividash-app` image, but
+  no concrete compose or Kubernetes definition exists for either. Treat the snippets above as a
+  starting point, not a verified deployment.
+- This repo has no production compose file, as opposed to the smoke stack, or Kubernetes
+  manifests. If your deployment target is a specific orchestrator, adapt the smoke stack's
   service definitions rather than looking for a ready-made production file.

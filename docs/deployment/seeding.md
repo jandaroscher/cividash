@@ -1,85 +1,68 @@
-# Datenbank-Seeding Dokumentation
+# Datenbank-Seeding
 
 ## Übersicht
 
-Das Projekt verwendet mehrere Artisan-Befehle zum Seeding der Datenbank mit initialen Daten. Diese Dokumentation beschreibt alle verfügbaren Seeding-Befehle, deren Verwendung und die empfohlene Ausführungsreihenfolge.
+Das Projekt nutzt mehrere Artisan-Befehle, um die Datenbank mit initialen Daten zu befüllen. Diese Seite beschreibt alle verfügbaren Seeding-Befehle, ihre Verwendung und die empfohlene Ausführungsreihenfolge.
 
 ## Verfügbare Seeding-Befehle
 
 ### 1. DatabaseSeeder (`db:seed`)
 
-**Befehl:**
 ```bash
 php artisan db:seed
 ```
 
-**Beschreibung:**
-Genereller Seeder für grundlegende Anwendungsdaten. Erstellt initiale User-Accounts und andere Basis-Daten.
+Genereller Seeder für grundlegende Anwendungsdaten. Erstellt initiale User-Accounts und andere Basisdaten. Aktuell legt er einen Test-User an:
 
-**Aktueller Inhalt:**
-- Erstellt einen Test-User:
-  - Name: "Test User"
-  - Email: `test@example.com`
-  - Passwort: `password` (Standard aus UserFactory)
+- Name: "Test User"
+- E-Mail: `test@example.com`
+- Passwort: `password` (Standard aus UserFactory)
 
-**Wann ausführen:**
-- Bei der ersten Installation der Anwendung
-- Wenn keine User in der Datenbank existieren
-- Wird automatisch beim Deployment ausgeführt (siehe `deploy/post_deploy.sh`)
+Wann ausführen:
+- bei der ersten Installation der Anwendung
+- wenn noch keine User in der Datenbank existieren
+- läuft automatisch beim Deployment (siehe `deploy/post_deploy.sh`)
 
-**Automatische Ausführung:**
-Das Deployment-Skript (`deploy/post_deploy.sh`) führt den `DatabaseSeeder` automatisch aus, wenn keine User in der Datenbank existieren:
+Das Deployment-Skript (`deploy/post_deploy.sh`) führt den `DatabaseSeeder` automatisch aus, wenn noch keine User in der Datenbank existieren:
 
 ```bash
 # Nur wenn USER_COUNT = 0
 php artisan db:seed --force
 ```
 
-**Optionen:**
-- `--force` : Erzwingt Seeding ohne Bestätigung (wichtig für automatisierte Deployments)
-- `--class=ClassName` : Führt nur einen spezifischen Seeder aus
+Optionen:
+- `--force`: erzwingt das Seeding ohne Bestätigung (wichtig für automatisierte Deployments)
+- `--class=ClassName`: führt nur einen bestimmten Seeder aus
 
-**Beispiel:**
+Beispiel:
 ```bash
 cd ~/html/cividash-backend
 php artisan db:seed --force
 ```
 
----
+### 2. Pages- und Navigation-Seeding (`pages:seed`)
 
-### 2. Pages & Navigation Seeding (`pages:seed`)
-
-**Befehl:**
 ```bash
 php artisan pages:seed
 ```
 
-**Beschreibung:**
-Seeded Fabricator Pages und Header/Footer Navigation von der Referenz-Website (Regensburg).
+Seedet Fabricator-Pages und Header-/Footer-Navigation von der Referenz-Website (Regensburg).
 
-**Was wird geseedet:**
-
-**Fabricator Pages:**
+Fabricator Pages:
 - Home (`/`)
 - Kontakt/Contact (`/kontakt`, `/en/contact`)
 - Download (`/download`, `/en/download`)
 - Datenschutz/Privacy (`/datenschutz`, `/en/privacy`)
 - Impressum/Imprint (`/impressum`, `/en/imprint`)
 
-**Navigation:**
-- **Header Navigation:**
-  - Download
-  - Kontakt
-- **Footer Navigation:**
-  - Impressum
-  - Datenschutz
-  - regensburg.de
-  - mein.regensburg.de
+Navigation:
+- Header: Download, Kontakt
+- Footer: Impressum, Datenschutz, regensburg.de, mein.regensburg.de
 
-**Optionen:**
-- `--dry-run` : Führt einen Testlauf durch, ohne Daten zu speichern (zeigt nur eine Zusammenfassung)
+Optionen:
+- `--dry-run`: führt einen Testlauf durch, ohne Daten zu speichern, zeigt nur eine Zusammenfassung
 
-**Beispiel:**
+Beispiel:
 ```bash
 cd ~/html/cividash-backend
 
@@ -90,71 +73,30 @@ php artisan pages:seed
 php artisan pages:seed --dry-run
 ```
 
-**Hinweis:**
-Dieser Befehl ruft die folgenden Seeder auf:
-- `PageSeeder` - Erstellt/aktualisiert Fabricator Pages
-- `NavigationSeeder` - Erstellt Header und Footer Navigation
+Der Befehl ruft folgende Seeder auf:
+- `PageSeeder` erstellt/aktualisiert die Fabricator Pages
+- `NavigationSeeder` erstellt Header- und Footer-Navigation
 
----
+### 3. Dashboard-Seeding (`dashboard:seed`)
 
-### 3. Dashboard Seeding (`dashboard:seed`)
-
-**Befehl:**
 ```bash
 php artisan dashboard:seed --path=/pfad/zur/dashboard.json
 ```
 
-**Beschreibung:**
-Seeded Tiles, Categories, Metrics, SDG-Ziele und deren Beziehungen aus einer `dashboard.json` Datei (Regensburg-Format).
+Seedet Tiles, Categories, Metrics, SDG-Ziele und deren Beziehungen aus einer `dashboard.json`-Datei (Regensburg-Format):
 
-**Was wird geseedet:**
+1. Handlungsfelder (Categories): lädt Kategorien aus `dashboard.json` und, wenn aktiviert, die zugehörigen Mediendateien.
+2. Handlungsdimensionen (Dimensions): erstellt drei statische Dimensionen (Gerechtigkeit/Justice, Produktivität/Productivity, Grün/Green) und verknüpft sie mit den Handlungsfeldern.
+3. SDG-Ziele (SDG Goals): lädt SDG-Ziele aus `dashboard.json` samt zugehöriger Mediendateien.
+4. Tiles (Kacheln): lädt Tiles aus `dashboard.json` und verknüpft sie mit Handlungsfeldern, Handlungsdimensionen und SDG-Zielen.
+5. Metrics (Kennzahlen): lädt Metrics aus `dashboard.json` und verknüpft sie mit Tiles.
 
-1. **Handlungsfelder (Categories)**
-   - Lädt Kategorien aus `dashboard.json`
-   - Lädt zugehörige Medien-Dateien herunter (wenn aktiviert)
+Optionen:
 
-2. **Handlungsdimensionen (Dimensions)**
-   - Erstellt 3 statische Dimensionen:
-     - Gerechtigkeit (Justice)
-     - Produktivität (Productivity)
-     - Grün (Green)
-   - Verknüpft Dimensionen mit Handlungsfeldern
+- `--tenant=`: Tenant-Identifier für eine künftige Multi-Tenant-Unterstützung, aktuell noch nicht implementiert.
+- `--dry-run`: führt einen Testlauf durch, zeigt eine Zusammenfassung der zu seedenden Daten, ohne sie zu speichern. Nützlich zum Testen vor dem eigentlichen Seeding.
 
-3. **SDG-Ziele (SDG Goals)**
-   - Lädt SDG-Ziele aus `dashboard.json`
-   - Lädt zugehörige Medien-Dateien herunter
-
-4. **Tiles (Kacheln)**
-   - Lädt Tiles aus `dashboard.json`
-   - Verknüpft Tiles mit:
-     - Handlungsfeldern (Categories)
-     - Handlungsdimensionen (Dimensions)
-     - SDG-Zielen
-
-5. **Metrics (Kennzahlen)**
-   - Lädt Metrics aus `dashboard.json`
-   - Verknüpft Metrics mit Tiles
-
-**Optionen:**
-
-- `--path=` : Pfad zur `dashboard.json` Datei
-  - Optional: Wenn nicht angegeben, wird der Standard-Pfad verwendet
-  - Standard: `storage/app/seeds/regensburg/dashboard.json`
-  - Kann auch als relativer Pfad angegeben werden (z. B. `dashboard.json` im Root)
-
-- `--url=` : URL, von der `dashboard.json` heruntergeladen wird
-  - Lädt die Datei herunter und speichert sie lokal unter `storage/app/seeds/regensburg/dashboard.json`
-  - Danach wird wie gewohnt mit der lokalen Datei geseedet
-  - Beispiel: `--url=https://zukunft.regensburg.de/dashboard.json`
-
-- `--tenant=` : Tenant-Identifier (für zukünftige Multi-Tenant-Unterstützung)
-  - Aktuell noch nicht implementiert
-
-- `--dry-run` : Führt einen Testlauf durch, ohne Daten zu speichern
-  - Zeigt eine Zusammenfassung der zu seedenden Daten
-  - Nützlich zum Testen vor dem eigentlichen Seeding
-
-**Beispiele:**
+Beispiele:
 
 ```bash
 cd ~/html/cividash-backend
@@ -168,66 +110,51 @@ php artisan dashboard:seed --path=/var/www/dashboard.json
 # Von URL herunterladen und seeden
 php artisan dashboard:seed --url=https://zukunft.regensburg.de/dashboard.json
 
-# Mit Standard-Pfad (storage/app/seeds/regensburg/dashboard.json)
+# Mit Standardpfad (storage/app/seeds/regensburg/dashboard.json)
 php artisan dashboard:seed
 
 # Testlauf
 php artisan dashboard:seed --path=dashboard.json --dry-run
 ```
 
-**Konfiguration:**
+Die Seeding-Konfiguration liegt in `config/seeding.php`:
 
-Die Seeding-Konfiguration befindet sich in `config/seeding.php`:
+- `default_json_path`: Standardpfad zur dashboard.json, überschreibbar über die `.env`-Variable `SEED_DASHBOARD_JSON`
+- `dashboard_json_url`: URL zum Herunterladen der dashboard.json für `dashboard:reset`, `.env`-Variable `SEED_DASHBOARD_JSON_URL` (Standard: `https://zukunft.regensburg.de/dashboard.json`)
+- `media_download_enabled`: schaltet das Herunterladen von Mediendateien ein oder aus, `.env`-Variable `SEED_MEDIA_DOWNLOAD` (Standard: `true`)
+- `media_base_url`: Basis-URL für Medien-Downloads, `.env`-Variable `SEED_MEDIA_BASE_URL` (Standard: `https://zukunft.regensburg.de/files`)
 
-- `default_json_path` : Standard-Pfad zur dashboard.json
-  - Kann über `.env` Variable `SEED_DASHBOARD_JSON` überschrieben werden
-- `dashboard_json_url` : URL zum Herunterladen der dashboard.json (für `dashboard:reset`)
-  - `.env` Variable: `SEED_DASHBOARD_JSON_URL` (Standard: `https://zukunft.regensburg.de/dashboard.json`)
-- `media_download_enabled` : Aktiviert/Deaktiviert das Herunterladen von Medien-Dateien
-  - `.env` Variable: `SEED_MEDIA_DOWNLOAD` (Standard: `true`)
-- `media_base_url` : Basis-URL für Medien-Downloads
-  - `.env` Variable: `SEED_MEDIA_BASE_URL` (Standard: `https://zukunft.regensburg.de/files`)
+Der Befehl ruft folgende Seeder in dieser Reihenfolge auf:
+1. `CategorySeeder` (Handlungsfelder)
+2. `HandlungsdimensionSeeder` (Handlungsdimensionen)
+3. `SDGZielSeeder` (SDG-Ziele)
+4. `TileSeeder` (Tiles)
+5. `MetricSeeder` (Metrics)
 
-**Hinweis:**
-Dieser Befehl ruft die folgenden Seeder auf (in dieser Reihenfolge):
-1. `CategorySeeder` - Handlungsfelder
-2. `HandlungsdimensionSeeder` - Handlungsdimensionen
-3. `SDGZielSeeder` - SDG-Ziele
-4. `TileSeeder` - Tiles
-5. `MetricSeeder` - Metrics
+### 4. Demo-Daten-Reset (`dashboard:reset`)
 
----
-
-### 4. Demo-Daten Reset (`dashboard:reset`)
-
-**Befehl:**
 ```bash
 php artisan dashboard:reset
 php artisan dashboard:reset --force
 ```
 
-**Beschreibung:**
 Setzt die Demo-Tenants für die öffentliche Testphase zurück:
-- **Regensburg** (`stadt-regensburg`): Wird auf den aktuellen Stand von `zukunft.regensburg.de` zurückgesetzt (Daten löschen + neu seeden)
-- **Demo City** (`demo-city`): Wird auf einen leeren Zustand zurückgesetzt (Daten löschen, leere Sandbox für Tester)
+- Regensburg (`stadt-regensburg`): wird auf den aktuellen Stand von `zukunft.regensburg.de` zurückgesetzt (Daten löschen, dann neu seeden).
+- Demo City (`demo-city`): wird auf einen leeren Zustand zurückgesetzt (Daten löschen, leere Sandbox für Tester).
 
 Domain- und User-Zuordnungen der Tenants bleiben erhalten.
 
-**Ablauf:**
-1. Aktuelle `dashboard.json` von der konfigurierten URL herunterladen (`SEED_DASHBOARD_JSON_URL`)
-2. **Regensburg zurücksetzen:**
-   - Alle Inhalte des Tenants löschen (FK-sichere Reihenfolge)
-   - Neu seeden: `dashboard:seed` + `pages:seed` + `tenancy:backfill`
-3. **Demo City zurücksetzen:**
-   - Alle Inhalte des Tenants löschen → leere Sandbox
+Ablauf:
+1. Aktuelle `dashboard.json` von der konfigurierten URL herunterladen (`SEED_DASHBOARD_JSON_URL`).
+2. Regensburg zurücksetzen: alle Inhalte des Tenants löschen (FK-sichere Reihenfolge), dann neu seeden mit `dashboard:seed` + `pages:seed` + `tenancy:backfill`.
+3. Demo City zurücksetzen: alle Inhalte des Tenants löschen, es bleibt eine leere Sandbox.
 
-**Löschreihenfolge** (respektiert Foreign-Key-Constraints):
-MetricValue → Metric → TimePeriod → MetricDefinition → BackgroundPage → category_tile (Pivot) → Tile → Category → CategoryGroup → Navigation → FooterNavigation → Page
+Löschreihenfolge (respektiert Foreign-Key-Constraints): MetricValue, Metric, TimePeriod, MetricDefinition, BackgroundPage, category_tile (Pivot), Tile, Category, CategoryGroup, Navigation, FooterNavigation, Page.
 
-**Optionen:**
-- `--force` : Überspringt die Bestätigungsabfrage (für Cron-Einsatz)
+Optionen:
+- `--force`: überspringt die Bestätigungsabfrage, für den Cron-Einsatz
 
-**Beispiele:**
+Beispiele:
 ```bash
 # Interaktiv mit Bestätigung
 php artisan dashboard:reset
@@ -236,20 +163,16 @@ php artisan dashboard:reset
 php artisan dashboard:reset --force
 ```
 
-**Automatische Ausführung (Nightly Cron):**
-
-Der Command ist als nächtlicher Cron-Job konfiguriert (siehe [Scheduler & Cron-Setup](#scheduler--cron-setup)).
-
----
+Der Command läuft als nächtlicher Cron-Job (siehe [Scheduler und Cron-Setup](#scheduler-und-cron-setup)).
 
 ## Empfohlene Ausführungsreihenfolge
 
-### Bei der ersten Installation:
+### Bei der ersten Installation
 
 ```bash
 cd ~/html/cividash-backend
 
-# 1. Genereller Seeder (User, etc.) - nur wenn keine User existieren
+# 1. Genereller Seeder (User usw.), nur wenn keine User existieren
 php artisan db:seed --force
 
 # 2. Pages und Navigation
@@ -259,7 +182,7 @@ php artisan pages:seed
 php artisan dashboard:seed --path=dashboard.json
 ```
 
-### Bei Updates (wenn Daten bereits existieren):
+### Bei Updates (wenn Daten bereits existieren)
 
 ```bash
 cd ~/html/cividash-backend
@@ -271,51 +194,39 @@ php artisan pages:seed
 php artisan dashboard:seed --path=dashboard.json
 ```
 
-**Wichtig:**
-- `db:seed` sollte nur bei der ersten Installation ausgeführt werden
-- `pages:seed` und `dashboard:seed` können mehrfach ausgeführt werden (aktualisieren bestehende Daten)
-
----
+`db:seed` gehört nur zur ersten Installation. `pages:seed` und `dashboard:seed` lassen sich mehrfach ausführen, sie aktualisieren bestehende Daten.
 
 ## Troubleshooting
 
 ### Problem: "File not found" bei dashboard:seed
 
-**Lösung:**
-- Prüfe, ob die `dashboard.json` Datei am angegebenen Pfad existiert
-- Verwende absoluten Pfad oder stelle sicher, dass der relative Pfad vom Projekt-Root aus korrekt ist
-- Prüfe Dateiberechtigungen
+- Prüfe, ob die `dashboard.json`-Datei am angegebenen Pfad existiert.
+- Verwende einen absoluten Pfad oder stelle sicher, dass der relative Pfad vom Projekt-Root aus stimmt.
+- Prüfe die Dateiberechtigungen.
 
 ### Problem: "No users found" beim Deployment
 
-**Lösung:**
-- Das ist normal bei der ersten Installation
-- Der `DatabaseSeeder` wird automatisch ausgeführt
-- Wenn User manuell erstellt wurden, wird der Seeder übersprungen
+Das ist normal bei der ersten Installation. Der `DatabaseSeeder` läuft automatisch; wurden User bereits manuell angelegt, überspringt der Seeder diesen Schritt.
 
-### Problem: Medien-Dateien werden nicht heruntergeladen
+### Problem: Mediendateien werden nicht heruntergeladen
 
-**Lösung:**
-- Prüfe `.env` Variable `SEED_MEDIA_DOWNLOAD=true`
-- Prüfe `.env` Variable `SEED_MEDIA_BASE_URL` (Standard: `https://zukunft.regensburg.de/files`)
-- Prüfe Schreibrechte für `storage/app/seeds/`
-- Prüfe Netzwerk-Verbindung zur Media-Base-URL
+- Prüfe die `.env`-Variable `SEED_MEDIA_DOWNLOAD=true`.
+- Prüfe die `.env`-Variable `SEED_MEDIA_BASE_URL` (Standard: `https://zukunft.regensburg.de/files`).
+- Prüfe die Schreibrechte für `storage/app/seeds/`.
+- Prüfe die Netzwerkverbindung zur Media-Base-URL.
 
-### Problem: Seeding schlägt mit Datenbank-Fehlern fehl
+### Problem: Seeding schlägt mit Datenbankfehlern fehl
 
-**Lösung:**
-- Stelle sicher, dass alle Migrationen ausgeführt wurden: `php artisan migrate --force`
-- Prüfe Datenbank-Verbindung in `.env`
-- Prüfe Logs: `storage/logs/laravel.log`
-- Führe Seeding mit `--dry-run` aus, um Probleme zu identifizieren
+- Stelle sicher, dass alle Migrationen ausgeführt wurden: `php artisan migrate --force`.
+- Prüfe die Datenbankverbindung in `.env`.
+- Prüfe die Logs: `storage/logs/laravel.log`.
+- Führe das Seeding mit `--dry-run` aus, um Probleme einzugrenzen.
 
----
-
-## Scheduler & Cron-Setup
+## Scheduler und Cron-Setup
 
 ### Überblick
 
-Der Laravel Scheduler führt `dashboard:reset --force` jede Nacht um 03:00 Uhr aus – aber **nur wenn `APP_ENV=production`** in der `.env` gesetzt ist. Lokal und auf Staging passiert nichts.
+Der Laravel-Scheduler führt `dashboard:reset --force` jede Nacht um 03:00 Uhr aus, aber nur wenn `APP_ENV=production` in der `.env` gesetzt ist. Lokal und auf Staging passiert nichts.
 
 Definiert in `routes/console.php`:
 ```php
@@ -327,7 +238,7 @@ Schedule::command('dashboard:reset --force')
 
 ### Cron einrichten (einmalig auf dem Produktionsserver)
 
-Damit der Laravel Scheduler überhaupt läuft, muss **ein einziger System-Cronjob** auf dem Server angelegt werden:
+Damit der Laravel-Scheduler überhaupt läuft, braucht der Server einen einzigen System-Cronjob:
 
 ```bash
 # Per SSH auf dem Server einloggen, dann:
@@ -339,13 +250,13 @@ Folgende Zeile hinzufügen:
 * * * * * cd /pfad/zum/projekt && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-> **Hinweis:** Der Pfad muss dem tatsächlichen Projektpfad auf dem Server entsprechen (z. B. der Wert aus dem GitHub Secret `PATH_PROD`).
+Der Pfad muss dem tatsächlichen Projektpfad auf dem Server entsprechen (zum Beispiel dem Wert aus dem GitHub Secret `PATH_PROD`).
 
-Der Cron läuft jede Minute. Laravel prüft intern, welche Commands fällig sind, und führt nur die geplanten aus.
+Der Cron läuft jede Minute; Laravel prüft intern, welche Commands fällig sind, und führt nur die geplanten aus.
 
 ### Verifizierung
 
-Nach dem Einrichten des Cronjobs kann man prüfen, ob der Scheduler korrekt konfiguriert ist:
+Nach dem Einrichten des Cronjobs lässt sich prüfen, ob der Scheduler korrekt konfiguriert ist:
 
 ```bash
 # Alle geplanten Commands anzeigen
@@ -365,34 +276,20 @@ php artisan dashboard:reset
 | `SEED_DASHBOARD_JSON_URL` | `https://zukunft.regensburg.de/dashboard.json` | URL für den nächtlichen Download der `dashboard.json` |
 | `SEED_DASHBOARD_JSON` | `storage/app/seeds/regensburg/dashboard.json` | Lokaler Speicherpfad |
 
----
-
 ## Weitere Informationen
 
-- **Seeder-Dateien:** `database/seeders/`
-- **Command-Dateien:** `app/Console/Commands/`
-- **Konfiguration:** `config/seeding.php`
-- **Deployment-Skript:** `deploy/post_deploy.sh`
-
----
+- Seeder-Dateien: `database/seeders/`
+- Command-Dateien: `app/Console/Commands/`
+- Konfiguration: `config/seeding.php`
+- Deployment-Skript: `deploy/post_deploy.sh`
 
 ## Best Practices
 
-1. **Immer `--dry-run` zuerst verwenden:**
+1. Immer zuerst `--dry-run` verwenden:
    ```bash
    php artisan dashboard:seed --path=dashboard.json --dry-run
    ```
-
-2. **Backup vor Seeding:**
-   - Erstelle ein Datenbank-Backup vor dem Seeding, besonders bei Updates
-
-3. **Logs prüfen:**
-   - Seeding-Fehler werden in `storage/logs/laravel.log` geloggt
-   - Prüfe Logs bei Problemen
-
-4. **Testumgebung:**
-   - Teste Seeding-Befehle zuerst in einer Testumgebung
-
-5. **Versionierung:**
-   - Versioniere die `dashboard.json` Datei, wenn möglich
-   - Dokumentiere Änderungen an der JSON-Struktur
+2. Vor dem Seeding ein Datenbank-Backup anlegen, besonders bei Updates.
+3. Seeding-Fehler landen in `storage/logs/laravel.log`, bei Problemen dort nachsehen.
+4. Seeding-Befehle zuerst in einer Testumgebung ausprobieren.
+5. Die `dashboard.json`-Datei versionieren, wenn möglich, und Änderungen an der JSON-Struktur dokumentieren.

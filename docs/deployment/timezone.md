@@ -1,12 +1,10 @@
-# Zeitzone & Zeitstempel
+# Zeitzone und Zeitstempel
 
 ## Übersicht
 
 Das Dashboard verwendet die Umgebungsvariable `APP_TIMEZONE`, um die Zeitzone für alle Zeitstempel im Backend zu steuern. Standardmäßig ist `Europe/Berlin` eingestellt.
 
-Die einzige Ausnahme ist die "Serverzeit"-Anzeige im Modul "Übersicht" — diese zeigt immer UTC. Alle anderen Zeitstempel (API-Keys, Carbon-Instanzen, Datenbankeinträge) verwenden die konfigurierte Zeitzone.
-
----
+Die einzige Ausnahme ist die "Serverzeit"-Anzeige im Modul "Übersicht", diese zeigt immer UTC. Alle anderen Zeitstempel (API-Keys, Carbon-Instanzen, Datenbankeinträge) verwenden die konfigurierte Zeitzone.
 
 ## Konfiguration
 
@@ -35,8 +33,6 @@ Wird kein Wert in `.env` gesetzt, gilt `Europe/Berlin` als Fallback.
 
 Eine vollständige Liste aller unterstützten Zeitzonen findet sich in der [PHP-Dokumentation](https://www.php.net/manual/de/timezones.php).
 
----
-
 ## Auswirkungen
 
 | Bereich | Zeitzone | Beispiel |
@@ -47,33 +43,27 @@ Eine vollständige Liste aller unterstützten Zeitzonen findet sich in der [PHP-
 | Alle `Carbon::now()`-Aufrufe | `APP_TIMEZONE` | automatisch |
 | Datenbank-Timestamps (`created_at`, `updated_at`) | `APP_TIMEZONE` | automatisch |
 
----
+## Sommer- und Winterzeit (DST)
 
-## Sommer-/Winterzeit (DST)
+PHP nutzt die IANA-Timezone-Datenbank (tzdata). Die Umstellung zwischen Sommer- und Winterzeit läuft automatisch, ohne manuellen Eingriff.
 
-PHP nutzt die **IANA-Timezone-Datenbank** (tzdata). Die Umstellung zwischen Sommer- und Winterzeit wird automatisch gehandhabt — kein manueller Eingriff nötig.
-
-**Beispiel `Europe/Berlin`:**
+Beispiel `Europe/Berlin`:
 - Winter: CET (UTC+1)
 - Sommer: CEST (UTC+2)
 
-PHP-Updates bringen in der Regel eine aktualisierte tzdata mit. Auf Linux-Systemen kann die Datenbank auch über das Paket `tzdata` aktualisiert werden.
+PHP-Updates bringen in der Regel eine aktualisierte tzdata mit. Auf Linux-Systemen lässt sich die Datenbank auch über das Paket `tzdata` aktualisieren.
 
-**Wichtig:** UTC-Offsets (z. B. `+02:00`) kennen **kein** DST — immer benannte Zeitzonen wie `Europe/Berlin` verwenden.
-
----
+Wichtig: UTC-Offsets (z. B. `+02:00`) kennen kein DST, deshalb immer benannte Zeitzonen wie `Europe/Berlin` verwenden.
 
 ## Troubleshooting
 
-### Zeitstempel sind um 1 Stunde verschoben
+### Zeitstempel sind um eine Stunde verschoben
 
-**Lösung:**
-- Prüfe, ob `APP_TIMEZONE` in `.env` korrekt gesetzt ist
-- Stelle sicher, dass eine benannte Zeitzone (nicht ein UTC-Offset) verwendet wird
+- Prüfe, ob `APP_TIMEZONE` in `.env` korrekt gesetzt ist.
+- Stelle sicher, dass eine benannte Zeitzone verwendet wird, kein UTC-Offset.
 
 ### Nach PHP-Update falsche Zeiten
 
-**Lösung:**
 - Prüfe, ob das `tzdata`-Paket auf dem Server aktuell ist:
   ```bash
   # Debian/Ubuntu
@@ -89,8 +79,7 @@ PHP-Updates bringen in der Regel eine aktualisierte tzdata mit. Auf Linux-System
 
 ### Zeitzone hat keine Auswirkung
 
-**Lösung:**
-- Prüfe, ob `config/app.php` den Wert aus `.env` liest: `env('APP_TIMEZONE', 'Europe/Berlin')`
+- Prüfe, ob `config/app.php` den Wert aus `.env` liest: `env('APP_TIMEZONE', 'Europe/Berlin')`.
 - Config-Cache leeren:
   ```bash
   php artisan config:clear
