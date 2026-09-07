@@ -12,13 +12,16 @@ use App\Http\Requests\UpdateBrandingRequest;
 use App\Models\CategoryGroup;
 use App\Models\FooterNavigation;
 use App\Models\Navigation;
+use App\Models\Page;
 use App\Models\Tenant;
 use App\Settings\BrandingSettings;
 use App\Settings\ContentSettings;
 use App\Settings\DashboardSettings;
 use App\Settings\GeneralSettings;
 use Filament\Facades\Filament;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -40,7 +43,7 @@ class ConfigController extends Controller
      *
      * @response 200 scenario="Branding config" {"data": {"primary_color": "#0d47a1", "secondary_color": "#1976d2", "logo_url": "https://example.com/storage/logos/logo.png", "accent_color": "#ff9800", "typography_font_family": "Inter", "typography_font_weights": ["400", "600", "700"], "slider_colors": ["#0d47a1", "#1976d2"], "background_color": "#ffffff", "card_background_color": "#f5f5f5", "hero_background_color": "#e3f2fd", "overlay_background_color": "rgba(0,0,0,0.5)", "header_background_color": "#ffffff", "footer_background_color": "#f5f5f5", "text_primary_color": "#212121", "text_secondary_color": "#757575", "text_inverse_color": "#ffffff", "link_color": "#0d47a1", "link_hover_color": "#1565c0", "border_color": "#e0e0e0", "divider_color": "#bdbdbd", "shadow_color": "rgba(0,0,0,0.1)", "nav_text_color": "#212121", "nav_text_color_inactive": "#757575", "nav_hover_color": "#0d47a1", "typography_font_sizes": {"small": "0.875rem", "base": "1rem", "large": "1.25rem"}, "typography_custom_font_name": null, "typography_custom_font_file": null}}
      *
-     * @return \Illuminate\Http\Resources\Json\JsonResource The branding configuration as a JSON resource, with file paths converted to public URLs or null.
+     * @return JsonResource The branding configuration as a JSON resource, with file paths converted to public URLs or null.
      */
     public function branding(): JsonResource
     {
@@ -84,7 +87,52 @@ class ConfigController extends Controller
             'card_radius' => $settings->card_radius,
             'card_border_width' => $settings->card_border_width,
             'card_border_color' => $settings->card_border_color,
+            'font_family_heading' => $this->safeFontFamily($settings->font_family_heading),
+            'font_family_body' => $this->safeFontFamily($settings->font_family_body),
+            'font_scale' => $settings->font_scale,
+            'font_faces' => $this->resolveFontFaces($settings->font_faces),
         ]);
+    }
+
+    /**
+     * Font values can also come from the theme layer (raw JSON, not validated by
+     * UpdateBrandingRequest), so the same whitelist is enforced again on output
+     * before the SPA interpolates them into CSS.
+     */
+    private function safeFontFamily(?string $family): ?string
+    {
+        return is_string($family) && preg_match(BrandingSettings::FONT_FAMILY_PATTERN, $family) ? $family : null;
+    }
+
+    /**
+     * Drop invalid font_faces entries and resolve src paths to public URLs.
+     *
+     * @param  array<int, mixed>  $fontFaces
+     * @return array<int, array<string, mixed>>
+     */
+    private function resolveFontFaces(array $fontFaces): array
+    {
+        $faces = [];
+
+        foreach ($fontFaces as $face) {
+            if (! is_array($face)
+                || ! is_string($face['family'] ?? null) || ! preg_match(BrandingSettings::FONT_FAMILY_PATTERN, $face['family'])
+                || ! is_string($face['src'] ?? null) || ! preg_match(BrandingSettings::FONT_SRC_PATTERN, $face['src'])) {
+                continue;
+            }
+
+            $weight = $face['weight'] ?? 400;
+            $weight = is_numeric($weight) && (int) $weight >= 100 && (int) $weight <= 900 ? (int) $weight : 400;
+
+            $faces[] = [
+                'family' => $face['family'],
+                'src' => Storage::disk('public')->url($face['src']),
+                'weight' => $weight,
+                'style' => ($face['style'] ?? 'normal') === 'italic' ? 'italic' : 'normal',
+            ];
+        }
+
+        return $faces;
     }
 
     /**
@@ -96,7 +144,7 @@ class ConfigController extends Controller
      *
      * @response 200 scenario="General config" {"data": {"site_name": "Zukunftsbarometer Regensburg", "favicon_url": "https://example.com/storage/branding/favicon.png"}}
      *
-     * @return \Illuminate\Http\Resources\Json\JsonResource The general configuration containing `site_name` (string) and `favicon_url` (string|null).
+     * @return JsonResource The general configuration containing `site_name` (string) and `favicon_url` (string|null).
      */
     public function general(): JsonResource
     {
@@ -122,12 +170,13 @@ class ConfigController extends Controller
      *
      * @queryParam locale string Locale for translations (`de` or `en`). Example: de
      *
-     * @return \Illuminate\Http\Resources\Json\JsonResource JSON resource with:
-     *                                                      - `navigation_items`: array of navigation items (filtered and translated),
-     *                                                      - `dropdown_enabled`: boolean,
-     *                                                      - `english_translation_active`: boolean
+     * @return JsonResource JSON resource with:
+     *                      - `navigation_items`: array of navigation items (filtered and translated),
+     *                      - `dropdown_enabled`: boolean,
+     *                      - `english_translation_active`: boolean,
+     *                      - `site_name`: string
      */
-    public function header(\Illuminate\Http\Request $request): JsonResource
+    public function header(Request $request): JsonResource
     {
         // Set tenant context from request if available
         $tenant = $this->resolveTenantFromRequest($request);
@@ -183,9 +232,9 @@ class ConfigController extends Controller
      *
      * @response 200 scenario="Footer config" {"data": {"footer_navigation_items": [{"type": "page", "page_id": 2, "label": "Impressum"}], "social_links": [{"platform": "twitter", "url": "https://twitter.com/example"}], "layout_type": "columns", "columns": 3, "social_links_enabled": true, "copyright_text": "© 2025 Stadt Regensburg"}}
      *
-     * @return \Illuminate\Http\Resources\Json\JsonResource JSON resource containing the footer configuration.
+     * @return JsonResource JSON resource containing the footer configuration.
      */
-    public function footer(\Illuminate\Http\Request $request): JsonResource
+    public function footer(Request $request): JsonResource
     {
         // Set tenant context from request if available
         $tenant = $this->resolveTenantFromRequest($request);
@@ -279,7 +328,7 @@ class ConfigController extends Controller
             return $pageIds;
         }
 
-        return \App\Models\Page::query()
+        return Page::query()
             ->whereIn('id', $pageIds)
             ->where('is_public', true)
             ->pluck('id')
@@ -300,8 +349,8 @@ class ConfigController extends Controller
             return static::$pageHasIsPublic;
         }
 
-        $pageTable = (new \App\Models\Page)->getTable();
-        static::$pageHasIsPublic = \Illuminate\Support\Facades\Schema::hasColumn($pageTable, 'is_public');
+        $pageTable = (new Page)->getTable();
+        static::$pageHasIsPublic = Schema::hasColumn($pageTable, 'is_public');
 
         return static::$pageHasIsPublic;
     }
@@ -383,7 +432,7 @@ class ConfigController extends Controller
      * @response 200 scenario="Tenant resolved via token" {"data": {"slug": "demo-city", "name": "Demo City", "domain": "demo-city.example.org", "frontend_base_url": "https://demo-city.example.org", "resolved_by": "token", "theme_slug": "demo-city"}}
      * @response 200 scenario="Default tenant fallback" {"data": {"slug": "default", "name": "Default", "domain": null, "frontend_base_url": null, "resolved_by": "default", "theme_slug": null}}
      */
-    public function tenant(\Illuminate\Http\Request $request): JsonResource
+    public function tenant(Request $request): JsonResource
     {
         $tenant = $request->attributes->get('resolved_tenant');
         $resolvedBy = $request->attributes->get('resolved_tenant_by', 'default');
@@ -677,10 +726,10 @@ class ConfigController extends Controller
      * Checks the `tenant` query parameter first, then the `X-Tenant` header; accepts either a numeric id or a slug.
      * If no tenant is found, returns the tenant with slug "default" when present.
      *
-     * @param  \Illuminate\Http\Request  $request  The current HTTP request.
-     * @return \App\Models\Tenant|null The resolved Tenant model, the tenant with slug "default" if none was specified, or `null` if no default tenant exists.
+     * @param  Request  $request  The current HTTP request.
+     * @return Tenant|null The resolved Tenant model, the tenant with slug "default" if none was specified, or `null` if no default tenant exists.
      */
-    protected function resolveTenantFromRequest(\Illuminate\Http\Request $request): ?Tenant
+    protected function resolveTenantFromRequest(Request $request): ?Tenant
     {
         // Priority 1: Use tenant already resolved by ResolveTenantFromRequest middleware
         // (handles Bearer Token > Domain matching > Default fallback)
@@ -734,8 +783,8 @@ class ConfigController extends Controller
      *
      * @authenticated
      *
-     * @param  \App\Http\Requests\UpdateBrandingRequest  $request  The validated request containing branding fields to update.
-     * @return \Illuminate\Http\Resources\Json\JsonResource The updated branding configuration formatted for API responses.
+     * @param  UpdateBrandingRequest  $request  The validated request containing branding fields to update.
+     * @return JsonResource The updated branding configuration formatted for API responses.
      *
      * @bodyParam primary_color string Primary brand color (hex). Example: #0d47a1
      * @bodyParam secondary_color string Secondary brand color (hex). Example: #1976d2
@@ -810,6 +859,10 @@ class ConfigController extends Controller
             'card_radius' => $settings->card_radius,
             'card_border_width' => $settings->card_border_width,
             'card_border_color' => $settings->card_border_color,
+            'font_family_heading' => $this->safeFontFamily($settings->font_family_heading),
+            'font_family_body' => $this->safeFontFamily($settings->font_family_body),
+            'font_scale' => $settings->font_scale,
+            'font_faces' => $this->resolveFontFaces($settings->font_faces),
         ]);
     }
 

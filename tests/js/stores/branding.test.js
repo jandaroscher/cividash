@@ -358,4 +358,116 @@ describe('brandingStore', () => {
             expect(setPropertySpy).toHaveBeenCalledWith('--link-hover-color', '#00FF00');
         });
     });
+
+    describe('font schema', () => {
+        it('has default values without a font schema in the response', async () => {
+            globalThis.fetch = mockFetch({ data: { primary_color: '#1976d2' } });
+
+            const store = useBrandingStore();
+            await store.fetch();
+
+            expect(store.fontFamilyHeading).toBeNull();
+            expect(store.fontFamilyBody).toBeNull();
+            expect(store.fontScale).toBe('default');
+            expect(store.fontFaces).toEqual([]);
+            expect(setPropertySpy).toHaveBeenCalledWith('--font-size-base', '1rem');
+        });
+
+        it('sets --font-heading, --font-body and --font-size-base from the response', async () => {
+            globalThis.fetch = mockFetch({
+                data: {
+                    primary_color: '#1976d2',
+                    font_family_heading: 'Montserrat, sans-serif',
+                    font_family_body: 'Open Sans, sans-serif',
+                    font_scale: 'large',
+                },
+            });
+
+            const store = useBrandingStore();
+            await store.fetch();
+
+            expect(store.fontFamilyHeading).toBe('Montserrat, sans-serif');
+            expect(store.fontFamilyBody).toBe('Open Sans, sans-serif');
+            expect(store.fontScale).toBe('large');
+            expect(setPropertySpy).toHaveBeenCalledWith('--font-heading', 'Montserrat, sans-serif');
+            expect(setPropertySpy).toHaveBeenCalledWith('--font-body', 'Open Sans, sans-serif');
+            expect(setPropertySpy).toHaveBeenCalledWith('--font-size-base', '1.125rem');
+        });
+
+        it('injects @font-face rules for font_faces into a #theme-fonts style tag', async () => {
+            globalThis.fetch = mockFetch({
+                data: {
+                    primary_color: '#1976d2',
+                    font_faces: [
+                        { family: 'House Sans', src: '/storage/fonts/custom/house-sans.woff2', weight: 400, style: 'normal' },
+                        { family: 'House Sans', src: '/storage/fonts/custom/house-sans-bold.woff', weight: 700, style: 'normal' },
+                    ],
+                },
+            });
+
+            const store = useBrandingStore();
+            await store.fetch();
+
+            const styleEl = document.getElementById('theme-fonts');
+            expect(styleEl).not.toBeNull();
+            expect(styleEl.textContent).toContain('House');
+            expect(styleEl.textContent).toContain('house-sans.woff2');
+            expect(styleEl.textContent).toContain("format('woff2')");
+            expect(styleEl.textContent).toContain('house-sans-bold.woff');
+            expect(styleEl.textContent).toContain('font-weight: 700');
+        });
+
+        it('ignores font_faces entries with a disallowed file extension', async () => {
+            globalThis.fetch = mockFetch({
+                data: {
+                    primary_color: '#1976d2',
+                    font_faces: [
+                        { family: 'Evil Font', src: '/storage/fonts/custom/evil.ttf', weight: 400 },
+                    ],
+                },
+            });
+
+            const store = useBrandingStore();
+            await store.fetch();
+
+            const styleEl = document.getElementById('theme-fonts');
+            expect(styleEl.textContent).not.toContain('Evil Font');
+        });
+
+        it('drops font_faces entries that try to inject CSS via src or weight', async () => {
+            globalThis.fetch = mockFetch({
+                data: {
+                    primary_color: '#1976d2',
+                    font_faces: [
+                        { family: 'Evil', src: "') } body { color: red } /* x.woff2", weight: 400 },
+                        { family: 'Good', src: '/storage/fonts/good.woff2', weight: '400; } * { background: red } /*' },
+                    ],
+                },
+            });
+
+            const store = useBrandingStore();
+            await store.fetch();
+
+            const css = document.getElementById('theme-fonts').textContent;
+            expect(css).not.toContain('Evil');
+            expect(css).not.toContain('background');
+            expect(css).toContain("font-family: 'Good'");
+            expect(css).toContain('font-weight: 400;');
+        });
+
+        it('clears the #theme-fonts style tag when font_faces is empty', async () => {
+            globalThis.fetch = mockFetch({
+                data: {
+                    primary_color: '#1976d2',
+                    font_faces: [],
+                },
+            });
+
+            const store = useBrandingStore();
+            await store.fetch();
+
+            const styleEl = document.getElementById('theme-fonts');
+            expect(styleEl.textContent).toBe('');
+        });
+    });
 });

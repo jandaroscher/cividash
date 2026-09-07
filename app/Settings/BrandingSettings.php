@@ -6,6 +6,20 @@ use Spatie\LaravelSettings\Settings;
 
 class BrandingSettings extends Settings
 {
+    /**
+     * Fixed --font-size-base values per font_scale option.
+     * "default" matches today's hardcoded 1rem default exactly.
+     */
+    public const FONT_FAMILY_PATTERN = '/^[A-Za-z0-9 ,\'"-]+$/';
+
+    public const FONT_SRC_PATTERN = '/^(?!.*\.\.)[\w\-\/.:%?&=+~#@]+\.(woff2?|WOFF2?)$/';
+
+    public const FONT_SCALE_SIZES = [
+        'compact' => '0.875rem',
+        'default' => '1rem',
+        'large' => '1.125rem',
+    ];
+
     public string $primary_color;
 
     public string $secondary_color;
@@ -73,6 +87,17 @@ class BrandingSettings extends Settings
 
     public ?string $card_border_color;
 
+    // Font schema: separate heading/body font
+    // stacks, a base-size scale, and self-hosted font faces. Nullable /
+    // "default" so existing tenants keep today's single-font rendering.
+    public ?string $font_family_heading;
+
+    public ?string $font_family_body;
+
+    public string $font_scale = 'default';
+
+    public array $font_faces = [];
+
     /**
      * Get the settings group name for branding.
      *
@@ -88,5 +113,6 @@ class BrandingSettings extends Settings
         'typography_font_weights' => 'array',
         'slider_colors' => 'array',
         'typography_font_sizes' => 'array',
+        'font_faces' => 'array',
     ];
 }

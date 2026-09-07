@@ -346,4 +346,124 @@ class BrandingConfigApiTest extends TestCase
         $this->assertNotEquals('#FF0000', $responseB->json('data.primary_color'));
         $this->assertEquals('#0d47a1', $responseB->json('data.primary_color'));
     }
+
+    // ========== Font Schema Tests ==========
+
+    public function test_get_branding_config_returns_font_schema_defaults(): void
+    {
+        $response = $this->getJson('/api/config/branding');
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+
+        $this->assertNull($data['font_family_heading']);
+        $this->assertNull($data['font_family_body']);
+        $this->assertEquals('default', $data['font_scale']);
+        $this->assertEquals([], $data['font_faces']);
+    }
+
+    public function test_post_branding_config_updates_font_schema(): void
+    {
+        $token = $this->createTokenForTenant($this->tenant);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/admin/config/branding', [
+                'font_family_heading' => 'Montserrat, sans-serif',
+                'font_family_body' => 'Open Sans, sans-serif',
+                'font_scale' => 'large',
+                'font_faces' => [
+                    ['family' => 'House Sans', 'src' => 'fonts/custom/house-sans.woff2', 'weight' => 400, 'style' => 'normal'],
+                ],
+            ]);
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+
+        $this->assertEquals('Montserrat, sans-serif', $data['font_family_heading']);
+        $this->assertEquals('Open Sans, sans-serif', $data['font_family_body']);
+        $this->assertEquals('large', $data['font_scale']);
+        $this->assertCount(1, $data['font_faces']);
+        $this->assertEquals('House Sans', $data['font_faces'][0]['family']);
+        $this->assertStringContainsString('house-sans.woff2', $data['font_faces'][0]['src']);
+
+        $settings = app(BrandingSettings::class);
+        $this->assertEquals('large', $settings->font_scale);
+    }
+
+    public function test_post_branding_config_validates_font_family_characters(): void
+    {
+        $token = $this->createTokenForTenant($this->tenant);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/admin/config/branding', [
+                'font_family_heading' => 'Evil<script>alert(1)</script>',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['font_family_heading']);
+    }
+
+    public function test_post_branding_config_validates_font_scale(): void
+    {
+        $token = $this->createTokenForTenant($this->tenant);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/admin/config/branding', [
+                'font_scale' => 'huge',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['font_scale']);
+    }
+
+    public function test_post_branding_config_validates_font_face_src_extension(): void
+    {
+        $token = $this->createTokenForTenant($this->tenant);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/admin/config/branding', [
+                'font_faces' => [
+                    ['family' => 'House Sans', 'src' => 'fonts/custom/house-sans.ttf', 'weight' => 400],
+                ],
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['font_faces.0.src']);
+    }
+
+    public function test_post_branding_config_validates_font_face_weight(): void
+    {
+        $token = $this->createTokenForTenant($this->tenant);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/admin/config/branding', [
+                'font_faces' => [
+                    ['family' => 'House Sans', 'src' => 'fonts/custom/house-sans.woff2', 'weight' => 50],
+                ],
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['font_faces.0.weight']);
+    }
+
+    public function test_get_branding_config_filters_invalid_theme_level_font_values(): void
+    {
+        // Theme-layer JSON bypasses UpdateBrandingRequest, so simulate raw stored values.
+        $settings = app(BrandingSettings::class);
+        $settings->font_family_heading = "Font'; } body { color: red } /*";
+        $settings->font_faces = [
+            ['family' => 'Evil', 'src' => "') } body { color: red } /* x.woff2", 'weight' => 400],
+            ['family' => 'Good', 'src' => 'fonts/good.woff2', 'weight' => '400; } * { x: y } /*', 'style' => 'weird'],
+        ];
+        $settings->save();
+
+        $data = $this->getJson('/api/config/branding')->assertStatus(200)->json('data');
+
+        $this->assertNull($data['font_family_heading']);
+        $this->assertCount(1, $data['font_faces']);
+        $this->assertSame('Good', $data['font_faces'][0]['family']);
+        $this->assertSame(400, $data['font_faces'][0]['weight']);
+        $this->assertSame('normal', $data['font_faces'][0]['style']);
+        $this->assertStringEndsWith('/storage/fonts/good.woff2', $data['font_faces'][0]['src']);
+    }
 }

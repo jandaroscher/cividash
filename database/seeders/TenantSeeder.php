@@ -109,6 +109,11 @@ class TenantSeeder extends Seeder
             'card_radius' => '0',
             'card_border_width' => '1px',
             'card_border_color' => '#1465A4',
+            // Font schema: system stacks only, no licensed house font.
+            'font_family_heading' => "'Source Sans 3', 'Segoe UI', Arial, sans-serif",
+            'font_family_body' => "'Source Sans 3', 'Segoe UI', Arial, sans-serif",
+            'font_scale' => 'default',
+            'font_faces' => [],
         ];
     }
 }

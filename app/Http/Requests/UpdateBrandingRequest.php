@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Settings\BrandingSettings;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -20,7 +22,7 @@ class UpdateBrandingRequest extends FormRequest
     /**
      * Get validation rules for updating branding settings.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string> An associative array mapping request input field names to their validation rules.
+     * @return array<string, ValidationRule|array<mixed>|string> An associative array mapping request input field names to their validation rules.
      */
     public function rules(): array
     {
@@ -57,6 +59,14 @@ class UpdateBrandingRequest extends FormRequest
             'typography_font_sizes.*' => ['string', 'regex:/^[\d.]+(rem|px)$/'],
             'typography_custom_font_name' => ['nullable', 'string', 'max:255'],
             'typography_custom_font_file' => ['nullable', 'string', 'max:500', 'regex:/^(?!.*\.\.)[\w\-\/.:%?&=+~#@]+$/'],
+            'font_family_heading' => ['nullable', 'string', 'max:255', 'regex:'.BrandingSettings::FONT_FAMILY_PATTERN],
+            'font_family_body' => ['nullable', 'string', 'max:255', 'regex:'.BrandingSettings::FONT_FAMILY_PATTERN],
+            'font_scale' => ['sometimes', Rule::in(['compact', 'default', 'large'])],
+            'font_faces' => ['sometimes', 'array'],
+            'font_faces.*.family' => ['required_with:font_faces', 'string', 'max:255', 'regex:'.BrandingSettings::FONT_FAMILY_PATTERN],
+            'font_faces.*.src' => ['required_with:font_faces', 'string', 'max:500', 'regex:'.BrandingSettings::FONT_SRC_PATTERN],
+            'font_faces.*.weight' => ['nullable', 'integer', 'min:100', 'max:900'],
+            'font_faces.*.style' => ['nullable', 'string', Rule::in(['normal', 'italic'])],
             'tile_color_source_group_id' => [
                 'nullable',
                 'integer',

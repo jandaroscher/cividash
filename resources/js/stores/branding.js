@@ -1,6 +1,14 @@
 import { defineStore } from 'pinia';
 import { getApiBaseUrl } from '../utils/api';
 
+// Fixed --font-size-base values per font_scale option.
+// "default" matches today's hardcoded 1rem default exactly.
+export const FONT_SCALE_SIZES = {
+    compact: '0.875rem',
+    default: '1rem',
+    large: '1.125rem',
+};
+
 export const useBrandingStore = defineStore('branding', {
     state: () => ({
         primaryColor: '#1976d2',
@@ -51,6 +59,12 @@ export const useBrandingStore = defineStore('branding', {
         cardRadius: null,
         cardBorderWidth: null,
         cardBorderColor: null,
+        // Font schema: separate heading/body font
+        // stacks, a base-size scale, and self-hosted font faces.
+        fontFamilyHeading: null,
+        fontFamilyBody: null,
+        fontScale: 'default',
+        fontFaces: [],
     }),
     actions: {
         async fetch() {
@@ -95,6 +109,10 @@ export const useBrandingStore = defineStore('branding', {
                     card_radius,
                     card_border_width,
                     card_border_color,
+                    font_family_heading,
+                    font_family_body,
+                    font_scale,
+                    font_faces,
                 } = json.data;
 
                 this.primaryColor = primary_color || this.primaryColor;
@@ -148,6 +166,12 @@ export const useBrandingStore = defineStore('branding', {
                 this.cardBorderWidth = card_border_width !== undefined ? card_border_width : this.cardBorderWidth;
                 this.cardBorderColor = card_border_color !== undefined ? card_border_color : this.cardBorderColor;
 
+                // Font schema
+                this.fontFamilyHeading = font_family_heading !== undefined ? font_family_heading : this.fontFamilyHeading;
+                this.fontFamilyBody = font_family_body !== undefined ? font_family_body : this.fontFamilyBody;
+                this.fontScale = font_scale || this.fontScale;
+                this.fontFaces = font_faces !== undefined ? font_faces : this.fontFaces;
+
                 // Load font (Google Font or Custom Font)
                 if (this.customFontFile && this.customFontName) {
                     this.loadCustomFont(this.customFontName, this.customFontFile);
@@ -176,6 +200,16 @@ export const useBrandingStore = defineStore('branding', {
                         document.documentElement.style.setProperty(`--font-size-${key}`, this.typographyFontSizes[key]);
                     });
                 }
+
+                // Set heading/body font and font-scale CSS variables
+                const effectiveHeadingFont = this.fontFamilyHeading || fontFamilyValue;
+                const effectiveBodyFont = this.fontFamilyBody || fontFamilyValue;
+                document.documentElement.style.setProperty('--font-heading', effectiveHeadingFont);
+                document.documentElement.style.setProperty('--font-body', effectiveBodyFont);
+                document.documentElement.style.setProperty('--font-size-base', FONT_SCALE_SIZES[this.fontScale] || FONT_SCALE_SIZES.default);
+
+                // Inject @font-face rules for self-hosted font faces
+                this.applyFontFaces(this.fontFaces);
 
                 // Set slider colors as CSS variables
                 document.documentElement.style.setProperty('--slider-rail-color', this.sliderColors.rail || '#191919');
@@ -242,6 +276,43 @@ export const useBrandingStore = defineStore('branding', {
             } catch (error) {
                 logError('Failed to fetch branding settings:', error);
             }
+        },
+        applyFontFaces(fontFaces) {
+            let styleEl = document.getElementById('theme-fonts');
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = 'theme-fonts';
+                document.head.appendChild(styleEl);
+            }
+
+            if (!Array.isArray(fontFaces) || fontFaces.length === 0) {
+                styleEl.textContent = '';
+                return;
+            }
+
+            // Same whitelist as UpdateBrandingRequest / ConfigController. Theme-level
+            // JSON bypasses the FormRequest, so never trust these values blindly.
+            const familyPattern = /^[A-Za-z0-9 ,'"-]+$/;
+            const srcPattern = /^(?!.*\.\.)[\w\-/.:%?&=+~#@]+\.(woff2?|WOFF2?)$/;
+
+            const rules = fontFaces
+                .filter((face) => face && typeof face.family === 'string' && typeof face.src === 'string')
+                .map((face) => {
+                    if (!familyPattern.test(face.family) || !srcPattern.test(face.src)) {
+                        return null;
+                    }
+
+                    const ext = face.src.split('.').pop().toLowerCase();
+                    const weightNumber = Number(face.weight);
+                    const weight = Number.isInteger(weightNumber) && weightNumber >= 100 && weightNumber <= 900 ? weightNumber : 400;
+                    const style = face.style === 'italic' ? 'italic' : 'normal';
+                    const format = ext === 'woff2' ? 'woff2' : 'woff';
+
+                    return `@font-face { font-family: '${face.family.replace(/['"]/g, '')}'; src: url('${face.src}') format('${format}'); font-weight: ${weight}; font-style: ${style}; font-display: swap; }`;
+                })
+                .filter(Boolean);
+
+            styleEl.textContent = rules.join('\n');
         },
         loadGoogleFont(fontFamily, weights = [400, 600, 700]) {
             // Check if font is already loaded

@@ -402,6 +402,70 @@ class ManageBranding extends SettingsPage
                                                     ->nullable(),
                                             ]),
                                     ]),
+
+                                Forms\Components\Section::make(__('filament.pages.manage_branding.font_schema_section'))
+                                    ->schema([
+                                        TextInput::make('font_family_heading')
+                                            ->label(__('filament.pages.manage_branding.font_family_heading'))
+                                            ->helperText(__('filament.pages.manage_branding.font_family_heading_helper'))
+                                            ->nullable(),
+
+                                        TextInput::make('font_family_body')
+                                            ->label(__('filament.pages.manage_branding.font_family_body'))
+                                            ->helperText(__('filament.pages.manage_branding.font_family_body_helper'))
+                                            ->nullable(),
+
+                                        Select::make('font_scale')
+                                            ->label(__('filament.pages.manage_branding.font_scale'))
+                                            ->helperText(__('filament.pages.manage_branding.font_scale_helper'))
+                                            ->options([
+                                                'compact' => __('filament.pages.manage_branding.font_scale_compact'),
+                                                'default' => __('filament.pages.manage_branding.font_scale_default'),
+                                                'large' => __('filament.pages.manage_branding.font_scale_large'),
+                                            ])
+                                            ->default('default')
+                                            ->required(),
+
+                                        Repeater::make('font_faces')
+                                            ->label(__('filament.pages.manage_branding.font_faces_section'))
+                                            ->helperText(__('filament.pages.manage_branding.font_faces_helper'))
+                                            ->schema([
+                                                TextInput::make('family')
+                                                    ->label(__('filament.pages.manage_branding.font_face_family'))
+                                                    ->required(),
+
+                                                FileUpload::make('src')
+                                                    ->label(__('filament.pages.manage_branding.font_face_src'))
+                                                    ->disk('public')
+                                                    ->directory('fonts/custom')
+                                                    ->acceptedFileTypes(['application/font-woff2', 'application/font-woff', 'font/woff2', 'font/woff'])
+                                                    ->maxSize(5120) // 5MB, matches typography_custom_font_file
+                                                    ->required(),
+
+                                                Select::make('weight')
+                                                    ->label(__('filament.pages.manage_branding.font_face_weight'))
+                                                    ->options([
+                                                        100 => '100', 200 => '200', 300 => '300', 400 => '400',
+                                                        500 => '500', 600 => '600', 700 => '700', 800 => '800', 900 => '900',
+                                                    ])
+                                                    ->default(400)
+                                                    ->required(),
+
+                                                Select::make('style')
+                                                    ->label(__('filament.pages.manage_branding.font_face_style'))
+                                                    ->options([
+                                                        'normal' => __('filament.pages.manage_branding.font_face_style_normal'),
+                                                        'italic' => __('filament.pages.manage_branding.font_face_style_italic'),
+                                                    ])
+                                                    ->default('normal')
+                                                    ->required(),
+                                            ])
+                                            ->columns(2)
+                                            ->itemLabel(fn (array $state): ?string => $state['family'] ?? null)
+                                            ->collapsible()
+                                            ->collapsed()
+                                            ->addActionLabel(__('filament.actions.add')),
+                                    ]),
                             ]),
 
                         Tabs\Tab::make(__('filament.pages.manage_branding.tabs.configuration'))
