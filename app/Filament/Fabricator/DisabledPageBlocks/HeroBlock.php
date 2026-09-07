@@ -28,7 +28,8 @@ class HeroBlock extends PageBlock
                     ->label(__('filament.blocks.hero.image'))
                     ->image()
                     ->directory('hero-images')
-                    ->disk('public'),
+                    ->disk('public')
+                    ->maxSize(5120), // 5 MB
                 TextInput::make('image_alt')
                     ->label(__('filament.blocks.hero.image_alt'))
                     ->helperText(__('filament.blocks.hero.image_alt_helper'))

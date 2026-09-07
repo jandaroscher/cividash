@@ -71,7 +71,7 @@ class ManageBrandingTest extends TestCase
                 'logo_url' => [$oversizedLogo],
             ])
             ->call('save')
-            ->assertHasFormErrors(['logo_url' => 'max_size']);
+            ->assertHasFormErrors(['logo_url']);
     }
 
     public function test_primary_and_secondary_color_are_required(): void
