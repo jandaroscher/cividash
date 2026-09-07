@@ -1,52 +1,52 @@
 <template>
-    <section
-        v-if="visibleItems.length > 0"
-        class="py-12 md:py-16"
-    >
-        <div class="container">
-            <details
-                v-for="(item, index) in visibleItems"
-                :key="item.id || `faq-${index}`"
-                class="group faq-item"
-                @toggle="isOpen[index] = $event.target.open"
+  <section
+    v-if="visibleItems.length > 0"
+    class="py-12 md:py-16"
+  >
+    <div class="container">
+      <details
+        v-for="(item, index) in visibleItems"
+        :key="item.id || `faq-${index}`"
+        class="group faq-item"
+        @toggle="isOpen[index] = $event.target.open"
+      >
+        <summary
+          class="cursor-pointer grid grid-cols-12 py-5 pl-5 font-bold select-none transition-colors duration-200"
+          :style="{ color: isOpen[index] ? brandingStore.primaryColor : 'var(--text-primary-color, #191919)' }"
+        >
+          <div class="col-span-12 lg:col-span-11 flex items-center gap-5">
+            <span
+              class="faq-chevron shrink-0 inline-flex items-center justify-center transition-transform duration-300"
+              :class="isOpen[index] ? '' : 'rotate-180'"
+              :style="{ color: brandingStore.primaryColor }"
             >
-                <summary
-                    class="cursor-pointer grid grid-cols-12 py-5 pl-5 font-bold select-none transition-colors duration-200"
-                    :style="{ color: isOpen[index] ? brandingStore.primaryColor : 'var(--text-primary-color, #191919)' }"
-                >
-                    <div class="col-span-12 lg:col-span-11 flex items-center gap-5">
-                        <span
-                            class="faq-chevron shrink-0 inline-flex items-center justify-center transition-transform duration-300"
-                            :class="isOpen[index] ? '' : 'rotate-180'"
-                            :style="{ color: brandingStore.primaryColor }"
-                        >
-                            <svg
-                                width="22"
-                                height="13"
-                                viewBox="0 0 22 13"
-                                fill="currentColor"
-                                xmlns="http://www.w3.org/2000/svg"
-                                aria-hidden="true"
-                            >
-                                <path d="M10.5459 0L21.0918 10.2549L19 12.4053L10.5459 4.18457L2.0918 12.4053L0 10.2549L10.5459 0Z" />
-                            </svg>
-                        </span>
-                        <span class="text-base leading-6">{{ item.question }}</span>
-                    </div>
-                </summary>
-                <div
-                    v-if="item.answer"
-                    class="grid grid-cols-12 pb-5"
-                >
-                    <div
-                        class="col-span-12 lg:col-span-11 prose max-w-none text-theme-secondary"
-                        style="padding-left: calc(20px + 22px + 20px);"
-                        v-html="getSanitizedAnswer(item)"
-                    />
-                </div>
-            </details>
+              <svg
+                width="22"
+                height="13"
+                viewBox="0 0 22 13"
+                fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path d="M10.5459 0L21.0918 10.2549L19 12.4053L10.5459 4.18457L2.0918 12.4053L0 10.2549L10.5459 0Z" />
+              </svg>
+            </span>
+            <span class="text-base leading-6">{{ item.question }}</span>
+          </div>
+        </summary>
+        <div
+          v-if="item.answer"
+          class="grid grid-cols-12 pb-5"
+        >
+          <div
+            class="col-span-12 lg:col-span-11 prose max-w-none text-theme-secondary"
+            style="padding-left: calc(20px + 22px + 20px);"
+            v-html="getSanitizedAnswer(item)"
+          />
         </div>
-    </section>
+      </details>
+    </div>
+  </section>
 </template>
 
 <script setup>

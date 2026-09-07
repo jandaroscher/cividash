@@ -334,7 +334,7 @@ onBeforeUnmount(() => {
     cardHeights.clear();
 });
 
-function refreshLayout(filter) {
+function refreshLayout() {
     // Cancel any pending refresh to debounce multiple rapid filter changes
     if (refreshLayoutTimeout) {
         cancelAnimationFrame(refreshLayoutTimeout);

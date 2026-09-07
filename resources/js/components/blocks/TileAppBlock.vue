@@ -41,7 +41,10 @@
     >
       {{ effectiveLocale === 'en' ? 'Error loading tiles:' : 'Fehler beim Laden der Tiles:' }} {{ tilesStore.error.message }}
     </div>
-    <Cards v-else :selected-tile-ids="selectedTileIds" />
+    <Cards
+      v-else
+      :selected-tile-ids="selectedTileIds"
+    />
     <Overlay />
   </div>
 </template>
@@ -69,7 +72,6 @@ const selectedTileIds = computed(() => {
     const ids = props.block.props?.tiles;
     return Array.isArray(ids) && ids.length > 0 ? ids : [];
 });
-const hasSelectedTiles = computed(() => selectedTileIds.value.length > 0);
 const hideFilters = computed(() => selectedTileIds.value.length === 1);
 const showSearch = computed(() => !hideFilters.value && props.block.props?.show_search !== false);
 const showFilter = computed(() => !hideFilters.value && props.block.props?.show_filter !== false);

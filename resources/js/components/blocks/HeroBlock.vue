@@ -1,64 +1,62 @@
 <template>
-    <section 
-        class="relative bg-gray-900 text-white py-20"
-        :style="{ backgroundColor: 'var(--hero-background-color, #111827)' }"
-        :aria-label="block.props.title || 'Hero section'"
+  <section 
+    class="relative bg-gray-900 text-white py-20"
+    :style="{ backgroundColor: 'var(--hero-background-color, #111827)' }"
+    :aria-label="block.props.title || 'Hero section'"
+  >
+    <div
+      v-if="imageUrl"
+      class="absolute inset-0"
+      style="z-index: var(--z-base);"
     >
-        <div v-if="imageUrl" class="absolute inset-0" style="z-index: var(--z-base);">
-            <img
-                :src="imageUrl"
-                :alt="block.props.image_alt || ''"
-                class="w-full h-full object-cover opacity-50"
-            />
-        </div>
-        <div class="container relative" style="z-index: var(--z-dropdown);">
-            <div>
-                <h1
-                    v-if="block.props.title"
-                    class="content-heading text-white mb-6 hyphens-auto"
-                >
-                    {{ block.props.title }}
-                </h1>
-                <p
-                    v-if="block.props.subtitle"
-                    class="text-theme-h5 mb-8 text-gray-200"
-                >
-                    {{ block.props.subtitle }}
-                </p>
-                <a
-                    v-if="block.props.cta_text && block.props.cta_url"
-                    :href="ctaUrl"
-                    :target="isExternal ? '_blank' : undefined"
-                    :rel="isExternal ? 'noopener noreferrer' : undefined"
-                    class="inline-block bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-                >
-                    {{ block.props.cta_text }}
-                </a>
-            </div>
-        </div>
-    </section>
+      <img
+        :src="imageUrl"
+        :alt="block.props.image_alt || ''"
+        class="w-full h-full object-cover opacity-50"
+      >
+    </div>
+    <div
+      class="container relative"
+      style="z-index: var(--z-dropdown);"
+    >
+      <div>
+        <h1
+          v-if="block.props.title"
+          class="content-heading text-white mb-6 hyphens-auto"
+        >
+          {{ block.props.title }}
+        </h1>
+        <p
+          v-if="block.props.subtitle"
+          class="text-theme-h5 mb-8 text-gray-200"
+        >
+          {{ block.props.subtitle }}
+        </p>
+        <a
+          v-if="block.props.cta_text && block.props.cta_url"
+          :href="ctaUrl"
+          :target="isExternal ? '_blank' : undefined"
+          :rel="isExternal ? 'noopener noreferrer' : undefined"
+          class="inline-block bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+        >
+          {{ block.props.cta_text }}
+        </a>
+      </div>
+    </div>
+  </section>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed, toRef } from 'vue';
 import { useImageUrl } from '../../composables/useImageUrl';
 import { isExternalUrl } from '../../utils/sanitizeHtml';
 
-interface HeroBlockProps {
-    type: string;
-    props: {
-        title?: string;
-        subtitle?: string;
-        image?: string;
-        image_alt?: string;
-        cta_text?: string;
-        cta_url?: string;
-    };
-}
-
-const props = defineProps<{
-    block: HeroBlockProps;
-}>();
+const props = defineProps({
+    block: {
+        type: Object,
+        required: true,
+    },
+});
 
 const imageUrl = useImageUrl(toRef(() => props.block.props.image));
 

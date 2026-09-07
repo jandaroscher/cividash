@@ -312,7 +312,7 @@ function initializePlugins() {
             if (plugin && typeof plugin.destroy === 'function') {
                 try {
                     plugin.destroy();
-                } catch (e) {
+                } catch {
                     // Ignore destroy errors
                 }
             }
@@ -399,7 +399,7 @@ onBeforeUnmount(() => {
             if (plugin && typeof plugin.destroy === 'function') {
                 try {
                     plugin.destroy();
-                } catch (e) {
+                } catch {
                     // Ignore destroy errors
                 }
             }
@@ -410,7 +410,7 @@ onBeforeUnmount(() => {
     if (flicking.value && flicking.value.vanillaFlicking) {
         try {
             flicking.value.vanillaFlicking.destroy();
-        } catch (e) {
+        } catch {
             // Ignore destroy errors
         }
     }

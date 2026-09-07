@@ -15,8 +15,8 @@
           />
         </div>
         <component
-          v-else
           :is="getBlockComponent(block.type)"
+          v-else
           :block="block"
         />
       </template>

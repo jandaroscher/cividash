@@ -367,7 +367,7 @@ export const useBrandingStore = defineStore('branding', {
                 
                 // Use the validated URL
                 validatedUrl = url.href;
-            } catch (e) {
+            } catch {
                 // If URL constructor fails, try to validate as relative path
                 const ext = fontFileUrl.split('.').pop()?.toLowerCase() || '';
                 if (!allowedExtensions.includes(ext)) {

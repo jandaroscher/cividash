@@ -1,31 +1,50 @@
 <template>
-    <div class="page-view">
-        <!-- Loading state -->
-        <div v-if="loading" class="container text-center py-10" role="status" aria-live="polite">
-            <p>{{ locale === 'en' ? 'Loading page…' : 'Lade Seite…' }}</p>
-        </div>
-        
-        <!-- Error state -->
-        <div v-else-if="error" class="container py-10" role="alert" aria-live="assertive">
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p class="text-red-800">
-                    {{ locale === 'en' ? 'Error loading page:' : 'Fehler beim Laden der Seite:' }}
-                    {{ error.message || error }}
-                </p>
-            </div>
-        </div>
-        
-        <!-- Page content -->
-        <div v-else-if="pageData" class="page-content">
-            <!-- Render blocks via BlockRenderer -->
-            <BlockRenderer v-if="pageData.blocks && pageData.blocks.length > 0" :blocks="transformedBlocks" />
-            
-            <!-- Empty state -->
-            <div v-else class="container py-10 text-center text-gray-500">
-                <p>{{ locale === 'en' ? 'No content available' : 'Kein Inhalt verfügbar' }}</p>
-            </div>
-        </div>
+  <div class="page-view">
+    <!-- Loading state -->
+    <div
+      v-if="loading"
+      class="container text-center py-10"
+      role="status"
+      aria-live="polite"
+    >
+      <p>{{ locale === 'en' ? 'Loading page…' : 'Lade Seite…' }}</p>
     </div>
+        
+    <!-- Error state -->
+    <div
+      v-else-if="error"
+      class="container py-10"
+      role="alert"
+      aria-live="assertive"
+    >
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p class="text-red-800">
+          {{ locale === 'en' ? 'Error loading page:' : 'Fehler beim Laden der Seite:' }}
+          {{ error.message || error }}
+        </p>
+      </div>
+    </div>
+        
+    <!-- Page content -->
+    <div
+      v-else-if="pageData"
+      class="page-content"
+    >
+      <!-- Render blocks via BlockRenderer -->
+      <BlockRenderer
+        v-if="pageData.blocks && pageData.blocks.length > 0"
+        :blocks="transformedBlocks"
+      />
+            
+      <!-- Empty state -->
+      <div
+        v-else
+        class="container py-10 text-center text-gray-500"
+      >
+        <p>{{ locale === 'en' ? 'No content available' : 'Kein Inhalt verfügbar' }}</p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>

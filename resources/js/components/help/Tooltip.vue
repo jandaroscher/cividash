@@ -1,50 +1,55 @@
 <template>
-    <div class="tooltip-wrapper" :class="wrapperClass">
-        <div
-            ref="triggerRef"
-            @mouseenter="handleMouseEnter"
-            @mouseleave="handleMouseLeave"
-            @focus="handleFocus"
-            @blur="handleBlur"
-            @keydown.enter="handleKeyEnter"
-            @keydown.space.prevent="handleKeyEnter"
-            :aria-describedby="tooltipId"
-            :class="triggerClass"
-        >
-            <slot />
-        </div>
-        
-        <Teleport to="body">
-            <div
-                v-if="isVisible && !props.disabled"
-                :id="tooltipId"
-                ref="tooltipRef"
-                role="tooltip"
-                :class="[
-                    'tooltip z-30 px-3 py-2 text-sm rounded shadow-lg pointer-events-none transition-opacity duration-200',
-                    positionClasses,
-                    'max-w-xs'
-                ]"
-                :style="tooltipStyles"
-            >
-                <div class="tooltip-content text-white" v-html="sanitizedText"></div>
-                <!-- Arrow -->
-                <div
-                    :class="[
-                        'tooltip-arrow absolute w-2 h-2',
-                        arrowClasses
-                    ]"
-                    :style="arrowStyles"
-                ></div>
-            </div>
-        </Teleport>
+  <div
+    class="tooltip-wrapper"
+    :class="wrapperClass"
+  >
+    <div
+      ref="triggerRef"
+      :aria-describedby="tooltipId"
+      :class="triggerClass"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
+      @focus="handleFocus"
+      @blur="handleBlur"
+      @keydown.enter="handleKeyEnter"
+      @keydown.space.prevent="handleKeyEnter"
+    >
+      <slot />
     </div>
+        
+    <Teleport to="body">
+      <div
+        v-if="isVisible && !props.disabled"
+        :id="tooltipId"
+        ref="tooltipRef"
+        role="tooltip"
+        :class="[
+          'tooltip z-30 px-3 py-2 text-sm rounded shadow-lg pointer-events-none transition-opacity duration-200',
+          positionClasses,
+          'max-w-xs'
+        ]"
+        :style="tooltipStyles"
+      >
+        <div
+          class="tooltip-content text-white"
+          v-html="sanitizedText"
+        />
+        <!-- Arrow -->
+        <div
+          :class="[
+            'tooltip-arrow absolute w-2 h-2',
+            arrowClasses
+          ]"
+          :style="arrowStyles"
+        />
+      </div>
+    </Teleport>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import DOMPurify from 'dompurify';
-import { useBrandingStore } from '../../stores/branding';
 
 const props = defineProps({
     text: {
@@ -79,7 +84,6 @@ const props = defineProps({
     },
 });
 
-const brandingStore = useBrandingStore();
 const triggerRef = ref(null);
 const tooltipRef = ref(null);
 const isVisible = ref(false);

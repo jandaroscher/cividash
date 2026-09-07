@@ -1,18 +1,28 @@
 <template>
-    <div class="dynamic-page">
-        <PageView v-if="pageData" :page-data="pageData" :locale="locale" />
-        <NotFound v-else-if="isNotFound" />
-        <div v-else-if="loading" class="container text-center py-10">
-            <p>{{ messages.loading }}</p>
-        </div>
-        <div v-else-if="error" class="container py-10">
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p class="text-red-800">
-                    {{ messages.errorPrefix }} {{ error.message || error }}
-                </p>
-            </div>
-        </div>
+  <div class="dynamic-page">
+    <PageView
+      v-if="pageData"
+      :page-data="pageData"
+      :locale="locale"
+    />
+    <NotFound v-else-if="isNotFound" />
+    <div
+      v-else-if="loading"
+      class="container text-center py-10"
+    >
+      <p>{{ messages.loading }}</p>
     </div>
+    <div
+      v-else-if="error"
+      class="container py-10"
+    >
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p class="text-red-800">
+          {{ messages.errorPrefix }} {{ error.message || error }}
+        </p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>

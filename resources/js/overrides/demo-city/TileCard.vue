@@ -45,10 +45,27 @@
             class="text-gray-600 flex-shrink-0 relative -top-px"
           >
             <g transform="translate(0 1)">
-              <path d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z" fill="none" />
+              <path
+                d="M12,0A12,12,0,1,1,0,12,12,12,0,0,1,12,0Z"
+                fill="none"
+              />
               <g transform="translate(0 15.48) rotate(-45)">
-                <path d="M0,0H18.789" transform="translate(0 4.311)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
-                <path d="M0,0,4.359,4.359,0,8.719" transform="translate(14.705)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3" />
+                <path
+                  d="M0,0H18.789"
+                  transform="translate(0 4.311)"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-width="3"
+                />
+                <path
+                  d="M0,0,4.359,4.359,0,8.719"
+                  transform="translate(14.705)"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-width="3"
+                />
               </g>
             </g>
           </svg>
@@ -213,7 +230,7 @@
 // restructuring this override demonstrates (trend moved next to the value,
 // badge added) cannot be expressed through color/font tokens alone.
 import { ref, computed, onMounted } from 'vue';
-import { DotLottiePlayer } from '@johanaarstein/dotlottie-player';
+import '@johanaarstein/dotlottie-player';
 import VueSlider from 'vue-slider-component/lib/vue-slider.vue';
 import 'vue-slider-component/theme/default.css';
 import IndicatorBig from '../../components/cards/indicators/IndicatorBig.vue';

@@ -1,54 +1,54 @@
 <template>
-    <div class="container">
-        <h1
-            v-if="block.props.heading"
-            class="content-heading mb-6 hyphens-auto"
+  <div class="container">
+    <h1
+      v-if="block.props.heading"
+      class="content-heading mb-6 hyphens-auto"
+    >
+      {{ block.props.heading }}
+    </h1>
+
+    <div class="lg:grid lg:grid-cols-3 lg:gap-10 mb-10 lg:mb-14">
+      <div class="col-span-2">
+        <h2
+          v-if="block.props.subheading"
+          class="content-heading mb-6 lg:mb-12 hyphens-auto"
         >
-            {{ block.props.heading }}
-        </h1>
-
-        <div class="lg:grid lg:grid-cols-3 lg:gap-10 mb-10 lg:mb-14">
-            <div class="col-span-2">
-                <h2
-                    v-if="block.props.subheading"
-                    class="content-heading mb-6 lg:mb-12 hyphens-auto"
-                >
-                    {{ block.props.subheading }}
-                </h2>
+          {{ block.props.subheading }}
+        </h2>
                 
-                <img 
-                    v-if="imageUrl"
-                    :alt="block.props.image_alt || ''" 
-                    class="lg:hidden mb-6 block" 
-                    :src="imageUrl" 
-                    loading="lazy"
-                />
+        <img 
+          v-if="imageUrl"
+          :alt="block.props.image_alt || ''" 
+          class="lg:hidden mb-6 block" 
+          :src="imageUrl" 
+          loading="lazy"
+        >
 
-                <div
-                    v-if="block.props.text"
-                    class="prose prose-lg max-w-none [&_p]:text-xl [&_p]:text-black [&_p]:mb-5 [&_p:last-child]:mb-10 [&_li]:text-xl [&_li]:text-black [&_a]:transition-colors [&_a]:duration-300"
-                    v-html="sanitizedText"
-                />
-            </div>
+        <div
+          v-if="block.props.text"
+          class="prose prose-lg max-w-none [&_p]:text-xl [&_p]:text-black [&_p]:mb-5 [&_p:last-child]:mb-10 [&_li]:text-xl [&_li]:text-black [&_a]:transition-colors [&_a]:duration-300"
+          v-html="sanitizedText"
+        />
+      </div>
             
-            <div class="col-span-1">
-                <img 
-                    v-if="imageUrl"
-                    :alt="block.props.image_alt || ''" 
-                    class="hidden lg:block mb-10" 
-                    :src="imageUrl" 
-                    loading="lazy"
-                />
-                <img 
-                    v-if="imageSecondaryUrl"
-                    :alt="block.props.image_secondary_alt || ''" 
-                    class="hidden lg:block" 
-                    :src="imageSecondaryUrl" 
-                    loading="lazy"
-                />
-            </div>
-        </div>
+      <div class="col-span-1">
+        <img 
+          v-if="imageUrl"
+          :alt="block.props.image_alt || ''" 
+          class="hidden lg:block mb-10" 
+          :src="imageUrl" 
+          loading="lazy"
+        >
+        <img 
+          v-if="imageSecondaryUrl"
+          :alt="block.props.image_secondary_alt || ''" 
+          class="hidden lg:block" 
+          :src="imageSecondaryUrl" 
+          loading="lazy"
+        >
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>

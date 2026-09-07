@@ -1,26 +1,30 @@
 <template>
-    <main role="main" aria-labelledby="not-found-title" class="py-12 md:py-16">
-        <div class="container">
-            <h1
-                id="not-found-title"
-                class="content-heading mb-6 hyphens-auto"
-            >
-                404 - {{ messages.title }}
-            </h1>
-            <p class="text-theme-base text-gray-600 mb-6">
-                {{ messages.description }}
-            </p>
-            <RouterLink
-                :to="locale === 'en' ? '/en' : '/'"
-                class="inline-block font-semibold underline transition-colors duration-200"
-                style="color: var(--link-color, var(--accent-color, #E30613));"
-                @mouseenter="$event.target.style.color = 'var(--link-hover-color, var(--accent-color-dark, #891F00))'"
-                @mouseleave="$event.target.style.color = 'var(--link-color, var(--accent-color, #E30613))'"
-            >
-                {{ messages.homeLink }}
-            </RouterLink>
-        </div>
-    </main>
+  <main
+    role="main"
+    aria-labelledby="not-found-title"
+    class="py-12 md:py-16"
+  >
+    <div class="container">
+      <h1
+        id="not-found-title"
+        class="content-heading mb-6 hyphens-auto"
+      >
+        404 - {{ messages.title }}
+      </h1>
+      <p class="text-theme-base text-gray-600 mb-6">
+        {{ messages.description }}
+      </p>
+      <RouterLink
+        :to="locale === 'en' ? '/en' : '/'"
+        class="inline-block font-semibold underline transition-colors duration-200"
+        style="color: var(--link-color, var(--accent-color, #E30613));"
+        @mouseenter="$event.target.style.color = 'var(--link-hover-color, var(--accent-color-dark, #891F00))'"
+        @mouseleave="$event.target.style.color = 'var(--link-color, var(--accent-color, #E30613))'"
+      >
+        {{ messages.homeLink }}
+      </RouterLink>
+    </div>
+  </main>
 </template>
 
 <script setup>

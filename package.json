@@ -1,17 +1,19 @@
 {
     "private": true,
     "type": "module",
+    "engines": {
+        "node": ">=20"
+    },
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "lint": "eslint resources/js/**/*.js",
-        "lint:fix": "eslint resources/js/**/*.js --fix",
+        "lint": "eslint resources/js",
+        "lint:fix": "eslint resources/js --fix",
         "test:unit": "vitest run",
         "test:e2e": "playwright test",
         "test:e2e:seed": "ddev exec php artisan e2e:seed-tenant-resolution --json"
     },
     "dependencies": {
-        "@aarsteinmedia/dotlottie-player": "^6.2.5",
         "@egjs/flicking-plugins": "^4.7.1",
         "@egjs/vue3-flicking": "^4.15.0",
         "@johanaarstein/dotlottie-player": "^1.5.23",
@@ -30,7 +32,6 @@
         "@pinia/testing": "^1.0.3",
         "@playwright/test": "^1.49.1",
         "@tailwindcss/vite": "^4.0.0",
-        "@types/dompurify": "^3.2.0",
         "@vitejs/plugin-vue": "^6.0.1",
         "@vue/test-utils": "^2.4.6",
         "axios": "^1.8.2",

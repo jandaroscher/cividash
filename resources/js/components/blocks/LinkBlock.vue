@@ -1,19 +1,19 @@
 <template>
-    <section class="py-12 md:py-16">
-        <div class="container">
-            <a
-                :href="linkUrl"
-                :rel="isExternalLink ? 'noopener noreferrer' : undefined"
-                :target="isExternalLink ? '_blank' : undefined"
-                :class="[
-                    'inline-block',
-                    block.props.style === 'button' ? 'bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200' : 'text-accent hover:text-accent-dark underline',
-                ]"
-            >
-                {{ block.props.text }}
-            </a>
-        </div>
-    </section>
+  <section class="py-12 md:py-16">
+    <div class="container">
+      <a
+        :href="linkUrl"
+        :rel="isExternalLink ? 'noopener noreferrer' : undefined"
+        :target="isExternalLink ? '_blank' : undefined"
+        :class="[
+          'inline-block',
+          block.props.style === 'button' ? 'bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200' : 'text-accent hover:text-accent-dark underline',
+        ]"
+      >
+        {{ block.props.text }}
+      </a>
+    </div>
+  </section>
 </template>
 
 <script setup>

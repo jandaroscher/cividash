@@ -1,12 +1,12 @@
 <template>
-    <div class="app-wrapper">
-        <Header />
-        <main class="overflow-x-hidden pt-7 md:pt-12">
-            <RouterView />
-        </main>
-        <Footer />
-        <ScrollToTop />
-    </div>
+  <div class="app-wrapper">
+    <Header />
+    <main class="overflow-x-hidden pt-7 md:pt-12">
+      <RouterView />
+    </main>
+    <Footer />
+    <ScrollToTop />
+  </div>
 </template>
 
 <script setup>

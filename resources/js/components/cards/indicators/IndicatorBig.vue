@@ -78,7 +78,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { DotLottiePlayer } from '@johanaarstein/dotlottie-player';
+import '@johanaarstein/dotlottie-player';
 import { useIndicator } from '../../../composables/useIndicator';
 
 const props = defineProps({

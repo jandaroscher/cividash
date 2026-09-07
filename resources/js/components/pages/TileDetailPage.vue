@@ -1,21 +1,37 @@
 <template>
-    <div class="tile-detail-page">
-        <NotFound v-if="isNotFound" />
-        <div v-else-if="loading" class="container text-center py-10" role="status" aria-live="polite">
-            <p>{{ messages.loading }}</p>
-        </div>
-        <div v-else-if="error" class="container py-10" role="alert" aria-live="assertive">
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p class="text-red-800">
-                    {{ messages.errorPrefix }} {{ error.message || error }}
-                </p>
-            </div>
-        </div>
-        <div v-else-if="tile" class="tile-detail-content">
-            <OverlayHeader :tile="tile" @close="navigateBack" />
-            <OverlayContent :tile="tile" />
-        </div>
+  <div class="tile-detail-page">
+    <NotFound v-if="isNotFound" />
+    <div
+      v-else-if="loading"
+      class="container text-center py-10"
+      role="status"
+      aria-live="polite"
+    >
+      <p>{{ messages.loading }}</p>
     </div>
+    <div
+      v-else-if="error"
+      class="container py-10"
+      role="alert"
+      aria-live="assertive"
+    >
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p class="text-red-800">
+          {{ messages.errorPrefix }} {{ error.message || error }}
+        </p>
+      </div>
+    </div>
+    <div
+      v-else-if="tile"
+      class="tile-detail-content"
+    >
+      <OverlayHeader
+        :tile="tile"
+        @close="navigateBack"
+      />
+      <OverlayContent :tile="tile" />
+    </div>
+  </div>
 </template>
 
 <script setup>

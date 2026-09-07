@@ -3,8 +3,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { supportedLocales, defaultLocale, resolveLocale as resolveLocaleUtil } from '../utils/locale';
 import { useTilesStore } from '../stores/tiles';
 import { usePagesStore } from '../stores/pages';
-import { useHeaderStore } from '../stores/header';
-import { useFooterStore } from '../stores/footer';
 
 // Global locale state
 const currentLocaleRef = ref(defaultLocale);
@@ -18,8 +16,6 @@ export function useLocale() {
     const router = useRouter();
     const tilesStore = useTilesStore();
     const pagesStore = usePagesStore();
-    const headerStore = useHeaderStore();
-    const footerStore = useFooterStore();
     
     // Get locale from route meta, localStorage, or fallback
     const getLocale = () => {

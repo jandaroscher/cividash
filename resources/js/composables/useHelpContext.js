@@ -1,4 +1,4 @@
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 import { useHelpStore } from '../stores/help';
 import { useLocale } from './useLocale';
 

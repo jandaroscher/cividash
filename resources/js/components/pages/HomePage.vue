@@ -1,18 +1,31 @@
 <template>
-    <main class="home-page">
-        <PageView v-if="pageData" :page-data="pageData" :locale="locale" />
-        <div v-else-if="loading" class="container text-center py-10">
-            <p>{{ messages.loading }}</p>
-        </div>
-        <div v-else-if="error" class="container py-10">
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4" role="alert">
-                <p class="text-red-800">
-                    {{ messages.error }}
-                    {{ error.message || error }}
-                </p>
-            </div>
-        </div>
-    </main>
+  <main class="home-page">
+    <PageView
+      v-if="pageData"
+      :page-data="pageData"
+      :locale="locale"
+    />
+    <div
+      v-else-if="loading"
+      class="container text-center py-10"
+    >
+      <p>{{ messages.loading }}</p>
+    </div>
+    <div
+      v-else-if="error"
+      class="container py-10"
+    >
+      <div
+        class="bg-red-50 border border-red-200 rounded-lg p-4"
+        role="alert"
+      >
+        <p class="text-red-800">
+          {{ messages.error }}
+          {{ error.message || error }}
+        </p>
+      </div>
+    </div>
+  </main>
 </template>
 
 <script setup>

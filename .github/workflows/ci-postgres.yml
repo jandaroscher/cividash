@@ -95,5 +95,8 @@ jobs:
       - name: Run migrations on PostgreSQL
         run: php artisan migrate --force
 
+      - name: PHP code style (Pint)
+        run: vendor/bin/pint --test
+
       - name: Run PHP tests on PostgreSQL
         run: php artisan test

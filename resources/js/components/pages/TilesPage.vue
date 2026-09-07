@@ -1,18 +1,33 @@
 <template>
-    <div class="app-wrapper">
-        <main class="overflow-x-hidden pt-7 md:pt-12">
-            <Filter v-if="!tilesStore.loading && !tilesStore.error && (showSearch || showFilter)" :show-search="showSearch" :show-filter="showFilter" />
+  <div class="app-wrapper">
+    <main class="overflow-x-hidden pt-7 md:pt-12">
+      <Filter
+        v-if="!tilesStore.loading && !tilesStore.error && (showSearch || showFilter)"
+        :show-search="showSearch"
+        :show-filter="showFilter"
+      />
             
-            <div v-if="tilesStore.loading" class="container text-center py-10" role="status" aria-live="polite" aria-label="Loading tiles">
-                {{ effectiveLocale === 'en' ? 'Loading tiles…' : 'Lade Tiles…' }}
-            </div>
-            <div v-else-if="tilesStore.error" class="container text-accent-dark bg-red-50 border border-red-200 rounded-lg p-4" role="alert" aria-live="assertive">
-                {{ effectiveLocale === 'en' ? 'Error loading tiles:' : 'Fehler beim Laden der Tiles:' }} {{ tilesStore.error.message }}
-            </div>
-            <Cards v-else />
-        </main>
-        <Overlay />
-    </div>
+      <div
+        v-if="tilesStore.loading"
+        class="container text-center py-10"
+        role="status"
+        aria-live="polite"
+        aria-label="Loading tiles"
+      >
+        {{ effectiveLocale === 'en' ? 'Loading tiles…' : 'Lade Tiles…' }}
+      </div>
+      <div
+        v-else-if="tilesStore.error"
+        class="container text-accent-dark bg-red-50 border border-red-200 rounded-lg p-4"
+        role="alert"
+        aria-live="assertive"
+      >
+        {{ effectiveLocale === 'en' ? 'Error loading tiles:' : 'Fehler beim Laden der Tiles:' }} {{ tilesStore.error.message }}
+      </div>
+      <Cards v-else />
+    </main>
+    <Overlay />
+  </div>
 </template>
 
 <script setup>
@@ -27,7 +42,7 @@ import { useOverlayStore } from '../../stores/overlay';
 import { useFilterStore } from '../../stores/filter';
 
 // Props for optional configuration
-const props = defineProps({
+defineProps({
     showSearch: {
         type: Boolean,
         default: true,

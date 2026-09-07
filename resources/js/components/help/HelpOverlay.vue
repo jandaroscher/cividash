@@ -1,94 +1,100 @@
 <template>
-    <Teleport to="body">
-        <aside
-            v-if="isVisible"
-            ref="overlayRef"
-            @keydown.esc="closeOverlay"
-            @click.self="handleBackdropClick"
-            tabindex="0"
-            class="fixed z-50 w-full top-0 left-0 h-dvh bg-[rgba(0,0,0,.5)] transition-opacity duration-200"
-            :class="{ 'opacity-0 pointer-events-none': !isVisible }"
-            aria-label="Help Overlay"
-            role="dialog"
-            aria-modal="true"
-            :aria-labelledby="titleId"
-        >
-            <div
-                ref="contentRef"
-                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
-                :class="{ 'opacity-0 scale-95': !isVisible, 'opacity-100 scale-100': isVisible }"
-                style="transition: opacity 0.2s, transform 0.2s;"
+  <Teleport to="body">
+    <aside
+      v-if="isVisible"
+      ref="overlayRef"
+      tabindex="0"
+      class="fixed z-50 w-full top-0 left-0 h-dvh bg-[rgba(0,0,0,.5)] transition-opacity duration-200"
+      :class="{ 'opacity-0 pointer-events-none': !isVisible }"
+      aria-label="Help Overlay"
+      role="dialog"
+      aria-modal="true"
+      :aria-labelledby="titleId"
+      @keydown.esc="closeOverlay"
+      @click.self="handleBackdropClick"
+    >
+      <div
+        ref="contentRef"
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+        :class="{ 'opacity-0 scale-95': !isVisible, 'opacity-100 scale-100': isVisible }"
+        style="transition: opacity 0.2s, transform 0.2s;"
+      >
+        <div class="p-6">
+          <!-- Header -->
+          <div class="flex items-start justify-between mb-4">
+            <h2
+              :id="titleId"
+              class="text-2xl font-bold text-gray-900"
             >
-                <div class="p-6">
-                    <!-- Header -->
-                    <div class="flex items-start justify-between mb-4">
-                        <h2 :id="titleId" class="text-2xl font-bold text-gray-900">
-                            {{ title }}
-                        </h2>
-                        <button
-                            v-if="dismissible"
-                            @click="closeOverlay"
-                            type="button"
-                            class="ml-4 text-gray-400 hover:text-gray-600 transition-colors"
-                            aria-label="Close help"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-6 w-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"
-                                />
-                            </svg>
-                        </button>
-                    </div>
+              {{ title }}
+            </h2>
+            <button
+              v-if="dismissible"
+              type="button"
+              class="ml-4 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close help"
+              @click="closeOverlay"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
                     
-                    <!-- Content -->
-                    <div class="prose prose-sm max-w-none">
-                        <div
-                            v-if="typeof content === 'string'"
-                            class="text-gray-700"
-                            v-html="sanitizedContent"
-                        ></div>
-                        <div
-                            v-else-if="content"
-                            class="text-gray-700"
-                        >
-                            <component
-                                v-if="typeof content === 'object' && content.component"
-                                :is="content.component"
-                                v-bind="content.props || {}"
-                            />
-                            <div v-else>
-                                {{ content }}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Footer -->
-                    <div v-if="dismissible" class="mt-6 flex justify-end">
-                        <button
-                            @click="closeOverlay"
-                            type="button"
-                            class="px-4 py-2 rounded font-medium transition-colors"
-                            :style="{
-                                backgroundColor: brandingStore.primaryColor,
-                                color: 'white'
-                            }"
-                        >
-                            {{ closeButtonText }}
-                        </button>
-                    </div>
-                </div>
+          <!-- Content -->
+          <div class="prose prose-sm max-w-none">
+            <div
+              v-if="typeof content === 'string'"
+              class="text-gray-700"
+              v-html="sanitizedContent"
+            />
+            <div
+              v-else-if="content"
+              class="text-gray-700"
+            >
+              <component
+                :is="content.component"
+                v-if="typeof content === 'object' && content.component"
+                v-bind="content.props || {}"
+              />
+              <div v-else>
+                {{ content }}
+              </div>
             </div>
-        </aside>
-    </Teleport>
+          </div>
+                    
+          <!-- Footer -->
+          <div
+            v-if="dismissible"
+            class="mt-6 flex justify-end"
+          >
+            <button
+              type="button"
+              class="px-4 py-2 rounded font-medium transition-colors"
+              :style="{
+                backgroundColor: brandingStore.primaryColor,
+                color: 'white'
+              }"
+              @click="closeOverlay"
+            >
+              {{ closeButtonText }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </Teleport>
 </template>
 
 <script setup>

@@ -2,8 +2,8 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
-    "description": "CiviDash, an open-source sustainability dashboard for municipalities.",
-    "keywords": ["laravel", "framework"],
+    "description": "CiviDash: open-source sustainability dashboard for municipalities (Laravel, Filament, Vue 3)",
+    "keywords": ["laravel", "filament", "vue", "dashboard", "sustainability", "municipality", "multi-tenancy"],
     "require": {
         "php": "^8.2",
         "aws/aws-sdk-php": "^3.0",
