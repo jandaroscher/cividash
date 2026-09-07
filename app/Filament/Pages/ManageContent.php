@@ -68,6 +68,7 @@ class ManageContent extends SettingsPage
                             FileUpload::make('url')
                                 ->label(__('filament.pages.manage_content.image_file'))
                                 ->image()
+                                ->maxSize(5120) // 5 MB
                                 ->required(),
                             TextInput::make('alt')
                                 ->label(__('filament.pages.manage_content.alt_text'))
@@ -85,6 +86,7 @@ class ManageContent extends SettingsPage
                                         ->label(__('filament.pages.manage_content.image'))
                                         ->image()
                                         ->directory('hero')
+                                        ->maxSize(5120) // 5 MB
                                         ->required(),
                                 ])
                                 ->columns(2) // two equal-width columns

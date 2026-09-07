@@ -53,7 +53,8 @@ class SliderBlock extends PageBlock
                             ->label(__('filament.blocks.slider.image'))
                             ->image()
                             ->directory('slider-images')
-                            ->disk('public'),
+                            ->disk('public')
+                            ->maxSize(5120), // 5 MB
                         TextInput::make('link_url')
                             ->label(__('filament.blocks.slider.link_url'))
                             ->url()

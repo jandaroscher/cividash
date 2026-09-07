@@ -89,6 +89,7 @@ class ManageBranding extends SettingsPage
                                             ->disk('public')
                                             ->directory(fn () => 'branding/'.(Filament::getTenant()?->getKey() ?? 'default'))
                                             ->image()
+                                            ->maxSize(2048) // 2 MB
                                             ->preserveFilenames()
                                             ->required(false),
                                     ]),

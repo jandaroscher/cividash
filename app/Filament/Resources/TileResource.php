@@ -124,6 +124,7 @@ class TileResource extends Resource
                                             ->directory('tiles')
                                             ->preserveFilenames()
                                             ->acceptedFileTypes(['image/*', 'application/json', 'application/zip+dotlottie'])
+                                            ->maxSize(2048) // 2 MB
                                             ->required(false),
                                         ViewField::make('icon_preview')
                                             ->view('filament.forms.components.lottie-preview')
@@ -218,6 +219,7 @@ class TileResource extends Resource
                                                     ->disk('public')
                                                     ->directory('metrics')
                                                     ->image()
+                                                    ->maxSize(2048) // 2 MB
                                                     ->preserveFilenames()
                                                     ->required(false),
                                                 Repeater::make('metricValues')
@@ -423,6 +425,7 @@ class TileResource extends Resource
                                     ->image()
                                     ->disk('public')
                                     ->directory('tiles/seo')
+                                    ->maxSize(5120) // 5 MB
                                     ->preserveFilenames(),
                             ])
                             ->columnSpan(['lg' => 1]),

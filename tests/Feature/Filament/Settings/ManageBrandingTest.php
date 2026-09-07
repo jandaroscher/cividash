@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Settings\BrandingSettings;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -58,6 +59,19 @@ class ManageBrandingTest extends TestCase
         $this->assertEquals('#FF0000', $settings->primary_color);
         $this->assertEquals('#00FF00', $settings->secondary_color);
         $this->assertEquals('#0000FF', $settings->accent_color);
+    }
+
+    public function test_logo_upload_rejects_file_exceeding_size_limit(): void
+    {
+        // Logo limit is 2 MB (2048 KB, see ManageBranding::form()).
+        $oversizedLogo = UploadedFile::fake()->image('logo.png')->size(2049);
+
+        Livewire::test(ManageBranding::class)
+            ->fillForm([
+                'logo_url' => [$oversizedLogo],
+            ])
+            ->call('save')
+            ->assertHasFormErrors(['logo_url' => 'max_size']);
     }
 
     public function test_primary_and_secondary_color_are_required(): void

@@ -44,7 +44,8 @@ class IntroTextBlock extends PageBlock
                     ->label(__('filament.blocks.intro_text.image'))
                     ->image()
                     ->directory('intro-images')
-                    ->disk('public'),
+                    ->disk('public')
+                    ->maxSize(5120), // 5 MB
                 TextInput::make('image_alt')
                     ->label(__('filament.blocks.intro_text.image_alt'))
                     ->helperText(__('filament.blocks.intro_text.image_alt_helper'))
@@ -53,7 +54,8 @@ class IntroTextBlock extends PageBlock
                     ->label(__('filament.blocks.intro_text.image_secondary'))
                     ->image()
                     ->directory('intro-images')
-                    ->disk('public'),
+                    ->disk('public')
+                    ->maxSize(5120), // 5 MB
                 TextInput::make('image_secondary_alt')
                     ->label(__('filament.blocks.intro_text.image_secondary_alt'))
                     ->helperText(__('filament.blocks.intro_text.image_secondary_alt_helper'))

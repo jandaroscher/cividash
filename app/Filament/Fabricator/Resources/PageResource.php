@@ -209,6 +209,7 @@ class PageResource extends FabricatorPageResource
                                         ->image()
                                         ->disk('public')
                                         ->directory('pages/seo')
+                                        ->maxSize(5120) // 5 MB
                                         ->preserveFilenames(),
                                 ];
 
