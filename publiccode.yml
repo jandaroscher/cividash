@@ -46,6 +46,15 @@ description:
       Es unterstützt Mehrmandantenfähigkeit (mehrere Dashboards/Tenants) und
       mehrsprachige Inhalte (Deutsch/Englisch). Das zugehörige CIVITAS/CORE-Add-on wird
       separat unter https://gitlab.opencode.de/regensburg_next/cividash-addon gepflegt.
+    features:
+      - Kennzahl-Kacheln mit Zeitreihen
+      - Filter nach Kategoriegruppen
+      - Volltextsuche
+      - Mehrsprachigkeit (Deutsch/Englisch)
+      - Multi-Dashboard / Mandantenfähigkeit
+      - Filament-Admin mit Seitenbaukasten
+      - Datenimport (JSON/CSV)
+      - CIVITAS/CORE-Integration
     # documentation: # TODO
     # apiDocumentation: # TODO: link to /docs (Scribe) once publicly hosted
   en:
@@ -56,6 +65,15 @@ description:
       supports multi-tenancy (multiple dashboards/tenants) and multilingual
       content (German/English). The related CIVITAS/CORE add-on is maintained
       separately at https://gitlab.opencode.de/regensburg_next/cividash-addon.
+    features:
+      - KPI tiles with time series
+      - Filtering by category groups
+      - Full-text search
+      - Multilingual content (German/English)
+      - Multi-dashboard / multi-tenancy
+      - Filament admin with page builder
+      - Data import (JSON/CSV)
+      - CIVITAS/CORE integration
     # documentation: # TODO
     # apiDocumentation: # TODO: link to /docs (Scribe) once publicly hosted
 
