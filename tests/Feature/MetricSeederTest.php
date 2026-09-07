@@ -7,7 +7,9 @@ use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TimePeriod;
+use App\Models\User;
 use App\Services\DashboardJsonParser;
+use App\Services\MediaDownloadService;
 use App\Services\ParsedMetric;
 use Database\Seeders\MetricSeeder;
 use Filament\Facades\Filament;
@@ -26,13 +28,18 @@ class MetricSeederTest extends TestCase
         parent::setUp();
 
         // Create user and authenticate for Filament tenant context
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $tenant = Tenant::where('slug', 'default')->first();
         if ($tenant) {
             $user->tenants()->sync([$tenant->id]);
             Filament::auth()->login($user);
             Filament::setTenant($tenant);
         }
+
+        // No network in tests: pretend every media download succeeds.
+        $this->partialMock(MediaDownloadService::class)
+            ->shouldReceive('downloadFile')
+            ->andReturnUsing(fn (string $url, string $type) => "seeds/{$type}/".basename($url));
 
         $this->seeder = new MetricSeeder;
         // Ensure ParsedMetric class is loaded by referencing DashboardJsonParser

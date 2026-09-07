@@ -8,8 +8,10 @@ use App\Models\MetricValue;
 use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Services\MediaDownloadService;
+use App\Services\ParsedMetric;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * Seeder for Metrics (Kennzahlen) from dashboard.json.
@@ -23,13 +25,13 @@ class MetricSeeder extends Seeder
 
     public function __construct()
     {
-        $this->mediaDownloadService = new MediaDownloadService;
+        $this->mediaDownloadService = app(MediaDownloadService::class);
     }
 
     /**
      * Run the metric seeder.
      *
-     * @param  Collection<int, \App\Services\ParsedMetric>  $metrics
+     * @param  Collection<int, ParsedMetric>  $metrics
      * @param  array<string, int>  $tileIdMap  Map of original tile ID to database ID
      * @param  array<int, array<int>>  $tileMetricMapping  Map of tile ID to array of metric IDs
      */
@@ -64,7 +66,7 @@ class MetricSeeder extends Seeder
                 $labelEn = $parsedMetric->titleEn;
 
                 // Generate metric_key from parsed metric key (stable identifier)
-                $metricKey = $parsedMetric->key ?? \Illuminate\Support\Str::slug($labelDe);
+                $metricKey = $parsedMetric->key ?? Str::slug($labelDe);
 
                 // 1. Create or update MetricDefinition (once per tile)
                 $definition = MetricDefinition::updateOrCreate(
