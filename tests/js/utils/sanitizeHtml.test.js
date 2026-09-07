@@ -1,4 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+// @vitest-environment jsdom
+// DOMPurify >= 3.4.6 (cross-realm instanceof hardening) strips every node under
+// happy-dom; jsdom is realm-correct, so this file runs there.
+import { describe, it, expect } from 'vitest';
 import { sanitizeHtml, isExternalUrl } from '@/utils/sanitizeHtml';
 
 describe('isExternalUrl', () => {
