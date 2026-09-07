@@ -4,19 +4,30 @@ import { createPinia, setActivePinia } from 'pinia';
 import Filter from '@/components/Filter.vue';
 import { useFilterStore } from '@/stores/filter';
 import { useBrandingStore } from '@/stores/branding';
+import { __localeState } from '@/composables/useLocale';
 
-// Mock composables that use vue-router internally
-const { localeState } = vi.hoisted(() => ({ localeState: { value: 'de' } }));
-vi.mock('@/composables/useLocale', () => ({
-    useLocale: () => ({
-        currentLocale: localeState,
-        setLocale: vi.fn(),
-        getTranslatedSlug: vi.fn(),
-        supportedLocales: ['de', 'en'],
-        defaultLocale: 'de',
-        getLocale: () => localeState.value,
-    }),
-}));
+// Mock composables that use vue-router internally. currentLocale is a real
+// vue ref (as the actual composable returns), created via a dynamic import
+// inside the factory to sidestep hoisting order - so <script setup>'s
+// automatic template unwrapping is exercised the same way it is in
+// production. A plain { value } object would let a broken
+// `currentLocale === 'en'` template comparison silently read as if it were
+// `.value`-correct.
+vi.mock('@/composables/useLocale', async () => {
+    const { ref } = await import('vue');
+    const localeState = ref('de');
+    return {
+        useLocale: () => ({
+            currentLocale: localeState,
+            setLocale: vi.fn(),
+            getTranslatedSlug: vi.fn(),
+            supportedLocales: ['de', 'en'],
+            defaultLocale: 'de',
+            getLocale: () => localeState.value,
+        }),
+        __localeState: localeState,
+    };
+});
 
 vi.mock('@/composables/useHelpContext', () => ({
     useHelpContext: () => ({
@@ -34,7 +45,7 @@ describe('Filter', () => {
         setActivePinia(createPinia());
         filterStore = useFilterStore();
         useBrandingStore();
-        localeState.value = 'de';
+        __localeState.value = 'de';
 
         // Reset URL to avoid state leaking between tests
         window.history.replaceState({}, '', '/');
@@ -233,7 +244,7 @@ describe('Filter', () => {
         await deWrapper.vm.$nextTick();
         expect(deWrapper.find('.search-clear-button').attributes('aria-label')).toBe('Suche leeren');
 
-        localeState.value = 'en';
+        __localeState.value = 'en';
         const enWrapper = createWrapper({ showSearch: true });
         await enWrapper.vm.$nextTick();
         expect(enWrapper.find('.search-clear-button').attributes('aria-label')).toBe('Clear search');

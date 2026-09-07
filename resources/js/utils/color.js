@@ -15,7 +15,9 @@ export function hexToRgba(hex, alpha = 1) {
         ? normalized.split('').map((char) => char + char).join('')
         : normalized;
 
-    const isValid = /^[0-9a-fA-F]{6}$/.test(expanded);
+    // Tolerate an 8-digit hex (e.g. from a color picker with alpha) by
+    // using just its RGB portion; alpha is controlled by the `alpha` param.
+    const isValid = /^[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(expanded);
     const r = isValid ? parseInt(expanded.slice(0, 2), 16) : 155;
     const g = isValid ? parseInt(expanded.slice(2, 4), 16) : 155;
     const b = isValid ? parseInt(expanded.slice(4, 6), 16) : 155;

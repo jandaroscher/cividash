@@ -23,7 +23,7 @@
     </VueFlexWaterfall>
     <div
       v-if="visibleTilesCount === 0"
-      class="text-theme-small text-center py-10 text-gray-600"
+      class="text-theme-base text-center py-10 text-gray-600"
     >
       <template v-if="filterStore.searchQuery && filterStore.level2Filter?.key">
         {{ currentLocale === 'en' ? 'No tiles found for filter and search:' : 'Keine Kacheln gefunden für Filter und Suche:' }} {{ filterStore.level2Filter.title }} / "{{ filterStore.searchQuery }}"

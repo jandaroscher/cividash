@@ -6,7 +6,7 @@
     >
       <h2
         v-if="effectiveHeading"
-        class="content-heading text-theme-h3 hyphens-auto order-2 xl:order-1 mb-0"
+        class="content-heading text-theme-h3 hyphens-auto order-1 xl:order-1 mb-0"
       >
         {{ effectiveHeading }}
       </h2>
@@ -14,7 +14,7 @@
       <!-- Search Input -->
       <div
         v-if="showSearch"
-        class="order-1 xl:order-2 xl:shrink-0 xl:w-[508px]"
+        class="order-2 xl:order-2 xl:shrink-0 xl:w-[508px]"
       >
         <Tooltip
           :text="getSearchTooltip()"
@@ -46,7 +46,7 @@
               :placeholder="searchPlaceholder"
               class="flex-1 min-w-0 border-0 bg-transparent focus:outline-none focus:ring-0 p-0"
               :style="{ color: '#191919', fontSize: '1.25rem', lineHeight: 'normal' }"
-              :aria-label="currentLocale.value === 'en' ? 'Search tiles' : 'Kacheln durchsuchen'"
+              :aria-label="currentLocale === 'en' ? 'Search tiles' : 'Kacheln durchsuchen'"
               @input="handleSearchInput"
             >
             <button
@@ -55,7 +55,7 @@
               :class="searchQuery ? 'is-visible' : ''"
               :tabindex="searchQuery ? 0 : -1"
               :aria-hidden="!searchQuery"
-              :aria-label="currentLocale.value === 'en' ? 'Clear search' : 'Suche leeren'"
+              :aria-label="currentLocale === 'en' ? 'Clear search' : 'Suche leeren'"
               :style="{ '--focus-ring-color': brandingStore.primaryColor }"
               @click="clearSearch"
             >
@@ -83,7 +83,7 @@
       v-if="showFilter && filterGroups.length > 0"
       class="filter-tabs flex flex-wrap mb-5 md:mb-10"
       role="tablist"
-      :aria-label="currentLocale.value === 'en' ? 'Filter navigation' : 'Filter-Navigation'"
+      :aria-label="currentLocale === 'en' ? 'Filter navigation' : 'Filter-Navigation'"
     >
       <button
         v-for="(group, index) in filterGroups"
