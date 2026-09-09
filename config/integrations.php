@@ -38,6 +38,12 @@ return [
 
         // Synchronisation settings
         'sync' => [
+            // Sync direction for the scheduled job: pull|push|bidirectional.
+            // Only 'pull' is implemented today (current behaviour); 'push' and
+            // 'bidirectional' are a design proposal.
+            // Default 'pull' keeps existing behaviour unchanged (not yet consumed).
+            'mode' => env('CIVITAS_SYNC_MODE', 'pull'),
+
             'batch_size' => env('CIVITAS_SYNC_BATCH_SIZE', 100),
             'retry_attempts' => env('CIVITAS_SYNC_RETRY_ATTEMPTS', 3),
             'retry_delay_seconds' => env('CIVITAS_SYNC_RETRY_DELAY', 5),
