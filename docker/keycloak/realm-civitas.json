@@ -1,0 +1,78 @@
+{
+  "realm": "civitas",
+  "enabled": true,
+  "displayName": "CIVITAS Demo",
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Dashboard administrator (maps to the CiviDash Admin role)."
+      },
+      {
+        "name": "editor",
+        "description": "Dashboard editor (maps to the CiviDash Editor role)."
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "cividash-dashboard",
+      "name": "CiviDash",
+      "description": "Filament admin SSO client for the CIVITAS demo dashboard.",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "__CLIENT_SECRET__",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": false,
+      "redirectUris": [
+        "__DASHBOARD_URL__/admin/auth/keycloak/callback"
+      ],
+      "webOrigins": [
+        "__DASHBOARD_URL__"
+      ],
+      "protocolMappers": [
+        {
+          "name": "realm-roles-to-groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "groups",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "sso-demo",
+      "email": "sso-demo@civitas.local",
+      "firstName": "SSO",
+      "lastName": "Demo",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "__DEMO_PASSWORD__",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "admin"
+      ]
+    }
+  ]
+}
