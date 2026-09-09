@@ -62,6 +62,9 @@ test-results/
 resources/views/scribe/
 public/vendor/scribe/
 public/docs/
+public/css/filament/*
+!public/css/filament/admin-overrides.css
+public/js/filament/
 
 # Local (scratch, planning, agent-local settings)
 .claude/settings.local.json

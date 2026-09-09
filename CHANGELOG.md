@@ -21,3 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Theme bundle import/export
 - Configurable font scheme per theme
 - Upload size limits for media and bundle imports
+
+### Changed
+
+- Stop tracking generated Filament CSS/JS assets in git; they are published via
+  `filament:assets` (already wired into `composer.json`'s `post-autoload-dump` and the
+  production Docker image), so every install/deploy regenerates them automatically

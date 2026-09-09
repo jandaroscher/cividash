@@ -37,6 +37,11 @@ git clone <repo-url> cividash && cd cividash
 
 # 2. PHP dependencies (production: no dev packages)
 composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+#    composer.json's post-autoload-dump hook runs `filament:upgrade`, which publishes the
+#    Filament JS/CSS into public/css/filament and public/js/filament. Those generated files
+#    are gitignored (public/css/filament/admin-overrides.css is the only handwritten exception),
+#    so this step must run on every install/deploy. If it was skipped, regenerate manually with
+#    `php artisan filament:assets`.
 
 # 3. Frontend dependencies + build
 npm ci
