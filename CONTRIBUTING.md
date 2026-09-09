@@ -30,7 +30,13 @@ reference.
 - Branch naming: `feat/short-description`, `fix/short-description`,
   `chore/short-description`. Optionally prefix the description with the number of an
   issue in the public tracker, e.g. `fix/123-short-description`.
-- Commit message format: `[FEAT|FIX|CHORE|REFACTOR|TEST|DOCS] Description`
+- Commit message format (Conventional Commits): `type(scope)?: description`.
+  Types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `perf`. Breaking
+  changes use `type!:` and add a `BREAKING CHANGE:` footer, e.g.
+  [release-please](https://github.com/googleapis/release-please) derives the version
+  and CHANGELOG from these commits (`feat` -> minor, `fix` -> patch, `!` -> major).
+  PRs are squash-merged, so the PR title becomes the commit message and must follow
+  this format.
 
 ## Development process
 
