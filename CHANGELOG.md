@@ -17,3 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Filament admin with page builder
 - Data import (JSON bundles) and export (JSON/CSV)
 - CIVITAS/CORE integration
+- Theme management with per-theme settings and component overrides
+- Theme bundle import/export
+- Configurable font scheme per theme
+- Upload size limits for media and bundle imports

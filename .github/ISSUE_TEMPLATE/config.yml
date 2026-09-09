@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Report a security vulnerability
-    url: https://github.com/jandaroscher/cividash/security/policy
+    url: https://gitlab.opencode.de/regensburg_next/cividash/-/blob/main/SECURITY.md
     about: Please do not report security vulnerabilities through public GitHub issues. See SECURITY.md for how to report.

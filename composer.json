@@ -1,9 +1,14 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "cividash/cividash",
     "type": "project",
     "description": "CiviDash: open-source sustainability dashboard for municipalities (Laravel, Filament, Vue 3)",
     "keywords": ["laravel", "filament", "vue", "dashboard", "sustainability", "municipality", "multi-tenancy"],
+    "homepage": "https://gitlab.opencode.de/regensburg_next/cividash",
+    "support": {
+        "issues": "https://github.com/jandaroscher/cividash/issues",
+        "source": "https://gitlab.opencode.de/regensburg_next/cividash"
+    },
     "require": {
         "php": "^8.2",
         "aws/aws-sdk-php": "^3.0",

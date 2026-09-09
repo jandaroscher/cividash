@@ -9,8 +9,8 @@ applicationSuite: CiviDash
 url: "https://gitlab.opencode.de/regensburg_next/cividash"
 softwareType: standalone/web
 
-# softwareVersion: # TODO: set once a first tagged release exists
-# releaseDate: # TODO: set release date once a first tagged release exists
+softwareVersion: 1.0.0 # x-release-please-version
+releaseDate: "2026-09-30" # placeholder, aligned with the actual tag date on release
 
 platforms:
   - web
@@ -19,17 +19,19 @@ categories:
   - data-visualization
   - business-intelligence
 
-developmentStatus: beta
+developmentStatus: stable
 
 legal:
-  license: EUPL-1.2
-  # authorsFile: # TODO: add AUTHORS file if the project decides to track authors separately
+  license: EUPL-1.2+
 
 maintenance:
   type: internal
   contacts:
-    - name: "JANDA+ROSCHER GmbH & Co. KG" # TODO: confirm this is the correct maintaining organisation for the OpenCoDE listing
+    - name: "JANDA+ROSCHER GmbH & Co. KG"
       email: "support@janda-roscher.de"
+
+usedBy:
+  - "Stadt Regensburg"
 
 localisation:
   localisationReady: true
@@ -55,8 +57,8 @@ description:
       - Filament-Admin mit Seitenbaukasten
       - Datenimport (JSON/CSV)
       - CIVITAS/CORE-Integration
-    # documentation: # TODO
-    # apiDocumentation: # TODO: link to /docs (Scribe) once publicly hosted
+    documentation: "https://gitlab.opencode.de/regensburg_next/cividash/-/tree/main/docs"
+    apiDocumentation: "https://gitlab.opencode.de/regensburg_next/cividash/-/tree/main/docs/api"
   en:
     shortDescription: "Open-source sustainability dashboard for municipalities"
     longDescription: >
@@ -74,8 +76,5 @@ description:
       - Filament admin with page builder
       - Data import (JSON/CSV)
       - CIVITAS/CORE integration
-    # documentation: # TODO
-    # apiDocumentation: # TODO: link to /docs (Scribe) once publicly hosted
-
-# it: # TODO: fill in if/when an Italian public-sector context requires the
-#   Italian-specific extension fields (e.g. it.riuso.codiceIPA)
+    documentation: "https://gitlab.opencode.de/regensburg_next/cividash/-/tree/main/docs"
+    apiDocumentation: "https://gitlab.opencode.de/regensburg_next/cividash/-/tree/main/docs/api"
