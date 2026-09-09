@@ -46,6 +46,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Log;
@@ -58,6 +59,10 @@ class TileResource extends Resource
     use Translatable;
 
     protected const CATEGORY_GROUP_FIELD_PREFIX = 'category_group_';
+
+    // Requests are sent sequentially in the Livewire request (see
+    // handleBulkPublishToCore). This caps worst-case request time per batch.
+    public const PUBLISH_BULK_MAX = 25;
 
     protected static ?string $model = Tile::class;
 
@@ -574,6 +579,20 @@ class TileResource extends Resource
             )
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('publishToCore')
+                        ->label(__('filament.resources.tile.actions.publish_bulk'))
+                        ->icon('heroicon-o-cloud-arrow-up')
+                        ->color('primary')
+                        ->visible(fn (): bool => static::canPublishToCore())
+                        // Server-side gate: visible() is render-only, so authorize()
+                        // also blocks a direct Livewire invocation by non-admins.
+                        ->authorize(fn (): bool => static::canUserPublishToCore())
+                        ->requiresConfirmation()
+                        ->modalHeading(__('filament.resources.tile.actions.publish_bulk_confirm_heading'))
+                        ->modalDescription(__('filament.resources.tile.actions.publish_bulk_confirm_description'))
+                        ->modalSubmitActionLabel(__('filament.resources.tile.actions.publish_confirm_submit'))
+                        ->deselectRecordsAfterCompletion()
+                        ->action(fn (EloquentCollection $records) => static::handleBulkPublishToCore($records)),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
@@ -1005,5 +1024,67 @@ class TileResource extends Resource
                 ->danger()
                 ->send();
         }
+    }
+
+    /**
+     * Publish several selected Tiles to CIVITAS/CORE in one batch.
+     *
+     * Delegates to PublishService::publishMany(), which isolates per-Tile failures
+     * so one broker error never aborts the batch. The aggregated counts are shown
+     * as a single notification; per-Tile error messages are logged server-side
+     * only (they may carry broker/IdP detail) and never surfaced to the user.
+     */
+    public static function handleBulkPublishToCore(EloquentCollection $records): void
+    {
+        // ponytail: sequential HTTP in the Livewire request; move to a queued job if batches above 25 are needed.
+        if ($records->count() > self::PUBLISH_BULK_MAX) {
+            Notification::make()
+                ->title(__('filament.resources.tile.actions.publish_bulk_too_many', [
+                    'max' => self::PUBLISH_BULK_MAX,
+                    'count' => $records->count(),
+                ]))
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $summary = app(PublishService::class)->publishMany($records);
+
+        if ($summary['failed'] > 0) {
+            Log::warning('Bulk CORE publish completed with failures.', [
+                'published' => $summary['published'],
+                'skipped' => $summary['skipped'],
+                'refused' => $summary['refused'],
+                'failed' => $summary['failed'],
+                'errors' => $summary['errors'],
+            ]);
+        }
+
+        $notification = Notification::make()
+            ->title(__('filament.resources.tile.actions.publish_bulk_result'))
+            ->body(__('filament.resources.tile.actions.publish_bulk_result_body', [
+                'published' => $summary['published'],
+                'skipped' => $summary['skipped'],
+                'refused' => $summary['refused'],
+                'failed' => $summary['failed'],
+            ]));
+
+        // Colour follows the single-action tone scheme, aggregated: a broker
+        // failure is the only error (danger); a deliberate foreign-provenance
+        // refusal is surfaced as a warning (never danger) so the admin can see
+        // which Tiles were actively refused; a plain publish is a success and a
+        // batch with nothing to do stays informational.
+        if ($summary['failed'] > 0) {
+            $notification->danger();
+        } elseif ($summary['refused'] > 0) {
+            $notification->warning();
+        } elseif ($summary['published'] > 0) {
+            $notification->success();
+        } else {
+            $notification->info();
+        }
+
+        $notification->send();
     }
 }

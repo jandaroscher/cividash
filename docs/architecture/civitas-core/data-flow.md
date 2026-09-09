@@ -123,6 +123,12 @@ credentials, and write access depends on that client being authorized with
 write scopes. The scheduled synchronisation
 itself remains pull-only.
 
+A bulk variant of the same action publishes a selection of tiles from the
+tile table in one run, sending the requests sequentially and capping the
+selection at 25 tiles per run. Partial success (some tiles published, some
+skipped, refused or failed) is reported back as counts in a single
+notification.
+
 ## Running a sync
 
 ```bash

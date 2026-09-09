@@ -295,4 +295,178 @@ class PublishServiceTest extends TestCase
             Http::assertNothingSent();
         }
     }
+
+    public function test_publish_many_publishes_all_tiles_and_aggregates_counts(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response('', 201),
+        ]);
+
+        $tileA = $this->makeTileWithMetrics([
+            'title' => ['de' => 'Indikator A', 'en' => 'Indicator A'],
+            'slug' => ['de' => 'indikator-a', 'en' => 'indicator-a'],
+        ]);
+        $tileB = $this->makeTileWithMetrics([
+            'title' => ['de' => 'Indikator B', 'en' => 'Indicator B'],
+            'slug' => ['de' => 'indikator-b', 'en' => 'indicator-b'],
+        ]);
+
+        $summary = $this->service()->publishMany([$tileA, $tileB]);
+
+        $this->assertSame(2, $summary['published']);
+        $this->assertSame(0, $summary['skipped']);
+        $this->assertSame(0, $summary['refused']);
+        $this->assertSame(0, $summary['failed']);
+        $this->assertSame([], $summary['errors']);
+
+        $this->assertSame(NgsiLdDataMapper::SOURCE_KEY, $tileA->fresh()->external_source);
+        $this->assertSame(NgsiLdDataMapper::SOURCE_KEY, $tileB->fresh()->external_source);
+    }
+
+    public function test_publish_many_counts_foreign_provenance_as_refused(): void
+    {
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response('', 201),
+        ]);
+
+        $publishable = $this->makeTileWithMetrics([
+            'title' => ['de' => 'Indikator A', 'en' => 'Indicator A'],
+            'slug' => ['de' => 'indikator-a', 'en' => 'indicator-a'],
+        ]);
+
+        $foreign = $this->makeTileWithMetrics([
+            'title' => ['de' => 'Fremd', 'en' => 'Foreign'],
+            'slug' => ['de' => 'fremd', 'en' => 'foreign'],
+        ]);
+        $foreign->forceFill(['external_source' => 'some-other-system', 'external_id' => 'urn:foreign:1'])->save();
+
+        $summary = $this->service()->publishMany([$publishable, $foreign->fresh()]);
+
+        // The publishable Tile is published; the foreign-provenance Tile is a
+        // deliberate refusal counted in its own bucket (not skipped, not failed),
+        // and the batch is not aborted.
+        $this->assertSame(1, $summary['published']);
+        $this->assertSame(0, $summary['skipped']);
+        $this->assertSame(1, $summary['refused']);
+        $this->assertSame(0, $summary['failed']);
+        $this->assertSame([], $summary['errors']);
+
+        $this->assertSame(NgsiLdDataMapper::SOURCE_KEY, $publishable->fresh()->external_source);
+        // The foreign Tile's provenance is untouched.
+        $this->assertSame('some-other-system', $foreign->fresh()->external_source);
+    }
+
+    public function test_publish_many_separates_published_skipped_refused_and_failed_buckets(): void
+    {
+        // A body-inspecting fake lets one entity fail (422 -> RequestException)
+        // while every other write succeeds, so a single batch exercises all four
+        // outcome buckets at once.
+        Http::fake(function (Request $request) {
+            if (str_contains($request->url(), 'keycloak.example.com/token')) {
+                return Http::response(['access_token' => 'tok-123']);
+            }
+
+            if (str_ends_with($request->url(), '/entities')
+                && ($request['id'] ?? null) === 'urn:ngsi-ld:NachhaltigkeitsIndikator:broken') {
+                return Http::response(['detail' => 'boom'], 422);
+            }
+
+            return Http::response('', 201);
+        });
+
+        // published: a fresh, locally-authored Tile.
+        $published = $this->makeTileWithMetrics([
+            'title' => ['de' => 'Indikator A', 'en' => 'Indicator A'],
+            'slug' => ['de' => 'indikator-a', 'en' => 'indicator-a'],
+        ]);
+
+        // skipped: an unchanged Tile already published to CORE (idempotent no-op).
+        $skipped = $this->makeTileWithMetrics([
+            'title' => ['de' => 'Unverändert', 'en' => 'Unchanged'],
+            'slug' => ['de' => 'unveraendert', 'en' => 'unchanged'],
+        ]);
+        $this->service()->publishTile($skipped);
+
+        // refused: a Tile owned by a foreign external source.
+        $refused = $this->makeTileWithMetrics([
+            'title' => ['de' => 'Fremd', 'en' => 'Foreign'],
+            'slug' => ['de' => 'fremd', 'en' => 'foreign'],
+        ]);
+        $refused->forceFill(['external_source' => 'some-other-system', 'external_id' => 'urn:foreign:1'])->save();
+
+        // failed: the broker rejects this Tile's write with a 422.
+        $failed = $this->makeTileWithMetrics([
+            'title' => ['de' => 'Kaputt', 'en' => 'Broken'],
+            'slug' => ['de' => 'broken', 'en' => 'broken'],
+        ]);
+
+        $summary = $this->service()->publishMany([
+            $published,
+            $skipped->fresh(),
+            $refused->fresh(),
+            $failed,
+        ]);
+
+        $this->assertSame(1, $summary['published']);
+        $this->assertSame(1, $summary['skipped']);
+        $this->assertSame(1, $summary['refused']);
+        $this->assertSame(1, $summary['failed']);
+        $this->assertArrayHasKey($failed->getKey(), $summary['errors']);
+        // Only the failed Tile is collected under errors; refused/skipped are not.
+        $this->assertArrayNotHasKey($refused->getKey(), $summary['errors']);
+        $this->assertArrayNotHasKey($skipped->getKey(), $summary['errors']);
+
+        // The foreign Tile's provenance was never clobbered.
+        $this->assertSame('some-other-system', $refused->fresh()->external_source);
+        // The failed Tile was never stamped.
+        $this->assertNull($failed->fresh()->external_source);
+    }
+
+    public function test_publish_many_isolates_a_failing_tile_and_continues(): void
+    {
+        // The "broken" Tile's POST is rejected with 422 (RequestException);
+        // every other write succeeds. A body-inspecting fake lets one entity
+        // fail while the rest go through — proving per-Tile fault isolation.
+        Http::fake(function (Request $request) {
+            if (str_contains($request->url(), 'keycloak.example.com/token')) {
+                return Http::response(['access_token' => 'tok-123']);
+            }
+
+            if (str_ends_with($request->url(), '/entities')
+                && ($request['id'] ?? null) === 'urn:ngsi-ld:NachhaltigkeitsIndikator:broken') {
+                return Http::response(['detail' => 'boom'], 422);
+            }
+
+            return Http::response('', 201);
+        });
+
+        $ok = $this->makeTileWithMetrics([
+            'title' => ['de' => 'Indikator A', 'en' => 'Indicator A'],
+            'slug' => ['de' => 'indikator-a', 'en' => 'indicator-a'],
+        ]);
+        $broken = $this->makeTileWithMetrics([
+            'title' => ['de' => 'Kaputt', 'en' => 'Broken'],
+            'slug' => ['de' => 'broken', 'en' => 'broken'],
+        ]);
+        $alsoOk = $this->makeTileWithMetrics([
+            'title' => ['de' => 'Indikator C', 'en' => 'Indicator C'],
+            'slug' => ['de' => 'indikator-c', 'en' => 'indicator-c'],
+        ]);
+
+        $summary = $this->service()->publishMany([$ok, $broken, $alsoOk]);
+
+        $this->assertSame(2, $summary['published']);
+        $this->assertSame(0, $summary['skipped']);
+        $this->assertSame(0, $summary['refused']);
+        $this->assertSame(1, $summary['failed']);
+        $this->assertArrayHasKey($broken->getKey(), $summary['errors']);
+
+        // The two healthy Tiles were still published despite the failing one.
+        $this->assertSame(NgsiLdDataMapper::SOURCE_KEY, $ok->fresh()->external_source);
+        $this->assertSame(NgsiLdDataMapper::SOURCE_KEY, $alsoOk->fresh()->external_source);
+        // The broken Tile was never stamped.
+        $this->assertNull($broken->fresh()->external_source);
+    }
 }

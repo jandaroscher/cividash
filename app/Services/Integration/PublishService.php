@@ -6,6 +6,7 @@ use App\Contracts\Integration\WritableDataSourceInterface;
 use App\Exceptions\Integration\ForeignProvenanceException;
 use App\Models\Tile;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Publishes a dashboard-authored indicator (a Tile + its metrics) into
@@ -58,6 +59,64 @@ class PublishService
         $this->stampProvenance($tile, $externalId, $hash);
 
         return PublishResult::published($externalId);
+    }
+
+    /**
+     * Publish many Tiles to the external broker in one batch (bulk write-back).
+     *
+     * Each Tile is published through {@see self::publishTile()}, so the provenance
+     * guard and source-hash idempotency rules are inherited unchanged. The loop is
+     * fault-isolated: any single Tile that throws is recorded and the batch
+     * continues, so one broker error never aborts the whole batch.
+     *
+     * Outcome buckets:
+     *  - published: written to the broker;
+     *  - skipped:   an idempotent no-op (the Tile is unchanged);
+     *  - refused:   a foreign-provenance Tile that is deliberately never
+     *               clobbered (ForeignProvenanceException);
+     *  - failed:    any other error (broker rejection, connection failure, …),
+     *               with the per-Tile message collected under `errors` keyed by
+     *               the Tile's primary key.
+     *
+     * @param  iterable<Tile>  $tiles
+     * @param  bool  $force  Force a re-publish of unchanged Tiles (passed to publishTile()).
+     * @return array{published:int,skipped:int,refused:int,failed:int,errors:array<int|string,string>}
+     */
+    public function publishMany(iterable $tiles, bool $force = false): array
+    {
+        $published = 0;
+        $skipped = 0;
+        $refused = 0;
+        $failed = 0;
+        $errors = [];
+
+        foreach ($tiles as $tile) {
+            try {
+                $result = $this->publishTile($tile, $force);
+
+                if ($result->skipped) {
+                    $skipped++;
+                } else {
+                    $published++;
+                }
+            } catch (ForeignProvenanceException $e) {
+                // Never clobber a foreign-provenance Tile: it is a deliberate
+                // refusal, bucketed separately from an unchanged skip and never
+                // treated as a batch failure.
+                $refused++;
+            } catch (\Throwable $e) {
+                $failed++;
+                $errors[$tile->getKey()] = $e->getMessage();
+            }
+        }
+
+        return [
+            'published' => $published,
+            'skipped' => $skipped,
+            'refused' => $refused,
+            'failed' => $failed,
+            'errors' => $errors,
+        ];
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Filament\Resources;
 
+use App\Contracts\Integration\WritableDataSourceInterface;
 use App\Filament\Resources\TileResource;
 use App\Filament\Resources\TileResource\Pages\EditTile;
 use App\Filament\Resources\TileResource\Pages\ListTiles;
@@ -18,6 +19,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class PublishTileActionTest extends TestCase
@@ -57,14 +59,14 @@ class PublishTileActionTest extends TestCase
         parent::tearDown();
     }
 
-    private function makePublishableTile(): Tile
+    private function makePublishableTile(array $attributes = []): Tile
     {
-        $tile = Tile::factory()->create([
+        $tile = Tile::factory()->create(array_merge([
             'tenant_id' => $this->tenant->id,
             'title' => ['de' => 'CO2-Emissionen', 'en' => 'CO2 Emissions'],
             'slug' => ['de' => 'co2-emissionen', 'en' => 'co2-emissions'],
             'time_granularity' => 'year',
-        ]);
+        ], $attributes));
 
         $definition = MetricDefinition::factory()->forTile($tile)->create(['metric_key' => 'co2', 'unit' => ['de' => 't', 'en' => 't']]);
         $timePeriod = TimePeriod::factory()->forTile($tile)->create(['period_key' => '2023']);
@@ -175,6 +177,136 @@ class PublishTileActionTest extends TestCase
         $this->assertTrue(TileResource::canUserPublishToCore());
 
         Http::assertNothingSent();
+    }
+
+    public function test_bulk_publish_action_publishes_multiple_selected_tiles(): void
+    {
+        app()->setLocale('de');
+
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response('', 201),
+        ]);
+
+        $tileA = $this->makePublishableTile([
+            'title' => ['de' => 'Indikator A', 'en' => 'Indicator A'],
+            'slug' => ['de' => 'indikator-a', 'en' => 'indicator-a'],
+        ]);
+        $tileB = $this->makePublishableTile([
+            'title' => ['de' => 'Indikator B', 'en' => 'Indicator B'],
+            'slug' => ['de' => 'indikator-b', 'en' => 'indicator-b'],
+        ]);
+
+        Livewire::test(ListTiles::class)
+            ->callTableBulkAction('publishToCore', [$tileA, $tileB])
+            ->assertNotified(__('filament.resources.tile.actions.publish_bulk_result'));
+
+        $this->assertSame(NgsiLdDataMapper::SOURCE_KEY, $tileA->fresh()->external_source);
+        $this->assertSame(NgsiLdDataMapper::SOURCE_KEY, $tileB->fresh()->external_source);
+
+        // Two distinct entities were POSTed to the broker.
+        $entityPosts = 0;
+        Http::recorded(function (Request $request) use (&$entityPosts) {
+            if ($request->method() === 'POST' && str_ends_with($request->url(), '/entities')) {
+                $entityPosts++;
+            }
+
+            return false;
+        });
+        $this->assertSame(2, $entityPosts);
+    }
+
+    public function test_bulk_publish_action_is_hidden_and_denied_for_non_admin(): void
+    {
+        $nonAdmin = User::factory()->create(['is_admin' => false]);
+        $this->actingAs($nonAdmin);
+
+        Http::fake();
+
+        $tile = $this->makePublishableTile();
+
+        // The bulk action is not rendered for a non-admin...
+        Livewire::test(ListTiles::class)
+            ->assertTableBulkActionHidden('publishToCore');
+
+        // ...and the shared server-side gate denies the non-admin, blocking a
+        // direct invocation.
+        $this->assertFalse(TileResource::canUserPublishToCore());
+
+        // An admin in the same context IS authorized.
+        $this->actingAs(User::factory()->admin()->create());
+        $this->assertTrue(TileResource::canUserPublishToCore());
+
+        Http::assertNothingSent();
+    }
+
+    public function test_bulk_publish_action_rejects_batches_over_the_limit(): void
+    {
+        app()->setLocale('de');
+
+        $this->mock(WritableDataSourceInterface::class, function (MockInterface $mock) {
+            $mock->shouldNotReceive('upsertEntity');
+        });
+
+        $tiles = collect(range(1, TileResource::PUBLISH_BULK_MAX + 1))->map(
+            fn (int $i) => $this->makePublishableTile([
+                'title' => ['de' => "Indikator {$i}", 'en' => "Indicator {$i}"],
+                'slug' => ['de' => "indikator-{$i}", 'en' => "indicator-{$i}"],
+            ])
+        );
+
+        Livewire::test(ListTiles::class)
+            ->callTableBulkAction('publishToCore', $tiles)
+            ->assertNotified(__('filament.resources.tile.actions.publish_bulk_too_many', [
+                'max' => TileResource::PUBLISH_BULK_MAX,
+                'count' => $tiles->count(),
+            ]));
+
+        foreach ($tiles as $tile) {
+            $this->assertNull($tile->fresh()->external_source);
+        }
+    }
+
+    public function test_bulk_publish_action_only_publishes_tiles_of_the_current_tenant(): void
+    {
+        app()->setLocale('de');
+
+        Http::fake([
+            'keycloak.example.com/token' => Http::response(['access_token' => 'tok-123']),
+            'broker.example.com/context/ngsi-ld/entities' => Http::response('', 201),
+        ]);
+
+        $ownTile = $this->makePublishableTile();
+
+        $otherTenant = Tenant::create(['name' => 'Other Tenant', 'slug' => 'other-tenant']);
+        $foreignTile = Tile::factory()->create([
+            'tenant_id' => $otherTenant->id,
+            'title' => ['de' => 'Fremde Kachel', 'en' => 'Foreign Tile'],
+            'slug' => ['de' => 'fremde-kachel', 'en' => 'foreign-tile'],
+            'time_granularity' => 'year',
+        ]);
+        $definition = MetricDefinition::factory()->forTile($foreignTile)->create(['metric_key' => 'co2', 'unit' => ['de' => 't', 'en' => 't']]);
+        $timePeriod = TimePeriod::factory()->forTile($foreignTile)->create(['period_key' => '2023']);
+        MetricValue::factory()->forDefinition($definition)->forTimePeriod($timePeriod)->create(['value' => 1.5]);
+        $foreignTile = $foreignTile->fresh();
+
+        // Filament's table query is scoped to the current tenant, so a foreign
+        // record id is rejected before the bulk action runs.
+        Livewire::test(ListTiles::class)
+            ->callTableBulkAction('publishToCore', [$ownTile, $foreignTile]);
+
+        $this->assertSame(NgsiLdDataMapper::SOURCE_KEY, $ownTile->fresh()->external_source);
+        $this->assertNull($foreignTile->fresh()->external_source);
+
+        $entityPosts = 0;
+        Http::recorded(function (Request $request) use (&$entityPosts) {
+            if ($request->method() === 'POST' && str_ends_with($request->url(), '/entities')) {
+                $entityPosts++;
+            }
+
+            return false;
+        });
+        $this->assertSame(1, $entityPosts);
     }
 
     public function test_publish_error_notification_does_not_leak_broker_detail(): void
