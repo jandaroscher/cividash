@@ -53,7 +53,7 @@ php artisan key:generate
 
 # Edit .env: set APP_ENV=production, APP_DEBUG=false, APP_URL, DB_* (see env table below)
 
-# 5. Database migrations
+# 5. Database migrations (a fresh database loads database/schema/pgsql-schema.sql first, then the remaining migrations)
 php artisan migrate --force
 
 # 6. Multi-tenancy bootstrap (creates/reuses the default tenant)
