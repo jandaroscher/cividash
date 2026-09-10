@@ -98,8 +98,12 @@ function matchesSearch(tile, searchQuery) {
     if (typeof description === 'string' && description.toLowerCase().includes(query)) {
         return true;
     }
-    
-    return false;
+
+    // Search in indicator labels
+    return (tile.metric_definitions || []).some((definition) => {
+        const label = definition.label?.[locale] || definition.label?.de || definition.label || '';
+        return typeof label === 'string' && label.toLowerCase().includes(query);
+    });
 }
 
 // Function to check if a tile should be visible based on current filter

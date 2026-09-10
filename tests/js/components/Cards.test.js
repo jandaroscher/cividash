@@ -213,6 +213,22 @@ describe('Cards', () => {
         expect(tileCards[1].text()).toContain('Klimawandel');
     });
 
+    it('matches the search query against indicator labels', async () => {
+        const tile = createTile(1, 'Armutsbekämpfung');
+        tile.metric_definitions = [{ label: { de: 'Kinderarmut in %', en: 'Child poverty in %' } }];
+        tilesStore.tiles = [tile, createTile(2, 'Bildung')];
+
+        filterStore.searchQuery = 'kinderarmut';
+
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        const tileCards = wrapper.findAll('.tile-card-stub');
+        expect(tileCards.length).toBe(1);
+        expect(tileCards[0].text()).toContain('Armutsbekämpfung');
+    });
+
     it('renders all tiles when no filter is active', async () => {
         tilesStore.tiles = [
             createTile(1, 'Tile A'),
