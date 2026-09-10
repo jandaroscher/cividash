@@ -85,6 +85,8 @@ WORKDIR /var/www/html
 #   exif       -> image metadata
 #   opcache    -> bytecode cache (perf)
 #   pcntl      -> queue:work / scheduler signal handling
+# postgresql-client / mariadb-client: `artisan migrate` loads database/schema/*-schema.sql
+# through psql / mysql on a fresh database (schema dump instead of 85 migrations).
 RUN set -eux; \
     apk add --no-cache \
         fcgi \
@@ -94,7 +96,9 @@ RUN set -eux; \
         libzip \
         icu-libs \
         oniguruma \
-        libpq; \
+        libpq \
+        postgresql-client \
+        mariadb-client; \
     apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         freetype-dev \

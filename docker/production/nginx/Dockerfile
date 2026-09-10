@@ -26,7 +26,11 @@ FROM nginx:alpine
 # Laravel front controller + compiled assets, served straight from disk.
 COPY --from=appsrc /var/www/html/public /var/www/html/public
 
-# Server config: try_files + fastcgi_pass cividash-fpm:9000.
+# Server config: try_files + fastcgi_pass cividash-fpm:9000. The resolver line is
+# filled in at start (see 05-resolver.sh) so the same image works in compose
+# (127.0.0.11) and on Kubernetes (cluster DNS).
 COPY docker/production/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/production/nginx/05-resolver.sh /docker-entrypoint.d/05-resolver.sh
+RUN chmod +x /docker-entrypoint.d/05-resolver.sh
 
 EXPOSE 80
