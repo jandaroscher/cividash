@@ -12,6 +12,7 @@ import { resolveLocale } from './utils/locale';
 import { vIntersectionObserver } from '@vueuse/components';
 // Import dotlottie-player to register the Web Component
 import '@johanaarstein/dotlottie-player';
+import { logError } from './lib/log.js';
 
 const app = createApp(App);
 const pinia = createPinia();

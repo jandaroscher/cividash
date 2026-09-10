@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { getApiBaseUrl } from '../utils/api';
+import { logError } from '../lib/log.js';
 
 // Fixed --font-size-base values per font_scale option.
 // "default" matches today's hardcoded 1rem default exactly.

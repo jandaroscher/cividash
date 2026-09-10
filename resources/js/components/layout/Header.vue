@@ -250,6 +250,7 @@ import { useRoute } from 'vue-router';
 import { useHeaderStore } from '../../stores/header';
 import { useBrandingStore } from '../../stores/branding';
 import { useLocale } from '../../composables/useLocale';
+import { t } from '../../lib/uiStrings';
 
 const route = useRoute();
 const headerStore = useHeaderStore();

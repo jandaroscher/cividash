@@ -26,6 +26,7 @@
 </template>
 
 <script setup>
+import { logError } from '../../lib/log.js';
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import PageView from './PageView.vue';

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { getApiBaseUrl } from '../utils/api';
+import { logWarn } from '../lib/log.js';
 
 /**
  * Deep merge utility function for help content

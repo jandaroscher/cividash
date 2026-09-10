@@ -83,6 +83,7 @@
 </template>
 
 <script setup>
+import { logError } from '../../lib/log.js';
 import { computed, onBeforeUnmount, ref } from 'vue';
 import ExportDialog from './ExportDialog.vue';
 import { useBrandingStore } from '../../stores/branding';

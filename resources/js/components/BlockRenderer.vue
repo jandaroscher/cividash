@@ -10,6 +10,7 @@
 </template>
 
 <script setup>
+import { logWarn } from '../lib/log.js';
 import { computed } from 'vue';
 import HeroBlock from './blocks/HeroBlock.vue';
 import TextImageBlock from './blocks/TextImageBlock.vue';

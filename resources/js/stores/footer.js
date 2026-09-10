@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { getApiBaseUrl } from '../utils/api';
+import { logError } from '../lib/log.js';
 
 export const useFooterStore = defineStore('footer', {
     state: () => ({

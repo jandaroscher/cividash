@@ -121,6 +121,7 @@
 </template>
 
 <script setup>
+import { logError } from '../lib/log.js';
 import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useFilterStore } from '../stores/filter';
 import { useBrandingStore } from '../stores/branding';

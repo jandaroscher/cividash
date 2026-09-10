@@ -3,6 +3,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { supportedLocales, defaultLocale, resolveLocale as resolveLocaleUtil } from '../utils/locale';
 import { useTilesStore } from '../stores/tiles';
 import { usePagesStore } from '../stores/pages';
+import { logError, logWarn } from '../lib/log.js';
 
 // Global locale state
 const currentLocaleRef = ref(defaultLocale);

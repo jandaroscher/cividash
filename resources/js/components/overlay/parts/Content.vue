@@ -55,6 +55,7 @@
 </template>
 
 <script setup>
+import { logWarn } from '../../../lib/log.js';
 import { computed } from 'vue';
 import { useLocale } from '../../../composables/useLocale';
 import HeroBlock from '../../blocks/HeroBlock.vue';

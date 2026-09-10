@@ -39,6 +39,7 @@
 </template>
 
 <script setup>
+import { logError } from '../lib/log.js';
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { VueFlexWaterfall } from 'vue-flex-waterfall';
 import { resolveTileComponent } from '../lib/componentRegistry';
