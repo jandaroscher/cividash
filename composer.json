@@ -14,7 +14,6 @@
         "aws/aws-sdk-php": "^3.0",
         "bezhansalleh/filament-language-switch": "^3.1",
         "codewithdennis/filament-simple-alert": "^3.0",
-        "fakerphp/faker": "^1.23",
         "filament/filament": "^3.3",
         "filament/spatie-laravel-settings-plugin": "^3.2",
         "filament/spatie-laravel-translatable-plugin": "^3.2",
@@ -30,6 +29,7 @@
         "z3d0x/filament-fabricator": "^2.7"
     },
     "require-dev": {
+        "fakerphp/faker": "^1.23",
         "knuckleswtf/scribe": "^5.6",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.13",

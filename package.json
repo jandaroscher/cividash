@@ -1,4 +1,10 @@
 {
+    "name": "cividash",
+    "description": "CiviDash: open-source sustainability dashboard for municipalities (Laravel, Filament, Vue 3)",
+    "repository": {
+        "type": "git",
+        "url": "https://gitlab.opencode.de/regensburg_next/cividash"
+    },
     "private": true,
     "type": "module",
     "engines": {

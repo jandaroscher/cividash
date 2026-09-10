@@ -13,7 +13,7 @@ ddev exec composer install
 ddev exec npm install
 ddev exec php artisan migrate
 ddev exec php artisan tenancy:backfill
-ddev exec php artisan db:seed --class=TenantSeeder
+ddev exec php artisan db:seed
 ```
 
 For local development with hot reload:

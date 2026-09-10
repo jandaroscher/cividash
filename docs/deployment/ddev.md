@@ -8,10 +8,12 @@ see docker.md or installation-standalone.md for that.
 ```bash
 ddev start                              # start the environment
 ddev exec composer install              # install PHP dependencies
+ddev exec php artisan key:generate      # generate app key (DDEV creates .env itself)
 ddev exec npm install                   # install Node dependencies
 ddev exec php artisan migrate           # run migrations
 ddev exec php artisan tenancy:backfill  # create the default tenant
-ddev exec php artisan db:seed --class=TenantSeeder  # seed demo data
+ddev exec php artisan db:seed           # seed demo data (tenants, roles)
+ddev exec npm run build                 # build frontend assets (public routes need the Vite manifest)
 ```
 
 Config: `.ddev/config.yaml`. Project type `laravel`, PHP 8.2, nginx-fpm, docroot `public`.

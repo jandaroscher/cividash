@@ -11,8 +11,8 @@ use Illuminate\Http\JsonResponse;
 /**
  * @group Admin API - Import
  *
- * Bulk-Import von Tiles, Kategorien, Metriken und Jahreswerten per JSON-Bundle.
- * Schema-Definition und Beispiele: siehe docs/upload/schemas/v1/ im Repo.
+ * Bulk import of tiles, categories, metrics, and yearly values via a JSON bundle.
+ * Schema definition and examples: see docs/upload/schemas/v1/ in the repo.
  */
 class AdminImportController extends Controller
 {

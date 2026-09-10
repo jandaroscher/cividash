@@ -64,13 +64,8 @@ php artisan tenancy:backfill
 php artisan storage:link
 
 # 8. Create an admin user (required, there is no admin account without this step).
-#    Option A: full seed (fastest, but ships demo/fixture data)
-php artisan db:seed --force
-#    DatabaseSeeder creates an admin User (via UserFactory, factory-default password),
-#    then calls TenantSeeder (demo tenants) and RoleSeeder (roles/permissions).
-#    Change the seeded admin password immediately after first login.
-#
-#    Option B: no demo data, seed only roles and create the admin explicitly
+#    Seed the roles, then create the admin. The command prompts for the password
+#    (at least 12 characters) and sets is_admin, which grants access to all dashboards.
 php artisan db:seed --class=RoleSeeder --force
 php artisan cividash:create-admin admin@example.org --first-name=Ada --last-name=Admin
 #    Do not use a plain `db:seed` here: DatabaseSeeder builds its users with model
@@ -150,11 +145,11 @@ handle it). Adjust the PHP-FPM socket path and TLS termination for your environm
   ```bash
   php artisan queue:work --sleep=3 --tries=3
   ```
-  No queue worker step exists in `deploy/post_deploy.sh` or the GitHub Actions deploy job (see
-  Open questions).
-- **Scheduler**: `routes/console.php` defines two scheduled commands, both gated to
-  `environments(['production'])`:
-  - `dashboard:reset --force` daily at 03:00
+  The post-deploy steps above do not start a queue worker (see Known limitations).
+- **Scheduler**: `routes/console.php` defines two scheduled commands:
+  - `dashboard:reset --force` daily at 03:00, gated behind `environments(['production'])` **and**
+    `config('dashboard.demo_reset')` (env var `DASHBOARD_DEMO_RESET`, default `false`). The
+    schedule entry is only registered when the flag is `true`.
   - `integration:sync-civitas` hourly or daily at 04:00 depending on
     `config('integrations.civitas.sync.schedule')`; the command itself checks
     `config('integrations.civitas.enabled')` and is a no-op (warns and exits) when
@@ -163,28 +158,13 @@ handle it). Adjust the PHP-FPM socket path and TLS termination for your environm
   **Warning: `dashboard:reset` deletes data.** Its description in
   `app/Console/Commands/DashboardResetCommand.php` is explicit: *"Reset demo tenants: Default
   cleaned, Regensburg re-seeded, Demo City emptied."* This is a **demo-data reset command**, not a
-  generic maintenance task. On a production instance seeded with real dashboards, running it
-  nightly will delete/overwrite tenant content. Since the schedule entry only checks
-  `environments(['production'])`, not whether the instance is an actual demo install, it fires
-  on **any** install with `APP_ENV=production`.
-
-  Before going live with real (non-demo) data, do one of:
-  1. **Remove the schedule entry.** Delete the `Schedule::command('dashboard:reset --force')...`
-     block from `routes/console.php`.
-  2. **Gate it via env**, e.g.:
-     ```php
-     Schedule::command('dashboard:reset --force')
-         ->daily()
-         ->at('03:00')
-         ->environments(['production'])
-         ->when(fn () => config('app.demo_reset_enabled', false));
-     ```
-     `app.demo_reset_enabled` has no mapping in `config/app.php` yet; add one (e.g. reading a
-     `DEMO_RESET_ENABLED` env var) before relying on this gate, and rebuild the config cache
-     after changing it (`php artisan config:cache` does not pick up new `.env` values on its own).
-     and only set the corresponding env flag on actual demo/showcase instances. See
-     `docs/deployment/seeding.md` (Scheduler and Cron-Setup section) for how the schedule currently
-     behaves.
+  generic maintenance task. On a production instance seeded with real dashboards, do **not** set
+  `DASHBOARD_DEMO_RESET=true`; leave it unset (default `false`) so the schedule entry is never
+  registered. Only set `DASHBOARD_DEMO_RESET=true` on an actual demo/showcase instance where the
+  nightly wipe of the default and Demo City tenants and reseed of Regensburg is intended. Rebuild the config
+  cache after changing the env value (`php artisan config:cache` does not pick up new `.env`
+  values on its own). See `docs/deployment/seeding.md` (Scheduler and Cron-Setup section) for how
+  the schedule behaves.
 
   Add a single cron entry to run Laravel's scheduler every minute:
   ```cron
@@ -262,8 +242,8 @@ existing production install.
   `default`. Other contexts (Filament admin, session-based web requests) resolve tenants
   differently, with access checks, see `app/Models/Concerns/ResolvesCurrentTenant.php`.
 - To map a domain to a tenant, set the `domain` column on the tenant record (and optionally
-  `frontend_base_url`), added by migration
-  `database/migrations/2026_01_14_121552_add_domain_columns_to_tenants.php`.
+  `frontend_base_url`). Migrations are squashed into `database/schema/*-schema.sql` for fresh
+  installs; the `tenants` table already includes the `domain` and `frontend_base_url` columns.
 - `php artisan tenancy:backfill` creates/reuses the initial default tenant; run once on first
   install (`app/Console/Commands/TenancyBackfillCommand.php`, `--default-tenant=<slug>` option).
 

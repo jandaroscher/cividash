@@ -42,9 +42,12 @@ required outside of DDEV (e.g. for editor tooling); see `.nvmrc` (`nvm use`).
 ```bash
 ddev start                              # Start environment
 ddev exec composer install              # Install PHP dependencies
+ddev exec php artisan key:generate      # Generate app key (DDEV creates .env itself)
 ddev exec npm install                   # Install Node dependencies
 ddev exec php artisan migrate           # Run migrations
 ddev exec php artisan tenancy:backfill  # Setup multi-tenancy (creates default tenant)
+ddev exec php artisan db:seed           # Seed demo data (tenants, roles)
+ddev exec npm run build                 # Build frontend assets (public routes need the Vite manifest)
 ```
 
 

@@ -24,14 +24,13 @@ trait BelongsToTenant
     protected static function bootBelongsToTenant(): void
     {
         static::creating(function ($model) {
-            // Robuster Schema-Check mit try-catch für Unit-Tests ohne DB
+            // Robust schema check with try-catch for unit tests without a DB
             try {
                 if (! Schema::hasTable('tenants')) {
                     return;
                 }
             } catch (\Throwable $e) {
-                // In Unit-Tests ohne DB kann Schema-Check fehlschlagen
-                // Ignorieren und Tenant-Zuweisung überspringen
+                // Schema check can fail in unit tests without a DB; skip tenant assignment
                 return;
             }
 
@@ -64,14 +63,13 @@ trait BelongsToTenant
         });
 
         static::addGlobalScope('tenant', function (Builder $builder) {
-            // Robuster Schema-Check mit try-catch für Unit-Tests ohne DB
+            // Robust schema check with try-catch for unit tests without a DB
             try {
                 if (! Schema::hasTable('tenants')) {
                     return;
                 }
             } catch (\Throwable $e) {
-                // In Unit-Tests ohne DB kann Schema-Check fehlschlagen
-                // Ignorieren und Scope nicht anwenden
+                // Schema check can fail in unit tests without a DB; skip applying the scope
                 return;
             }
 

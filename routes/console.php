@@ -8,10 +8,12 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('dashboard:reset --force')
-    ->daily()
-    ->at('03:00')
-    ->environments(['production']);
+if (config('dashboard.demo_reset')) {
+    Schedule::command('dashboard:reset --force')
+        ->daily()
+        ->at('03:00')
+        ->environments(['production']);
+}
 
 Schedule::command('integration:sync-civitas')
     ->cron(config('integrations.civitas.sync.schedule') === 'hourly' ? '0 * * * *' : '0 4 * * *')

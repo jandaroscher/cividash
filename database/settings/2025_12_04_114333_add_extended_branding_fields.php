@@ -15,7 +15,7 @@ return new class extends SettingsMigration
      */
     public function up(): void
     {
-        // Accent color (nullable, falls nicht gesetzt wird primary_color verwendet)
+        // Accent color (nullable, falls back to primary_color when unset)
         $this->migrator->add('branding.accent_color', null);
 
         // Typography settings

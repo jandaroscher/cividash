@@ -7,6 +7,7 @@ use App\Models\Theme;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 class TenantSeeder extends Seeder
 {
@@ -15,12 +16,23 @@ class TenantSeeder extends Seeder
      */
     public function run(): void
     {
-        $demoUser = User::where('email', 'demo@example.com')->first()
-            ?? User::factory()->admin()->create([
+        $demoUser = User::where('email', 'demo@example.com')->first();
+
+        if (! $demoUser) {
+            $configuredPassword = config('dashboard.seed_admin_password');
+            $password = $configuredPassword ?: Str::password(20);
+
+            $demoUser = User::factory()->admin()->create([
                 'first_name' => 'Demo',
                 'last_name' => 'Admin',
                 'email' => 'demo@example.com',
+                'password' => $password,
             ]);
+
+            if (! $configuredPassword) {
+                $this->command?->info("Seeded admin demo@example.com with password: {$password}");
+            }
+        }
 
         $testUser = User::where('email', 'test@example.com')->first();
 

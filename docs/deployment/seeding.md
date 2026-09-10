@@ -16,7 +16,11 @@ Genereller Seeder für grundlegende Anwendungsdaten. Erstellt initiale User-Acco
 
 - Name: "Test User"
 - E-Mail: `test@example.com`
-- Passwort: `password` (Standard aus UserFactory)
+- Passwort: über die Umgebungsvariable `SEED_ADMIN_PASSWORD` gesetzt, sonst generiert der Seeder
+  ein zufälliges 20-Zeichen-Passwort und gibt es einmalig auf der Konsole aus (`Seeded admin
+  test@example.com with password: ...`). Dasselbe gilt für `demo@example.com`, angelegt vom
+  `TenantSeeder`. Ohne gesetzte Variable das Passwort direkt nach dem Seeding notieren, es wird
+  nicht erneut angezeigt.
 
 Wann ausführen:
 - bei der ersten Installation der Anwendung
@@ -226,14 +230,16 @@ Das ist normal bei der ersten Installation. Der `DatabaseSeeder` läuft automati
 
 ### Überblick
 
-Der Laravel-Scheduler führt `dashboard:reset --force` jede Nacht um 03:00 Uhr aus, aber nur wenn `APP_ENV=production` in der `.env` gesetzt ist. Lokal und auf Staging passiert nichts.
+Der Laravel-Scheduler führt `dashboard:reset --force` jede Nacht um 03:00 Uhr aus, aber nur wenn `APP_ENV=production` **und** `DASHBOARD_DEMO_RESET=true` in der `.env` gesetzt sind (Standard: `false`, kein Reset). Ohne gesetztes Flag ist der Schedule-Eintrag gar nicht erst registriert. Lokal, auf Staging und auf echten Produktions-Installationen ohne dieses Flag passiert nichts. Nur auf tatsächlichen Demo-/Showcase-Instanzen setzen, da der Befehl Tenant-Inhalte löscht/überschreibt (siehe `docs/deployment/installation-standalone.md`, Abschnitt Scheduler).
 
 Definiert in `routes/console.php`:
 ```php
-Schedule::command('dashboard:reset --force')
-    ->daily()
-    ->at('03:00')
-    ->environments(['production']);
+if (config('dashboard.demo_reset')) {
+    Schedule::command('dashboard:reset --force')
+        ->daily()
+        ->at('03:00')
+        ->environments(['production']);
+}
 ```
 
 ### Cron einrichten (einmalig auf dem Produktionsserver)

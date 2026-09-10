@@ -6,6 +6,8 @@ use App\Models\Tenant;
 use App\Models\User;
 use Database\Seeders\TenantSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class TenantSeederTest extends TestCase
@@ -76,5 +78,25 @@ class TenantSeederTest extends TestCase
 
         $tenantSlugs = $user->tenants->pluck('slug')->sort()->values()->toArray();
         $this->assertEquals(['default', 'demo-city', 'stadt-regensburg'], $tenantSlugs);
+    }
+
+    public function test_seeder_uses_configured_admin_password(): void
+    {
+        Config::set('dashboard.seed_admin_password', 'configured-password-123');
+
+        $this->seed(TenantSeeder::class);
+
+        $user = User::where('email', 'demo@example.com')->first();
+        $this->assertTrue(Hash::check('configured-password-123', $user->password));
+    }
+
+    public function test_seeder_generates_random_password_without_config(): void
+    {
+        Config::set('dashboard.seed_admin_password', null);
+
+        $this->seed(TenantSeeder::class);
+
+        $user = User::where('email', 'demo@example.com')->first();
+        $this->assertFalse(Hash::check('password', $user->password));
     }
 }
