@@ -8,21 +8,38 @@
       class="shadow-card"
       :style="cardContainerStyle"
     >
+      <!-- Named slot, default content = today's title
+           row (name + #badge), so an override can replace the whole row
+           (e.g. a title bar with different background/structure that must
+           sit flush at the card's top edge) instead of forking the
+           component when a color/font token isn't enough. Sits outside the
+           section below so an override isn't forced to inherit that
+           section's top padding/background. -->
+      <slot
+        name="header"
+        :header="header"
+      >
+        <div
+          :class="backgroundClass ? [backgroundClass] : []"
+          :style="backgroundColorStyle"
+          class="pt-6 text-black relative"
+        >
+          <div class="flex flex-row justify-between gap-2 px-4">
+            <div class="text-theme-h3 font-bold mb-4 hyphens-auto">
+              {{ header }}
+            </div>
+            <!-- Additive region, renders nothing unless a tenant
+                 slot override provides content (e.g. the Demo City badge). -->
+            <slot name="badge" />
+          </div>
+        </div>
+      </slot>
+
       <div
         :class="backgroundClass ? [backgroundClass] : []"
         :style="backgroundColorStyle"
-        class="py-6 text-black relative"
+        class="pb-6 text-black relative"
       >
-        <div class="flex flex-row justify-between gap-2 px-4">
-          <div class="text-theme-h3 font-bold mb-4 hyphens-auto">
-            {{ header }}
-          </div>
-          <!-- Approach B: additive region, renders nothing unless a
-               tenant slot override provides content (e.g. a badge like the
-               Demo City Approach-A override adds via its own template). -->
-          <slot name="badge" />
-        </div>
-
         <div
           v-if="subheader"
           class="text-lg font-bold px-4"
@@ -31,7 +48,15 @@
         </div>
         <!-- Named slot, default content = today's markup,
              so no override means pixel-identical output. -->
-        <slot name="value">
+        <slot
+          name="value"
+          :indicators="indicators"
+          :years="years"
+          :current-year="currentYear"
+          :trend-label="trendLabel"
+          :lottie-url="lottieUrl"
+          :image-url="imageUrl"
+        >
           <template
             v-for="indicator in indicators"
             :key="indicator.id"

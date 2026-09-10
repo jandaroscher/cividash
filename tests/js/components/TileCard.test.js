@@ -114,7 +114,7 @@ describe('TileCard', () => {
         const wrapper = createWrapper(tile);
 
         // The top section div should have the tile color as backgroundColor
-        const colorDiv = wrapper.find('[class*="py-6"]');
+        const colorDiv = wrapper.find('[class*="pt-6"]');
         expect(colorDiv.exists()).toBe(true);
         // Happy-DOM keeps hex values as-is
         expect(colorDiv.attributes('style')).toContain('background-color: #FF5733');
@@ -138,7 +138,7 @@ describe('TileCard', () => {
         });
         const wrapper = createWrapper(tile);
 
-        const colorDiv = wrapper.find('[class*="py-6"]');
+        const colorDiv = wrapper.find('[class*="pt-6"]');
         expect(colorDiv.exists()).toBe(true);
         // Happy-DOM keeps hex values as-is
         expect(colorDiv.attributes('style')).toContain('background-color: #00AA00');
@@ -148,7 +148,7 @@ describe('TileCard', () => {
         const tile = createTile({ tile_color: null, categories: [] });
         const wrapper = createWrapper(tile);
 
-        const colorDiv = wrapper.find('[class*="py-6"]');
+        const colorDiv = wrapper.find('[class*="pt-6"]');
         expect(colorDiv.exists()).toBe(true);
         expect(colorDiv.classes()).toContain('bg-gray-100');
     });
