@@ -86,6 +86,29 @@ describe('TileCard', () => {
         expect(wrapper.text()).toContain('Eine kurze Beschreibung');
     });
 
+    it('keeps a sentence intact when it contains a mid-sentence period', () => {
+        const tile = createTile({ description: { de: 'Reduzierung. der Treibhausgas-Emissionen bis 2030 um 65 %* und Klimaneutralität der Gesamtstadt ab 2035' } });
+        const wrapper = createWrapper(tile);
+
+        expect(wrapper.text()).toContain('Klimaneutralität der Gesamtstadt ab 2035');
+    });
+
+    it('does not truncate a first sentence longer than 100 characters', () => {
+        const tile = createTile({ description: { de: 'Reduzierung der Treibhausgas-Emissionen bis 2030 um 65 %* und Klimaneutralität der Gesamtstadt ab 2035. Zweiter Satz.' } });
+        const wrapper = createWrapper(tile);
+
+        expect(wrapper.text()).toContain('Klimaneutralität der Gesamtstadt ab 2035');
+        expect(wrapper.text()).not.toContain('Zweiter Satz');
+    });
+
+    it('does not treat abbreviation periods as sentence ends', () => {
+        const tile = createTile({ description: { de: 'Dr. Müller leitet z. B. das Amt für ca. 20 Mitarbeitende. Zweiter Satz.' } });
+        const wrapper = createWrapper(tile);
+
+        expect(wrapper.text()).toContain('Dr. Müller leitet z. B. das Amt für ca. 20 Mitarbeitende');
+        expect(wrapper.text()).not.toContain('Zweiter Satz');
+    });
+
     it('applies background color from tile_color property', () => {
         const tile = createTile({ tile_color: '#FF5733' });
         const wrapper = createWrapper(tile);

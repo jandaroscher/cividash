@@ -291,9 +291,12 @@ const subheader = computed(() => {
     const desc = props.tile.description?.[currentLocale.value] || props.tile.description?.de || props.tile.description || '';
     // Strip HTML tags since description comes from a rich text editor
     const plainText = desc.replace(/<[^>]*>/g, '').trim();
-    // Extract first sentence or first 100 chars as subheader
-    const firstSentence = plainText.split('.')[0];
-    return firstSentence.length > 100 ? firstSentence.slice(0, 100) + '…' : firstSentence;
+    // First sentence: a period ends it only at the end of the text or when the
+    // next word starts with an uppercase letter or digit, and not after a word
+    // of 1-3 letters ("Dr.", "z. B.", "ca."), so abbreviations and stray
+    // periods ("Reduzierung. der ...") do not cut the text.
+    const firstSentence = plainText.split(/(?<!(?:^|[^\p{L}])\p{L}{1,3})\.(?:\s+(?=[A-ZÄÖÜ0-9„"(])|$)/u)[0];
+    return firstSentence.length > 200 ? firstSentence.slice(0, 200) + '…' : firstSentence;
 });
 
 const hint = computed(() => {
