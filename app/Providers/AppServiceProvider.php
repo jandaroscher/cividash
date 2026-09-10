@@ -14,8 +14,11 @@ use App\Services\Integration\NgsiLdClient;
 use App\Services\Integration\NgsiLdDataMapper;
 use App\Services\Integration\SensorThingsClient;
 use App\Services\Integration\SyncService;
+use App\Support\SvgSanitizer;
 use BezhanSalleh\FilamentLanguageSwitch\Events\LocaleChanged;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
+use Filament\Forms\Components\BaseFileUpload;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Http\Request;
@@ -127,6 +130,38 @@ class AppServiceProvider extends ServiceProvider
         PageBuilder::configureUsing(function (PageBuilder $builder) {
             $builder->collapsible()->collapsed();
         });
+
+        // Sanitize every uploaded SVG on disk: FileUpload stores
+        // raw file bytes by default, and any FileUpload accepting image/*
+        // or image/svg+xml would otherwise persist an SVG that can carry
+        // <script>/on* handlers, executed when opened directly from the
+        // public disk. `isImportant: true` runs this after Filament's own
+        // setUp() sets its default saveUploadedFileUsing, so it wins.
+        FileUpload::configureUsing(function (FileUpload $upload) {
+            $upload->saveUploadedFileUsing(function (BaseFileUpload $component, $file) {
+                try {
+                    if (! $file->exists()) {
+                        return null;
+                    }
+                } catch (\Throwable) {
+                    return null;
+                }
+
+                $storeMethod = $component->getVisibility() === 'public' ? 'storePubliclyAs' : 'storeAs';
+
+                $path = $file->{$storeMethod}(
+                    $component->getDirectory(),
+                    $component->getUploadedFileNameForStorage($file),
+                    $component->getDiskName(),
+                );
+
+                if ($path && str_ends_with(strtolower($path), '.svg')) {
+                    SvgSanitizer::sanitizeFile($component->getDisk(), $path);
+                }
+
+                return $path;
+            });
+        }, isImportant: true);
 
         // Persist language switcher changes to user's DB locale
         Event::listen(LocaleChanged::class, function (LocaleChanged $event) {

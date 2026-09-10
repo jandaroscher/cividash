@@ -8,6 +8,7 @@ use App\Settings\ContentSettings;
 use App\Settings\DashboardSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\IntegrationSettings;
+use App\Support\SvgSanitizer;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
@@ -148,6 +149,10 @@ class ThemeBundleImporter
 
             if ($contents === false) {
                 throw new RuntimeException(__('filament.resources.theme.import_invalid_zip'));
+            }
+
+            if (strtolower(pathinfo($name, PATHINFO_EXTENSION)) === 'svg') {
+                $contents = SvgSanitizer::sanitize($contents);
             }
 
             $storagePath = "{$destDir}/".substr($name, strlen('assets/'));

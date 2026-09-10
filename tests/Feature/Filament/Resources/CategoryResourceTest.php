@@ -11,6 +11,8 @@ use App\Models\Tenant;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -221,5 +223,42 @@ class CategoryResourceTest extends TestCase
             ->callTableAction('delete', $category);
 
         $this->assertDatabaseMissing('categories', ['id' => $category->id]);
+    }
+
+    // ========== SVG icon sanitizing ==========
+
+    public function test_uploaded_malicious_svg_icon_is_sanitized_on_disk(): void
+    {
+        Storage::fake('public');
+
+        $maliciousSvg = '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)">'
+            .'<script>alert(document.cookie)</script>'
+            .'<circle r="1"/>'
+            .'</svg>';
+
+        $file = UploadedFile::fake()->createWithContent('malicious.svg', $maliciousSvg);
+
+        Livewire::test(CreateCategory::class)
+            ->fillForm([
+                'slug' => 'Malicious Icon Category',
+                'category_group_id' => $this->group->id,
+                'icon' => [$file],
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $category = Category::query()->latest('id')->firstOrFail();
+
+        $decoded = json_decode($category->icon, true);
+        $this->assertIsArray($decoded);
+        $path = $decoded[app()->getLocale()] ?? $decoded['de'] ?? reset($decoded);
+
+        $this->assertNotNull($path);
+        $stored = Storage::disk('public')->get($path);
+
+        $this->assertStringNotContainsString('<script', $stored);
+        $this->assertStringNotContainsString('onload', $stored);
+        $this->assertStringNotContainsString('alert', $stored);
+        $this->assertStringContainsString('<circle', $stored);
     }
 }
