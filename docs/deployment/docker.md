@@ -12,7 +12,8 @@ Two images, built from the repo root as build context:
   dependencies. Stage 3 (`php:8.2-fpm-alpine`) is the runtime image: PHP-FPM on port 9000,
   running as `www-data`. This one image is the workload for `fpm`, `queue:work`, the
   `schedule:run` loop and one-shot `migrate --force`.
-- `cividash-web` (`docker/production/nginx/Dockerfile`): thin `nginx:alpine` front. Copies
+- `cividash-web` (`docker/production/nginx/Dockerfile`): thin rootless `nginxinc/nginx-unprivileged:alpine`
+  front listening on port 8080 (no root, no capabilities). Copies
   `public/` from an already-built `cividash-app` image (`--build-arg APP_IMAGE=...`) and proxies
   PHP requests to `cividash-fpm:9000`. Config: `docker/production/nginx/nginx.conf`.
 
@@ -49,7 +50,7 @@ Services defined there:
 - `cividash-db`: `postgres:16`, health-gated so dependants wait for readiness.
 - `cividash-migrate`: one-shot `php artisan migrate --force`, exits after running.
 - `cividash-fpm`: the app image, depends on `cividash-db` (healthy) and `cividash-migrate` (completed).
-- `cividash-web`: nginx front, published on host port 8088.
+- `cividash-web`: nginx front on container port 8080, published on host port 8088.
 
 A shared `public-media` volume carries `storage/app/public` between `cividash-fpm` and `cividash-web`
 so uploads written by PHP are visible to nginx (local-disk equivalent of an S3 bucket).

@@ -21,16 +21,18 @@ ARG APP_IMAGE=cividash-app:dev
 # the registry, unless the build maps it to another context).
 FROM ${APP_IMAGE} AS appsrc
 
-FROM nginx:alpine
+# Rootless nginx (uid 101, listens on 8080, pid/temp paths under /tmp). Every
+# process in the image runs as the nginx user; no capabilities are needed.
+FROM nginxinc/nginx-unprivileged:alpine
 
 # Laravel front controller + compiled assets, served straight from disk.
-COPY --from=appsrc /var/www/html/public /var/www/html/public
+COPY --from=appsrc --chown=nginx:nginx /var/www/html/public /var/www/html/public
 
-# Server config: try_files + fastcgi_pass cividash-fpm:9000. The resolver line is
+# Server config: listen 8080, try_files + fastcgi_pass cividash-fpm:9000. The resolver line is
 # filled in at start (see 05-resolver.sh) so the same image works in compose
 # (127.0.0.11) and on Kubernetes (cluster DNS).
-COPY docker/production/nginx/nginx.conf /etc/nginx/conf.d/default.conf
-COPY docker/production/nginx/05-resolver.sh /docker-entrypoint.d/05-resolver.sh
-RUN chmod +x /docker-entrypoint.d/05-resolver.sh
+# conf.d must stay writable for the nginx user: 05-resolver.sh rewrites it.
+COPY --chown=nginx:nginx docker/production/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --chmod=755 docker/production/nginx/05-resolver.sh /docker-entrypoint.d/05-resolver.sh
 
-EXPOSE 80
+EXPOSE 8080
