@@ -13,7 +13,7 @@
 set -eu
 if [ -n "${NGINX_RESOLVER:-}" ]; then
   resolver="$NGINX_RESOLVER"
-elif nslookup "$(hostname)" 127.0.0.11 >/dev/null 2>&1; then
+elif nslookup "${CIVIDASH_WEB_HOST:-cividash-web}" 127.0.0.11 >/dev/null 2>&1; then
   resolver="127.0.0.11"
 else
   resolver="$(awk '/^nameserver/ { print $2; exit }' /etc/resolv.conf)"
