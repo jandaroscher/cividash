@@ -7,6 +7,7 @@ use App\Settings\TenantAwareDatabaseSettingsRepository;
 use Filament\Facades\Filament;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class TenantAvatarTest extends TestCase
@@ -37,8 +38,9 @@ class TenantAvatarTest extends TestCase
     {
         $url = $this->tenant->getFilamentAvatarUrl();
 
-        $this->assertStringContainsString('background=0d47a1', $url);
-        $this->assertStringContainsString('ui-avatars.com', $url);
+        $this->assertStringNotContainsString('ui-avatars.com', $url);
+        $this->assertStringStartsWith('data:image/svg+xml;base64,', $url);
+        $this->assertStringContainsString('fill="#0d47a1"', $this->decodeSvg($url));
     }
 
     public function test_avatar_url_uses_accent_color_when_set(): void
@@ -48,7 +50,7 @@ class TenantAvatarTest extends TestCase
 
         $url = $this->tenant->getFilamentAvatarUrl();
 
-        $this->assertStringContainsString('background=e91e63', $url);
+        $this->assertStringContainsString('fill="#e91e63"', $this->decodeSvg($url));
     }
 
     public function test_avatar_url_falls_back_to_primary_color(): void
@@ -57,7 +59,7 @@ class TenantAvatarTest extends TestCase
 
         $url = $this->tenant->getFilamentAvatarUrl();
 
-        $this->assertStringContainsString('background=4caf50', $url);
+        $this->assertStringContainsString('fill="#4caf50"', $this->decodeSvg($url));
     }
 
     public function test_avatar_url_falls_back_to_global_accent(): void
@@ -67,7 +69,7 @@ class TenantAvatarTest extends TestCase
 
         $url = $this->tenant->getFilamentAvatarUrl();
 
-        $this->assertStringContainsString('background=ff5722', $url);
+        $this->assertStringContainsString('fill="#ff5722"', $this->decodeSvg($url));
     }
 
     public function test_bulk_load_avatar_colors(): void
@@ -102,11 +104,24 @@ class TenantAvatarTest extends TestCase
     public function test_avatar_initials_derived_from_name(): void
     {
         $url = $this->tenant->getFilamentAvatarUrl();
-        $this->assertStringContainsString('name=MD', $url);
+        $this->assertStringContainsString('>MD<', $this->decodeSvg($url));
 
         $single = Tenant::create(['name' => 'Alpha', 'slug' => 'alpha-init']);
         $singleUrl = $single->getFilamentAvatarUrl();
-        $this->assertStringContainsString('name=AL', $singleUrl);
+        $this->assertStringContainsString('>AL<', $this->decodeSvg($singleUrl));
+    }
+
+    public function test_avatar_svg_is_valid_xml(): void
+    {
+        $url = $this->tenant->getFilamentAvatarUrl();
+
+        $svg = new \SimpleXMLElement($this->decodeSvg($url));
+        $this->assertSame('svg', $svg->getName());
+    }
+
+    private function decodeSvg(string $dataUri): string
+    {
+        return base64_decode(substr($dataUri, strlen('data:image/svg+xml;base64,')));
     }
 
     private function setSettingForTenant(int $tenantId, string $name, string $value): void

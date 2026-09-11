@@ -173,11 +173,11 @@ export const useBrandingStore = defineStore('branding', {
                 this.fontScale = font_scale || this.fontScale;
                 this.fontFaces = font_faces !== undefined ? font_faces : this.fontFaces;
 
-                // Load font (Google Font or Custom Font)
+                // Load custom font file, if one was uploaded. Without an uploaded file,
+                // the CSS font-family falls back to the system font stack below
+                // (no third-party font requests, DSB requirement).
                 if (this.customFontFile && this.customFontName) {
                     this.loadCustomFont(this.customFontName, this.customFontFile);
-                } else {
-                    this.loadGoogleFont(this.typographyFontFamily, this.typographyFontWeights);
                 }
 
                 // Set CSS variables
@@ -314,25 +314,6 @@ export const useBrandingStore = defineStore('branding', {
                 .filter(Boolean);
 
             styleEl.textContent = rules.join('\n');
-        },
-        loadGoogleFont(fontFamily, weights = [400, 600, 700]) {
-            // Check if font is already loaded
-            const fontId = `google-font-${fontFamily.replace(/\s+/g, '-').toLowerCase()}`;
-            if (document.getElementById(fontId)) {
-                return;
-            }
-
-            // Create Google Fonts URL
-            const weightsParam = weights.join(';');
-            const fontName = fontFamily.replace(/\s+/g, '+');
-            const fontUrl = `https://fonts.googleapis.com/css2?family=${fontName}:wght@${weightsParam}&display=swap`;
-
-            // Create and append link element
-            const link = document.createElement('link');
-            link.id = fontId;
-            link.rel = 'stylesheet';
-            link.href = fontUrl;
-            document.head.appendChild(link);
         },
         loadCustomFont(fontName, fontFileUrl) {
             // Validate and sanitize inputs

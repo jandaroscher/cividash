@@ -128,6 +128,8 @@ Der Reiter **Schrift** steuert die Typografie:
 
 > **Hinweis:** Schriftfamilien-Auswahl und Schriftschnitte einerseits sowie eigene Schriftdatei andererseits schließen sich gegenseitig aus — sobald eine eigene Datei hochgeladen ist, verschwinden die vordefinierten Felder aus dem Formular.
 
+> **Hinweis (Datenschutz):** Die vordefinierten Schriftfamilien werden aus Datenschutzgründen nicht von Google Fonts nachgeladen. Ohne eigene Schriftdatei nutzt das Dashboard den passenden systemeigenen Font-Stack des Endgeräts (z. B. für „Open Sans" die auf dem Gerät verfügbare Standardschrift). Für eine exakte Schriftdarstellung eine eigene Schriftdatei hochladen.
+
 #### 6.1.2.4 Konfiguration (Kacheln)
 
 Der vierte Reiter **Konfiguration** ist im ursprünglichen Struktur-Entwurf nicht vorgesehen, existiert in der Live-Anwendung aber als Teil der Theme-Seite:

@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\AvatarProviders\LocalAvatarProvider;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\Tenancy\EditTenantProfile;
@@ -114,6 +115,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            // Avoid calling a third-party avatar service from the browser (DSB requirement)
+            ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->brandName(fn (): string => __('filament.brand_name'))
             ->brandLogo(asset('images/branding/cividash-logo.svg'))
             ->darkModeBrandLogo(asset('images/branding/cividash-logo-dark.svg'))

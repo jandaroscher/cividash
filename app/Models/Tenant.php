@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\Services\RoleService;
 use App\Settings\TenantAwareDatabaseSettingsRepository;
+use App\Support\LocalAvatar;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Tenant extends Model implements HasAvatar
 {
@@ -73,10 +75,7 @@ class Tenant extends Model implements HasAvatar
 
     public function getFilamentAvatarUrl(): ?string
     {
-        $color = ltrim($this->getAvatarColor(), '#');
-        $initials = $this->getAvatarInitials();
-
-        return 'https://ui-avatars.com/api/?name='.urlencode($initials).'&color=ffffff&background='.$color;
+        return LocalAvatar::svgDataUri($this->getAvatarInitials(), $this->getAvatarColor());
     }
 
     public function getAvatarColor(): string

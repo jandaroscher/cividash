@@ -1,0 +1,49 @@
+<?php
+
+namespace Tests\Feature\Privacy;
+
+use Symfony\Component\Finder\Finder;
+use Tests\TestCase;
+
+/**
+ * Guards against reintroducing calls to third-party hosts from the frontend
+ * (DSB requirement): Google Fonts and ui-avatars.com.
+ */
+class NoThirdPartyHostsTest extends TestCase
+{
+    private const FORBIDDEN_HOSTS = [
+        'fonts.googleapis.com',
+        'fonts.gstatic.com',
+        'ui-avatars.com',
+    ];
+
+    private const SCANNED_DIRS = [
+        'app',
+        'resources/js',
+        'resources/views',
+    ];
+
+    public function test_source_files_do_not_reference_forbidden_hosts(): void
+    {
+        $finder = new Finder;
+        $finder->files()
+            ->in(array_map(fn (string $dir) => base_path($dir), self::SCANNED_DIRS))
+            ->name(['*.php', '*.js', '*.vue', '*.blade.php'])
+            ->notPath('vendor')
+            ->notPath('node_modules');
+
+        $offenders = [];
+
+        foreach ($finder as $file) {
+            $contents = $file->getContents();
+
+            foreach (self::FORBIDDEN_HOSTS as $host) {
+                if (str_contains($contents, $host)) {
+                    $offenders[] = $file->getRelativePathname().' references '.$host;
+                }
+            }
+        }
+
+        $this->assertEmpty($offenders, "Found references to forbidden third-party hosts:\n".implode("\n", $offenders));
+    }
+}

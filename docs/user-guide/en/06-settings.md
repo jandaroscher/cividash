@@ -128,6 +128,8 @@ The **Typography** tab controls type settings:
 
 > **Note:** Font family/font weights on one hand and a custom font file on the other are mutually exclusive — once a custom file is uploaded, the predefined fields disappear from the form.
 
+> **Note (privacy):** For privacy reasons the predefined font families are not loaded from Google Fonts. Without a custom font file, the dashboard falls back to the visitor's device's matching system font stack (e.g. for "Open Sans" the device's default sans-serif font). Upload a custom font file for pixel-exact typography.
+
 #### 6.1.2.4 Configuration (Tiles)
 
 The fourth tab, **Configuration**, is not part of the original structure proposal but exists as part of the Theme page in the live application:

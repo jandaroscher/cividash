@@ -285,20 +285,19 @@ describe('brandingStore', () => {
             expect(store.secondaryColor).toBe('#0d47a1');
         });
 
-        it('loads Google Font when no custom font is provided', async () => {
+        it('falls back to the system font stack when no custom font is provided (no third-party requests)', async () => {
             globalThis.fetch = mockFetch(fullBrandingResponse);
 
             const store = useBrandingStore();
             await store.fetch();
 
-            // Google font link should be appended to document.head
-            const fontLink = document.getElementById('google-font-roboto');
-            expect(fontLink).toBeTruthy();
-            expect(fontLink.href).toContain('fonts.googleapis.com');
-            expect(fontLink.href).toContain('Roboto');
+            // No Google Fonts link is appended anywhere in the document
+            expect(document.querySelector('link[href*="fonts.googleapis.com"]')).toBeNull();
 
-            // Clean up
-            fontLink?.remove();
+            // The CSS variable still carries a usable system fallback stack
+            const fontFamily = document.documentElement.style.getPropertyValue('--font-family');
+            expect(fontFamily).toContain('Roboto');
+            expect(fontFamily).toContain('system-ui');
         });
 
         it('loads custom font when custom font name and file are provided', async () => {
