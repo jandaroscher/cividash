@@ -239,6 +239,39 @@ describe('Filter', () => {
         vi.useRealTimers();
     });
 
+    it('renders group buttons as a column grid, not a wrapping bar', async () => {
+        fetchMock.mockResolvedValue({
+            ok: true,
+            json: () =>
+                Promise.resolve({
+                    data: {
+                        labels: { header: 'Filter' },
+                        groups: [1, 2, 3, 4].map((n) => ({
+                            id: n,
+                            key: `group-${n}`,
+                            title: { de: `Gruppe ${n}`, en: `Group ${n}` },
+                            items: [],
+                        })),
+                    },
+                }),
+        });
+
+        const wrapper = createWrapper();
+        await vi.dynamicImportSettled();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        const tablist = wrapper.find('[role="tablist"]');
+        expect(tablist.classes()).toContain('filter-tabs');
+        expect(tablist.classes()).not.toContain('flex');
+        expect(tablist.classes()).not.toContain('flex-wrap');
+
+        const buttons = wrapper.findAll('[role="tab"]');
+        expect(buttons.length).toBe(4);
+        expect(buttons[0].classes()).toContain('filter-button--active');
+        expect(buttons[1].classes()).not.toContain('filter-button--active');
+    });
+
     it('sets the clear button aria-label per locale (de/en)', async () => {
         const deWrapper = createWrapper({ showSearch: true });
         await deWrapper.vm.$nextTick();

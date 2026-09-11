@@ -81,7 +81,7 @@
 
     <div
       v-if="showFilter && filterGroups.length > 0"
-      class="filter-tabs flex flex-wrap mb-5 md:mb-10"
+      class="filter-tabs mb-5 md:mb-10"
       role="tablist"
       :aria-label="currentLocale === 'en' ? 'Filter navigation' : 'Filter-Navigation'"
     >
@@ -311,6 +311,7 @@ function getButtonStyles() {
     return {
         '--active-fill': brandingStore.primaryColor,
         '--hover-fill': hexToRgba(brandingStore.primaryColor, 0.12),
+        '--focus-ring-color': brandingStore.primaryColor,
     };
 }
 </script>
@@ -374,28 +375,27 @@ function getButtonStyles() {
     box-shadow: 0px 3px 6px #00000029;
 }
 
-/* v05: light-grey bar with an inset color fill for the active tab (Figma
-   node 2314:1245, category-filters) - no borders, active state is a solid
-   color block, hover is a soft tint of the same color so it never reads
-   as "selected". */
+/* v05: every group is its own grey surface in a column grid, not one
+   continuous bar - wrapped rows stay aligned to the grid instead of
+   trailing behind a shared background. */
 .filter-tabs {
-    background-color: rgba(229, 229, 229, 0.6);
-}
-
-.filter-button {
-    flex: 1 1 100%;
-    box-sizing: border-box;
-    display: flex;
-    padding: 6px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
 }
 
 @media (min-width: 768px) {
-    .filter-button {
-        flex: 1 1 33.333%;
+    .filter-tabs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+}
+
+.filter-button {
+    box-sizing: border-box;
+    display: flex;
+    border: none;
+    background: transparent;
+    cursor: pointer;
 }
 
 .filter-button__fill {
@@ -403,12 +403,28 @@ function getButtonStyles() {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 52px;
+    min-height: 50px;
     font-size: 1.25rem;
-    line-height: 2rem;
+    /* Tight leading and vertical padding keep two-line labels centred on
+       narrow screens. */
+    line-height: 1.3;
+    text-align: center;
+    padding: 10px 8px;
+    /* Long group names ("Handlungsdimensionen") must not widen the
+       column on mobile; hyphenate like the design reference. */
+    hyphens: auto;
+    overflow-wrap: anywhere;
     color: #191919;
-    background-color: transparent;
+    background-color: #F0F0F0;
     transition: background-color 0.2s, color 0.2s;
+}
+
+@media (min-width: 768px) {
+    .filter-button__fill {
+        min-height: 52px;
+        line-height: 2rem;
+        padding: 0 8px;
+    }
 }
 
 .filter-button--active .filter-button__fill {
@@ -418,6 +434,15 @@ function getButtonStyles() {
 
 .filter-button:not(.filter-button--active):hover .filter-button__fill {
     background-color: var(--hover-fill);
+}
+
+.filter-button--active:hover .filter-button__fill {
+    background-color: var(--active-fill);
+}
+
+.filter-button:focus-visible {
+    outline: 2px solid var(--focus-ring-color, #191919);
+    outline-offset: 2px;
 }
 
 /* Search field */
