@@ -1,4 +1,18 @@
-/* Google Fonts will be loaded dynamically via branding store */
+/* Self-hosted faces for the fonts selectable in Settings > Theme (privacy:
+   no third-party font requests). Browsers only download the family that the
+   branding CSS variables actually reference. */
+@import '@fontsource/open-sans/400.css';
+@import '@fontsource/open-sans/500.css';
+@import '@fontsource/open-sans/600.css';
+@import '@fontsource/open-sans/700.css';
+@import '@fontsource/roboto/400.css';
+@import '@fontsource/roboto/500.css';
+@import '@fontsource/roboto/600.css';
+@import '@fontsource/roboto/700.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

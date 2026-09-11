@@ -386,7 +386,7 @@ return [
             'typography_font_family' => 'Font Family',
             'typography_font_weights' => 'Font Weights',
             'custom_font_file' => 'Custom Font File',
-            'custom_font_file_helper' => 'Upload a custom font file (WOFF2, WOFF, TTF, OTF). When uploaded, Google Fonts will be disabled.',
+            'custom_font_file_helper' => 'Upload a custom font file (WOFF2, WOFF, TTF, OTF). When uploaded, it replaces the font family selected above.',
             'custom_font_name' => 'Custom Font Name',
             'custom_font_name_helper' => 'Name of the custom font (e.g., "My Custom Font")',
             'tab_appearance' => 'Appearance',

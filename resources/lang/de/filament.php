@@ -145,7 +145,7 @@ return [
             'typography_font_family' => 'Schriftart',
             'typography_font_weights' => 'Schriftstärken',
             'custom_font_file' => 'Custom Font Datei',
-            'custom_font_file_helper' => 'Lade eine Custom Font-Datei hoch (WOFF2, WOFF, TTF, OTF). Wenn hochgeladen, werden Google Fonts deaktiviert.',
+            'custom_font_file_helper' => 'Lade eine Custom Font-Datei hoch (WOFF2, WOFF, TTF, OTF). Wenn hochgeladen, ersetzt sie die oben gewählte Schriftfamilie.',
             'custom_font_name' => 'Custom Font Name',
             'custom_font_name_helper' => 'Name der Custom Font (z. B. "My Custom Font")',
             'tab_appearance' => 'Erscheinungsbild',
