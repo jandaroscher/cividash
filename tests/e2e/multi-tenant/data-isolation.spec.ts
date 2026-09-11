@@ -36,7 +36,8 @@ const BASE_URL = 'http://open-source-dashboard.ddev.site';
 test.describe('Multi-Tenant Data Isolation', () => {
   test.beforeAll(async () => {
     try {
-      const output = execSync('ddev php artisan e2e:seed-full --clean --json', {
+      const artisanCmd = process.env.E2E_ARTISAN_CMD ?? 'ddev exec php artisan';
+      const output = execSync(`${artisanCmd} e2e:seed-full --clean --json`, {
         encoding: 'utf-8',
         cwd: process.cwd(),
       });

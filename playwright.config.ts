@@ -11,6 +11,13 @@ import { defineConfig } from '@playwright/test';
  * - ddev must be running: `ddev start`
  * - Test data must be seeded: `ddev php artisan e2e:seed-full --clean --json`
  * - ddev hostnames configured: a.open-source-dashboard.ddev.site, b.open-source-dashboard.ddev.site
+ *
+ * CI (see .github/workflows/e2e.yml):
+ * - Specs shell out to seed fixtures via `${E2E_ARTISAN_CMD} e2e:seed-full --json` etc.
+ *   E2E_ARTISAN_CMD defaults to `ddev php artisan`; CI sets it to `php artisan` and runs
+ *   `php artisan serve` directly instead of ddev.
+ * - The ddev hostnames the specs hardcode (open-source-dashboard.ddev.site, a./b. subdomains)
+ *   are aliased to 127.0.0.1 via /etc/hosts on the runner, so the specs need no base-URL changes.
  */
 export default defineConfig({
   testDir: './tests/e2e',
@@ -22,9 +29,12 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   
   // Retry on CI only
-  retries: process.env.CI ? 2 : 0,
-  
-  // Single worker for API tests (no browser parallelization needed)
+  retries: process.env.CI ? 1 : 0,
+
+  // Single worker everywhere: several specs run `e2e:seed-full --clean` against
+  // the same DB, and 2 CI workers raced two of those --clean calls into a real
+  // failure (not a dev-server issue). Keep this at 1 unless that seeding is made
+  // safe to run concurrently.
   workers: 1,
   
   // Reporter configuration

@@ -41,7 +41,8 @@ test.describe('Domain-based Tenant Resolution', () => {
   test.beforeAll(async () => {
     // Seed test data and capture fixtures
     try {
-      const output = execSync('ddev php artisan e2e:seed-tenant-resolution --json', {
+      const artisanCmd = process.env.E2E_ARTISAN_CMD ?? 'ddev exec php artisan';
+      const output = execSync(`${artisanCmd} e2e:seed-tenant-resolution --json`, {
         encoding: 'utf-8',
         cwd: process.cwd(),
       });

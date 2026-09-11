@@ -37,7 +37,8 @@ const BASE_URL = 'http://open-source-dashboard.ddev.site';
 test.describe('API Key Lifecycle', () => {
   test.beforeAll(async () => {
     try {
-      const output = execSync('ddev php artisan e2e:seed-full --clean --json', {
+      const artisanCmd = process.env.E2E_ARTISAN_CMD ?? 'ddev exec php artisan';
+      const output = execSync(`${artisanCmd} e2e:seed-full --clean --json`, {
         encoding: 'utf-8',
         cwd: process.cwd(),
       });
@@ -99,7 +100,7 @@ test.describe('API Key Lifecycle', () => {
       // Step 2: Revoke the token via artisan tinker
       // We delete the token directly from the database
       execSync(
-        `ddev php artisan tinker --execute="\\Laravel\\Sanctum\\PersonalAccessToken::find(${fixtures.tokens.lifecycleId})?->delete();"`,
+        `${process.env.E2E_ARTISAN_CMD ?? 'ddev exec php artisan'} tinker --execute="\\Laravel\\Sanctum\\PersonalAccessToken::find(${fixtures.tokens.lifecycleId})?->delete();"`,
         {
           encoding: 'utf-8',
           cwd: process.cwd(),
