@@ -11,6 +11,10 @@ the latest tagged release, if any.
 | main    | :white_check_mark: |
 | < main  | :x:                 |
 
+A machine-readable version of this contact information lives in
+[`public/.well-known/security.txt`](public/.well-known/security.txt) and is served at
+`/.well-known/security.txt` on every deployment, per [RFC 9116](https://www.rfc-editor.org/rfc/rfc9116).
+
 ## Reporting a vulnerability
 
 If you discover a security vulnerability in CiviDash, please **do not** open a public

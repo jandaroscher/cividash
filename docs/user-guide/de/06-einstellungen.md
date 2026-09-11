@@ -155,7 +155,7 @@ Zusätzlich zur installationsweiten Seiteneinstellungen-Seite besitzt **jedes** 
 |------|-------------|
 | **Dashboard-Name** | Name dieses einzelnen Dashboards (z. B. „Stadt Regensburg"). Erscheint im Dashboard-Auswahl-Menü (siehe [Kapitel 1.1, Anmeldung und Oberfläche](01-erste-schritte.md)). |
 | **Zusatzinfo** | Optionale Zusatzinformation (z. B. Kunde, Firma), ebenfalls im Dashboard-Auswahl-Menü sichtbar. |
-| **Slug** | Schreibgeschützt. Identifiziert das Dashboard in der API (`?tenant=slug`, `X-Tenant`-Header). Das Standard-Dashboard trägt den Slug `default`. |
+| **Slug** | Schreibgeschützt. Identifiziert das Dashboard eindeutig, u. a. für Domain-Zuordnung. Das Standard-Dashboard trägt den Slug `default`. |
 
 #### 6.1.3.2 Domain
 

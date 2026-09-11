@@ -1,0 +1,4 @@
+Contact: mailto:support@janda-roscher.de
+Expires: 2027-09-30T00:00:00.000Z
+Preferred-Languages: de, en
+Policy: https://gitlab.opencode.de/regensburg_next/cividash/-/blob/main/SECURITY.md

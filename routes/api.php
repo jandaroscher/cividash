@@ -133,7 +133,9 @@ Route::middleware(['throttle:120,1', 'auth:sanctum', 'admin.api', 'resolve.tenan
 });
 
 // Tenant user management routes (requires auth, role-based authorization inside controller)
-Route::middleware(['throttle:60,1', 'auth:sanctum', 'resolve.tenant'])->prefix('tenants/{tenant:slug}')->group(function () {
+// admin.api ensures a personal access token must carry the admin-api ability, so a
+// public-read token cannot manage users even for an admin user.
+Route::middleware(['throttle:60,1', 'auth:sanctum', 'admin.api', 'resolve.tenant'])->prefix('tenants/{tenant:slug}')->group(function () {
     Route::get('/users', [TenantUserController::class, 'index']);
     Route::patch('/users/{user}', [TenantUserController::class, 'update']);
     Route::delete('/users/{user}', [TenantUserController::class, 'destroy']);

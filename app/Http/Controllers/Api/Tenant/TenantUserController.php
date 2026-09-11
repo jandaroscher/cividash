@@ -10,6 +10,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Endpoints for managing tenant users (list, change role, remove). Requires authentication
+ * with admin-api ability (for personal access tokens) and an admin user account.
+ */
 class TenantUserController extends Controller
 {
     public function __construct(

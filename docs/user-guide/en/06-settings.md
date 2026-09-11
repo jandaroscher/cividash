@@ -155,7 +155,7 @@ In addition to the installation-wide Site Settings page, **every** dashboard (te
 |------|-------------|
 | **Dashboard name** | Name of this individual dashboard (e.g. "City of Regensburg"). Appears in the dashboard selection menu (see [Chapter 1.1, Login and Interface](01-getting-started.md)). |
 | **Additional info** | Optional extra information (e.g. client, company), also shown in the dashboard selection menu. |
-| **Slug** | Read-only. Identifies the dashboard in the API (`?tenant=slug`, `X-Tenant` header). The default dashboard uses the slug `default`. |
+| **Slug** | Read-only. Uniquely identifies the dashboard, e.g. for domain mapping. The default dashboard uses the slug `default`. |
 
 #### 6.1.3.2 Domain
 

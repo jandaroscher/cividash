@@ -93,4 +93,26 @@ class TenantUsersApiTest extends TestCase
 
         $response->assertUnauthorized();
     }
+
+    public function test_public_read_token_of_admin_cannot_list_tenant_users(): void
+    {
+        $token = $this->admin->createToken('public-read-token', ['public-read'])->plainTextToken;
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson("/api/tenants/{$this->tenant->slug}/users");
+
+        $response->assertForbidden();
+    }
+
+    public function test_admin_api_token_of_admin_can_list_tenant_users(): void
+    {
+        $this->createUserWithRoleInTenant($this->tenant, 'Redakteur');
+        $token = $this->admin->createToken('admin-api-token', ['admin-api'])->plainTextToken;
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson("/api/tenants/{$this->tenant->slug}/users");
+
+        $response->assertOk();
+        $this->assertEquals(1, $response->json('meta.total'));
+    }
 }

@@ -35,10 +35,7 @@ CiviDash runs all dashboards in a single database. A dashboard in the product is
   - **API via Domain**: Verwendet `tenants.domain` Mapping
   - **Ohne Tenant-Kontext**: Verwendet Default-Tenant (Slug `default`) mit Warnung im Log
   - **Console-Commands**: Scope wird übersprungen (Commands sollten `withoutGlobalScope('tenant')` verwenden, wenn nötig)
-- **API-Nutzung (veraltet)**: Die alten Methoden funktionieren weiterhin:
-  - Query-Parameter: `/api/tiles?tenant=stadt-regensburg`
-  - Header: `X-Tenant: stadt-regensburg`
-- **API-Nutzung (empfohlen)**: Neue Methoden (siehe [Tenant Resolution](../api/tenant-resolution.md)):
+- **API-Nutzung**: Tenant-Auflösung läuft ausschließlich über `ResolveTenantFromRequest` (siehe [Tenant Resolution](../api/tenant-resolution.md)):
   - **Token-basiert**: Bearer Token mit `tenant_id` (für API-Clients)
   - **Domain-basiert**: Request-Host wird gegen `tenants.domain` geprüft (für SPAs)
 

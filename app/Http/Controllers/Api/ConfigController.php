@@ -723,55 +723,17 @@ class ConfigController extends Controller
     /**
      * Determine the Tenant context from the incoming request.
      *
-     * Checks the `tenant` query parameter first, then the `X-Tenant` header; accepts either a numeric id or a slug.
-     * If no tenant is found, returns the tenant with slug "default" when present.
+     * Every route calling this method runs behind the `resolve.tenant` middleware, which
+     * always resolves a tenant (Bearer token > domain > default) and stores it as the
+     * `resolved_tenant` request attribute before the controller runs.
      *
      * @param  Request  $request  The current HTTP request.
-     * @return Tenant|null The resolved Tenant model, the tenant with slug "default" if none was specified, or `null` if no default tenant exists.
+     * @return Tenant|null The tenant resolved by the `resolve.tenant` middleware, or `null`
+     *                     if that middleware did not run or found no tenant.
      */
     protected function resolveTenantFromRequest(Request $request): ?Tenant
     {
-        // Priority 1: Use tenant already resolved by ResolveTenantFromRequest middleware
-        // (handles Bearer Token > Domain matching > Default fallback)
-        $resolvedTenant = $request->attributes->get('resolved_tenant');
-        if ($resolvedTenant) {
-            return $resolvedTenant;
-        }
-
-        // Try query parameter first
-        if ($request->has('tenant')) {
-            $tenantIdentifier = $request->input('tenant');
-            $tenant = null;
-
-            if (is_numeric($tenantIdentifier)) {
-                $tenant = Tenant::find($tenantIdentifier);
-            } else {
-                $tenant = Tenant::where('slug', $tenantIdentifier)->first();
-            }
-
-            if ($tenant) {
-                return $tenant;
-            }
-        }
-
-        // Try header
-        if ($request->hasHeader('X-Tenant')) {
-            $tenantIdentifier = $request->header('X-Tenant');
-            $tenant = null;
-
-            if (is_numeric($tenantIdentifier)) {
-                $tenant = Tenant::find($tenantIdentifier);
-            } else {
-                $tenant = Tenant::where('slug', $tenantIdentifier)->first();
-            }
-
-            if ($tenant) {
-                return $tenant;
-            }
-        }
-
-        // Fallback to default tenant
-        return Tenant::where('slug', 'default')->first();
+        return $request->attributes->get('resolved_tenant');
     }
 
     /**

@@ -17,6 +17,14 @@ Route::get('admin/auth/keycloak/callback', [KeycloakSsoController::class, 'callb
 Route::get('/reset-password/{token}', PasswordResetRedirectController::class)
     ->name('password.reset');
 
+// RFC 9116 security contact file. Served explicitly (in addition to nginx static
+// serving in production) so it also works via `php artisan serve` and is testable.
+Route::get('/.well-known/security.txt', fn () => response(
+    file_get_contents(public_path('.well-known/security.txt')),
+    200,
+    ['Content-Type' => 'text/plain']
+))->name('security.txt');
+
 // Vue SPA catch-all route
 // Excludes API routes, admin routes, and other system routes
 // All public routes are now handled by Vue Router
