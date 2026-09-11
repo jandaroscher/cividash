@@ -79,7 +79,6 @@ class ResolveTenantFromRequest
             'tenant_slug' => $tenant?->slug,
             'token_id' => $tokenId,
             'route' => $request->path(),
-            'ip' => $request->ip(),
             'host' => $request->getHost(),
         ]);
 

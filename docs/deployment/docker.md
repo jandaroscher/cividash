@@ -89,7 +89,25 @@ yourself as shown above. When you push `cividash-app` to a registry, pass its ta
 `cividash-web` build via `--build-arg APP_IMAGE=...`; the `cividash-app:dev` default in the
 Dockerfile is only for local builds.
 
-## Open questions
+## Production hardening
+
+`.env.example` ships development-friendly defaults (`APP_DEBUG=true`, `LOG_LEVEL=debug`,
+`SESSION_ENCRYPT=false`). Before running against real data, override:
+
+- `APP_DEBUG=false` — never leak stack traces to end users.
+- `LOG_LEVEL=info`, `LOG_CHANNEL=stderr` — quieter logs, and a container-friendly channel
+  (`stderr` is captured by the orchestrator's log driver instead of writing to a file no one
+  rotates).
+- `SESSION_SECURE_COOKIE=true`, `SESSION_ENCRYPT=true` — requires TLS in front of `cividash-web`.
+
+TLS termination and HTTP security headers are otherwise the operator's responsibility. The
+`nginx.conf` shipped in this repo sets a safe subset at server level (`X-Content-Type-Options:
+nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`).
+It deliberately does **not** set `Strict-Transport-Security` (HSTS) or a Content-Security-Policy,
+since both are unsafe or need tuning without knowing the deployment's TLS setup and CSP needs
+(Filament/Livewire, Fabricator blocks) — add those at your TLS-terminating reverse proxy/ingress.
+
+## Limitations
 
 - This repo has no packaged queue-worker or scheduler compose service. The entrypoint comment
   names a `schedule:run` loop and `queue:work` as valid workloads for the `cividash-app` image, but

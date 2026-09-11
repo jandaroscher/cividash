@@ -210,6 +210,13 @@ Source: `.env.example`. "Required" = must have a real value for a working produc
 | `KEYCLOAK_REDIRECT_URI` | Optional | Default `/admin/auth/keycloak/callback`. |
 | `KEYCLOAK_BASE_URL_INTERNAL` | Optional | Only needed in DDEV/Docker, for container-to-container calls. |
 | `APP_COMMIT` | Optional | Not in `.env.example`. A deploy pipeline can write the deployed commit SHA here. No application code reads it; it only helps operators identify the running version. Not required for a manual standalone install. |
+| `LOG_LEVEL` | Required | Set to `info` in production (`.env.example` defaults to `debug` for local dev). |
+| `LOG_CHANNEL` | Optional | Set to `stderr` if your process manager/orchestrator captures container logs. |
+| `SESSION_SECURE_COOKIE` | Required | Set to `true` once TLS is terminated in front of the app. |
+| `SESSION_ENCRYPT` | Optional | Set to `true` in production to encrypt session data in the configured session store. HTTPS-only cookies are controlled by `SESSION_SECURE_COOKIE`. |
+
+See "Production hardening" in `docs/deployment/docker.md` for the full rationale and the
+recommended reverse-proxy security headers (HSTS/CSP stay the operator's responsibility).
 
 ## 6. Update procedure
 

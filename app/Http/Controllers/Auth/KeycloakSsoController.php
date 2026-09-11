@@ -44,7 +44,7 @@ class KeycloakSsoController extends Controller
 
             $socialiteUser = Socialite::driver('keycloak')->user();
         } catch (InvalidStateException $e) {
-            Log::error('Keycloak SSO: InvalidStateException', ['message' => $e->getMessage()]);
+            Log::error('Keycloak SSO: InvalidStateException', ['class' => get_class($e)]);
             Notification::make()
                 ->title(__('filament.sso.login_failed'))
                 ->danger()
@@ -52,7 +52,7 @@ class KeycloakSsoController extends Controller
 
             return redirect()->to('/admin/login');
         } catch (\Throwable $e) {
-            Log::error('Keycloak SSO: callback error', ['message' => $e->getMessage(), 'class' => get_class($e)]);
+            Log::error('Keycloak SSO: callback error', ['class' => get_class($e)]);
             Notification::make()
                 ->title(__('filament.sso.login_failed'))
                 ->danger()
