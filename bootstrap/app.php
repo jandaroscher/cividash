@@ -25,6 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
         DashboardSeedCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware) {
+        // API guests get a 401 (rendered as JSON below); the SPA has no route('login').
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('api/*') ? null : '/admin/login');
+
         // Trust the reverse proxy/ingress in front of the app (APISIX, nginx, etc.)
         // so X-Forwarded-* headers are honored: domain-based tenant resolution relies
         // on $request->getHost() (X-Forwarded-Host) and correct HTTPS URL generation
@@ -52,5 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // The SPA has no route('login'), so a guest hitting /api/* without a JSON
+        // Accept header must get a 401 body instead of a redirect attempt (500).
+        $exceptions->shouldRenderJsonWhen(fn (Request $request) => $request->is('api/*') || $request->expectsJson());
     })->create();
