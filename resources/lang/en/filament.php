@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'brand_name' => 'Sustainability Dashboard',
+    'brand_name' => 'CiviDash',
     'navigation' => [
         'groups' => [
             'settings' => 'Settings',

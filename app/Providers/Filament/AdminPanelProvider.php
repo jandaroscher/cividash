@@ -9,7 +9,6 @@ use App\Filament\Pages\Tenancy\RegisterTenant;
 use App\Http\Middleware\LocaleDetector;
 use App\Http\Middleware\SetFilamentDefaultTenant;
 use App\Models\Tenant;
-use App\Settings\GeneralSettings;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -35,7 +34,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Z3d0X\FilamentFabricator\Enums\BlockPickerStyle;
 use Z3d0X\FilamentFabricator\FilamentFabricatorPlugin;
@@ -117,18 +115,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName(fn (): string => __('filament.brand_name'))
-            ->favicon(function () {
-                try {
-                    $settings = app(GeneralSettings::class);
-                    if ($settings->favicon) {
-                        return Storage::disk('public')->url($settings->favicon);
-                    }
-                } catch (\Throwable $e) {
-                    // Settings might not be migrated yet
-                }
-
-                return null;
-            })
+            ->brandLogo(asset('images/branding/cividash-logo.svg'))
+            ->darkModeBrandLogo(asset('images/branding/cividash-logo-dark.svg'))
+            ->brandLogoHeight('2rem')
+            ->favicon(asset('images/branding/cividash-favicon.png'))
             ->navigationGroups([
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.content')),
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.data')),

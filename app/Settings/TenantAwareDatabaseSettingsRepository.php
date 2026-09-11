@@ -49,10 +49,10 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
         }
 
         // Guard: don't resolve tenant during service provider boot.
-        // Settings may be loaded before Filament is fully initialized (e.g. AdminPanelProvider
-        // reads GeneralSettings for the favicon). Calling the Filament facade at that point
-        // triggers FilamentManager construction which re-resolves PanelRegistry mid-boot,
-        // corrupting the panel state and causing null tenant in views.
+        // Settings may be loaded before Filament is fully initialized. Calling the
+        // Filament facade at that point triggers FilamentManager construction, which
+        // re-resolves PanelRegistry mid-boot, corrupting the panel state and causing
+        // null tenant in views.
         if (! app()->isBooted()) {
             return null;
         }
