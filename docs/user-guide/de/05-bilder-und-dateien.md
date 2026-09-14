@@ -18,13 +18,17 @@ Welche Dateiformate und Größenbeschränkungen gelten, hängt vom jeweiligen Fe
 | Bereich | Erlaubte Formate | Größenlimit |
 |---------|-------------------|-------------|
 | Profilbild (Avatar) | Bildformate | 2 MB |
-| Kategorie-Icon | PNG, JPEG, GIF, WebP, SVG | kein Limit |
-| Kachel-Icon | Bildformate, JSON (Lottie), .lottie (dotLottie) | kein Limit |
-| Inhaltsbilder in Seiten-/Kachel-Blöcken (Intro-Text, Text & Bild, Slider) | Bildformate | kein Limit |
-| SEO-Bild (Seiten und Kacheln) | Bildformate | kein Limit |
-| Downloads (Download-Block) | PDF, Word, Excel, ZIP | kein Limit |
-| Logo | Bildformate | kein Limit |
+| Kategorie-Icon | PNG, JPEG, GIF, WebP, SVG | 1 MB |
+| Kachel-Icon | Bildformate, JSON (Lottie), .lottie (dotLottie) | 2 MB |
+| Kennzahl-Icon | Bildformate | 2 MB |
+| Inhaltsbilder in Seiten-/Kachel-Blöcken (Intro-Text, Text & Bild, Slider) | Bildformate | 5 MB |
+| Bild-Blöcke in „Inhalte verwalten" | Bildformate | 5 MB |
+| SEO-Bild (Seiten und Kacheln) | Bildformate | 5 MB |
+| Downloads (Download-Block) | PDF, Word, Excel, ZIP | 25 MB |
+| Logo | Bildformate | 2 MB |
 | Favicon | ICO, PNG, SVG | 512 KB |
+| Social-Media-Icon (Footer) | Bildformate | 1 MB |
+| Sponsoren-Logo (Footer) | Bildformate | 5 MB |
 | Eigene Schriftart-Datei | WOFF2, WOFF, TTF, OTF | 5 MB |
 | Datenimport-Datei | JSON, Text | 20 MB |
 
