@@ -18,13 +18,17 @@ Which file formats and size limits apply depends on the specific field:
 | Area | Allowed formats | Size limit |
 |------|------------------|------------|
 | Avatar | Image formats | 2 MB |
-| Category icon | PNG, JPEG, GIF, WebP, SVG | none |
-| Tile icon | Image formats, JSON (Lottie), .lottie (dotLottie) | none |
-| Content images in page/tile blocks (Intro Text, Text & Image, Slider) | Image formats | none |
-| SEO image (pages and tiles) | Image formats | none |
-| Downloads (Download block) | PDF, Word, Excel, ZIP | none |
-| Logo | Image formats | none |
+| Category icon | PNG, JPEG, GIF, WebP, SVG | 1 MB |
+| Tile icon | Image formats, JSON (Lottie), .lottie (dotLottie) | 2 MB |
+| Metric icon | Image formats | 2 MB |
+| Content images in page/tile blocks (Intro Text, Text & Image, Slider) | Image formats | 5 MB |
+| Image blocks in "Manage Content" | Image formats | 5 MB |
+| SEO image (pages and tiles) | Image formats | 5 MB |
+| Downloads (Download block) | PDF, Word, Excel, ZIP | 25 MB |
+| Logo | Image formats | 2 MB |
 | Favicon | ICO, PNG, SVG | 512 KB |
+| Social media icon (footer) | Image formats | 1 MB |
+| Sponsor logo (footer) | Image formats | 5 MB |
 | Custom font file | WOFF2, WOFF, TTF, OTF | 5 MB |
 | Data import file | JSON, Text | 20 MB |
 
