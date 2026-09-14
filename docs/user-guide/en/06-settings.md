@@ -8,7 +8,7 @@ The admin area groups configuration into two sidebar groups: everything under **
 
 ## 6.1 Settings
 
-The **Settings** group bundles the dashboard-related configuration pages: **Site Settings**, **Theme**, **Dashboard Configuration**, **API Keys**, and **Data Import**.
+The **Settings** group bundles the dashboard-related configuration pages: **Site Settings**, **Theme**, **Themes / Templates**, **Dashboard Configuration**, **API Keys**, and **Data Import**.
 
 ### 6.1.1 Site Settings
 
@@ -139,7 +139,81 @@ The fourth tab, **Configuration**, is not part of the original structure proposa
 <!-- Screenshot: Theme — Configuration tab with tile color source and category group for background page -->
 ![Theme: Configuration](../assets/screenshots/en/06-theme-configuration.png)
 
-### 6.1.3 Dashboard Configuration
+### 6.1.3 Themes / Templates
+
+A **theme** is a reusable bundle of branding and settings values that several dashboards can share: a theme is maintained once and then assigned to any number of dashboards — a change to the theme immediately affects all dashboards it is assigned to. The **Themes** page is visible to admins only and applies installation-wide, not per dashboard.
+
+Distinction from [Section 6.1.2, Theme / Branding](#612-theme--branding): that page edits the branding values of **a single** dashboard directly. The **Themes** page, by contrast, manages reusable **bundles** of those same values that can be shared across multiple dashboards.
+
+> **Note:** A theme is not assigned on the Themes page itself, but per dashboard in **Dashboard Configuration** (see [Section 6.1.4.3, Theme](#6143-theme)).
+
+#### 6.1.3.1 Overview
+
+The overview lists all existing themes in a table:
+
+| Column | Description |
+|------|-------------|
+| **Name** | Display name of the theme. |
+| **Slug** | Unique technical identifier (see [Section 6.1.3.2, Create and Edit a Theme](#6132-create-and-edit-a-theme)). |
+| **Used by** | Badge showing the number of dashboards that use this theme. Green as soon as at least one dashboard uses the theme, grey otherwise. |
+
+The header actions **Create** and **Import theme** add a new theme (see [Section 6.1.3.2, Create and Edit a Theme](#6132-create-and-edit-a-theme) and [Section 6.1.3.3, Import a Theme from a Bundle](#6133-import-a-theme-from-a-bundle)).
+
+<!-- Screenshot: Themes — table overview with name, slug, and used-by badge -->
+![Themes: overview](../assets/screenshots/en/06-themes-overview.png)
+
+#### 6.1.3.2 Create and Edit a Theme
+
+**Create**, or a click on an existing theme, opens the theme form:
+
+| Field | Description |
+|------|-------------|
+| **Name** | Display name of the theme. |
+| **Slug** | Auto-generated from the name, but editable and must be unique. |
+| **Settings** | JSON object holding the theme's values. Allowed are the known settings groups `general`, `content`, `dashboard`, `branding`, and `integration`; unknown groups are rejected. The value is validated against valid JSON and the known groups. |
+
+Example **Settings** JSON:
+
+```json
+{
+  "branding": {
+    "primary_color": "#0d47a1"
+  }
+}
+```
+
+> **Note:** The **Settings** JSON is the power-user path. The more convenient path is importing a ready-made bundle (see [Section 6.1.3.3, Import a Theme from a Bundle](#6133-import-a-theme-from-a-bundle)).
+
+<!-- Screenshot: Themes — create/edit form with name, slug, and settings JSON -->
+![Create and edit a theme](../assets/screenshots/en/06-theme-create.png)
+
+#### 6.1.3.3 Import a Theme from a Bundle
+
+The header action **Import theme** uploads a theme from a ZIP bundle. The ZIP contains:
+
+- a **`theme.json`** file with name, slug, and settings,
+- optionally an **`assets/`** folder with media files.
+
+Allowed asset formats: PNG, SVG, JPG, JPEG, WEBP, WOFF2, WOFF, and ICO. The total bundle size is limited to **25 MB**.
+
+The import works **by slug**: if a theme with the same slug already exists, its name, settings, and assets are overwritten; otherwise a new theme is created. Asset values are rewritten to public URLs.
+
+> **Note:** The bundle is checked on import (zip-slip protection, format whitelist, 25 MB limit, sanitising of SVG files). A bundle that violates these rules is rejected cleanly.
+
+<!-- Screenshot: Themes — dialog to import a theme bundle (ZIP) -->
+![Import a theme](../assets/screenshots/en/06-theme-import.png)
+
+#### 6.1.3.4 Assign a Theme to a Dashboard
+
+A theme is not assigned on the Themes page, but per dashboard in **Dashboard Configuration**, in the **Theme** section (see [Section 6.1.4.3, Theme](#6143-theme)). Clear the field there to remove the assignment.
+
+> **Note:** An assigned theme provides the base values; individual values can still be overridden on the dashboard via the regular Theme/Branding page (see [Section 6.1.2, Theme / Branding](#612-theme--branding)).
+
+#### 6.1.3.5 Delete a Theme
+
+A theme can only be deleted while **no** dashboard uses it. If at least one dashboard uses the theme, the delete button is disabled (with a tooltip), and the server additionally blocks the deletion. The **Used by** badge in the overview (see [Section 6.1.3.1, Overview](#6131-overview)) serves as an early warning: as long as it is green, the theme cannot be deleted.
+
+### 6.1.4 Dashboard Configuration
 
 In addition to the installation-wide Site Settings page, **every** dashboard (tenant) has its own **Dashboard Configuration** page with dashboard-specific basics.
 
@@ -148,7 +222,7 @@ In addition to the installation-wide Site Settings page, **every** dashboard (te
 
 > **Note:** This page is not a separate point in the original structure proposal, but exists as its own settings page in the live application. It is added here because it belongs content-wise with the dashboard basics.
 
-#### 6.1.3.1 Name
+#### 6.1.4.1 Name
 
 | Field | Description |
 |------|-------------|
@@ -156,25 +230,38 @@ In addition to the installation-wide Site Settings page, **every** dashboard (te
 | **Additional info** | Optional extra information (e.g. client, company), also shown in the dashboard selection menu. |
 | **Slug** | Read-only. Uniquely identifies the dashboard, e.g. for domain mapping. The default dashboard uses the slug `default`. |
 
-#### 6.1.3.2 Domain
+#### 6.1.4.2 Domain
 
 | Field | Description |
 |------|-------------|
 | **Domain** | Host/domain used to resolve this dashboard. Normalized (lowercased, `www.` prefix removed). Resolution priority: token, then domain, then default dashboard. |
 | **Frontend Base URL** | Full URL of the frontend application. Used for CORS and API responses. |
 
-### 6.1.4 Manage API Keys
+#### 6.1.4.3 Theme
+
+| Field | Description |
+|------|-------------|
+| **Theme** | Select field. Assigns a theme with predefined branding values to this dashboard. Clear the field to remove the assignment. |
+
+The field's helper text reads: "Assigns a theme with predefined branding values to this dashboard."
+
+The themes themselves are managed on the **Themes** page (see [Section 6.1.3, Themes / Templates](#613-themes--templates)).
+
+<!-- Screenshot: Dashboard Configuration — Theme section with theme select field -->
+![Dashboard Configuration: Theme](../assets/screenshots/en/06-dashboard-config-theme.png)
+
+### 6.1.5 Manage API Keys
 
 The **API Keys** page manages access tokens for this tenant's dashboard API.
 
-#### 6.1.4.1 API Keys Overview
+#### 6.1.5.1 API Keys Overview
 
 The table shows, per token: name, owner, abilities (badge), active status, created and last-used date, and (hideable) the last updated date. Filterable by ability and active status, searchable via the search field.
 
 <!-- Screenshot: API Keys — table overview with one example token -->
 ![API Keys: overview](../assets/screenshots/en/06-api-keys-overview.png)
 
-#### 6.1.4.2 Create a New Key
+#### 6.1.5.2 Create a New Key
 
 **Create Token** opens a dialog with two fields:
 
@@ -188,21 +275,21 @@ The table shows, per token: name, owner, abilities (badge), active status, creat
 
 > **Note:** The generated token value is shown in plain text **only once**, immediately after creation. There is no way to view it again later — if lost, a new token must be created and the old one deleted. Keep the token value secure and out of screenshots or tickets.
 
-#### 6.1.4.3 Edit a Key
+#### 6.1.5.3 Edit a Key
 
 **Edit** lets you change the name, abilities, and active status of an existing token (the token value itself is unchanged and is not shown again).
 
 <!-- Screenshot: Edit an API key -->
 ![Edit an API key](../assets/screenshots/en/06-api-key-edit.png)
 
-#### 6.1.4.4 Delete a Key
+#### 6.1.5.4 Delete a Key
 
 **Delete** (with a confirmation prompt) permanently revokes a token — applications using it immediately lose access.
 
 <!-- Screenshot: Delete an API key -->
 ![Delete an API key](../assets/screenshots/en/06-api-key-delete.png)
 
-### 6.1.5 Data Import
+### 6.1.6 Data Import
 
 For bulk import of tiles, categories, category groups, and metrics via JSON bundle, there is a dedicated **Data Import** page, described in detail in [Data Import](../datenimport.en.md).
 
