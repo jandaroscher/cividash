@@ -24,11 +24,8 @@ Die Kategorie-Gruppen sind über **Kategorien → Kategorie-Gruppen** erreichbar
 
 Mit **Erstellen** oben rechts eine neue Gruppe anlegen. Das Formular enthält folgende Felder:
 
-<!-- Screenshot ausstehend (04-gruppe-erstellen.png): leeres Formular „Kategorie-Gruppe erstellen" mit Titel, Schlüssel und Aktiv-Schalter -->
-
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Kategorie-Gruppe erstellen -->
+![Kategorie-Gruppe erstellen](../assets/screenshots/de/04-gruppe-erstellen.png)
 
 | Feld | Beschreibung |
 |------|-------------|
@@ -53,9 +50,8 @@ Ein Klick auf eine Gruppe in der Übersicht öffnet das Bearbeiten-Formular. Neb
 
 Der **Titel** einer Kategorie-Gruppe wird pro Sprache getrennt gepflegt. Wie bei Seiten und Kacheln (siehe [Kapitel 2.7, Mehrsprachige Inhalte](02-seiten-verwalten.md#27-mehrsprachige-inhalte-locale-switcher)) wählt der **Sprache**-Umschalter im Formular, für welche Sprachversion der Titel gerade bearbeitet wird. Schlüssel, Aktiv-Schalter und Position gelten für alle Sprachversionen gleichermaßen.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Kategorie-Gruppe: mehrsprachiger Titel -->
+![Kategorie-Gruppe: mehrsprachiger Titel](../assets/screenshots/de/04-gruppe-mehrsprachig.png)
 
 ### 4.1.5 Kategorie-Gruppe löschen
 
@@ -63,9 +59,8 @@ In der Kategorie-Gruppen-Übersicht steht rechts in jeder Zeile die rot markiert
 
 > **Hinweis:** Das Löschen einer Kategorie-Gruppe lässt sich nicht rückgängig machen. Ihre bisherigen Kategorien bleiben erhalten, verlieren aber die Gruppenzuordnung — sie erscheinen dann in keinem Filterabschnitt mehr, bis sie einer anderen Gruppe zugewiesen werden. Bei Unsicherheit die Gruppe über den **Aktiv**-Schalter deaktivieren, statt sie zu löschen.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Kategorie-Gruppe löschen -->
+![Kategorie-Gruppe löschen](../assets/screenshots/de/04-gruppe-loeschen.png)
 
 ### 4.1.6 Reihenfolge und Sichtbarkeit
 
@@ -115,9 +110,8 @@ Mit **Erstellen** speichern oder **Erstellen & weiterer Eintrag** direkt eine we
 
 Ein Klick auf eine Kategorie — in der zentralen Übersicht oder in der verschachtelten Tabelle einer Gruppe — öffnet dasselbe Formular wie beim Anlegen. Dort lassen sich Titel, Icon, Farbe (sofern die Gruppe als Farbquelle hinterlegt ist) und der Aktiv-Schalter ändern. Der Schlüssel bleibt schreibgeschützt.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Kategorie bearbeiten -->
+![Kategorie bearbeiten](../assets/screenshots/de/04-kategorie-bearbeiten.png)
 
 ### 4.2.4 Kategorie zuordnen
 
@@ -125,17 +119,15 @@ Kategorien werden nicht in der Kategorienverwaltung selbst mit Kacheln verknüpf
 
 > **Hinweis:** Die Zuordnung erfolgt pro Gruppe immer als Mehrfachauswahl — einer Kachel lassen sich also mehrere Kategorien derselben Gruppe zuordnen.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Kategorie am Kachel-Formular zuordnen -->
+![Kategorie am Kachel-Formular zuordnen](../assets/screenshots/de/04-kategorie-zuordnen.png)
 
 ### 4.2.5 Mehrsprachige Inhalte
 
 Der **Titel** einer Kategorie wird pro Sprache getrennt gepflegt (siehe [Kapitel 2.7, Mehrsprachige Inhalte](02-seiten-verwalten.md#27-mehrsprachige-inhalte-locale-switcher)). Schlüssel, Icon, Farbe, Aktiv-Schalter und Gruppenzuordnung gelten für alle Sprachversionen gleichermaßen.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Kategorie: mehrsprachiger Titel -->
+![Kategorie: mehrsprachiger Titel](../assets/screenshots/de/04-kategorie-mehrsprachig.png)
 
 ### 4.2.6 Kategorie löschen
 

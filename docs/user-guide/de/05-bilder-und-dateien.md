@@ -28,11 +28,8 @@ Welche Dateiformate und Größenbeschränkungen gelten, hängt vom jeweiligen Fe
 | Eigene Schriftart-Datei | WOFF2, WOFF, TTF, OTF | 5 MB |
 | Datenimport-Datei | JSON, Text | 20 MB |
 
-<!-- Screenshot entfernt (Runde 3): 05-download-dateityp.png wird neu erstellt -->
-
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Datei-Upload im Download-Block -->
+![Datei-Upload im Download-Block](../assets/screenshots/de/05-download-dateityp.png)
 
 > **Hinweis:** Große Bilddateien vor dem Hochladen sinnvoll komprimieren, um Ladezeiten im Frontend gering zu halten.
 

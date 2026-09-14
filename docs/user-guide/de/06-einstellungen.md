@@ -23,11 +23,8 @@ Im Abschnitt **Basisinformationen** stehen die grundlegenden, sprachunabhängige
 | **Seitenname** | Name der gesamten Installation. Erscheint u. a. im Browser-Tab-Titel und in System-E-Mails. Gilt für alle Dashboards (Tenants) gemeinsam. |
 | **Übersetzung Englisch** | Schalter. Bei Deaktivierung wird der Sprachumschalter im Frontend ausgeblendet, und englische Routen leiten automatisch auf Deutsch um. |
 
-<!-- Screenshot entfernt (Runde 3): 06-seiteneinstellungen-allgemein.png wird neu erstellt -->
-
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Seiteneinstellungen: Name und Mehrsprachigkeit -->
+![Seiteneinstellungen: Name und Mehrsprachigkeit](../assets/screenshots/de/06-seiteneinstellungen-allgemein.png)
 
 > **Hinweis:** Das Favicon wird abweichend vom Feldnamen **nicht** auf dieser Seite gepflegt, sondern auf der Seite **Theme** im Logo-Bereich (siehe [Abschnitt 6.1.2, Theme / Branding](#612-theme--branding)). Diese Aufteilung weicht vom ursprünglichen Struktur-Entwurf ab, entspricht aber dem aktuellen Stand der Live-Anwendung.
 
@@ -195,25 +192,22 @@ Die Tabelle zeigt pro Token: Name, Besitzer, Berechtigungen (Badge), Aktiv-Statu
 
 Über **Bearbeiten** lassen sich Name, Berechtigungen und Aktiv-Status eines bestehenden Tokens ändern (der Token-Wert selbst bleibt unverändert und wird nicht erneut angezeigt).
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: API-Schlüssel bearbeiten -->
+![API-Schlüssel bearbeiten](../assets/screenshots/de/06-api-key-bearbeiten.png)
 
 #### 6.1.4.4 Key löschen
 
 Über **Löschen** (mit Sicherheitsabfrage) wird ein Token unwiderruflich entzogen — Anwendungen, die ihn verwenden, verlieren sofort den Zugriff.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: API-Schlüssel löschen -->
+![API-Schlüssel löschen](../assets/screenshots/de/06-api-key-loeschen.png)
 
 ### 6.1.5 Datenimport
 
 Für den Bulk-Import von Kacheln, Kategorien, Kategorie-Gruppen und Kennzahlen per JSON-Bundle existiert eine eigene Seite **Datenimport**, ausführlich beschrieben in [Datenimport](../datenimport.de.md).
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Datenimport -->
+![Datenimport](../assets/screenshots/de/06-datenimport.png)
 
 ## 6.2 System
 
@@ -247,14 +241,12 @@ Ein Klick auf einen Account öffnet dasselbe Formular wie beim Anlegen. Dort las
 
 > **Hinweis:** Ein Konto kann nicht sich selbst deaktivieren — der entsprechende Schalter ist im eigenen Datensatz gesperrt.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Benutzer bearbeiten -->
+![Benutzer bearbeiten](../assets/screenshots/de/07-benutzer-bearbeiten.png)
 
 #### 6.2.1.4 Benutzer löschen
 
 Über die Zeilenaktion **Löschen** (mit Sicherheitsabfrage) wird ein Benutzerkonto endgültig entfernt.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Benutzer löschen -->
+![Benutzer löschen](../assets/screenshots/de/07-benutzer-loeschen.png)
