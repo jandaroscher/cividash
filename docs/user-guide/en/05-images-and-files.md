@@ -32,11 +32,8 @@ Which file formats and size limits apply depends on the specific field:
 | Custom font file | WOFF2, WOFF, TTF, OTF | 5 MB |
 | Data import file | JSON, Text | 20 MB |
 
-<!-- Screenshot removed (round 3): 05-download-file-type.png to be recreated -->
-
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: File upload in the Download block -->
+![File upload in the Download block](../assets/screenshots/en/05-download-file-type.png)
 
 > **Note:** Compress large image files before uploading, to keep frontend load times low.
 

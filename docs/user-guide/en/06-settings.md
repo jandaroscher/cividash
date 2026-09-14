@@ -23,11 +23,8 @@ The **Basic Information** section contains the installation-wide, language-indep
 | **Site name** | Name of the entire installation. Appears in the browser tab title and in system emails, among other places. Shared across all dashboards (tenants). |
 | **English Translation** | Toggle. When disabled, the language switcher is hidden in the frontend and English routes redirect to German. |
 
-<!-- Screenshot removed (round 3): 06-general-settings.png to be recreated -->
-
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Site settings: name and multilingual content -->
+![Site settings: name and multilingual content](../assets/screenshots/en/06-general-settings.png)
 
 > **Note:** Despite the field name, the favicon is **not** managed on this page — it lives on the **Theme** page, in the Logo area (see [Section 6.1.2, Theme / Branding](#612-theme--branding)). This split differs from the original structure proposal but matches the current state of the live application.
 
@@ -195,25 +192,22 @@ The table shows, per token: name, owner, abilities (badge), active status, creat
 
 **Edit** lets you change the name, abilities, and active status of an existing token (the token value itself is unchanged and is not shown again).
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Edit an API key -->
+![Edit an API key](../assets/screenshots/en/06-api-key-edit.png)
 
 #### 6.1.4.4 Delete a Key
 
 **Delete** (with a confirmation prompt) permanently revokes a token — applications using it immediately lose access.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Delete an API key -->
+![Delete an API key](../assets/screenshots/en/06-api-key-delete.png)
 
 ### 6.1.5 Data Import
 
 For bulk import of tiles, categories, category groups, and metrics via JSON bundle, there is a dedicated **Data Import** page, described in detail in [Data Import](../datenimport.en.md).
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Data import -->
+![Data import](../assets/screenshots/en/06-data-import.png)
 
 ## 6.2 System
 
@@ -247,14 +241,12 @@ Clicking an account opens the same form as when creating it. There, the role, da
 
 > **Note:** An account cannot deactivate itself — the corresponding toggle is disabled on its own record.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Edit a user -->
+![Edit a user](../assets/screenshots/en/07-user-edit.png)
 
 #### 6.2.1.4 Delete a User
 
 The row action **Delete** (with a confirmation prompt) permanently removes a user account.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Delete a user -->
+![Delete a user](../assets/screenshots/en/07-user-delete.png)

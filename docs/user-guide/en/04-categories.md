@@ -24,11 +24,8 @@ Category groups are available under **Categories → Category Groups**. The over
 
 Use **Create** at the top right to create a new group. The form contains the following fields:
 
-<!-- Screenshot pending (04-group-create.png): empty "Create Category Group" form with Title, Key, and Active toggle -->
-
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Create a category group -->
+![Create a category group](../assets/screenshots/en/04-group-create.png)
 
 | Field | Description |
 |-------|-------------|
@@ -53,9 +50,8 @@ Clicking a group in the overview opens the edit form. Alongside title, key, and 
 
 The **title** of a category group is maintained separately per language. As with pages and tiles (see [Chapter 2.7, Multilingual Content](02-managing-pages.md#27-multilingual-content-locale-switcher)), the **Locale** switcher in the form selects which language version of the title is currently being edited. Key, the Active toggle, and position apply to all language versions equally.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Category group: multilingual title -->
+![Category group: multilingual title](../assets/screenshots/en/04-group-multilingual.png)
 
 ### 4.1.5 Delete a Category Group
 
@@ -63,9 +59,8 @@ The categories groups overview shows the red-marked **Delete** action on the rig
 
 > **Note:** Deleting a category group cannot be undone. Its existing categories are kept but lose their group assignment — they then no longer appear in any filter section until assigned to another group. If unsure, deactivate the group via the **Active** toggle instead of deleting it.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Delete a category group -->
+![Delete a category group](../assets/screenshots/en/04-group-delete.png)
 
 ### 4.1.6 Order and Visibility
 
@@ -115,9 +110,8 @@ Use **Create** to save, or **Create & create another** to immediately add anothe
 
 Clicking a category — in the central overview or in the nested table of a group — opens the same form as when creating it. There, title, icon, color (if the group is set as the color source), and the Active toggle can be changed. The key stays read-only.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Edit a category -->
+![Edit a category](../assets/screenshots/en/04-category-edit.png)
 
 ### 4.2.4 Assign a Category
 
@@ -125,17 +119,15 @@ Categories are not linked to tiles from the category management itself, but dire
 
 > **Note:** The assignment is always a multi-select per group — several categories from the same group can be assigned to a single tile.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Assign a category on the tile form -->
+![Assign a category on the tile form](../assets/screenshots/en/04-category-assign.png)
 
 ### 4.2.5 Multilingual Content
 
 The **title** of a category is maintained separately per language (see [Chapter 2.7, Multilingual Content](02-managing-pages.md#27-multilingual-content-locale-switcher)). Key, icon, color, the Active toggle, and the group assignment apply to all language versions equally.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: Category: multilingual title -->
+![Category: multilingual title](../assets/screenshots/en/04-category-multilingual.png)
 
 ### 4.2.6 Delete a Category
 
