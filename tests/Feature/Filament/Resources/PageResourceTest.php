@@ -210,6 +210,27 @@ class PageResourceTest extends TestCase
             ->assertHasFormErrors(['slug' => 'required']);
     }
 
+    public function test_edit_landingpage_saves_without_slug_validation_error(): void
+    {
+        $page = Page::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Startseite', 'en' => 'Homepage'],
+            'slug' => ['de' => '/', 'en' => '/'],
+            'layout' => 'landingpage',
+        ]);
+
+        Livewire::test(EditPage::class, ['record' => $page->getRouteKey()])
+            ->fillForm([
+                'title' => 'Neuer Titel',
+                'slug' => '',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $page->refresh();
+        $this->assertEquals('Neuer Titel', $page->getTranslation('title', 'de'));
+        $this->assertEquals('/', $page->getTranslation('slug', 'de'));
+    }
+
     // ========== Delete ==========
 
     public function test_can_delete_page_from_list(): void
