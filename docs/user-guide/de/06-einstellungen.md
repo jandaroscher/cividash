@@ -8,7 +8,7 @@ Der Adminbereich fasst die Konfiguration in zwei Seitenleisten-Gruppen zusammen:
 
 ## 6.1 Einstellungen
 
-Die Gruppe **Einstellungen** bündelt die dashboard-bezogenen Konfigurationsseiten: **Seiteneinstellungen**, **Theme**, **Dashboard-Konfiguration**, **API Keys** und **Datenimport**.
+Die Gruppe **Einstellungen** bündelt die dashboard-bezogenen Konfigurationsseiten: **Seiteneinstellungen**, **Theme**, **Themes / Templates**, **Dashboard-Konfiguration**, **API Keys** und **Datenimport**.
 
 ### 6.1.1 Seiteneinstellungen
 
@@ -139,7 +139,81 @@ Der vierte Reiter **Konfiguration** ist im ursprünglichen Struktur-Entwurf nich
 <!-- Screenshot: Theme — Reiter Konfiguration mit Kachel-Farbquelle und Kategorie-Gruppe für Hintergrundseite -->
 ![Theme: Konfiguration](../assets/screenshots/de/06-theme-konfiguration.png)
 
-### 6.1.3 Dashboard-Konfiguration
+### 6.1.3 Themes / Templates
+
+Ein **Theme** ist ein wiederverwendbares Bündel aus Branding- und Einstellungswerten, das mehrere Dashboards gemeinsam nutzen können: Ein Theme wird einmal gepflegt und dann beliebig vielen Dashboards zugewiesen — eine Änderung am Theme wirkt sich sofort auf alle zugewiesenen Dashboards aus. Die Seite **Themes** ist nur für Admins sichtbar und gilt installationsweit, nicht dashboard-bezogen.
+
+Abgrenzung zu [Abschnitt 6.1.2, Theme / Branding](#612-theme--branding): Dort werden die Branding-Werte **eines einzelnen** Dashboards direkt bearbeitet. Die Seite **Themes** verwaltet dagegen wiederverwendbare **Bündel** derselben Werte, die sich über mehrere Dashboards teilen lassen.
+
+> **Hinweis:** Ein Theme wird nicht auf der Themes-Seite selbst zugewiesen, sondern pro Dashboard in der **Dashboard-Konfiguration** (siehe [Abschnitt 6.1.4.3, Theme](#6143-theme)).
+
+#### 6.1.3.1 Übersicht
+
+Die Übersicht listet alle vorhandenen Themes in einer Tabelle:
+
+| Spalte | Beschreibung |
+|------|-------------|
+| **Name** | Anzeigename des Themes. |
+| **Slug** | Eindeutiger technischer Bezeichner (siehe [Abschnitt 6.1.3.2, Theme erstellen und bearbeiten](#6132-theme-erstellen-und-bearbeiten)). |
+| **Genutzt von** | Badge mit der Anzahl der Dashboards, die dieses Theme verwenden. Grün, sobald mindestens ein Dashboard das Theme nutzt, andernfalls grau. |
+
+Über die Kopfzeilen-Aktionen **Erstellen** und **Theme importieren** wird ein neues Theme angelegt (siehe [Abschnitt 6.1.3.2, Theme erstellen und bearbeiten](#6132-theme-erstellen-und-bearbeiten) bzw. [Abschnitt 6.1.3.3, Theme aus Bundle importieren](#6133-theme-aus-bundle-importieren)).
+
+<!-- Screenshot: Themes — Tabellenübersicht mit Name, Slug und Genutzt-von-Badge -->
+![Themes: Übersicht](../assets/screenshots/de/06-themes-uebersicht.png)
+
+#### 6.1.3.2 Theme erstellen und bearbeiten
+
+Über **Erstellen** oder einen Klick auf ein bestehendes Theme öffnet sich das Theme-Formular:
+
+| Feld | Beschreibung |
+|------|-------------|
+| **Name** | Anzeigename des Themes. |
+| **Slug** | Wird automatisch aus dem Namen erzeugt, ist aber editierbar und muss eindeutig sein. |
+| **Einstellungen** | JSON-Objekt mit den Werten des Themes. Erlaubt sind die bekannten Einstellungs-Gruppen `general`, `content`, `dashboard`, `branding` und `integration`; unbekannte Gruppen werden abgewiesen. Der Wert wird gegen gültiges JSON und die bekannten Gruppen geprüft. |
+
+Beispiel für ein **Einstellungen**-JSON:
+
+```json
+{
+  "branding": {
+    "primary_color": "#0d47a1"
+  }
+}
+```
+
+> **Hinweis:** Das **Einstellungen**-JSON ist der Weg für erfahrene Anwender. Der bequemere Weg ist der Import eines fertigen Bundles (siehe [Abschnitt 6.1.3.3, Theme aus Bundle importieren](#6133-theme-aus-bundle-importieren)).
+
+<!-- Screenshot: Themes — Formular zum Erstellen und Bearbeiten mit Name, Slug und Einstellungen-JSON -->
+![Theme erstellen und bearbeiten](../assets/screenshots/de/06-theme-erstellen.png)
+
+#### 6.1.3.3 Theme aus Bundle importieren
+
+Die Kopfzeilen-Aktion **Theme importieren** lädt ein Theme aus einem ZIP-Bundle hoch. Das ZIP enthält:
+
+- eine Datei **`theme.json`** mit Name, Slug und Einstellungen,
+- optional einen Ordner **`assets/`** mit Mediendateien.
+
+Erlaubte Asset-Formate: PNG, SVG, JPG, JPEG, WEBP, WOFF2, WOFF und ICO. Die Gesamtgröße des Bundles ist auf **25 MB** begrenzt.
+
+Der Import arbeitet **nach Slug**: Existiert bereits ein Theme mit demselben Slug, werden dessen Name, Einstellungen und Assets überschrieben; andernfalls wird ein neues Theme angelegt. Asset-Werte werden auf öffentliche URLs umgeschrieben.
+
+> **Hinweis:** Das Bundle wird beim Import geprüft (Schutz vor Zip-Slip, Format-Whitelist, 25-MB-Grenze, Bereinigung von SVG-Dateien). Ein Bundle, das gegen diese Regeln verstößt, wird sauber abgewiesen.
+
+<!-- Screenshot: Themes — Dialog zum Import eines Theme-Bundles (ZIP) -->
+![Theme importieren](../assets/screenshots/de/06-theme-import.png)
+
+#### 6.1.3.4 Theme einem Dashboard zuweisen
+
+Ein Theme wird nicht auf der Themes-Seite zugewiesen, sondern pro Dashboard in der **Dashboard-Konfiguration** im Abschnitt **Theme** (siehe [Abschnitt 6.1.4.3, Theme](#6143-theme)). Zum Entfernen der Zuweisung wird das Feld dort geleert.
+
+> **Hinweis:** Ein zugewiesenes Theme liefert die Grundwerte; einzelne Werte lassen sich auf dem Dashboard weiterhin über die normale Theme/Branding-Seite (siehe [Abschnitt 6.1.2, Theme / Branding](#612-theme--branding)) überschreiben.
+
+#### 6.1.3.5 Theme löschen
+
+Ein Theme lässt sich nur löschen, solange **kein** Dashboard es verwendet. Nutzt mindestens ein Dashboard das Theme, ist die Löschen-Schaltfläche deaktiviert (mit Tooltip), und der Server verhindert das Löschen zusätzlich. Der **Genutzt von**-Badge in der Übersicht (siehe [Abschnitt 6.1.3.1, Übersicht](#6131-übersicht)) dient als Frühwarnung: Solange er grün ist, kann das Theme nicht gelöscht werden.
+
+### 6.1.4 Dashboard-Konfiguration
 
 Zusätzlich zur installationsweiten Seiteneinstellungen-Seite besitzt **jedes** Dashboard (Tenant) eine eigene Seite **Dashboard-Konfiguration** mit dashboard-spezifischen Basisdaten.
 
@@ -148,7 +222,7 @@ Zusätzlich zur installationsweiten Seiteneinstellungen-Seite besitzt **jedes** 
 
 > **Hinweis:** Diese Seite ist im ursprünglichen Struktur-Entwurf nicht als eigener Punkt vorgesehen, existiert in der Live-Anwendung aber als eigenständige Einstellungsseite. Sie wurde hier ergänzt, weil sie inhaltlich zu den Basisdaten des Dashboards gehört.
 
-#### 6.1.3.1 Name
+#### 6.1.4.1 Name
 
 | Feld | Beschreibung |
 |------|-------------|
@@ -156,25 +230,38 @@ Zusätzlich zur installationsweiten Seiteneinstellungen-Seite besitzt **jedes** 
 | **Zusatzinfo** | Optionale Zusatzinformation (z. B. Kunde, Firma), ebenfalls im Dashboard-Auswahl-Menü sichtbar. |
 | **Slug** | Schreibgeschützt. Identifiziert das Dashboard eindeutig, u. a. für Domain-Zuordnung. Das Standard-Dashboard trägt den Slug `default`. |
 
-#### 6.1.3.2 Domain
+#### 6.1.4.2 Domain
 
 | Feld | Beschreibung |
 |------|-------------|
 | **Domain** | Host/Domain, über die dieses Dashboard aufgelöst wird. Wird normalisiert (Kleinbuchstaben, `www.`-Präfix entfernt). Auflösungs-Priorität: Token vor Domain vor Standard-Dashboard. |
 | **Frontend Base URL** | Vollständige URL der Frontend-Anwendung. Wird für CORS und API-Antworten verwendet. |
 
-### 6.1.4 API-Schlüssel verwalten
+#### 6.1.4.3 Theme
+
+| Feld | Beschreibung |
+|------|-------------|
+| **Theme** | Auswahlfeld. Weist diesem Dashboard ein Theme mit vordefinierten Branding-Werten zu. Zum Entfernen der Zuweisung wird das Feld geleert. |
+
+Der Hilfetext des Felds lautet: „Weist diesem Dashboard ein Theme mit vordefinierten Branding-Werten zu."
+
+Die Themes selbst werden auf der Seite **Themes** verwaltet (siehe [Abschnitt 6.1.3, Themes / Templates](#613-themes--templates)).
+
+<!-- Screenshot: Dashboard-Konfiguration — Abschnitt Theme mit Theme-Auswahlfeld -->
+![Dashboard-Konfiguration: Theme](../assets/screenshots/de/06-dashboard-konfig-theme.png)
+
+### 6.1.5 API-Schlüssel verwalten
 
 Die Seite **API Keys** verwaltet Zugriffstoken für die Dashboard-API dieses Tenants.
 
-#### 6.1.4.1 API-Schlüssel Übersicht
+#### 6.1.5.1 API-Schlüssel Übersicht
 
 Die Tabelle zeigt pro Token: Name, Besitzer, Berechtigungen (Badge), Aktiv-Status, Erstellungs- und letztes Nutzungsdatum sowie (ausblendbar) das letzte Aktualisierungsdatum. Filterbar nach Berechtigung und Aktiv-Status, durchsuchbar über das Suchfeld.
 
 <!-- Screenshot: API Keys — Tabellenübersicht mit einem Beispiel-Token -->
 ![API Keys: Übersicht](../assets/screenshots/de/06-api-keys-uebersicht.png)
 
-#### 6.1.4.2 Neuen Key erstellen
+#### 6.1.5.2 Neuen Key erstellen
 
 Über **Token erstellen** öffnet sich ein Dialog mit zwei Feldern:
 
@@ -188,21 +275,21 @@ Die Tabelle zeigt pro Token: Name, Besitzer, Berechtigungen (Badge), Aktiv-Statu
 
 > **Hinweis:** Der erzeugte Token-Wert wird **nur einmal**, direkt nach der Erstellung, im Klartext angezeigt. Es gibt keine Möglichkeit, ihn später erneut einzusehen — bei Verlust muss ein neuer Token erstellt und der alte gelöscht werden. Den Token-Wert entsprechend sicher und außerhalb von Screenshots oder Tickets aufbewahren.
 
-#### 6.1.4.3 Key bearbeiten
+#### 6.1.5.3 Key bearbeiten
 
 Über **Bearbeiten** lassen sich Name, Berechtigungen und Aktiv-Status eines bestehenden Tokens ändern (der Token-Wert selbst bleibt unverändert und wird nicht erneut angezeigt).
 
 <!-- Screenshot: API-Schlüssel bearbeiten -->
 ![API-Schlüssel bearbeiten](../assets/screenshots/de/06-api-key-bearbeiten.png)
 
-#### 6.1.4.4 Key löschen
+#### 6.1.5.4 Key löschen
 
 Über **Löschen** (mit Sicherheitsabfrage) wird ein Token unwiderruflich entzogen — Anwendungen, die ihn verwenden, verlieren sofort den Zugriff.
 
 <!-- Screenshot: API-Schlüssel löschen -->
 ![API-Schlüssel löschen](../assets/screenshots/de/06-api-key-loeschen.png)
 
-### 6.1.5 Datenimport
+### 6.1.6 Datenimport
 
 Für den Bulk-Import von Kacheln, Kategorien, Kategorie-Gruppen und Kennzahlen per JSON-Bundle existiert eine eigene Seite **Datenimport**, ausführlich beschrieben in [Datenimport](../datenimport.de.md).
 
