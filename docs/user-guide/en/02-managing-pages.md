@@ -35,7 +35,7 @@ Use **New Page** at the top right to create a page. The form is split into the c
 | **Active** | Toggle for frontend visibility |
 | **SEO Title** / **SEO Description** / **SEO Image** | Metadata for search engines and for sharing on social media (see [Chapter 2.6, Manage Metadata](02-managing-pages.md#26-manage-metadata-seo-title-description-preview-image)) |
 
-> **Note:** With the `Landingpage` layout, the page automatically becomes the dashboard's home page (URL slug `/`) — only one landing page per dashboard makes sense. For any other page, choose `Subpage` and set its own URL slug.
+> **Note:** With the `Landingpage` layout, the page automatically becomes the dashboard's home page (URL slug `/`) — only one landing page per dashboard makes sense. The **URL Slug field is then greyed out and cannot be edited**, because the home page is always served from the base domain. For any other page, choose `Subpage` and set its own URL slug.
 
 Use **Create** to save, or **Create & create another** to immediately start a new page.
 
