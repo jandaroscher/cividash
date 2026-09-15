@@ -35,7 +35,7 @@ Mit **Erstellen** oben rechts eine neue Seite anlegen. Das Formular gliedert sic
 | **Aktiv** | Schalter für die Sichtbarkeit im Frontend |
 | **SEO-Titel** / **SEO-Beschreibung** / **SEO-Bild** | Metadaten für Suchmaschinen und das Teilen in sozialen Netzwerken (siehe [Kapitel 2.6, Metadaten pflegen](02-seiten-verwalten.md#26-metadaten-pflegen-seo-titel-beschreibung-vorschaubild)) |
 
-> **Hinweis:** Beim Layout `Landingpage` wird die Seite automatisch zur Startseite des Dashboards (URL-Slug `/`) — pro Dashboard ist nur eine Landingpage sinnvoll. Für alle weiteren Seiten `Subpage` wählen und einen eigenen URL-Slug vergeben.
+> **Hinweis:** Beim Layout `Landingpage` wird die Seite automatisch zur Startseite des Dashboards (URL-Slug `/`) — pro Dashboard ist nur eine Landingpage sinnvoll. Das **URL-Slug-Feld ist dann ausgegraut und lässt sich nicht bearbeiten**, weil die Startseite immer über die Basis-Domain erreichbar ist. Für alle weiteren Seiten `Subpage` wählen und einen eigenen URL-Slug vergeben.
 
 Mit **Erstellen** speichern oder **Erstellen & weiterer Eintrag** direkt eine weitere Seite anlegen.
 
