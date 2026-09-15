@@ -517,6 +517,7 @@ return [
             'slug' => 'Slug',
             'slug_validation' => 'The slug may only contain lowercase letters, numbers and hyphens (no slashes or special characters).',
             'slug_unique' => 'This slug is already in use by another page with the same parent. Please choose a different slug.',
+            'slug_landingpage_helper' => 'The homepage is always served from the base domain and does not need a slug.',
             'layout' => 'Layout',
             'parent' => 'Parent',
             'url_preview' => 'URL preview',

@@ -126,15 +126,28 @@ class PageResource extends FabricatorPageResource
                                 $additionalComponents = [
                                     TextInput::make('slug')
                                         ->label(__('filament.resources.page.slug'))
-                                        ->required()
+                                        // The landing page always lives at the root slug "/", forced by
+                                        // Page::saving(). Disabling + not dehydrating the field for that
+                                        // layout keeps the value out of the submitted form data, so the
+                                        // model hook stays the single source of truth and the regex/
+                                        // required rules below never reject the forced "/".
+                                        ->disabled(fn (Get $get) => $get('layout') === 'landingpage')
+                                        ->dehydrated(fn (Get $get) => $get('layout') !== 'landingpage')
+                                        ->required(fn (Get $get) => $get('layout') !== 'landingpage')
                                         ->maxLength(255)
-                                        ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
+                                        ->helperText(fn (Get $get) => $get('layout') === 'landingpage'
+                                            ? __('filament.resources.page.slug_landingpage_helper')
+                                            : null)
+                                        ->rule(
+                                            'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                                            fn (Get $get) => $get('layout') !== 'landingpage',
+                                        )
                                         ->validationMessages([
                                             'regex' => __('filament.resources.page.slug_validation'),
                                         ])
                                         ->rule(function (Get $get, ?Page $record, $livewire) {
                                             return function (string $attribute, $value, \Closure $fail) use ($get, $record, $livewire) {
-                                                if (blank($value)) {
+                                                if (blank($value) || $get('layout') === 'landingpage') {
                                                     return;
                                                 }
 
@@ -175,6 +188,9 @@ class PageResource extends FabricatorPageResource
                                         // exists yet; once one is present, new pages should default to
                                         // "subpage" so they don't accidentally overwrite the root slug.
                                         ->default(fn () => static::getDefaultLayoutForNewPage())
+                                        // Reactive so the slug field toggles its disabled/helper/required
+                                        // state immediately when the editor switches the layout.
+                                        ->live()
                                         ->required(),
                                     Select::make('parent_id')
                                         ->label(__('filament.resources.page.parent'))
