@@ -148,7 +148,7 @@ The tenants' domains are preserved (only assigned if still empty). User assignme
 Process:
 1. Download the current `dashboard.json` from the configured URL (`SEED_DASHBOARD_JSON_URL`).
 2. Reset Regensburg: delete all content of the tenant (in FK-safe order), then reseed with `dashboard:seed` + `pages:seed` + `tenancy:backfill`.
-3. Reset Demo City: delete all content of the tenant, leaving an empty sandbox.
+3. Reset Demo City: delete all content of the tenant; only a minimal public root page is recreated.
 
 Deletion order (respects foreign key constraints): MetricValue, Metric, TimePeriod, MetricDefinition, BackgroundPage, category_tile (pivot), Tile, Category, CategoryGroup, Navigation, FooterNavigation, Page.
 

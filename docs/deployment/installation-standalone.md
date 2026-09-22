@@ -161,7 +161,7 @@ handle it). Adjust the PHP-FPM socket path and TLS termination for your environm
   **Warning: `dashboard:reset` deletes data.** Its description in
   `app/Console/Commands/DashboardResetCommand.php` is explicit: *"Reset demo tenants: Default
   cleaned, Regensburg re-seeded, Demo City emptied."* This is a **demo-data reset command**, not a
-  generic maintenance task. On a production instance seeded with real dashboards, do **not** set
+  generic maintenance task. "Emptied" means all seeded content is removed and only a minimal public root page remains. On a production instance seeded with real dashboards, do **not** set
   `DASHBOARD_DEMO_RESET=true`; leave it unset (default `false`) so the schedule entry is never
   registered. Only set `DASHBOARD_DEMO_RESET=true` on an actual demo/showcase instance where the
   nightly wipe of the default and Demo City tenants and reseed of Regensburg is intended. Rebuild the config
