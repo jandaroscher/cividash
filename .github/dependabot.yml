@@ -3,9 +3,10 @@ updates:
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+    open-pull-requests-limit: 5
     commit-message:
-      prefix: "[CHORE]"
+      prefix: "chore(deps)"
     groups:
       minor-and-patch:
         update-types:
@@ -26,9 +27,10 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+    open-pull-requests-limit: 5
     commit-message:
-      prefix: "[CHORE]"
+      prefix: "chore(deps)"
     groups:
       minor-and-patch:
         update-types:
@@ -54,9 +56,10 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+    open-pull-requests-limit: 5
     commit-message:
-      prefix: "[CHORE]"
+      prefix: "chore(deps)"
     groups:
       actions:
         patterns: ["*"]
