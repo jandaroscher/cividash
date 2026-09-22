@@ -86,6 +86,11 @@ The smoke compose file is explicitly not production config. For a real deploymen
    context, before `docker build -f docker/production/Dockerfile ...`. If you regenerate the
    docs later, rebuild `cividash-app` and then `cividash-web` again, in that order.
 
+### FPM resolver env vars
+
+`docker/production/nginx/05-resolver.sh` reads `CIVIDASH_FPM_HOST`, `CIVIDASH_FPM_UPSTREAM`
+and `CIVIDASH_FPM_RESOLVE_TIMEOUT` to override FPM name/upstream detection.
+
 ## Building images in CI
 
 No workflow in this repository builds or publishes these images. `.github/workflows/ci-postgres.yml`
