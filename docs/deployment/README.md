@@ -21,7 +21,9 @@ to run it: local development, production deployment, CI and a few operational to
 CI runs as three separate workflows: `ci.yml` (frontend lint, unit tests, dependency audits,
 build), `ci-postgres.yml` (Pint and the PHP test suite against PostgreSQL), and
 
-test:e2e`.
+test:e2e`. This requires a running DDEV project, seeded fixtures (`npm run test:e2e:seed`), and
+the configured tenant hostnames; see
+[e2e-tenant-resolution.md](../testing/e2e-tenant-resolution.md) for setup.
 
 ## Database
 

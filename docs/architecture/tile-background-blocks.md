@@ -1,54 +1,58 @@
 # Tile Background Blocks Architecture
 
-## Übersicht
+## Overview
 
-Tile-Background-Inhalte werden als **Embedded Blocks direkt im Tile Model** gespeichert. Dies bedeutet, dass die Background-Inhalte als JSON-Array in der `tiles` Tabelle gespeichert werden, anstatt eine separate `pages` oder `background_pages` Tabelle zu verwenden.
+Tile background content is stored as **embedded blocks directly in the Tile model**. This means the background content is stored as a JSON column (locale-keyed, each locale holding an array of blocks) in the `tiles` table, instead of using a separate `pages` or `background_pages` table.
 
-## Architektur-Entscheidung
+## Architecture decision
 
-**Gewählter Ansatz:** Embedded Blocks im Tile Model
+**Chosen approach:** embedded blocks in the Tile model
 
-### Vorteile
+### Advantages
 
-- **Einfachheit**: Keine separate Tabelle oder Beziehung nötig
-- **Performance**: Ein Query, keine Joins, einfacheres Caching
-- **Admin-UX**: Alles in einem Formular (TileResource)
-- **Domain-Kopplung**: Background ist Teil des Tiles, gemeinsamer Lebenszyklus
-- **Multi-Tenancy**: Einfaches Scoping über `tile.tenant_id` (falls vorhanden)
+- **Simplicity**: no separate table or relation needed
+- **Performance**: one query, no joins, simpler caching
+- **Admin UX**: everything in one form (TileResource)
+- **Domain coupling**: the background is part of the tile, shared lifecycle
+- **Multi-tenancy**: simple scoping via `tile.tenant_id` (if present)
 
-### Nachteile (akzeptiert)
+### Drawbacks (accepted)
 
-- **Kein Routing/Slug**: Backgrounds haben keine eigene URL (nicht benötigt)
-- **Keine Preview/Draft-States**: Keine separaten Draft/Live-States (nicht benötigt für Tile Backgrounds)
+- **No routing/slug**: backgrounds have no own URL (not needed)
+- **No preview/draft states**: no separate draft/live states (not needed for tile backgrounds)
 
-## Datenmodell
+## Data model
 
-### Datenbank-Schema
+### Database schema
 
 ```sql
 ALTER TABLE tiles ADD COLUMN background_blocks JSON NULL;
 ```
 
-### Model-Struktur
+### Model structure
 
 ```php
 class Tile extends Model
 {
+    use HasTranslations;
+
     protected $fillable = [..., 'background_blocks'];
-    
+
+    public array $translatable = [..., 'background_blocks'];
+
     protected $casts = [
         'background_blocks' => 'array',
     ];
 }
 ```
 
-### Block-Struktur
+### Block structure
 
-Die `background_blocks` Spalte speichert ein Array von Block-Objekten. Es gibt zwei Darstellungen:
+`background_blocks` is a translatable attribute (Spatie `HasTranslations`), so the column itself stores a locale-keyed object, e.g. `{"de": [...], "en": [...]}`, where each locale's value is the array of block objects described below. Access a single locale's blocks with `$tile->getTranslation('background_blocks', 'de')`. There are two representations for that per-locale array:
 
-#### Datenbank-Format (Input)
+#### Database format (input)
 
-Wie Blocks in der Datenbank gespeichert werden (Format von Filament Builder):
+How blocks are stored per locale in the database (format produced by the Filament Builder):
 
 ```json
 [
@@ -69,9 +73,9 @@ Wie Blocks in der Datenbank gespeichert werden (Format von Filament Builder):
 ]
 ```
 
-#### API-Format (Output)
+#### API format (output)
 
-Wie Blocks über die REST API zurückgegeben werden (nach `BlockTransformer`):
+How blocks are returned via the REST API (after the `BlockTransformer`):
 
 ```json
 [
@@ -92,22 +96,17 @@ Wie Blocks über die REST API zurückgegeben werden (nach `BlockTransformer`):
 ]
 ```
 
-**Hinweis für Frontend-Entwicklung:** Vue-Komponenten konsumieren das API-Format. Verwende daher `block.props` (nicht `block.data`) beim Erstellen von UI-Komponenten. Der `BlockTransformer` konvertiert automatisch das Datenbank-Format in das API-Format.
+**Note for frontend development:** Vue components consume the API format. Use `block.props` (not `block.data`) when building UI components. The `BlockTransformer` automatically converts the database format into the API format.
 
-## Multi-Tenancy
+## Multi-tenancy
 
-- `tenant_id` wird über das Tile Model gehandhabt (falls vorhanden)
-- Background-Blocks sind automatisch tenant-scoped, da sie Teil des Tiles sind
-- Keine zusätzlichen Tenant-Checks nötig
+- `tenant_id` is handled via the Tile model (if present)
+- Background blocks are automatically tenant-scoped, since they are part of the tile
+- No additional tenant checks needed
 
-## Migration Path
+## Legacy data
 
-- Bestehende `BackgroundPage` Daten können später migriert werden (separate Task)
-- Neue Tiles verwenden direkt `background_blocks`
-- `BackgroundPage` Model kann später deprecated werden
+The legacy `BackgroundPage` model remains for existing data; new tiles use `background_blocks`.
 
-## Verwandte Dokumentation
-
-
-
+## Related documentation
 

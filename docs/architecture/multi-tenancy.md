@@ -2,18 +2,18 @@
 
 CiviDash runs all dashboards in a single database. A dashboard in the product is a `Tenant` in code.
 
-- **Tenant-Modell**: `App\Models\Tenant` mit `name`, `slug` (unique, read-only nach Erstellung), `domain` (unique, nullable), `frontend_base_url` (nullable) und Pivot `tenant_user`. Nutzer kann einen `default_tenant_id` haben.
-- **Filament Tenancy**: Admin-Panel ist tenant-fähig (`AdminPanelProvider` mit `->tenant(Tenant::class)`), inkl. Seiten `RegisterTenant` und `EditTenantProfile`.
-- **Tenant-Seiten**:
-  - `RegisterTenant`: legt Mandant an, verknüpft aktuellen User, setzt default_tenant falls leer.
-  - `EditTenantProfile`: Bearbeiten von Name, Domain und Frontend-URL des aktiven Tenants. Der Slug ist read-only.
-- **Scoping**: Tenant-gebundene Modelle nutzen das Trait `App\Models\Concerns\BelongsToTenant` (setzt `tenant_id` bei Create und scoped Abfragen, wenn Filament einen Tenant liefert).
-- **Backfill**: Artisan-Command `ddev exec php artisan tenancy:backfill` erstellt Default-Tenant (Slug `default`) und weist alle Bestandsdaten sowie User (inkl. default_tenant) zu.
-- **Seeder**: `TenantSeeder` erzeugt Demo-Tenant „Stadt Regensburg“, verknüpft ersten User und ruft Backfill auf.
-- **Tests**: Feature-Tests unter `tests/Feature/Tenancy` (Schema/Backfill/Seeder/Scoping) und Unit-Tests `tests/Unit/UserTenancyTest` für User-Contracts.
+- **Tenant model**: `App\Models\Tenant` with `name`, `slug` (unique, read-only after creation), `domain` (unique, nullable), `frontend_base_url` (nullable), and the `tenant_user` pivot. A user can have a `default_tenant_id`.
+- **Filament tenancy**: the admin panel is tenant-aware (`AdminPanelProvider` with `->tenant(Tenant::class)`), including the `RegisterTenant` and `EditTenantProfile` pages.
+- **Tenant pages**:
+  - `RegisterTenant`: creates a tenant, links the current user, sets default_tenant if empty.
+  - `EditTenantProfile`: edits name, domain, and frontend URL of the active tenant. The slug is read-only.
+- **Scoping**: tenant-bound models use the `App\Models\Concerns\BelongsToTenant` trait (sets `tenant_id` on create and scopes queries when Filament provides a tenant).
+- **Backfill**: the artisan command `ddev exec php artisan tenancy:backfill` creates the default tenant (slug `default`) and assigns all existing data as well as users (incl. default_tenant) to it.
+- **Seeder**: `TenantSeeder` creates the demo tenant "Stadt Regensburg", links the first user, and calls the backfill.
+- **Tests**: feature tests under `tests/Feature/Tenancy` (schema/backfill/seeder/scoping) and unit tests `tests/Unit/UserTenancyTest` for user contracts.
 
-### Nutzung
-1) **Lokale Einrichtung**:  
+### Usage
+1) **Local setup**:  
    ```bash
    ddev start
    ddev exec composer install
@@ -21,27 +21,27 @@ CiviDash runs all dashboards in a single database. A dashboard in the product is
    ddev exec php artisan tenancy:backfill
    ddev exec php artisan db:seed --class=TenantSeeder
    ```
-2) **Tenant anlegen (UI)**: Im Filament-Admin via `RegisterTenant` einen Mandanten erstellen. Der User wird verknüpft, default_tenant gesetzt.  
-3) **Tenant wechseln**: Im Filament-Tenant-Switcher zwischen Mandanten wählen; Daten werden per Global Scope gefiltert.  
-4) **Neue Daten**: Erstellte Records erhalten automatisch `tenant_id` aus dem aktiven Tenant.
+2) **Create a tenant (UI)**: create a tenant in the Filament admin via `RegisterTenant`. The user is linked, default_tenant is set.
+3) **Switch tenant**: choose between tenants in the Filament tenant switcher; data is filtered via the global scope.
+4) **New data**: created records automatically get `tenant_id` from the active tenant.
 
-### Hinweise
-- Implementation ist Single-DB-Tenancy; Multi-DB bleibt out of scope.
-- Direkter Zugriff auf fremde Tenant-IDs wird durch Scopes verhindert (404/leer).
-- Bei Seeds/Migrationen ohne Filament-Tenant-Kontext greift kein Scope (Backfill nutzt das).
-- **Tenant-Isolation**: Der Global Scope filtert immer nach Tenant:
-  - **Filament-Kontext**: Verwendet `Filament::getTenant()`
-  - **API mit Token**: Verwendet `tenant_id` aus `personal_access_tokens`
-  - **API via Domain**: Verwendet `tenants.domain` Mapping
-  - **Ohne Tenant-Kontext**: Verwendet Default-Tenant (Slug `default`) mit Warnung im Log
-  - **Console-Commands**: Scope wird übersprungen (Commands sollten `withoutGlobalScope('tenant')` verwenden, wenn nötig)
-- **API-Nutzung**: Tenant-Auflösung läuft ausschließlich über `ResolveTenantFromRequest` (siehe [Tenant Resolution](../api/tenant-resolution.md)):
-  - **Token-basiert**: Bearer Token mit `tenant_id` (für API-Clients)
-  - **Domain-basiert**: Request-Host wird gegen `tenants.domain` geprüft (für SPAs)
+### Notes
+- The implementation is single-DB tenancy; multi-DB stays out of scope.
+- Direct access to another tenant's IDs is prevented by scopes (404/empty).
+- Seeds/migrations without a Filament tenant context bypass the scope (the backfill relies on this).
+- **Tenant isolation**: outside console commands (see below), the global scope filters by the tenant resolved via `ResolvesCurrentTenant::resolveTenant()`:
+  - **Filament context**: uses `Filament::getTenant()`
+  - **API with token**: via the `ResolveTenantFromRequest` middleware's `resolved_tenant` request attribute, using `tenant_id` from `personal_access_tokens`
+  - **API via domain**: also via that request attribute, using the `tenants.domain` mapping
+  - **Without any of the above**: `BelongsToTenant`'s own fallback uses the default tenant (slug `default`) and logs a warning (`Log::warning`) — separate from the middleware's own default-tenant priority described below, which logs at debug level, not a warning
+  - **Console commands**: the scope is skipped (commands should use `withoutGlobalScope('tenant')` if needed)
+- **API usage**: API requests use `ResolveTenantFromRequest` first. If it does not attach a tenant, `BelongsToTenant` can use the legacy `tenant` request parameter or `X-Tenant` header fallback, subject to the resolver's access checks (see [Tenant Resolution](../api/tenant-resolution.md)):
+  - **Token-based**: bearer token with `tenant_id` (for API clients)
+  - **Domain-based**: the request host is checked against `tenants.domain` (for SPAs)
 
-### Domain-Konfiguration (neu)
+### Domain configuration
 
-Tenants können mit einer Domain verknüpft werden:
+Tenants can be linked to a domain:
 
 ```php
 $tenant->update([
@@ -50,9 +50,9 @@ $tenant->update([
 ]);
 ```
 
-### Tenant-scoped API Tokens (neu)
+### Tenant-scoped API tokens
 
-API-Tokens können an einen Tenant gebunden werden:
+API tokens can be bound to a tenant:
 
 ```php
 $token = $user->createToken('API Token', ['public-read']);

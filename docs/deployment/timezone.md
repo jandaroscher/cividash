@@ -1,12 +1,12 @@
-# Zeitzone und Zeitstempel
+# Timezone and Timestamps
 
-## Übersicht
+## Overview
 
-Das Dashboard verwendet die Umgebungsvariable `APP_TIMEZONE`, um die Zeitzone für alle Zeitstempel im Backend zu steuern. Standardmäßig ist `Europe/Berlin` eingestellt.
+The dashboard uses the `APP_TIMEZONE` environment variable to control the timezone for all timestamps in the backend. The default is `Europe/Berlin`.
 
-Die einzige Ausnahme ist die "Serverzeit"-Anzeige im Modul "Übersicht", diese zeigt immer UTC. Alle anderen Zeitstempel (API-Keys, Carbon-Instanzen, Datenbankeinträge) verwenden die konfigurierte Zeitzone.
+The only exception is the "server time" display in the "Overview" module, which always shows UTC. All other timestamps (API keys, Carbon instances, database records) use the configured timezone.
 
-## Konfiguration
+## Configuration
 
 ### `.env`
 
@@ -20,51 +20,51 @@ APP_TIMEZONE=Europe/Berlin
 'timezone' => env('APP_TIMEZONE', 'Europe/Berlin'),
 ```
 
-Wird kein Wert in `.env` gesetzt, gilt `Europe/Berlin` als Fallback.
+If no value is set in `.env`, `Europe/Berlin` is used as the fallback.
 
-### Gängige Werte
+### Common values
 
-| Zeitzone | Verwendung |
-|----------|------------|
-| `Europe/Berlin` | Deutschland (Standard) |
-| `Europe/Vienna` | Österreich |
-| `Europe/Zurich` | Schweiz |
-| `UTC` | Koordinierte Weltzeit |
+| Timezone | Usage |
+|----------|-------|
+| `Europe/Berlin` | Germany (default) |
+| `Europe/Vienna` | Austria |
+| `Europe/Zurich` | Switzerland |
+| `UTC` | Coordinated Universal Time |
 
-Eine vollständige Liste aller unterstützten Zeitzonen findet sich in der [PHP-Dokumentation](https://www.php.net/manual/de/timezones.php).
+A complete list of all supported timezones can be found in the [PHP documentation](https://www.php.net/manual/en/timezones.php).
 
-## Auswirkungen
+## Effects
 
-| Bereich | Zeitzone | Beispiel |
-|---------|----------|----------|
-| Übersicht → Serverzeit | UTC | `UTC 2026-03-03 14:30:00` |
-| Übersicht → Lokale Zeit | `APP_TIMEZONE` | `Europe/Berlin 2026-03-03 15:30:00` |
-| API-Keys → Erstellt / Zuletzt verwendet | `APP_TIMEZONE` | automatisch |
-| Alle `Carbon::now()`-Aufrufe | `APP_TIMEZONE` | automatisch |
-| Datenbank-Timestamps (`created_at`, `updated_at`) | `APP_TIMEZONE` | automatisch |
+| Area | Timezone | Example |
+|------|----------|---------|
+| Overview → server time | UTC | `UTC 2026-03-03 14:30:00` |
+| Overview → local time | `APP_TIMEZONE` | `Europe/Berlin 2026-03-03 15:30:00` |
+| API keys → created / last used | `APP_TIMEZONE` | automatic |
+| All `Carbon::now()` calls | `APP_TIMEZONE` | automatic |
+| Database timestamps (`created_at`, `updated_at`) | `APP_TIMEZONE` | automatic |
 
-## Sommer- und Winterzeit (DST)
+## Daylight saving time (DST)
 
-PHP nutzt die IANA-Timezone-Datenbank (tzdata). Die Umstellung zwischen Sommer- und Winterzeit läuft automatisch, ohne manuellen Eingriff.
+PHP uses the IANA timezone database (tzdata). The switch between standard and daylight saving time happens automatically, without manual intervention.
 
-Beispiel `Europe/Berlin`:
+Example `Europe/Berlin`:
 - Winter: CET (UTC+1)
-- Sommer: CEST (UTC+2)
+- Summer: CEST (UTC+2)
 
-PHP-Updates bringen in der Regel eine aktualisierte tzdata mit. Auf Linux-Systemen lässt sich die Datenbank auch über das Paket `tzdata` aktualisieren.
+PHP updates usually bring updated tzdata with them. On Linux systems, the database can also be updated via the `tzdata` package.
 
-Wichtig: UTC-Offsets (z. B. `+02:00`) kennen kein DST, deshalb immer benannte Zeitzonen wie `Europe/Berlin` verwenden.
+Important: UTC offsets (e.g. `+02:00`) don't know about DST, so always use named timezones such as `Europe/Berlin`.
 
 ## Troubleshooting
 
-### Zeitstempel sind um eine Stunde verschoben
+### Timestamps are off by one hour
 
-- Prüfe, ob `APP_TIMEZONE` in `.env` korrekt gesetzt ist.
-- Stelle sicher, dass eine benannte Zeitzone verwendet wird, kein UTC-Offset.
+- Check that `APP_TIMEZONE` is set correctly in `.env`.
+- Make sure a named timezone is used, not a UTC offset.
 
-### Nach PHP-Update falsche Zeiten
+### Wrong times after a PHP update
 
-- Prüfe, ob das `tzdata`-Paket auf dem Server aktuell ist:
+- Check whether the `tzdata` package on the server is up to date:
   ```bash
   # Debian/Ubuntu
   apt list --installed 2>/dev/null | grep tzdata
@@ -72,15 +72,15 @@ Wichtig: UTC-Offsets (z. B. `+02:00`) kennen kein DST, deshalb immer benannte Ze
   # Alpine
   apk info tzdata
   ```
-- PHP-Version und Timezone-Datenbank prüfen:
+- Check the PHP version and timezone database:
   ```bash
   php -r "echo timezone_version_get();"
   ```
 
-### Zeitzone hat keine Auswirkung
+### Timezone has no effect
 
-- Prüfe, ob `config/app.php` den Wert aus `.env` liest: `env('APP_TIMEZONE', 'Europe/Berlin')`.
-- Config-Cache leeren:
+- Check that `config/app.php` reads the value from `.env`: `env('APP_TIMEZONE', 'Europe/Berlin')`.
+- Clear the config cache:
   ```bash
   php artisan config:clear
   ```

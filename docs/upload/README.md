@@ -1,50 +1,50 @@
-# Upload-Bundles
+# Upload Bundles
 
-Dieses Verzeichnis enthält die Schema-Definition und Beispiele für den Upload-Workflow.
+This directory contains the schema definition and examples for the upload workflow.
 
 - Schemas: [`schemas/v1/`](./schemas/v1/), JSON Schema draft-07
-- Beispiele: [`examples/`](./examples/)
+- Examples: [`examples/`](./examples/)
 
 ## Schemas
 
-| Datei | Zweck |
+| File | Purpose |
 |---|---|
-| `bundle.schema.json` | Root-Envelope (`schema_version`, `mode`, `data`, optional `category_groups`, `categories`). |
-| `row.schema.json` | Eine Zeile in `data`, ein (Tile, Metrik, Wert)-Tripel. |
-| `category-group.schema.json` | Strukturdaten: Kategorie-Gruppe (z. B. „Handlungsfelder"). |
-| `category.schema.json` | Strukturdaten: Einzelne Kategorie (z. B. „Energie"). |
+| `bundle.schema.json` | Root envelope (`schema_version`, `mode`, `data`, optional `category_groups`, `categories`). |
+| `row.schema.json` | One row in `data`, a (tile, metric, value) triple. |
+| `category-group.schema.json` | Structural data: category group (e.g. "Handlungsfelder"). |
+| `category.schema.json` | Structural data: a single category (e.g. "Energie"). |
 
-## Beispiele
+## Examples
 
-### Gültig
+### Valid
 
-| Datei | Szenario |
+| File | Scenario |
 |---|---|
-| `valid-minimal.json` | Kleinstmögliches Bundle, ein Tile ohne Metriken. |
-| `valid-full.json` | Vollständig mit Kategorie-Struktur, mehreren Tiles, mehreren Jahren. |
-| `valid-structure-only.json` | Nur Struktur (Kategorien/Gruppen), keine Daten-Rows. Nützlich zum initialen Tenant-Setup. |
+| `valid-minimal.json` | Smallest possible bundle, one tile without metrics. |
+| `valid-full.json` | Complete with category structure, multiple tiles, multiple years. |
+| `valid-structure-only.json` | Structure only (categories/groups), no data rows. Useful for initial tenant setup. |
 
-### Ungültig (zum Testen der Validierung)
+### Invalid (for testing validation)
 
-| Datei | Erwarteter Fehler |
+| File | Expected error |
 |---|---|
-| `invalid-missing-required.json` | `tile.slug` fehlt in zweiter Row (schema). |
-| `invalid-bad-types.json` | Falsche Typen + Slug verletzt Regex + Jahr < 1900. |
-| `invalid-unresolved-references.json` | `category.keys` referenziert unbekannte Kategorie. |
-| `invalid-bad-envelope.json` | `schema_version=2.0`, `mode=merge`, `locale=fr`, unbekanntes Zeilen-Feld. |
+| `invalid-missing-required.json` | `tile.slug` missing in the second row (schema). |
+| `invalid-bad-types.json` | Wrong types + slug violates the regex + year < 1900. |
+| `invalid-unresolved-references.json` | `category.keys` references an unknown category. |
+| `invalid-bad-envelope.json` | `schema_version=2.0`, `mode=merge`, `locale=fr`, unknown row field. |
 
-## Lokal validieren
+## Validating locally
 
-Mit `ajv-cli` (via npx):
+With `ajv-cli` (via npx):
 
 ```bash
-# Alle gültigen Beispiele validieren, sollten alle durchgehen
+# Validate all valid examples, all should pass
 npx --yes ajv-cli validate \
   -s docs/upload/schemas/v1/bundle.schema.json \
   -r "docs/upload/schemas/v1/*.schema.json" \
   -d "docs/upload/examples/valid-*.json"
 
-# Ungültige Beispiele prüfen, sollten alle Fehler werfen
+# Check invalid examples, all should throw errors
 for f in docs/upload/examples/invalid-*.json; do
   echo "--- $f"
   npx --yes ajv-cli validate \
@@ -54,7 +54,8 @@ for f in docs/upload/examples/invalid-*.json; do
 done
 ```
 
-(Hinweis: `invalid-unresolved-references.json` ist _schema-gültig_, der Fehler entsteht erst bei fachlicher Validierung, weil die Kategorie-Referenz erst zur Laufzeit aufgelöst wird.)
+(Note: `invalid-unresolved-references.json` is _schema-valid_; the error only occurs during business validation, because the category reference is resolved at runtime.)
 
-## Round-Trip mit dem JSON-Export
+## Round-trip with the JSON export
 
+The JSON export of tenant data conforms to this schema. An exported bundle can be re-imported into another tenant unchanged as an upload.

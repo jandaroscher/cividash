@@ -1,52 +1,50 @@
 # Admin API
 
-> Status: Implementiert (v1.0)
-
 ---
 
-## OpenAPI Dokumentation
+## OpenAPI documentation
 
-Die vollständige, interaktive API-Dokumentation ist verfügbar unter:
+The complete, interactive API documentation is available at:
 
-- HTML-Docs: `/docs/` (z. B. `https://example.com/docs/`)
-- OpenAPI 3.0 Spec: `/docs/openapi.yaml`
-- Postman Collection: `/docs/collection.json`
+- HTML docs: `/docs/` (e.g. `https://example.com/docs/`)
+- OpenAPI 3.0 spec: `/docs/openapi.yaml`
+- Postman collection: `/docs/collection.json`
 
-> Die Dokumentation wird als statische Dateien generiert und benötigt kein Scribe-Package zur Laufzeit.
+> The documentation is generated as static files and needs no Scribe package at runtime.
 
-### Regenerieren der Dokumentation (lokal)
+### Regenerating the documentation (locally)
 
 ```bash
 ddev exec php artisan scribe:generate
 ```
 
-Die Dokumentation wird automatisch im CI bei jedem Deployment neu generiert.
+There is no automatic regeneration in CI; run this command manually after changing API endpoints or annotations.
 
 ---
 
-## Übersicht
+## Overview
 
-Die Admin API ermöglicht das programmgesteuerte Management von Tiles, Jahren, Metriken und Konfigurationen. Alle Endpoints authentifizieren via Laravel Sanctum (Bearer Token), autorisieren über die Token-Ability (`admin-api` oder `*`) und scopen Operationen automatisch auf den aktiven Tenant.
+The Admin API allows programmatic management of tiles, years, metrics, and configurations. All endpoints authenticate via Laravel Sanctum (bearer token), authorize via the token ability (`admin-api` or `*`), and automatically scope operations to the active tenant.
 
 ---
 
-## Authentifizierung & Autorisierung
+## Authentication & authorization
 
-### Voraussetzungen für API-Zugriff
+### Prerequisites for API access
 
-1. Token-Ability: Token muss `admin-api` oder `*` Ability haben
-2. Tenant-Kontext: Token muss eine `tenant_id` haben
+1. Token ability: a personal access token must have the `admin-api` or `*` ability. See below for session-authenticated requests.
+2. Tenant context: an explicit, non-default tenant context must be resolvable, either from the token's `tenant_id` or from a domain match (see [Tenant isolation](#tenant-isolation)). The token does not strictly need its own `tenant_id` if the request's domain already resolves a tenant; the API only rejects the request with 400 when neither source resolves a tenant.
 
-> Session-Authentifizierung (Filament-Cookie-Login ohne Bearer Token) ist für `/api/*` aktuell nicht aktiviert, da weder `statefulApi()` noch die Session-Middleware auf der `api`-Routengruppe registriert sind (`bootstrap/app.php`); ein Filament-Session-Cookie authentifiziert hier also nicht. Sollte das künftig aktiviert werden, verlangt `admin.api` bei einem Session-Login (Sanctums `TransientToken`, die jede Ability als vorhanden meldet) zusätzlich die Rolle `is_admin` des Nutzers, statt sich auf die Token-Ability zu verlassen.
+> Session authentication (Filament cookie login without a bearer token) is currently not enabled for `/api/*`, since neither `statefulApi()` nor the session middleware is registered on the `api` route group (`bootstrap/app.php`); a Filament session cookie therefore does not authenticate here. Should this be enabled in the future, `admin.api` additionally requires the user's `is_admin` role on a session login (Sanctum's `TransientToken`, which reports every ability as present), instead of relying on the token ability.
 
-### Token erstellen (Code-Beispiel)
+### Creating a token (code example)
 
 ```php
-// Im Filament Admin oder via Tinker
+// In Filament Admin or via Tinker
 $user = User::find(1);
 
-// Token MIT Tenant-Kontext erstellen (ERFORDERLICH für Admin API)
-$tenant = Tenant::find(1); // oder $user->tenants()->first()
+// Create a token WITH tenant context (REQUIRED for the Admin API)
+$tenant = Tenant::find(1); // or $user->tenants()->first()
 $token = $user->createToken('Admin API Token', ['admin-api']);
 $token->accessToken->tenant_id = $tenant->id;
 $token->accessToken->save();
@@ -55,26 +53,26 @@ echo $token->plainTextToken;
 // => "1|abc123def456..."
 ```
 
-> Der Token muss eine `tenant_id` haben. Tokens ohne Tenant-Kontext werden mit 400 Bad Request abgelehnt.
+> This token has its own `tenant_id`. A token without one still works for the Admin API as long as the request's domain resolves a tenant; requests that resolve to neither are rejected with 400 Bad Request.
 
-### Request-Header
+### Request header
 
 ```http
 Authorization: Bearer 1|abc123def456...
 ```
 
-### HTTP Status Codes
+### HTTP status codes
 
-| Code | Bedeutung |
-|------|-----------|
-| 200 | Erfolg |
-| 201 | Resource erstellt |
-| 204 | Erfolgreich gelöscht (kein Content) |
-| 400 | Tenant-Kontext fehlt – Token ohne `tenant_id` oder keine Domain-Auflösung |
-| 401 | Nicht authentifiziert |
-| 403 | Nicht autorisiert (fehlende Permission) |
-| 404 | Resource nicht gefunden (oder anderer Tenant) |
-| 422 | Validierungsfehler |
+| Code | Meaning |
+|------|---------|
+| 200 | Success |
+| 201 | Resource created |
+| 204 | Successfully deleted (no content) |
+| 400 | Tenant context missing – token without `tenant_id` or no domain resolution |
+| 401 | Not authenticated |
+| 403 | Not authorized (missing permission) |
+| 404 | Resource not found (or belongs to another tenant) |
+| 422 | Validation error |
 
 ---
 
@@ -82,11 +80,11 @@ Authorization: Bearer 1|abc123def456...
 
 ### Tiles
 
-| Methode | Endpoint | Beschreibung |
-|---------|----------|--------------|
-| `POST` | `/api/admin/tiles` | Neue Tile erstellen |
-| `PATCH` | `/api/admin/tiles/{id}` | Tile aktualisieren |
-| `DELETE` | `/api/admin/tiles/{id}` | Tile löschen |
+| Method | Endpoint | Description |
+|--------|----------|--------------|
+| `POST` | `/api/admin/tiles` | Create a new tile |
+| `PATCH` | `/api/admin/tiles/{id}` | Update a tile |
+| `DELETE` | `/api/admin/tiles/{id}` | Delete a tile |
 
 #### POST /api/admin/tiles
 
@@ -112,7 +110,7 @@ Response (201):
 
 #### PATCH /api/admin/tiles/{id}
 
-Partial Update – nur übergebene Felder werden aktualisiert.
+Partial update – only the fields provided are updated.
 
 ```json
 {
@@ -120,17 +118,17 @@ Partial Update – nur übergebene Felder werden aktualisiert.
 }
 ```
 
-> `tenant_id` kann nicht via PATCH geändert werden, das Feld wird ignoriert.
+> `tenant_id` cannot be changed via PATCH; the field is ignored.
 
 ---
 
-### Time Periods
+### Time periods
 
-| Methode | Endpoint | Beschreibung |
-|---------|----------|--------------|
-| `POST` | `/api/admin/time-periods` | Zeitraum erstellen |
-| `PATCH` | `/api/admin/time-periods/{id}` | Zeitraum aktualisieren |
-| `DELETE` | `/api/admin/time-periods/{id}` | Zeitraum löschen |
+| Method | Endpoint | Description |
+|--------|----------|--------------|
+| `POST` | `/api/admin/time-periods` | Create a time period |
+| `PATCH` | `/api/admin/time-periods/{id}` | Update a time period |
+| `DELETE` | `/api/admin/time-periods/{id}` | Delete a time period |
 
 #### POST /api/admin/time-periods
 
@@ -143,13 +141,13 @@ Partial Update – nur übergebene Felder werden aktualisiert.
 
 ---
 
-### Metric Definitions
+### Metric definitions
 
-| Methode | Endpoint | Beschreibung |
-|---------|----------|--------------|
-| `POST` | `/api/admin/metric-definitions` | Neue Metrik-Definition |
-| `PATCH` | `/api/admin/metric-definitions/{id}` | Definition aktualisieren |
-| `DELETE` | `/api/admin/metric-definitions/{id}` | Definition löschen |
+| Method | Endpoint | Description |
+|--------|----------|--------------|
+| `POST` | `/api/admin/metric-definitions` | Create a new metric definition |
+| `PATCH` | `/api/admin/metric-definitions/{id}` | Update a definition |
+| `DELETE` | `/api/admin/metric-definitions/{id}` | Delete a definition |
 
 #### POST /api/admin/metric-definitions
 
@@ -165,13 +163,13 @@ Partial Update – nur übergebene Felder werden aktualisiert.
 
 ---
 
-### Metric Values
+### Metric values
 
-| Methode | Endpoint | Beschreibung |
-|---------|----------|--------------|
-| `POST` | `/api/admin/metric-values` | Neuen Metrik-Wert erstellen |
-| `PATCH` | `/api/admin/metric-values/{id}` | Wert aktualisieren |
-| `DELETE` | `/api/admin/metric-values/{id}` | Wert löschen |
+| Method | Endpoint | Description |
+|--------|----------|--------------|
+| `POST` | `/api/admin/metric-values` | Create a new metric value |
+| `PATCH` | `/api/admin/metric-values/{id}` | Update a value |
+| `DELETE` | `/api/admin/metric-values/{id}` | Delete a value |
 
 #### POST /api/admin/metric-values
 
@@ -185,12 +183,12 @@ Partial Update – nur übergebene Felder werden aktualisiert.
 
 ---
 
-### Branding Configuration
+### Branding configuration
 
-| Methode | Endpoint | Beschreibung |
-|---------|----------|--------------|
-| `POST` | `/api/admin/config/branding` | Branding vollständig setzen |
-| `PATCH` | `/api/admin/config/branding` | Branding partiell aktualisieren |
+| Method | Endpoint | Description |
+|--------|----------|--------------|
+| `POST` | `/api/admin/config/branding` | Set branding completely |
+| `PATCH` | `/api/admin/config/branding` | Partially update branding |
 
 #### PATCH /api/admin/config/branding
 
@@ -203,13 +201,13 @@ Partial Update – nur übergebene Felder werden aktualisiert.
 
 ---
 
-## Tenant-Isolation
+## Tenant isolation
 
-### Expliziter Tenant-Kontext (Pflicht)
+### Explicit tenant context (required)
 
-Admin-Operationen erfordern einen expliziten Tenant-Kontext: entweder token-basiert (`personal_access_tokens.tenant_id` muss gesetzt sein) oder domain-basiert (Request-Host muss mit `tenants.domain` matchen).
+Admin operations require an explicit tenant context: either token-based (`personal_access_tokens.tenant_id` must be set) or domain-based (the request host must match `tenants.domain`).
 
-Ohne expliziten Tenant-Kontext antwortet die API mit 400 Bad Request:
+Without an explicit tenant context, the API responds with 400 Bad Request:
 
 ```json
 {
@@ -218,109 +216,109 @@ Ohne expliziten Tenant-Kontext antwortet die API mit 400 Bad Request:
 }
 ```
 
-### Automatisches Scoping
+### Automatic scoping
 
-Alle Admin-Operationen sind automatisch auf den aufgelösten Tenant beschränkt. Bei Create wird `tenant_id` automatisch aus dem Request-Kontext gesetzt, nicht aus dem Payload. Bei Read, Update und Delete sind nur Ressourcen des eigenen Tenants sichtbar.
+All admin operations are automatically scoped to the resolved tenant. On create, `tenant_id` is set automatically from the request context, not from the payload. On read, update, and delete, only resources of the own tenant are visible.
 
-### Cross-Tenant-Zugriff
+### Cross-tenant access
 
-Versuche, Ressourcen eines anderen Tenants zu modifizieren, enden mit 404 Not Found, nicht 403:
+Attempts to modify resources of another tenant end in 404 Not Found, not 403:
 
 ```bash
-# User ist Tenant A, versucht Tile von Tenant B zu bearbeiten
+# User belongs to Tenant A, tries to edit a tile of Tenant B
 PATCH /api/admin/tiles/999
 # => 404 Not Found
 ```
 
-### tenant_id Manipulation
+### tenant_id manipulation
 
-Das Feld `tenant_id` wird aus allen Payloads automatisch entfernt:
+The `tenant_id` field is automatically stripped from all payloads:
 
 ```json
 // Request
 { "title": { "de": "Test" }, "tenant_id": 999 }
 
-// Tatsächlich gespeichert
-{ "title": { "de": "Test" }, "tenant_id": 1 }  // User's Tenant
+// Actually stored
+{ "title": { "de": "Test" }, "tenant_id": 1 }  // user's tenant
 ```
 
 ---
 
-## Middleware-Stack
+## Middleware stack
 
-```
+```php
 Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant'])
      ->prefix('admin')
      ->group(...)
 ```
 
-1. `auth:sanctum` verifiziert den Bearer Token, 401 bei fehlendem oder ungültigem Token.
-2. `admin.api` (`EnsureAdminApiAccess`) prüft bei einem Personal Access Token die Ability `admin-api` bzw. `*`, sonst 403. Als Absicherung für den Fall, dass `/api/*` künftig auch für Session-Logins geöffnet wird (siehe Hinweis oben), verlangt sie bei jedem Nutzer ohne PAT (Sanctums `TransientToken`) zusätzlich `is_admin`, sonst ebenfalls 403.
-3. `resolve.tenant` (`ResolveTenantFromRequest`) löst den Tenant auf, mit Priorität Token-tenant_id vor Domain-Match, und setzt `resolved_tenant` sowie `resolved_tenant_by` auf dem Request. Ein Fallback auf den Default-Tenant findet hier nicht statt.
-4. `admin.tenant` (`EnsureAdminTenantResolved`) prüft, ob `resolved_tenant_by` ungleich `default` ist, und antwortet mit 400, wenn kein expliziter Tenant-Kontext vorliegt.
+1. `auth:sanctum` verifies the bearer token, 401 on missing or invalid token.
+2. `admin.api` (`EnsureAdminApiAccess`) checks a personal access token for the `admin-api` or `*` ability, otherwise 403. As a safeguard in case `/api/*` is opened to session logins in the future (see note above), it additionally requires `is_admin` for any user without a PAT (Sanctum's `TransientToken`), otherwise 403 as well.
+3. `resolve.tenant` (`ResolveTenantFromRequest`) resolves the tenant, with priority token tenant_id over domain match, falling back to the default tenant when neither matches, and sets `resolved_tenant` as well as `resolved_tenant_by` on the request.
+4. `admin.tenant` (`EnsureAdminTenantResolved`) checks whether `resolved_tenant_by` is not `default`, and responds with 400 if there is no explicit tenant context — this is where the default-tenant fallback from step 3 gets rejected for admin routes.
 
-> Unterschied zur Public API: Die Public API erlaubt Fallback auf den Default-Tenant. Die Admin API erfordert einen expliziten Tenant-Kontext (Token-tenant_id oder Domain-Match).
+> Difference from the public API: the public API allows a fallback to the default tenant. The Admin API requires an explicit tenant context (token tenant_id or domain match).
 
 ---
 
-## Beispiel: Vollständiger Workflow
+## Example: full workflow
 
 ```bash
-# 1. Token mit admin-api Ability + tenant_id erstellen (einmalig, siehe oben)
-# Der Token muss im Backend mit einer tenant_id versehen werden!
+# 1. Create a token with admin-api ability + tenant_id (one-off, see above)
+# The token must be assigned a tenant_id on the backend!
 
-# 2. Neue Tile erstellen
+# 2. Create a new tile
 curl -X POST https://example.com/api/admin/tiles \
   -H "Authorization: Bearer 1|abc123..." \
   -H "Content-Type: application/json" \
   -d '{"title": {"de": "Energie", "en": "Energy"}}'
 
-# 3. Zeitraum hinzufügen
+# 3. Add a time period
 curl -X POST https://example.com/api/admin/time-periods \
   -H "Authorization: Bearer 1|abc123..." \
   -H "Content-Type: application/json" \
   -d '{"tile_id": 42, "period_key": "2024"}'
 
-# 4. Metrik-Definition erstellen
+# 4. Create a metric definition
 curl -X POST https://example.com/api/admin/metric-definitions \
   -H "Authorization: Bearer 1|abc123..." \
   -H "Content-Type: application/json" \
   -d '{"tile_id": 42, "key": "co2", "label": {"de": "CO2-Ausstoß"}}'
 
-# 5. Metrik-Wert setzen
+# 5. Set a metric value
 curl -X POST https://example.com/api/admin/metric-values \
   -H "Authorization: Bearer 1|abc123..." \
   -H "Content-Type: application/json" \
   -d '{"metric_definition_id": 1, "time_period_id": 1, "value": 1250}'
 ```
 
-> Tokens müssen mit `tenant_id` versehen sein. Bei Requests ohne Tenant-Kontext:
+> The token or the request domain must resolve a tenant. Requests that resolve to neither:
 > ```bash
-> # Token ohne tenant_id führt zu 400
+> # Token without tenant_id, and no domain match, results in 400
 > {"message": "Tenant context required for admin API...", "error": "missing_tenant_context"}
 > ```
 
 ---
 
-## Test-Abdeckung
+## Test coverage
 
-Die Admin API ist umfangreich getestet:
+The Admin API is thoroughly tested:
 
-| Testklasse | Tests | Fokus |
+| Test class | Tests | Focus |
 |------------|-------|-------|
-| `AdminTileApiTest` | 12 Tests | CRUD + Tenant-Scoping |
-| `AdminTimePeriodApiTest` | 12 Tests | CRUD + Tenant-Scoping |
-| `AdminMetricDefinitionApiTest` | 13 Tests | CRUD + Tenant-Scoping |
-| `AdminMetricValueApiTest` | 13 Tests | CRUD + Tenant-Scoping |
-| `AdminApiPermissionTest` | 7 Tests | Auth + Abilities |
-| `TenantResolutionApiTest` | 9 Tests | Token/Domain Resolution |
-| `BrandingConfigApiTest` | 15 Tests | Config-Endpoints |
+| `AdminTileApiTest` | 12 tests | CRUD + tenant scoping |
+| `AdminTimePeriodApiTest` | 12 tests | CRUD + tenant scoping |
+| `AdminMetricDefinitionApiTest` | 13 tests | CRUD + tenant scoping |
+| `AdminMetricValueApiTest` | 13 tests | CRUD + tenant scoping |
+| `AdminApiPermissionTest` | 7 tests | Auth + abilities |
+| `TenantResolutionApiTest` | 9 tests | Token/domain resolution |
+| `BrandingConfigApiTest` | 15 tests | Config endpoints |
 
-Insgesamt über 80 Admin-spezifische Tests. Jeder Admin-Resource-Test enthält einen expliziten 400-Test für fehlenden Tenant-Kontext.
+Over 80 admin-specific tests in total. Every admin resource test includes an explicit 400 test for missing tenant context.
 
 ---
 
-## Siehe auch
+## See also
 
-- [Multi-Tenancy](../architecture/multi-tenancy.md) – Tenant-Konzept
-- [Tenant Resolution](./tenant-resolution.md) – Public API Tenant-Auflösung
+- [Multi-Tenancy](../architecture/multi-tenancy.md) – tenant concept
+- [Tenant Resolution](./tenant-resolution.md) – public API tenant resolution
