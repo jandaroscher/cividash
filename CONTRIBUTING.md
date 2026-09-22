@@ -85,6 +85,15 @@ npx vitest run                     # Frontend test suite
 4. All tests must be green and there must be no open review comments before a PR is
    merged.
 
+## AI-assisted development
+
+The core team uses AI coding assistants (e.g. Claude Code) during development, and
+CodeRabbit for automated review. Every contribution, AI-assisted or not, is reviewed
+and owned by a human, who is responsible for its correctness and consequences.
+Contributions must meet the same merge requirements as any other change: all applicable
+required checks must pass, no open review threads, and Conventional Commits. Do not
+include secrets, customer data, or internal documents in any contribution.
+
 ## Developer Certificate of Origin
 
 confirming you have the right to submit the change under the project's license:
