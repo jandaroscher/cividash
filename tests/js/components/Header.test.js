@@ -61,6 +61,7 @@ describe('Header', () => {
             navigation_items: [],
             dropdown_enabled: false,
             english_translation_active: true,
+            site_name: 'Test Dashboard',
             ...fetchData,
         };
 
@@ -89,6 +90,8 @@ describe('Header', () => {
     it('renders site name as a non-link span when no logo URL is set', async () => {
         brandingStore.logoUrl = null;
         const wrapper = createWrapper();
+        await vi.dynamicImportSettled();
+        await wrapper.vm.$nextTick();
 
         // Should display the site name from the header config
         expect(wrapper.text()).toContain('Test Dashboard');

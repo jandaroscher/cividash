@@ -80,6 +80,11 @@ The smoke compose file is explicitly not production config. For a real deploymen
    has no dev dependencies, so a plain `db:seed` fails (its factories need Faker).
 8. Read the `dashboard:reset` scheduler warning in installation-standalone.md before running any
    scheduler service against real (non-demo) data.
+   (including `public/docs/`) from the already-built `cividash-app` *image* at `cividash-web`'s own
+   build time, so anything written into a running container afterward never reaches it. Run
+   `php artisan scribe:generate` in your working tree, so `public/docs/` is part of the build
+   context, before `docker build -f docker/production/Dockerfile ...`. If you regenerate the
+   docs later, rebuild `cividash-app` and then `cividash-web` again, in that order.
 
 ## Building images in CI
 
@@ -90,6 +95,10 @@ yourself as shown above. When you push `cividash-app` to a registry, pass its ta
 Dockerfile is only for local builds.
 
 ## Production hardening
+
+[`.env.production.example`](../../.env.production.example) documents every env var these
+images need, split into ConfigMap- and Secret-safe values, and is the starting point for a
+real deployment's env file.
 
 `.env.example` ships development-friendly defaults (`APP_DEBUG=true`, `LOG_LEVEL=debug`,
 `SESSION_ENCRYPT=false`). Before running against real data, override:

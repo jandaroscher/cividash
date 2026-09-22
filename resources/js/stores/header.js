@@ -7,6 +7,7 @@ export const useHeaderStore = defineStore('header', {
         navigationItems: [],
         dropdownEnabled: false,
         englishTranslationActive: true,
+        siteName: '',
         loading: false,
         error: null,
     }),
@@ -37,6 +38,7 @@ export const useHeaderStore = defineStore('header', {
                 this.navigationItems = data.navigation_items || [];
                 this.dropdownEnabled = data.dropdown_enabled || false;
                 this.englishTranslationActive = data.english_translation_active === true;
+                this.siteName = data.site_name || this.siteName;
                 
                 return data;
             } catch (err) {

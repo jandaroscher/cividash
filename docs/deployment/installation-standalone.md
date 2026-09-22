@@ -77,6 +77,9 @@ php artisan cividash:create-admin admin@example.org --first-name=Ada --last-name
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+
+# 10. Generate API docs (static files under public/docs/, not regenerated automatically)
+php artisan scribe:generate
 ```
 
 ### Post-deploy steps for automated deployments

@@ -214,6 +214,7 @@ class ConfigController extends Controller
             'navigation_items' => $filteredItems,
             'dropdown_enabled' => $navigation->dropdown_enabled,
             'english_translation_active' => $settings->english_translation_active,
+            'site_name' => $settings->site_name,
         ]);
     }
 
