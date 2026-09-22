@@ -16,6 +16,13 @@ to run it: local development, production deployment, CI and a few operational to
 - [seeding.md](seeding.md): database seed commands and when to use them.
 - [timezone.md](timezone.md): `APP_TIMEZONE` handling and the one UTC exception.
 
+## CI
+
+CI runs as three separate workflows: `ci.yml` (frontend lint, unit tests, dependency audits,
+build), `ci-postgres.yml` (Pint and the PHP test suite against PostgreSQL), and
+
+test:e2e`.
+
 ## Database
 
 The app supports PostgreSQL, MySQL/MariaDB and sqlite via `config/database.php`. CI
