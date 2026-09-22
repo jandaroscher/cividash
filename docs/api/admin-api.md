@@ -37,6 +37,8 @@ Die Admin API ermöglicht das programmgesteuerte Management von Tiles, Jahren, M
 1. Token-Ability: Token muss `admin-api` oder `*` Ability haben
 2. Tenant-Kontext: Token muss eine `tenant_id` haben
 
+> Session-Authentifizierung (Filament-Cookie-Login ohne Bearer Token) ist für `/api/*` aktuell nicht aktiviert, da weder `statefulApi()` noch die Session-Middleware auf der `api`-Routengruppe registriert sind (`bootstrap/app.php`); ein Filament-Session-Cookie authentifiziert hier also nicht. Sollte das künftig aktiviert werden, verlangt `admin.api` bei einem Session-Login (Sanctums `TransientToken`, die jede Ability als vorhanden meldet) zusätzlich die Rolle `is_admin` des Nutzers, statt sich auf die Token-Ability zu verlassen.
+
 ### Token erstellen (Code-Beispiel)
 
 ```php
@@ -253,7 +255,7 @@ Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant'
 ```
 
 1. `auth:sanctum` verifiziert den Bearer Token, 401 bei fehlendem oder ungültigem Token.
-2. `admin.api` (`EnsureAdminApiAccess`) prüft, ob der Token die Ability `admin-api` oder `*` hat, sonst 403.
+2. `admin.api` (`EnsureAdminApiAccess`) prüft bei einem Personal Access Token die Ability `admin-api` bzw. `*`, sonst 403. Als Absicherung für den Fall, dass `/api/*` künftig auch für Session-Logins geöffnet wird (siehe Hinweis oben), verlangt sie bei jedem Nutzer ohne PAT (Sanctums `TransientToken`) zusätzlich `is_admin`, sonst ebenfalls 403.
 3. `resolve.tenant` (`ResolveTenantFromRequest`) löst den Tenant auf, mit Priorität Token-tenant_id vor Domain-Match, und setzt `resolved_tenant` sowie `resolved_tenant_by` auf dem Request. Ein Fallback auf den Default-Tenant findet hier nicht statt.
 4. `admin.tenant` (`EnsureAdminTenantResolved`) prüft, ob `resolved_tenant_by` ungleich `default` ist, und antwortet mit 400, wenn kein expliziter Tenant-Kontext vorliegt.
 

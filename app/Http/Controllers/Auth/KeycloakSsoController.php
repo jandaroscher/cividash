@@ -43,6 +43,18 @@ class KeycloakSsoController extends Controller
             }
 
             $socialiteUser = Socialite::driver('keycloak')->user();
+            $user = $this->ssoService->findOrCreateUser($socialiteUser);
+
+            // Reject before syncRolesFromToken() below can mutate is_admin
+            // (or assign tenant roles) on an account that is denied anyway.
+            if (! $user->canAccessPanel(Filament::getPanel('admin'))) {
+                Notification::make()
+                    ->title(__('filament.sso.account_inactive'))
+                    ->danger()
+                    ->send();
+
+                return redirect()->to('/admin/login');
+            }
         } catch (InvalidStateException $e) {
             Log::error('Keycloak SSO: InvalidStateException', ['class' => get_class($e)]);
             Notification::make()
@@ -61,22 +73,9 @@ class KeycloakSsoController extends Controller
             return redirect()->to('/admin/login');
         }
 
-        $user = $this->ssoService->findOrCreateUser($socialiteUser);
-
         // Sync roles from token claims
         $tokenData = $socialiteUser->user ?? [];
         $this->ssoService->syncRolesFromToken($user, $tokenData);
-
-        // Check if user can access the admin panel
-        $panel = Filament::getPanel('admin');
-        if (! $user->canAccessPanel($panel)) {
-            Notification::make()
-                ->title(__('filament.sso.account_inactive'))
-                ->danger()
-                ->send();
-
-            return redirect()->to('/admin/login');
-        }
 
         Auth::login($user, remember: true);
         session()->regenerate();

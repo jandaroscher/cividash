@@ -10,7 +10,7 @@
       <div
         v-if="block.props.text"
         class="prose mb-6"
-        v-html="block.props.text"
+        v-html="sanitizedText"
       />
       <div class="space-y-4">
         <div
@@ -62,6 +62,7 @@
 <script setup>
 import { computed, onMounted, reactive } from 'vue';
 import { useBrandingStore } from '../../stores/branding';
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 
 const props = defineProps({
     block: {
@@ -79,6 +80,10 @@ const accentColor = computed(() => {
 const activeItems = computed(() => {
     const items = props.block.props?.items || [];
     return items.filter((item) => item.is_active !== false);
+});
+
+const sanitizedText = computed(() => {
+    return props.block.props?.text ? sanitizeHtml(props.block.props.text) : '';
 });
 
 const fileSizes = reactive({});

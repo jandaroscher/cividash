@@ -139,6 +139,57 @@ class KeycloakSsoControllerTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_callback_denies_login_and_does_not_reactivate_inactive_user_matched_by_email(): void
+    {
+        config(['integrations.keycloak_sso.enabled' => true]);
+        config(['integrations.keycloak_sso.role_mapping' => ['admin' => 'Admin']]);
+
+        $user = User::factory()->create([
+            'email' => 'deactivated@example.com',
+            'keycloak_id' => null,
+            'is_active' => false,
+            'is_admin' => false,
+        ]);
+
+        $this->mockSocialiteCallback([
+            'id' => 'kc-deactivated',
+            'email' => 'deactivated@example.com',
+            // If role sync ran despite the denial, this would flip is_admin to
+            // true — asserting it stays false proves the panel-access check
+            // runs (and rejects) before syncRolesFromToken().
+            'roles' => ['admin'],
+        ]);
+
+        $response = $this->get(route('auth.keycloak.callback'));
+
+        $response->assertRedirect('/admin/login');
+        $this->assertGuest();
+        $this->assertFalse($user->fresh()->is_active);
+        $this->assertFalse($user->fresh()->is_admin);
+    }
+
+    public function test_callback_denies_login_when_email_match_is_not_verified(): void
+    {
+        config(['integrations.keycloak_sso.enabled' => true]);
+
+        $user = User::factory()->create([
+            'email' => 'victim@example.com',
+            'keycloak_id' => null,
+        ]);
+
+        $this->mockSocialiteCallback([
+            'id' => 'kc-attacker',
+            'email' => 'victim@example.com',
+            'email_verified' => false,
+        ]);
+
+        $response = $this->get(route('auth.keycloak.callback'));
+
+        $response->assertRedirect('/admin/login');
+        $this->assertGuest();
+        $this->assertNull($user->fresh()->keycloak_id);
+    }
+
     /**
      * Mock the Socialite callback to return a fake user.
      */
@@ -155,6 +206,7 @@ class KeycloakSsoControllerTest extends TestCase
         $socialiteUser->user = [
             'sub' => $socialiteUser->id,
             'email' => $socialiteUser->email,
+            'email_verified' => $attributes['email_verified'] ?? true,
             'given_name' => $attributes['first_name'] ?? 'Test',
             'family_name' => $attributes['last_name'] ?? 'User',
             'realm_access' => ['roles' => $attributes['roles'] ?? ['editor']],

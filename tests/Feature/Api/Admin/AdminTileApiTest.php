@@ -48,6 +48,7 @@ class AdminTileApiTest extends TestCase
         $tile = Tile::create($data);
 
         Filament::setTenant(null);
+        Filament::auth()->logout();
 
         return $tile;
     }

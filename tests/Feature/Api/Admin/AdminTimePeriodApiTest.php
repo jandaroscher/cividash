@@ -41,6 +41,7 @@ class AdminTimePeriodApiTest extends TestCase
             'description' => ['de' => 'Desc', 'en' => 'Desc'],
         ]);
         Filament::setTenant(null);
+        Filament::auth()->logout();
     }
 
     protected function tearDown(): void
@@ -87,6 +88,7 @@ class AdminTimePeriodApiTest extends TestCase
         ]);
 
         Filament::setTenant(null);
+        Filament::auth()->logout();
 
         return $timePeriod;
     }
@@ -102,6 +104,7 @@ class AdminTimePeriodApiTest extends TestCase
         $tile = Tile::create($data);
 
         Filament::setTenant(null);
+        Filament::auth()->logout();
 
         return $tile;
     }

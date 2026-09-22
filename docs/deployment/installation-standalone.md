@@ -265,6 +265,12 @@ package):
 4. In Docker/DDEV setups where the app can't resolve the Keycloak host name normally, set
    `KEYCLOAK_BASE_URL_INTERNAL` to a container-reachable URL.
 
+Linking a Keycloak login to an existing local account by email, or provisioning a brand new
+account for a first-time login, requires the realm to send a verified `email_verified` claim
+(unless the login already carries a previously-linked `keycloak_id`); an unverified claim is
+rejected instead of being linked or used to create an account, and linking never reactivates a
+deactivated local account.
+
 This repo has no automated test or doc confirming the Keycloak login flow end-to-end for a
 standalone (non-DDEV) install. Validate it manually (see Known limitations).
 

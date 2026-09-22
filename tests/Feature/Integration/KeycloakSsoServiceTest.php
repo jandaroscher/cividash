@@ -341,8 +341,12 @@ class KeycloakSsoServiceTest extends TestCase
         $this->assertFalse($user->fresh()->hasRole('Redakteur'));
     }
 
-    public function test_user_marked_active_on_sso_login(): void
+    public function test_matching_by_email_does_not_reactivate_a_deactivated_user(): void
     {
+        // A deactivated local account must stay deactivated even when Keycloak
+        // presents a verified email match — reactivation is an explicit admin
+        // action, not a side effect of SSO login. The account is still denied
+        // further down the login flow (KeycloakSsoController::canAccessPanel).
         $user = User::factory()->inactive()->create([
             'keycloak_id' => null,
             'email' => 'inactive@example.com',
@@ -355,7 +359,56 @@ class KeycloakSsoServiceTest extends TestCase
 
         $result = $this->service->findOrCreateUser($socialiteUser);
 
-        $this->assertTrue($result->fresh()->is_active);
+        $this->assertFalse($result->fresh()->is_active);
+        $this->assertEquals('kc-activate', $result->fresh()->keycloak_id);
+    }
+
+    public function test_rejects_email_match_when_email_is_not_verified(): void
+    {
+        // Without this check, an attacker could register an unverified
+        // Keycloak account using a victim's email address and take over the
+        // matching local account.
+        $existing = User::factory()->create([
+            'email' => 'victim@example.com',
+            'keycloak_id' => null,
+        ]);
+
+        $socialiteUser = $this->makeSocialiteUser([
+            'id' => 'kc-attacker',
+            'email' => 'victim@example.com',
+            'email_verified' => false,
+        ]);
+
+        try {
+            $this->service->findOrCreateUser($socialiteUser);
+            $this->fail('Expected InvalidArgumentException for unverified email.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('not verified', $e->getMessage());
+        }
+
+        $this->assertNull($existing->fresh()->keycloak_id);
+    }
+
+    public function test_rejects_creating_a_new_user_when_email_is_not_verified(): void
+    {
+        // Without this check, an attacker could pre-provision a local account
+        // for an email address they don't control (with roles synced from
+        // their own token), ready to be reclaimed once the real owner
+        // eventually logs in with that address.
+        $socialiteUser = $this->makeSocialiteUser([
+            'id' => 'kc-squatter',
+            'email' => 'future-user@example.com',
+            'email_verified' => false,
+        ]);
+
+        try {
+            $this->service->findOrCreateUser($socialiteUser);
+            $this->fail('Expected InvalidArgumentException for unverified email.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('not verified', $e->getMessage());
+        }
+
+        $this->assertDatabaseMissing('users', ['email' => 'future-user@example.com']);
     }
 
     /**
@@ -371,6 +424,7 @@ class KeycloakSsoServiceTest extends TestCase
         $socialiteUser->user = [
             'sub' => $socialiteUser->id,
             'email' => $socialiteUser->email,
+            'email_verified' => $attributes['email_verified'] ?? true,
             'given_name' => $attributes['first_name'] ?? 'Test',
             'family_name' => $attributes['last_name'] ?? 'User',
         ];

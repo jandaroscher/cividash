@@ -40,6 +40,7 @@ class AdminMetricDefinitionApiTest extends TestCase
             'description' => ['de' => 'Desc', 'en' => 'Desc'],
         ]);
         Filament::setTenant(null);
+        Filament::auth()->logout();
     }
 
     protected function tearDown(): void
@@ -81,6 +82,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $tile = Tile::create($data);
 
         Filament::setTenant(null);
+        Filament::auth()->logout();
 
         return $tile;
     }
@@ -96,6 +98,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $definition = MetricDefinition::create(array_merge(['tile_id' => $tile->id], $data));
 
         Filament::setTenant(null);
+        Filament::auth()->logout();
 
         return $definition;
     }

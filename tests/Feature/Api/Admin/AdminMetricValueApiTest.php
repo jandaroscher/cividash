@@ -62,6 +62,7 @@ class AdminMetricValueApiTest extends TestCase
         ]);
 
         Filament::setTenant(null);
+        Filament::auth()->logout();
     }
 
     protected function tearDown(): void
@@ -119,6 +120,7 @@ class AdminMetricValueApiTest extends TestCase
         ]);
 
         Filament::setTenant(null);
+        Filament::auth()->logout();
 
         return compact('tile', 'timePeriod', 'definition');
     }
@@ -138,6 +140,7 @@ class AdminMetricValueApiTest extends TestCase
         ]);
 
         Filament::setTenant(null);
+        Filament::auth()->logout();
 
         return $metricValue;
     }

@@ -66,6 +66,7 @@ class CrossTenantSecurityTest extends TestCase
         $result = $factory();
 
         Filament::setTenant(null);
+        Filament::auth()->logout();
 
         return $result;
     }

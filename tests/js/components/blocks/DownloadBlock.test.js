@@ -1,3 +1,7 @@
+// @vitest-environment jsdom
+// DOMPurify >= 3.4.6 (cross-realm instanceof hardening) strips every node under
+// happy-dom; jsdom is realm-correct, so this file runs there, same as
+// tests/js/utils/sanitizeHtml.test.js.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
@@ -100,6 +104,18 @@ describe('DownloadBlock', () => {
             items: [],
         });
         expect(wrapper.html()).toContain('Download these files');
+    });
+
+    it('strips dangerous markup from description text (stored XSS)', () => {
+        const wrapper = createWrapper({
+            text: '<p>Safe text</p><img src="x" onerror="alert(1)"><script>alert(2)</script>',
+            items: [],
+        });
+        const html = wrapper.html();
+        expect(html).toContain('Safe text');
+        expect(html).not.toContain('onerror');
+        expect(html).not.toContain('<script>');
+        expect(html).not.toContain('alert(2)');
     });
 
     it('limits the clickable area of the link to its content width', () => {

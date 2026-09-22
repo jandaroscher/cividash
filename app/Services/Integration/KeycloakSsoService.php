@@ -29,12 +29,27 @@ class KeycloakSsoService
      *
      * Matching order: keycloak_id → email → create new.
      *
+     * Once a Keycloak identity is already linked (matched by `keycloak_id`),
+     * subsequent logins are trusted on that stable identifier alone.
+     * Otherwise — whether linking to an existing account by email or
+     * provisioning a brand new one — Keycloak must claim the address as
+     * verified (`email_verified`); an unverified claim could otherwise let an
+     * attacker take over an unrelated account, or pre-provision a local
+     * account (with roles synced from their own token) for an email address
+     * they don't control, ready to be reclaimed once the real owner
+     * eventually logs in. Linking never reactivates the account — an
+     * inactive local user stays inactive and is denied further down the
+     * login flow (`canAccessPanel`).
+     *
      * @throws InvalidArgumentException When the SSO payload is missing the
-     *                                  external id or email. Matching on a
+     *                                  external id or email (matching on a
      *                                  null identifier could otherwise attach
-     *                                  the login to an unrelated local account
-     *                                  that happens to have a null
-     *                                  keycloak_id/email.
+     *                                  the login to an unrelated local
+     *                                  account that happens to have a null
+     *                                  keycloak_id/email), or when no
+     *                                  existing `keycloak_id` match was found
+     *                                  and Keycloak has not verified the
+     *                                  email.
      */
     public function findOrCreateUser(SocialiteUser $socialiteUser): User
     {
@@ -60,11 +75,19 @@ class KeycloakSsoService
             return $user;
         }
 
+        // From here on (linking by email, or provisioning a new account),
+        // an unverified email is never trusted. Strict comparison: a realm
+        // mapper could emit the claim as the string "false", which is
+        // truthy in PHP.
+        if (($rawAttributes['email_verified'] ?? false) !== true) {
+            throw new InvalidArgumentException('Keycloak email is not verified; refusing to link or create a local account for it.');
+        }
+
         // Priority 2: Match by email, backfill keycloak_id
         $user = User::where('email', $email)->first();
 
         if ($user) {
-            $user->update(['keycloak_id' => $keycloakId, 'is_active' => true]);
+            $user->update(['keycloak_id' => $keycloakId]);
 
             return $user;
         }
