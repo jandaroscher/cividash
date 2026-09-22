@@ -60,7 +60,7 @@ describe('Demo City TileCard override', () => {
                     IndicatorSmall: true,
                     Tooltip: { template: '<div><slot /></div>', props: ['text'] },
                     VueSlider: true,
-                    'dotlottie-player': true,
+                    'dotlottie-wc': true,
                 },
                 directives: {
                     'intersection-observer': {

@@ -10,8 +10,8 @@ import { useHeaderStore } from './stores/header';
 import { useFooterStore } from './stores/footer';
 import { resolveLocale } from './utils/locale';
 import { vIntersectionObserver } from '@vueuse/components';
-// Import dotlottie-player to register the Web Component
-import '@johanaarstein/dotlottie-player';
+// Import dotlottie-wc to register the Web Component
+import './lib/dotlottie';
 import { logError } from './lib/log.js';
 
 const app = createApp(App);

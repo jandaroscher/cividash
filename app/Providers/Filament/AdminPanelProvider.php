@@ -47,7 +47,10 @@ class AdminPanelProvider extends PanelProvider
     public function boot(): void
     {
         FilamentAsset::register([
-            Js::make('dotlottie-player', asset('js/vendor/dotlottie-player.js')),
+            // Registers <dotlottie-wc> and points it at the self-hosted WASM
+            // renderer (public/js/vendor/dotlottie-player.wasm), see
+            // public/js/vendor/dotlottie-wc.LICENSE.txt for update instructions.
+            Js::make('dotlottie-wc', asset('js/vendor/dotlottie-wc-init.js'))->module(),
             Css::make('admin-overrides', asset('css/filament/admin-overrides.css')),
         ]);
 

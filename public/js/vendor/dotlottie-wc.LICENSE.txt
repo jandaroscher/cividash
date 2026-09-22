@@ -1,0 +1,31 @@
+This directory vendors browser bundles of:
+
+- @lottiefiles/dotlottie-wc  v0.9.28  (dotlottie-wc.js)
+- @lottiefiles/dotlottie-web v0.80.0  (dotlottie-player.wasm, the renderer bundled with dotlottie-wc)
+
+Both are MIT-licensed. Full text below (identical for both packages).
+
+To update: bump the version in package.json, `npm install`, then re-copy
+node_modules/@lottiefiles/dotlottie-wc/dist/dotlottie-wc.js and
+node_modules/@lottiefiles/dotlottie-web/dist/dotlottie-player.wasm into this
+directory (see app/Providers/Filament/AdminPanelProvider.php for how they are
+registered), and update the version numbers above.
+
+---
+
+MIT License
+
+Copyright (c) 2023 LottieFiles.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

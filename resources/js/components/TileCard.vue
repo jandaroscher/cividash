@@ -86,7 +86,7 @@
           v-intersection-observer="onIntersectionObserver"
           class="text-center"
         >
-          <dotlottie-player
+          <dotlottie-wc
             ref="lottiePlayer"
             autoplay="true"
             loop="true"
@@ -261,7 +261,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import '@johanaarstein/dotlottie-player';
+import '../lib/dotlottie';
 import VueSlider from 'vue-slider-component/lib/vue-slider.vue';
 import 'vue-slider-component/theme/default.css';
 import IndicatorBig from './cards/indicators/IndicatorBig.vue';
@@ -573,7 +573,9 @@ function onIntersectionObserver([{ isIntersecting }]) {
     if (isIntersecting && !intersected.value) {
         intersected.value = true;
         if (lottieUrl.value && lottiePlayer.value) {
-            lottiePlayer.value.load(lottieUrl.value);
+            // dotlottie-wc only (re)loads on an attribute change, not a
+            // property write (verified empirically, see PR description).
+            lottiePlayer.value.setAttribute('src', lottieUrl.value);
         }
     }
 }

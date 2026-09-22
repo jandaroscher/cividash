@@ -60,7 +60,7 @@ describe('TileCard', () => {
                     IndicatorSmall: true,
                     Tooltip: { template: '<div><slot /></div>', props: ['text'] },
                     VueSlider: true,
-                    'dotlottie-player': true,
+                    'dotlottie-wc': true,
                 },
                 directives: {
                     'intersection-observer': {
@@ -214,5 +214,43 @@ describe('TileCard', () => {
 
         // v-show should not hide the element
         expect(wrapper.find('.tile-waterfall-item').element.style.display).not.toBe('none');
+    });
+
+    it('sets the dotlottie-wc src only after the tile intersects the viewport (lazy load)', async () => {
+        const tile = createTile({ icon: 'https://example.com/animation.lottie' });
+        // Render the real <dotlottie-wc> element (not stubbed) so its `src`
+        // attribute can be inspected directly.
+        const wrapper = shallowMount(TileCard, {
+            props: { tile },
+            global: {
+                stubs: {
+                    IndicatorBig: true,
+                    IndicatorSmall: true,
+                    Tooltip: { template: '<div><slot /></div>', props: ['text'] },
+                    VueSlider: true,
+                },
+                // The real directive is registered globally in app.js (app.directive(...)),
+                // not imported locally by TileCard.vue. Stash its callback on the target
+                // element so the test can simulate the observer firing.
+                directives: {
+                    'intersection-observer': {
+                        mounted: (el, binding) => {
+                            el.__intersectionCallback = binding.value;
+                        },
+                    },
+                },
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+        const player = wrapper.find('dotlottie-wc');
+        expect(player.exists()).toBe(true);
+        expect(player.attributes('src')).toBeUndefined();
+
+        // Simulate the IntersectionObserver reporting the tile as visible
+        player.element.parentElement.__intersectionCallback([{ isIntersecting: true }]);
+        await wrapper.vm.$nextTick();
+
+        expect(player.attributes('src')).toBe(tile.icon);
     });
 });

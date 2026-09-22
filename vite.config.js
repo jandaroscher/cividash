@@ -25,7 +25,7 @@ export default defineConfig({
         vue({
             template: {
                 compilerOptions: {
-                    isCustomElement: (tag) => ['dotlottie-player'].includes(tag),
+                    isCustomElement: (tag) => ['dotlottie-wc'].includes(tag),
                 },
             },
         }),

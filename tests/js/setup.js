@@ -5,11 +5,7 @@ import { config } from '@vue/test-utils';
 window.APP_URL = 'http://localhost';
 
 // Mock modules that require browser APIs not available in happy-dom
-vi.mock('@johanaarstein/dotlottie-player', () => ({
-    DotLottiePlayer: {
-        template: '<div class="dotlottie-player-stub"></div>',
-    },
-}));
+vi.mock('@/lib/dotlottie', () => ({}));
 
 vi.mock('vue-slider-component/lib/vue-slider.vue', () => ({
     default: {

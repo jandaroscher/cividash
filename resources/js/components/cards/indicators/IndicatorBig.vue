@@ -8,7 +8,7 @@
         v-intersection-observer="onIntersectionObserver"
         class="h-[216px]"
       >
-        <dotlottie-player
+        <dotlottie-wc
           ref="lottiePlayer"
           autoplay="true"
           loop="true"
@@ -78,7 +78,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import '@johanaarstein/dotlottie-player';
+import '../../../lib/dotlottie';
 import { useIndicator } from '../../../composables/useIndicator';
 
 const props = defineProps({

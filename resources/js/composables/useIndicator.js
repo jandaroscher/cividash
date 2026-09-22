@@ -152,7 +152,9 @@ export function useIndicator(indicator, currentYear) {
             intersected.value = true;
 
             if (lottieUrl.value && lottiePlayer.value) {
-                lottiePlayer.value.load(lottieUrl.value);
+                // dotlottie-wc only (re)loads on an attribute change, not a
+                // property write (verified empirically, see PR description).
+                lottiePlayer.value.setAttribute('src', lottieUrl.value);
             }
         }
     }
