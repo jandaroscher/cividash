@@ -20,6 +20,8 @@ Auf einen Blick:
 
 CiviDash ist quelloffen und kann von Kommunen selbst betrieben werden.
 
+**Datenschutz:** CiviDash betreibt von Haus aus kein Tracking. Es gibt keine Web-Analyse, keine Drittanbieter-Einbindungen und keinen Cookie-Banner. Die öffentliche Seite setzt nur zwei technisch notwendige Cookies.
+
 ## Über dieses Handbuch
 
 Dieses Handbuch richtet sich an alle, die mit dem Content-Management-System arbeiten — insbesondere an Redaktionsmitglieder und Administratoren. Es beschreibt die täglichen Aufgaben im Adminbereich: Seiten pflegen, Kacheln verwalten, Kategorien strukturieren und systemweite Einstellungen anpassen.

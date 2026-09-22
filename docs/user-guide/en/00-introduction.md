@@ -20,6 +20,8 @@ At a glance:
 
 CiviDash is open source and can be self-hosted by municipalities.
 
+**Privacy:** CiviDash does no tracking out of the box. There is no web analytics, no third-party embeds and no cookie banner. The public site sets only two technically necessary cookies.
+
 ## About This Guide
 
 This guide is intended for everyone working with the content management system — especially editorial staff and administrators. It covers everyday tasks in the admin panel: managing pages, maintaining tiles, structuring categories, and configuring system-wide settings.

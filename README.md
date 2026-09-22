@@ -77,6 +77,16 @@ overview, including DDEV.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Privacy
+
+CiviDash ships with **no tracking out of the box**: no web analytics, no tag manager,
+no social media plugins, no video embeds and no fonts or avatars loaded from third-party
+servers (the bundled fonts are served locally; `tests/Feature/Privacy/NoThirdPartyHostsTest.php`
+guards this). The public frontend sets only the two technically necessary cookies
+(`laravel_session`, `XSRF-TOKEN`) and uses `localStorage` for functional state (language,
+help hints), so no consent banner is required. Adding tracking is an operator decision and
+requires a code change; it cannot be switched on by configuration.
+
 ## Security
 
 See [SECURITY.md](SECURITY.md) for how to report vulnerabilities.
