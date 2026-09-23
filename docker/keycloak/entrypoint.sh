@@ -9,8 +9,8 @@
 #     carries only "__PLACEHOLDER__" literals.
 #   - Runs as uid 1000 (Keycloak default) and only writes under
 #     /opt/keycloak/data/... which is owned by that user.
-#   - Hands off to kc.sh start-dev --import-realm (dev mode / H2 — demo only;
-#     production hardening is tracked in).
+#   - Hands off to kc.sh start --optimized --import-realm on the server the
+#     Dockerfile pre-built (H2, demo only; not hardened for production).
 #
 set -e
 
@@ -49,4 +49,4 @@ sed \
 
 echo "[keycloak-entrypoint] realm import written to ${TARGET}; starting Keycloak"
 
-exec /opt/keycloak/bin/kc.sh start-dev --import-realm
+exec /opt/keycloak/bin/kc.sh start --optimized --import-realm
