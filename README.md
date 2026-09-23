@@ -7,6 +7,7 @@ tiles, filtering, full-text search, a Filament-based page builder and data impor
 related CIVITAS/CORE add-on is maintained separately.
 
 - Repository: https://gitlab.opencode.de/regensburg_next/cividash
+- Issues: https://github.com/jandaroscher/cividash/issues
 - CIVITAS/CORE add-on: https://gitlab.opencode.de/regensburg_next/cividash-addon
 - Installation guide: [docs/deployment/installation-standalone.md](docs/deployment/installation-standalone.md)
 - Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)

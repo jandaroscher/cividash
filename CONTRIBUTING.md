@@ -1,6 +1,9 @@
 # Contributing to CiviDash
 
 Thank you for considering a contribution to CiviDash.
+The maintainers develop on GitHub (`jandaroscher/cividash`), which is mirrored to openCode
+(<https://gitlab.opencode.de/regensburg_next/cividash>). Report issues at
+<https://github.com/jandaroscher/cividash/issues>. Pull requests on GitHub and merge requests on openCode are both welcome.
 
 ## Getting started
 
