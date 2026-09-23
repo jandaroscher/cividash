@@ -7,7 +7,8 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Queue instead of cancel: a cancelled run could leave a release without images.
+  cancel-in-progress: false
 
 permissions:
   contents: write
