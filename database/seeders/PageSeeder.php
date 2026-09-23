@@ -217,6 +217,7 @@ class PageSeeder extends Seeder
                         'type' => 'intro-text',
                         'data' => [
                             'heading' => 'Ansprechperson Kommunale Entwicklungspolitik',
+                            'text' => '<p>Referat für Verwaltung<br/>Beispielstraße 1<br/>Zimmer: 2<br/>12345 Musterstadt</p><p>Telefon: <a href="tel:+491234567890">+49 123 4567890</a><br/>Fax: +49 123 4567891<br/>E-Mail: <a href="mailto:impressum@example.org">impressum@example.org</a></p>',
                         ],
                     ],
                 ],
@@ -231,6 +232,7 @@ class PageSeeder extends Seeder
                         'type' => 'intro-text',
                         'data' => [
                             'heading' => 'Ansprechperson Kommunale Entwicklungspolitik',
+                            'text' => '<p>Administration Department<br/>Sample Street 1<br/>Room: 2<br/>12345 Sample City</p><p>Phone: <a href="tel:+491234567890">+49 123 4567890</a><br/>Fax: +49 123 4567891<br/>Email: <a href="mailto:impressum@example.org">impressum@example.org</a></p>',
                         ],
                     ],
                 ],
@@ -358,6 +360,7 @@ class PageSeeder extends Seeder
                 'type' => 'intro-text',
                 'data' => [
                     'heading' => 'Allgemeine Informationen',
+                    'text' => '<p>Die Musterstadt beachtet selbstverständlich die datenschutzrechtlichen Bestimmungen der EU-DSGVO und das Telemediengesetz. Verantwortlich für die Einhaltung der datenschutzrechtlichen Bestimmungen laut Datenschutz-Grundverordnung ist die Bürgermeisterin/der Bürgermeister.</p><p>Die Sicherheit Ihrer Daten ist uns wichtig, deshalb werden alle unsere Internetseiten mit einer Transportverschlüsselung (https) angeboten, damit die Daten nach dem aktuellen Stand der Technik sicher übertragen werden.</p>',
                 ],
             ],
             [
@@ -395,18 +398,21 @@ class PageSeeder extends Seeder
                 'type' => 'intro-text',
                 'data' => [
                     'heading' => 'Für allgemeine Fragen zur Stadtverwaltung wenden Sie sich bitte an:',
+                    'text' => '<p>E-Mail: <a href="mailto:impressum@example.org">impressum@example.org</a><br/>Telefon: +49 123 4567890<br/>Fax: +49 123 4567891</p><p><strong>Musterstadt</strong></p><p>Postfach 00 00 00<br/>12345 Musterstadt</p>',
                 ],
             ],
             [
                 'type' => 'intro-text',
                 'data' => [
                     'heading' => 'Herausgeber (gemäß § 5 TMG; § 55 II RStV):',
+                    'text' => '<p><strong>Musterstadt</strong></p><p>Beispielstraße 1<br/>12345 Musterstadt</p><p>E-Mail: <a href="mailto:presse@example.org">presse@example.org</a><br/>Internet: <a href="https://www.example.org">www.example.org</a></p><p>Die Musterstadt ist eine Gebietskörperschaft des Öffentlichen Rechts.<br/>Sie wird vertreten durch die Bürgermeisterin/den Bürgermeister.</p><p>USt-Identifikationsnummer gemäß<br/>§ 27 a UStG: DE 000000000</p>',
                 ],
             ],
             [
                 'type' => 'intro-text',
                 'data' => [
                     'heading' => 'Inhaltlich verantwortlich (nach § 55 II RStV):',
+                    'text' => '<p><strong>Musterstadt</strong><br/><strong>Referat für Verwaltung - Koordination für kommunale Entwicklungspolitik</strong></p><p>Ansprechperson Kommunale Entwicklungspolitik</p><p>Beispielstraße 1<br/>12345 Musterstadt</p><p>Telefon: +49 123 4567890<br/>E-Mail: <a href="mailto:impressum@example.org">impressum@example.org</a></p>',
                 ],
             ],
             [
@@ -475,18 +481,21 @@ class PageSeeder extends Seeder
                 'type' => 'intro-text',
                 'data' => [
                     'heading' => 'For general questions about the city administration, please contact:',
+                    'text' => '<p>Email: <a href="mailto:impressum@example.org">impressum@example.org</a><br/>Phone: +49 123 4567890<br/>Fax: +49 123 4567891</p><p><strong>Sample City</strong></p><p>P.O. Box 00 00 00<br/>12345 Sample City</p>',
                 ],
             ],
             [
                 'type' => 'intro-text',
                 'data' => [
                     'heading' => 'Publisher (according to § 5 TMG; § 55 II RStV):',
+                    'text' => '<p><strong>Sample City</strong></p><p>Sample Street 1<br/>12345 Sample City</p><p>Email: <a href="mailto:presse@example.org">presse@example.org</a><br/>Internet: <a href="https://www.example.org">www.example.org</a></p><p>The Sample City is a public law corporation.<br/>It is represented by the Mayor.</p><p>VAT identification number according to<br/>§ 27 a UStG: DE 000000000</p>',
                 ],
             ],
             [
                 'type' => 'intro-text',
                 'data' => [
                     'heading' => 'Content responsible (according to § 55 II RStV):',
+                    'text' => '<p><strong>Sample City</strong><br/><strong>Administration Department - Coordination for Municipal Development Policy</strong></p><p>Coordinator for Municipal Development Policy</p><p>Sample Street 1<br/>12345 Sample City</p><p>Phone: +49 123 4567890<br/>Email: <a href="mailto:impressum@example.org">impressum@example.org</a></p>',
                 ],
             ],
             [

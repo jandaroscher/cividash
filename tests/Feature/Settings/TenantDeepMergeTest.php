@@ -6,6 +6,7 @@ use App\Models\Tenant;
 use App\Settings\TenantAwareDatabaseSettingsRepository;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Spatie\LaravelSettings\Factories\SettingsRepositoryFactory;
 use Tests\TestCase;
 

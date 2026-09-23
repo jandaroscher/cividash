@@ -27,6 +27,9 @@ if [ -z "${DEMO_PASSWORD}" ]; then
     exit 1
 fi
 
+# Matches KEYCLOAK_REDIRECT_URI in .env.example, so a local run works unconfigured.
+DASHBOARD_URL="${DASHBOARD_URL:-http://localhost:8000}"
+
 mkdir -p "${IMPORT_DIR}"
 
 # The secrets land inside JSON double-quoted strings, so they are escaped in two
@@ -41,10 +44,12 @@ esc() {
 
 CLIENT_SECRET_ESC=$(esc "${CLIENT_SECRET}")
 DEMO_PASSWORD_ESC=$(esc "${DEMO_PASSWORD}")
+DASHBOARD_URL_ESC=$(esc "${DASHBOARD_URL%/}")
 
 sed \
     -e "s/__CLIENT_SECRET__/${CLIENT_SECRET_ESC}/g" \
     -e "s/__DEMO_PASSWORD__/${DEMO_PASSWORD_ESC}/g" \
+    -e "s/__DASHBOARD_URL__/${DASHBOARD_URL_ESC}/g" \
     "${TEMPLATE}" > "${TARGET}"
 
 echo "[keycloak-entrypoint] realm import written to ${TARGET}; starting Keycloak"

@@ -13,7 +13,48 @@ class MediaDownloadServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        config(['seeding.media_base_url' => 'https://media.example.org']);
         $this->service = new MediaDownloadService;
+    }
+
+    public function test_builds_files_and_assets_urls_from_the_base_url(): void
+    {
+        Storage::fake('public');
+        config(['seeding.media_base_url' => 'https://media.example.org/files/']);
+
+        $service = $this->getMockBuilder(MediaDownloadService::class)
+            ->onlyMethods(['downloadFileContent'])
+            ->getMock();
+
+        $service->expects($this->exactly(2))
+            ->method('downloadFileContent')
+            ->willReturnCallback(function (string $url) {
+                static $expected = [
+                    'https://media.example.org/files/a%20b.png',
+                    'https://media.example.org/assets/sdg/goal-1.png',
+                ];
+                $this->assertSame(array_shift($expected), $url);
+
+                return 'content';
+            });
+
+        $service->downloadFile('/fm/1/a%20b.png', 'tiles');
+        $service->downloadAsset('sdg/goal-1.png', 'sdg');
+    }
+
+    public function test_skips_downloads_without_a_base_url(): void
+    {
+        Storage::fake('public');
+        config(['seeding.media_base_url' => null]);
+
+        $service = $this->getMockBuilder(MediaDownloadService::class)
+            ->onlyMethods(['downloadFileContent'])
+            ->getMock();
+
+        $service->expects($this->never())->method('downloadFileContent');
+
+        $this->assertNull($service->downloadFile('/fm/1/icon.svg', 'tiles'));
+        $this->assertNull($service->downloadAsset('sdg/goal-1.svg', 'sdg'));
     }
 
     public function test_download_file_saves_to_public_disk(): void

@@ -10,10 +10,12 @@ outside of DDEV (see `.nvmrc`, `nvm use`).
 ```bash
 ddev start
 ddev exec composer install
+ddev exec php artisan key:generate
 ddev exec npm install
 ddev exec php artisan migrate
 ddev exec php artisan tenancy:backfill
 ddev exec php artisan db:seed
+ddev exec npm run build
 ```
 
 For local development with hot reload:
@@ -74,6 +76,12 @@ ddev exec php artisan test         # Backend test suite
 npx vitest run                     # Frontend test suite
 ```
 
+Then fill out the merge request template: GitLab applies
+[.gitlab/merge_request_templates/Default.md](.gitlab/merge_request_templates/Default.md)
+automatically, GitHub applies [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md).
+Bug reports and feature requests should use the issue templates under
+[.gitlab/issue_templates](.gitlab/issue_templates) (GitLab) or
+[.github/ISSUE_TEMPLATE](.github/ISSUE_TEMPLATE) (GitHub).
 
 ## Submitting changes
 
@@ -96,6 +104,8 @@ include secrets, customer data, or internal documents in any contribution.
 
 ## Developer Certificate of Origin
 
+This project requires the Developer Certificate of Origin (DCO 1.1) instead of a CLA for
+external contributions. Every commit in an external contribution must be signed off,
 confirming you have the right to submit the change under the project's license:
 
 ```bash
@@ -104,6 +114,18 @@ git commit -s
 
 This adds a `Signed-off-by` trailer to your commit message. See
 [developercertificate.org](https://developercertificate.org/) for the full text.
+
+## Releases
+
+release-please opens the release PR from the Conventional Commits on `main`. Before
+merging it, regenerate the software bill of materials so it matches the locked
+dependencies of the release, and commit the result:
+
+```bash
+bash scripts/generate-sbom.sh   # writes SBOM.cdx.json and SBOM.csv (needs Docker, Node.js, python3)
+```
+
+Update [NOTICE](NOTICE) when a release adds or removes a bundled third-party asset.
 
 ## Code of conduct
 

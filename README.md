@@ -93,5 +93,4 @@ See [SECURITY.md](SECURITY.md) for how to report vulnerabilities.
 
 ## License
 
-
-
+Licensed under the EUPL-1.2 or (at your option) any later version (SPDX: `EUPL-1.2+`). See [LICENSE](LICENSE) for the full text and [NOTICE](NOTICE) for bundled third-party components. The runtime dependencies with their licences are listed in [SBOM.cdx.json](SBOM.cdx.json) (CycloneDX) and [SBOM.csv](SBOM.csv).

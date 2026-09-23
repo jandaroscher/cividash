@@ -15,6 +15,7 @@ use App\Services\Import\Support\ImportResult;
 use App\Services\Import\Support\ImportWarning;
 use App\Services\Integration\NgsiLdDataMapper;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Exists;

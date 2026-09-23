@@ -80,6 +80,7 @@ The smoke compose file is explicitly not production config. For a real deploymen
    has no dev dependencies, so a plain `db:seed` fails (its factories need Faker).
 8. Read the `dashboard:reset` scheduler warning in installation-standalone.md before running any
    scheduler service against real (non-demo) data.
+9. Generate the API docs before building the images, not after: `cividash-web` copies `public/`
    (including `public/docs/`) from the already-built `cividash-app` *image* at `cividash-web`'s own
    build time, so anything written into a running container afterward never reaches it. Run
    `php artisan scribe:generate` in your working tree, so `public/docs/` is part of the build

@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Storage;
  */
 class MediaDownloadService
 {
+    private static bool $missingBaseUrlLogged = false;
+
     /**
      * Download a file from the media server and save it locally.
      *
@@ -44,6 +46,13 @@ class MediaDownloadService
         if (Storage::disk('public')->exists($localPath)) {
             return $localPath;
         }
+
+        $baseUrl = $this->mediaBaseUrl();
+        if ($baseUrl === null) {
+            return null;
+        }
+        // Keep the filename encoded for the download
+        $downloadUrl = $baseUrl.'/files/'.$encodedFilename;
 
         // Download file
         try {
@@ -188,6 +197,12 @@ class MediaDownloadService
             return $localPath;
         }
 
+        $baseUrl = $this->mediaBaseUrl();
+        if ($baseUrl === null) {
+            return null;
+        }
+        $downloadUrl = $baseUrl.'/assets/'.$assetPath;
+
         // Download file
         try {
             $fileContent = $this->downloadFileContent($downloadUrl);
@@ -232,6 +247,28 @@ class MediaDownloadService
      *
      * @param  string  $content  Raw downloaded file content.
      */
+    /**
+     * Without a configured source site there is nothing to download; seeding
+     * then continues without media instead of failing.
+     */
+    private function mediaBaseUrl(): ?string
+    {
+        $baseUrl = rtrim((string) config('seeding.media_base_url'), '/');
+        // Older configs pointed at the /files directory itself.
+        $baseUrl = preg_replace('#/files$#', '', $baseUrl);
+
+        if ($baseUrl === '') {
+            if (! self::$missingBaseUrlLogged) {
+                Log::info('SEED_MEDIA_BASE_URL is not set, skipping media downloads.');
+                self::$missingBaseUrlLogged = true;
+            }
+
+            return null;
+        }
+
+        return $baseUrl;
+    }
+
     protected function looksLikeSvg(string $content): bool
     {
         return stripos(substr($content, 0, 1024), '<svg') !== false;

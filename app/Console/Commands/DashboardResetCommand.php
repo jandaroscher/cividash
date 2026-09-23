@@ -16,6 +16,7 @@ use App\Models\Theme;
 use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Models\User;
+use App\Services\DashboardJsonParser;
 use App\Settings\BrandingSettings;
 use App\Settings\ContentSettings;
 use App\Settings\DashboardSettings;
@@ -24,6 +25,7 @@ use Database\Seeders\TenantSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -68,6 +70,8 @@ class DashboardResetCommand extends Command
 
         if (! $url) {
             $this->info('No dashboard_json_url configured, using existing local file.');
+            // Fail before any tenant data is deleted if the reseed could not read the file.
+            (new DashboardJsonParser)->parse(config('seeding.default_json_path'));
 
             return;
         }
@@ -78,6 +82,10 @@ class DashboardResetCommand extends Command
 
         if ($response->failed()) {
             throw new \RuntimeException("Failed to fetch dashboard.json from {$url} (HTTP {$response->status()})");
+        }
+
+        if (! is_array(json_decode($response->body(), true))) {
+            throw new \RuntimeException("dashboard.json from {$url} is not valid JSON");
         }
 
         $storagePath = config('seeding.default_json_path');

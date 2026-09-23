@@ -4,6 +4,7 @@
     "type": "project",
     "description": "CiviDash: open-source sustainability dashboard for municipalities (Laravel, Filament, Vue 3)",
     "keywords": ["laravel", "filament", "vue", "dashboard", "sustainability", "municipality", "multi-tenancy"],
+    "license": "EUPL-1.2+",
     "homepage": "https://gitlab.opencode.de/regensburg_next/cividash",
     "support": {
         "issues": "https://github.com/jandaroscher/cividash/issues",
