@@ -63,6 +63,8 @@ ddev delete --omit-snapshot && ddev start
 See [docs/deployment/README.md](docs/deployment/README.md) for the full deployment
 overview, including DDEV.
 
+Hosted deployments are maintained outside this repository.
+
 ## Documentation
 
 - [API documentation](docs/api) and the generated Scribe reference at `/docs`

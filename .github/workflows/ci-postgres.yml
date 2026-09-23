@@ -104,3 +104,6 @@ jobs:
 
       - name: Run PHP tests on PostgreSQL
         run: php artisan test
+
+      - name: Generate API documentation (Scribe)
+        run: php artisan scribe:generate
