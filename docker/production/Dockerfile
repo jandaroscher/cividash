@@ -171,3 +171,8 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm", "-F"]
+
+# Links the published GHCR package to this repository.
+LABEL org.opencontainers.image.source="https://github.com/jandaroscher/cividash" \
+      org.opencontainers.image.description="CiviDash application (PHP-FPM)" \
+      org.opencontainers.image.licenses="EUPL-1.2+"

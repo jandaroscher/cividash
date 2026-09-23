@@ -36,3 +36,8 @@ COPY --chown=nginx:nginx docker/production/nginx/nginx.conf /etc/nginx/conf.d/de
 COPY --chmod=755 docker/production/nginx/05-resolver.sh /docker-entrypoint.d/05-resolver.sh
 
 EXPOSE 8080
+
+# Links the published GHCR package to this repository.
+LABEL org.opencontainers.image.source="https://github.com/jandaroscher/cividash" \
+      org.opencontainers.image.description="CiviDash web server (nginx)" \
+      org.opencontainers.image.licenses="EUPL-1.2+"
