@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1](https://github.com/jandaroscher/cividash/compare/v1.0.0...v1.0.1) (2026-09-23)
+
+
+### Documentation
+
+* show the CiviDash logo in the README ([#17](https://github.com/jandaroscher/cividash/issues/17)) ([e5d41eb](https://github.com/jandaroscher/cividash/commit/e5d41eb94c8fca95e0f65445969d3bbc51d5593d))
+
 ## 1.0.0 (2026-09-23)
 
 ### ⚠ Breaking Changes
