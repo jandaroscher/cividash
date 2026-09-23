@@ -15,6 +15,10 @@ ENV KC_DB=dev-file \
     KC_CACHE=local
 RUN /opt/keycloak/bin/kc.sh build
 
+# kc.sh's default heap flags (Initial/MinRAMPercentage) can exceed a 1 GiB
+# container limit right after startup. A fixed heap keeps it at about 500 MiB.
+ENV JAVA_OPTS_KC_HEAP="-Xms64m -Xmx512m"
+
 # Realm template + entrypoint. --chmod keeps the script executable without a
 # root USER switch (requires BuildKit).
 COPY --chmod=0644 realm-civitas.json /opt/keycloak/realm-civitas.json
