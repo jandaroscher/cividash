@@ -1,4 +1,9 @@
-# CiviDash
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/images/branding/cividash-logo-dark.svg">
+    <img src="public/images/branding/cividash-logo.svg" alt="CiviDash" width="320">
+  </picture>
+</h1>
 
 CiviDash is an open-source sustainability dashboard for municipalities, built on
 Laravel (backend/admin via Filament) and Vue 3 (frontend). It supports multi-tenancy
