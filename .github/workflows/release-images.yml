@@ -1,0 +1,79 @@
+name: Release images
+
+# Publishes the production images (cividash-app, cividash-web) to GHCR for a
+# release tag. release-please calls this after it creates a release; run it
+# manually to (re)publish an existing tag.
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag, e.g. v1.0.0
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, e.g. v1.0.0
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io/jandaroscher
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ inputs.tag }}
+          persist-credentials: false
+
+      - name: Compute tags
+        id: v
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          VERSION="${TAG#v}"
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "not a release tag: $TAG" >&2; exit 1; }
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "minor=${VERSION%.*}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f  # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e  # v4.3.0
+
+      - name: Build & push cividash-app
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
+        with:
+          context: .
+          file: docker/production/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/cividash-app:${{ steps.v.outputs.version }}
+            ${{ env.REGISTRY }}/cividash-app:${{ steps.v.outputs.minor }}
+            ${{ env.REGISTRY }}/cividash-app:latest
+
+      - name: Build & push cividash-web
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
+        with:
+          context: .
+          file: docker/production/nginx/Dockerfile
+          platforms: linux/amd64
+          push: true
+          # cividash-web copies public/ from the app image of the same version.
+          build-args: |
+            APP_IMAGE=${{ env.REGISTRY }}/cividash-app:${{ steps.v.outputs.version }}
+          tags: |
+            ${{ env.REGISTRY }}/cividash-web:${{ steps.v.outputs.version }}
+            ${{ env.REGISTRY }}/cividash-web:${{ steps.v.outputs.minor }}
+            ${{ env.REGISTRY }}/cividash-web:latest

@@ -94,9 +94,14 @@ and `CIVIDASH_FPM_RESOLVE_TIMEOUT` to override FPM name/upstream detection.
 
 ## Building images in CI
 
-No workflow in this repository builds or publishes these images. `.github/workflows/ci-postgres.yml`
-runs the backend test suite against PostgreSQL 16, without Docker images. Build the images
-yourself as shown above. When you push `cividash-app` to a registry, pass its tag to the
+Every release publishes both images to GHCR (`.github/workflows/release-images.yml`,
+triggered by release-please): `ghcr.io/jandaroscher/cividash-app` and
+`ghcr.io/jandaroscher/cividash-web`, tagged with the exact version (e.g. `1.0.0`), the
+minor version (`1.0`) and `latest`. Pin the exact version in deployments.
+`.github/workflows/ci-postgres.yml` runs the backend test suite against PostgreSQL 16,
+without Docker images.
+
+When you build and push the images yourself, pass the `cividash-app` tag to the
 `cividash-web` build via `--build-arg APP_IMAGE=...`; the `cividash-app:dev` default in the
 Dockerfile is only for local builds.
 
