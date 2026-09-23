@@ -10,7 +10,7 @@ url: "https://gitlab.opencode.de/regensburg_next/cividash"
 softwareType: standalone/web
 
 softwareVersion: 1.0.0 # x-release-please-version
-releaseDate: "2026-09-30" # placeholder, aligned with the actual tag date on release
+releaseDate: "2026-09-23" # 1.0.0 release date
 
 platforms:
   - web
