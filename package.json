@@ -30,7 +30,7 @@
         "@unhead/vue": "^3.4.0",
         "@vueuse/components": "^14.4.0",
         "dompurify": "^3.4.15",
-        "pinia": "^3.0.4",
+        "pinia": "^4.0.3",
         "vue": "^3.5.42",
         "vue-flex-waterfall": "^2.3.1",
         "vue-router": "^4.6.3",
