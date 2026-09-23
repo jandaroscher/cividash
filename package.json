@@ -28,7 +28,7 @@
         "@fontsource/roboto": "^5.3.0",
         "@lottiefiles/dotlottie-wc": "^0.9.28",
         "@unhead/vue": "^3.4.0",
-        "@vueuse/components": "^14.4.0",
+        "@vueuse/components": "^15.0.0",
         "dompurify": "^3.4.15",
         "pinia": "^3.0.4",
         "vue": "^3.5.42",
