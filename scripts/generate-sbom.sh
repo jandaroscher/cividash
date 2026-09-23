@@ -61,6 +61,9 @@ def flatten(components):
         yield from flatten(children)
 
 
+# Packages that ship a license file but no license field in package.json.
+LICENSE_OVERRIDES = {'@egjs/flicking': 'MIT'}
+
 php_root = php['metadata']['component']
 npm_root = dict(npm['metadata']['component'])
 npm_root.pop('components', None)
@@ -68,6 +71,9 @@ npm_root.pop('components', None)
 components, refs = [], set()
 for c in php.get('components', []) + [npm_root] + list(flatten(npm.get('components', []))):
     if c['bom-ref'] not in refs and c['bom-ref'] != php_root['bom-ref']:
+        name = f"{c['group']}/{c['name']}" if c.get('group') else c['name']
+        if not c.get('licenses') and name in LICENSE_OVERRIDES:
+            c['licenses'] = [{'license': {'id': LICENSE_OVERRIDES[name]}}]
         refs.add(c['bom-ref'])
         components.append(c)
 

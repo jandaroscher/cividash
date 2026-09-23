@@ -110,3 +110,4 @@ The legacy `BackgroundPage` model remains for existing data; new tiles use `back
 
 ## Related documentation
 
+- [Headless Architecture](headless-architecture.md)

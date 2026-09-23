@@ -40,6 +40,7 @@ return [
         'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
         'redirect' => env('KEYCLOAK_REDIRECT_URI', '/admin/auth/keycloak/callback'),
         'base_url' => env('KEYCLOAK_BASE_URL'),
+        'base_url_internal' => env('KEYCLOAK_BASE_URL_INTERNAL'),
         'realms' => env('KEYCLOAK_REALM', 'civitas'),
     ],
 

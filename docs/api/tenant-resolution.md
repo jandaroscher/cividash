@@ -1,4 +1,5 @@
 # Tenant Resolution for the Public API
+
 > Middleware: `ResolveTenantFromRequest`
 
 ---

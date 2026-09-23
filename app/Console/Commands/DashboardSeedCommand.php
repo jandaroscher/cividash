@@ -11,6 +11,7 @@ use Database\Seeders\MetricSeeder;
 use Database\Seeders\TileSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 

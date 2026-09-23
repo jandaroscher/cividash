@@ -7,6 +7,8 @@ server, outside of the DDEV/CI setup used for development. It reflects the curre
 ## 1. System requirements
 
 - **PHP**: 8.2 or newer (composer.json `require.php` is `^8.2`). CI
+  (`.github/workflows/ci-postgres.yml`), DDEV (`.ddev/config.yaml`) and the production image
+  use 8.2.
 - **PHP extensions**: `mbstring`, `intl`, `bcmath`, `gd`, `curl`, `xml`, `zip`, `redis`
   (from the CI `setup-php` step; see Known limitations on whether `redis` is strictly required).
 - **Node.js**: 20 (`.github/workflows/ci.yml` `actions/setup-node`). `npm ci` is used,
@@ -27,6 +29,8 @@ server, outside of the DDEV/CI setup used for development. It reflects the curre
 - **Docroot**: `public/` (see `.ddev/config.yaml` `docroot: public`, and standard Laravel
   `resources/views/app.blade.php` SPA bootstrap per `AGENTS.md`).
 - This guide covers a classic (non-container) install: composer/npm build on the target host,
+  no Docker daemon required. You can also build an artifact elsewhere, copy it to the server
+  and run the post-deploy steps below there. A separate, container-based production setup also exists in this repo under
   `docker/production/`, see docker.md if you'd rather deploy with Docker.
 
 ## 2. Step-by-step installation

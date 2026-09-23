@@ -20,7 +20,14 @@ to run it: local development, production deployment, CI and a few operational to
 
 CI runs as three separate workflows: `ci.yml` (frontend lint, unit tests, dependency audits,
 build), `ci-postgres.yml` (Pint and the PHP test suite against PostgreSQL), and
+`release-please.yml` (versioning and changelog), plus `pr-title-lint.yml` for PR titles. This
+repository does not deploy anything. `dispatch-deploy.yml` only notifies an external
+deployment pipeline after a push to `main`, if one is configured.
 
+The Playwright E2E suite (`tests/e2e/`) has no CI workflow. The tenant-resolution,
+data-isolation, api-key-lifecycle and admin-smoke specs pass on a freshly seeded database. The
+default-tenant content specs expect demo tiles and pages on the default tenant, which no seeder
+creates, so they fail there. Run it locally with `npm run
 test:e2e`. This requires a running DDEV project, seeded fixtures (`npm run test:e2e:seed`), and
 the configured tenant hostnames; see
 [e2e-tenant-resolution.md](../testing/e2e-tenant-resolution.md) for setup.

@@ -4,6 +4,7 @@ const strings = {
     openMenu: { de: 'Menü öffnen', en: 'Open menu' },
     closeMenu: { de: 'Menü schließen', en: 'Close menu' },
     language: { de: 'Sprache', en: 'Language' },
+    searchPlaceholder: { de: 'Nach Themen oder Begriffen suchen...', en: 'Search by topics or terms...' },
 };
 
 export function t(key, locale) {

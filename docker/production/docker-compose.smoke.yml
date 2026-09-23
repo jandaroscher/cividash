@@ -114,6 +114,10 @@ services:
     build:
       context: ../..
       dockerfile: docker/production/nginx/Dockerfile
+      # Compose builds services in parallel; without this, FROM cividash-app:dev
+      # would be pulled from Docker Hub before cividash-fpm has built it.
+      additional_contexts:
+        cividash-app:dev: service:cividash-fpm
     image: cividash-web:dev
     volumes:
       # Same public-media volume: the baked public/storage symlink resolves here

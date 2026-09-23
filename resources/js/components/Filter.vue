@@ -129,6 +129,7 @@ import { useLocale } from '../composables/useLocale';
 import { useHelpContext } from '../composables/useHelpContext';
 import { getApiBaseUrl } from '../utils/api';
 import { hexToRgba } from '../utils/color';
+import { t } from '../lib/uiStrings';
 import Tooltip from './help/Tooltip.vue';
 import FilterGroup from './filter/FilterGroup.vue';
 

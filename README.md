@@ -33,6 +33,7 @@ related CIVITAS/CORE add-on is maintained separately.
 | Styling | Tailwind CSS 4 |
 | Build | Vite 6 |
 | Database | PostgreSQL 16 |
+| Testing | PHPUnit, Vitest, Playwright |
 
 ## Quickstart
 
@@ -50,6 +51,8 @@ ddev exec php artisan db:seed           # Seed demo data (tenants, roles)
 ddev exec npm run build                 # Build frontend assets (public routes need the Vite manifest)
 ```
 
+DDEV cannot change the database engine of an existing project. On a database type
+mismatch, recreate the project once:
 
 ```bash
 ddev delete --omit-snapshot && ddev start
@@ -59,6 +62,8 @@ ddev delete --omit-snapshot && ddev start
 
 - Standalone (bare server / VM): [docs/deployment/installation-standalone.md](docs/deployment/installation-standalone.md)
 - Docker: [docs/deployment/docker.md](docs/deployment/docker.md)
+- CIVITAS/CORE add-on: [cividash-addon](https://gitlab.opencode.de/regensburg_next/cividash-addon), architecture in [docs/architecture/civitas-core/architecture.md](docs/architecture/civitas-core/architecture.md)
+- Local CIVITAS/CORE test environment: [docker/civitas/README.md](docker/civitas/README.md)
 
 See [docs/deployment/README.md](docs/deployment/README.md) for the full deployment
 overview, including DDEV.

@@ -52,6 +52,7 @@ header, footer and tenant state.
 - `components/pages/HomePage.vue` - Homepage component
 - `components/pages/DynamicPage.vue` - Dynamic page component
 - `components/pages/TilesPage.vue` - Tile explorer page
+- `components/pages/TileDetailPage.vue` - Tile detail page
 - `components/pages/NotFound.vue` - 404 page
 - `components/BlockRenderer.vue` - Renders content blocks dynamically
 
@@ -66,6 +67,7 @@ All public routes are handled by a catch-all that serves `app.blade.php` through
 ```php
 Route::get('/{any?}', [SpaController::class, 'index'])
     ->where('any', '^(?!api|admin|filament|telescope|horizon|storage|share|embeds|_dusk|tinker).*$')
+    ->middleware(['resolve.tenant'])
     ->name('spa');
 ```
 
@@ -107,6 +109,8 @@ Content blocks are rendered dynamically via `BlockRenderer`:
 - `faq` - FAQBlock
 - `link` - LinkBlock
 - `slider` - SliderBlock
+- `tile-app` / `card-grid` - TileAppBlock
+- `download` - DownloadBlock
 
 Blocks are provided by the API in format:
 ```json

@@ -5,6 +5,8 @@
 # they carry "__PLACEHOLDER__" literals that the entrypoint substitutes from the
 # runtime environment at container start.
 #
+# H2 (dev-file) storage — DEMO ONLY. Production use needs a persistent
+# database.
 FROM quay.io/keycloak/keycloak:26.0.5
 
 # Build the server at image build time so the container starts with

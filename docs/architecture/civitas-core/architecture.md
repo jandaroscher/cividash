@@ -37,6 +37,7 @@ cluster it consists of four parts:
 - **Database (Postgres schema in the CORE cluster)**: the dashboard's own relational
   store for tiles, categories, metric definitions, time periods and metric values. It
   is the read source for the public API; the NGSI-LD broker is never queried on the
+  public request path. The app runs on PostgreSQL 16; because CORE
   provides only PostgreSQL (no extra DBMS), the add-on uses a Postgres schema in the
   cluster.
 

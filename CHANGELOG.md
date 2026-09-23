@@ -28,6 +28,7 @@ automatically from commit messages.
 
 ### Changed
 
+- Database migrations up to September 2026 are squashed into schema dumps (`database/schema/*.sql` for MariaDB, MySQL, PostgreSQL and SQLite). Fresh installations load the dump, existing installations are unaffected. Settings migrations stay as files because they carry default values.
 - Stop tracking generated Filament CSS/JS assets in git; they are published via
   `filament:assets` (already wired into `composer.json`'s `post-autoload-dump` and the
   production Docker image), so every install/deploy regenerates them automatically

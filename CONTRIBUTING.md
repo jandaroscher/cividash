@@ -35,6 +35,7 @@ reference.
 - Commit message format (Conventional Commits): `type(scope)?: description`.
   Types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `perf`. Breaking
   changes use `type!:` and add a `BREAKING CHANGE:` footer, e.g.
+  `feat!: drop the legacy theme format`.
   [release-please](https://github.com/googleapis/release-please) derives the version
   and CHANGELOG from these commits (`feat` -> minor, `fix` -> patch, `!` -> major).
   PRs are squash-merged, so the PR title becomes the commit message and must follow

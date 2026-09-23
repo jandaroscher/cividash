@@ -8907,6 +8907,13 @@
           "name": "cdx:npm:package:path",
           "value": "node_modules/@egjs/flicking"
         }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
       ]
     },
     {

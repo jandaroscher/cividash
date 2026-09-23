@@ -190,6 +190,36 @@ class KeycloakSsoControllerTest extends TestCase
         $this->assertNull($user->fresh()->keycloak_id);
     }
 
+    public function test_callback_uses_internal_base_url_from_config(): void
+    {
+        config([
+            'integrations.keycloak_sso.enabled' => true,
+            'services.keycloak.base_url' => 'http://localhost:8080',
+            'services.keycloak.base_url_internal' => 'http://keycloak:8080',
+        ]);
+
+        $this->mockSocialiteCallback(['id' => 'kc-internal', 'email' => 'internal@example.com']);
+
+        $this->get(route('auth.keycloak.callback'));
+
+        $this->assertSame('http://keycloak:8080', config('services.keycloak.base_url'));
+    }
+
+    public function test_callback_keeps_base_url_without_internal_override(): void
+    {
+        config([
+            'integrations.keycloak_sso.enabled' => true,
+            'services.keycloak.base_url' => 'http://localhost:8080',
+            'services.keycloak.base_url_internal' => null,
+        ]);
+
+        $this->mockSocialiteCallback(['id' => 'kc-public', 'email' => 'public@example.com']);
+
+        $this->get(route('auth.keycloak.callback'));
+
+        $this->assertSame('http://localhost:8080', config('services.keycloak.base_url'));
+    }
+
     /**
      * Mock the Socialite callback to return a fake user.
      */
