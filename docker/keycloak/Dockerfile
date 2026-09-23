@@ -29,3 +29,8 @@ COPY --chmod=0755 entrypoint.sh /opt/keycloak/entrypoint.sh
 # Runs as the image default uid 1000 (keycloak); the entrypoint only writes
 # under /opt/keycloak/data which that user owns.
 ENTRYPOINT ["/opt/keycloak/entrypoint.sh"]
+
+# Links the published GHCR package to this repository.
+LABEL org.opencontainers.image.source="https://github.com/jandaroscher/cividash" \
+      org.opencontainers.image.description="Keycloak with the CiviDash realm import" \
+      org.opencontainers.image.licenses="EUPL-1.2+"
