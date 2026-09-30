@@ -24,7 +24,7 @@ export const useHeaderStore = defineStore('header', {
             try {
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
-                    `${apiUrl}/api/config/header?locale=${locale}`,
+                    `${apiUrl}/api/v1/config/header?locale=${locale}`,
                     { credentials: 'include' }
                 );
                 

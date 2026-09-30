@@ -208,7 +208,7 @@ async function fetchFilterGroups(locale) {
     try {
         filterStore.setLoading(true);
         filterStore.setError(null);
-        const res = await fetch(`${apiUrl.value}/api/filters?locale=${locale}`);
+        const res = await fetch(`${apiUrl.value}/api/v1/filters?locale=${locale}`);
 
         if (!res.ok) {
             throw new Error(`HTTP error! status: ${res.status}`);

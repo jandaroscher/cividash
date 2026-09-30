@@ -152,7 +152,7 @@ class AdminMetricValueApiTest extends TestCase
         $token = $this->createTokenWithoutTenant();
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/metric-values', [
+            ->postJson('/api/v1/admin/metric-values', [
                 'metric_definition_id' => $this->metricDefinition->id,
                 'time_period_id' => $this->timePeriod->id,
                 'value' => 42.5,
@@ -171,7 +171,7 @@ class AdminMetricValueApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/metric-values', [
+            ->postJson('/api/v1/admin/metric-values', [
                 'metric_definition_id' => $this->metricDefinition->id,
                 'time_period_id' => $this->timePeriod->id,
                 'value' => 42.5,
@@ -192,7 +192,7 @@ class AdminMetricValueApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/metric-values', [
+            ->postJson('/api/v1/admin/metric-values', [
                 'metric_definition_id' => $this->metricDefinition->id,
                 'time_period_id' => $this->timePeriod->id,
                 'value' => 100.0,
@@ -210,7 +210,7 @@ class AdminMetricValueApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/metric-values', []);
+            ->postJson('/api/v1/admin/metric-values', []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['metric_definition_id', 'time_period_id', 'value']);
@@ -230,7 +230,7 @@ class AdminMetricValueApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/metric-values/{$metricValue->id}", [
+            ->patchJson("/api/v1/admin/metric-values/{$metricValue->id}", [
                 'value' => 75.5,
             ]);
 
@@ -253,7 +253,7 @@ class AdminMetricValueApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/metric-values/{$otherValue->id}", [
+            ->patchJson("/api/v1/admin/metric-values/{$otherValue->id}", [
                 'value' => 999,
             ]);
 
@@ -272,7 +272,7 @@ class AdminMetricValueApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/metric-values/{$metricValue->id}", [
+            ->patchJson("/api/v1/admin/metric-values/{$metricValue->id}", [
                 'value' => 60.0,
                 'tenant_id' => $this->otherTenant->id,
             ]);
@@ -297,7 +297,7 @@ class AdminMetricValueApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson("/api/admin/metric-values/{$metricValue->id}");
+            ->deleteJson("/api/v1/admin/metric-values/{$metricValue->id}");
 
         $response->assertStatus(204);
 
@@ -321,7 +321,7 @@ class AdminMetricValueApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson("/api/admin/metric-values/{$otherValue->id}");
+            ->deleteJson("/api/v1/admin/metric-values/{$otherValue->id}");
 
         $response->assertStatus(404);
     }
@@ -333,7 +333,7 @@ class AdminMetricValueApiTest extends TestCase
         // Ensure no residual auth from setUp
         Filament::auth()->logout();
 
-        $response = $this->postJson('/api/admin/metric-values', [
+        $response = $this->postJson('/api/v1/admin/metric-values', [
             'metric_definition_id' => 1,
             'time_period_id' => 1,
             'value' => 42,
@@ -346,7 +346,7 @@ class AdminMetricValueApiTest extends TestCase
     {
         Filament::auth()->logout();
 
-        $response = $this->patchJson('/api/admin/metric-values/1', [
+        $response = $this->patchJson('/api/v1/admin/metric-values/1', [
             'value' => 50,
         ]);
 
@@ -357,7 +357,7 @@ class AdminMetricValueApiTest extends TestCase
     {
         Filament::auth()->logout();
 
-        $response = $this->deleteJson('/api/admin/metric-values/1');
+        $response = $this->deleteJson('/api/v1/admin/metric-values/1');
 
         $response->assertStatus(401);
     }

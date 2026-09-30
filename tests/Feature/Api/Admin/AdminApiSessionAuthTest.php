@@ -23,7 +23,7 @@ class AdminApiSessionAuthTest extends TestCase
         $editor = User::factory()->create(['is_admin' => false]);
 
         $response = $this->actingAs($editor)
-            ->patchJson('/api/admin/config/general', []);
+            ->patchJson('/api/v1/admin/config/general', []);
 
         $response->assertStatus(403);
     }
@@ -34,7 +34,7 @@ class AdminApiSessionAuthTest extends TestCase
         $file = UploadedFile::fake()->createWithContent('bundle.json', '{}');
 
         $response = $this->actingAs($editor)
-            ->post('/api/admin/import', ['file' => $file, 'mode' => 'dry_run']);
+            ->post('/api/v1/admin/import', ['file' => $file, 'mode' => 'dry_run']);
 
         $response->assertStatus(403);
     }
@@ -45,7 +45,7 @@ class AdminApiSessionAuthTest extends TestCase
         Tenant::create(['name' => 'Admin Test', 'slug' => 'admin-test', 'domain' => 'admin-test.example.com']);
 
         $response = $this->actingAs($admin)
-            ->patchJson('http://admin-test.example.com/api/admin/config/general', ['site_name' => 'Neuer Name']);
+            ->patchJson('http://admin-test.example.com/api/v1/admin/config/general', ['site_name' => 'Neuer Name']);
 
         $response->assertStatus(200);
     }
@@ -58,7 +58,7 @@ class AdminApiSessionAuthTest extends TestCase
         $token = $admin->createToken('test-token', ['admin-api'])->plainTextToken;
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson('http://admin-test-2.example.com/api/admin/config/general', ['site_name' => 'Token Name']);
+            ->patchJson('http://admin-test-2.example.com/api/v1/admin/config/general', ['site_name' => 'Token Name']);
 
         $response->assertStatus(200);
     }
@@ -69,7 +69,7 @@ class AdminApiSessionAuthTest extends TestCase
         $token = $admin->createToken('test-token', ['public-read'])->plainTextToken;
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson('/api/admin/config/general', []);
+            ->patchJson('/api/v1/admin/config/general', []);
 
         $response->assertStatus(403);
     }

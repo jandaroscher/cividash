@@ -172,7 +172,7 @@ export const useHelpStore = defineStore('help', {
                 const apiUrl = getApiBaseUrl();
                 // Try to load from branding API first
                 const res = await fetch(
-                    apiUrl + '/api/config/branding',
+                    apiUrl + '/api/v1/config/branding',
                     { credentials: 'include' },
                 );
                 

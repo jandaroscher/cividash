@@ -43,7 +43,7 @@ test.describe('Branding', () => {
   test.describe('Header branding', () => {
     test('header background color matches branding config', async ({ page, request }) => {
       // Fetch branding config from API
-      const response = await request.get(`${BASE_URL}/api/config/branding`);
+      const response = await request.get(`${BASE_URL}/api/v1/config/branding`);
 
       if (!response.ok()) {
         test.skip(true, 'Branding API not available');
@@ -77,7 +77,7 @@ test.describe('Branding', () => {
   test.describe('Footer branding', () => {
     test('footer background color matches branding config', async ({ page, request }) => {
       // Fetch branding config from API
-      const response = await request.get(`${BASE_URL}/api/config/branding`);
+      const response = await request.get(`${BASE_URL}/api/v1/config/branding`);
 
       if (!response.ok()) {
         test.skip(true, 'Branding API not available');

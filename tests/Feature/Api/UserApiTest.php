@@ -28,7 +28,7 @@ class UserApiTest extends TestCase
         $token->accessToken->update(['tenant_id' => $this->tenant->id]);
 
         $this->withHeader('Authorization', "Bearer {$token->plainTextToken}")
-            ->getJson('/api/user')
+            ->getJson('/api/v1/user')
             ->assertOk()
             ->assertJsonPath('id', $user->id)
             ->assertJsonPath('name', $user->name)
@@ -37,7 +37,7 @@ class UserApiTest extends TestCase
 
     public function test_unauthenticated_request_returns_401(): void
     {
-        $this->getJson('/api/user')
+        $this->getJson('/api/v1/user')
             ->assertUnauthorized();
     }
 }

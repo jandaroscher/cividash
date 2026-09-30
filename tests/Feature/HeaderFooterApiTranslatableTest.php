@@ -52,7 +52,7 @@ class HeaderFooterApiTranslatableTest extends TestCase
         ]);
         $navigation->save();
 
-        $response = $this->getJson('/api/config/header?locale=de');
+        $response = $this->getJson('/api/v1/config/header?locale=de');
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -90,7 +90,7 @@ class HeaderFooterApiTranslatableTest extends TestCase
         ]);
         $navigation->save();
 
-        $response = $this->getJson('/api/config/header?locale=en');
+        $response = $this->getJson('/api/v1/config/header?locale=en');
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -130,7 +130,7 @@ class HeaderFooterApiTranslatableTest extends TestCase
         ]);
         $navigation->save();
 
-        $response = $this->getJson('/api/config/header');
+        $response = $this->getJson('/api/v1/config/header');
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -169,7 +169,7 @@ class HeaderFooterApiTranslatableTest extends TestCase
         $footer->setTranslation('copyright_text', 'en', '© 2025 Example');
         $footer->save();
 
-        $response = $this->getJson('/api/config/footer?locale=en');
+        $response = $this->getJson('/api/v1/config/footer?locale=en');
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -192,12 +192,12 @@ class HeaderFooterApiTranslatableTest extends TestCase
      */
     public function test_api_endpoints_validate_locale_parameter(): void
     {
-        $response = $this->getJson('/api/config/header?locale=invalid');
+        $response = $this->getJson('/api/v1/config/header?locale=invalid');
 
         // Should fall back to app locale, not error
         $response->assertStatus(200);
 
-        $response = $this->getJson('/api/config/footer?locale=fr');
+        $response = $this->getJson('/api/v1/config/footer?locale=fr');
 
         // Should fall back to app locale, not error
         $response->assertStatus(200);
@@ -239,7 +239,7 @@ class HeaderFooterApiTranslatableTest extends TestCase
         ]);
         $navigation->save();
 
-        $response = $this->getJson('/api/config/header?locale=en');
+        $response = $this->getJson('/api/v1/config/header?locale=en');
 
         $response->assertStatus(200);
         $data = $response->json();
@@ -286,7 +286,7 @@ class HeaderFooterApiTranslatableTest extends TestCase
         ]);
         $navigation->save();
 
-        $response = $this->getJson('/api/config/header?locale=de');
+        $response = $this->getJson('/api/v1/config/header?locale=de');
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -341,7 +341,7 @@ class HeaderFooterApiTranslatableTest extends TestCase
         ]);
         $footer->save();
 
-        $response = $this->getJson('/api/config/footer?locale=de');
+        $response = $this->getJson('/api/v1/config/footer?locale=de');
 
         $response->assertStatus(200);
         $response->assertJson([

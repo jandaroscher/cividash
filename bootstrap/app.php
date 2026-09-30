@@ -3,6 +3,7 @@
 use App\Console\Commands\DashboardSeedCommand;
 use App\Console\Commands\PagesSeedCommand;
 use App\Console\Commands\TenancyBackfillCommand;
+use App\Http\Middleware\AddDeprecatedApiAliasHeaders;
 use App\Http\Middleware\EnsureAdminApiAccess;
 use App\Http\Middleware\EnsureAdminTenantResolved;
 use App\Http\Middleware\LocaleDetector;
@@ -11,6 +12,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,6 +20,17 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        apiPrefix: 'api/v1',
+        then: function () {
+            // Deprecated unversioned alias for the versioned API: same controllers,
+            // same middleware (incl. the "api" group applied below), plus a header
+            // pointing callers at the /api/v1 successor. Routes here stay unnamed
+            // (routes/api.php has no ->name() calls) so re-registering the file
+            // under a second prefix can't collide with the /api/v1 route names.
+            Route::middleware(['api', AddDeprecatedApiAliasHeaders::class])
+                ->prefix('api')
+                ->group(base_path('routes/api.php'));
+        },
     )
     ->withCommands([
         TenancyBackfillCommand::class,

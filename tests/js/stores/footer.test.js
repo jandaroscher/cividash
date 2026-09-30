@@ -102,7 +102,7 @@ describe('footerStore', () => {
             await store.fetchConfig('de');
 
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/config/footer?locale=de'),
+                expect.stringContaining('/api/v1/config/footer?locale=de'),
                 expect.objectContaining({ credentials: 'include' }),
             );
         });
@@ -114,7 +114,7 @@ describe('footerStore', () => {
             await store.fetchConfig('en');
 
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/config/footer?locale=en'),
+                expect.stringContaining('/api/v1/config/footer?locale=en'),
                 expect.any(Object),
             );
         });

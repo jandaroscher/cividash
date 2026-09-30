@@ -110,7 +110,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $token = $this->createTokenWithoutTenant();
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/metric-definitions', [
+            ->postJson('/api/v1/admin/metric-definitions', [
                 'tile_id' => $this->tile->id,
                 'metric_key' => 'co2_emissions',
                 'label' => ['de' => 'CO2 Emissionen', 'en' => 'CO2 Emissions'],
@@ -129,7 +129,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/metric-definitions', [
+            ->postJson('/api/v1/admin/metric-definitions', [
                 'tile_id' => $this->tile->id,
                 'metric_key' => 'co2_emissions',
                 'label' => ['de' => 'CO2 Emissionen', 'en' => 'CO2 Emissions'],
@@ -151,7 +151,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/metric-definitions', [
+            ->postJson('/api/v1/admin/metric-definitions', [
                 'tile_id' => $this->tile->id,
                 'metric_key' => 'energy_use',
                 'label' => ['de' => 'Energieverbrauch', 'en' => 'Energy Usage'],
@@ -170,7 +170,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/metric-definitions', []);
+            ->postJson('/api/v1/admin/metric-definitions', []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['tile_id', 'metric_key', 'label']);
@@ -189,7 +189,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/metric-definitions/{$definition->id}", [
+            ->patchJson("/api/v1/admin/metric-definitions/{$definition->id}", [
                 'metric_key' => 'new_key',
                 'label' => ['de' => 'New Label', 'en' => 'New Label'],
             ]);
@@ -214,7 +214,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/metric-definitions/{$otherDefinition->id}", [
+            ->patchJson("/api/v1/admin/metric-definitions/{$otherDefinition->id}", [
                 'metric_key' => 'hacked',
             ]);
 
@@ -231,7 +231,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/metric-definitions/{$definition->id}", [
+            ->patchJson("/api/v1/admin/metric-definitions/{$definition->id}", [
                 'label' => ['de' => 'Updated', 'en' => 'Updated'],
                 'tenant_id' => $this->otherTenant->id,
             ]);
@@ -254,7 +254,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson("/api/admin/metric-definitions/{$definition->id}");
+            ->deleteJson("/api/v1/admin/metric-definitions/{$definition->id}");
 
         $response->assertStatus(204);
 
@@ -279,7 +279,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson("/api/admin/metric-definitions/{$otherDefinition->id}");
+            ->deleteJson("/api/v1/admin/metric-definitions/{$otherDefinition->id}");
 
         $response->assertStatus(404);
     }
@@ -291,7 +291,7 @@ class AdminMetricDefinitionApiTest extends TestCase
         // Ensure no residual auth from setUp
         Filament::auth()->logout();
 
-        $response = $this->postJson('/api/admin/metric-definitions', [
+        $response = $this->postJson('/api/v1/admin/metric-definitions', [
             'tile_id' => 1,
             'metric_key' => 'test',
             'label' => ['de' => 'Test', 'en' => 'Test'],
@@ -304,7 +304,7 @@ class AdminMetricDefinitionApiTest extends TestCase
     {
         Filament::auth()->logout();
 
-        $response = $this->patchJson('/api/admin/metric-definitions/1', [
+        $response = $this->patchJson('/api/v1/admin/metric-definitions/1', [
             'label' => ['de' => 'Updated', 'en' => 'Updated'],
         ]);
 
@@ -315,7 +315,7 @@ class AdminMetricDefinitionApiTest extends TestCase
     {
         Filament::auth()->logout();
 
-        $response = $this->deleteJson('/api/admin/metric-definitions/1');
+        $response = $this->deleteJson('/api/v1/admin/metric-definitions/1');
 
         $response->assertStatus(401);
     }

@@ -35,7 +35,7 @@ class PageSlugUpdateTest extends TestCase
         ]);
 
         // Warm the caches (list + getUrl), simulating a frontend visit before the edit.
-        $resp1 = $this->getJson('/api/content/pages?locale=de');
+        $resp1 = $this->getJson('/api/v1/content/pages?locale=de');
         $resp1->assertOk();
         $this->assertTrue(collect($resp1->json('data'))->contains('slug', 'testseite'));
 
@@ -45,7 +45,7 @@ class PageSlugUpdateTest extends TestCase
         $page->setTranslation('slug', 'de', 'neuer-slug');
         $page->save();
 
-        $listResp = $this->getJson('/api/content/pages?locale=de');
+        $listResp = $this->getJson('/api/v1/content/pages?locale=de');
         $listResp->assertOk();
         $slugs = collect($listResp->json('data'))->pluck('slug');
         $this->assertTrue($slugs->contains('neuer-slug'), 'List cache still shows old slug after 1st save: '.$slugs->implode(','));
@@ -71,7 +71,7 @@ class PageSlugUpdateTest extends TestCase
         ]);
 
         $resp1 = $this->withHeader('X-Tenant', $tenant->slug)
-            ->getJson('/api/content/pages?locale=de');
+            ->getJson('/api/v1/content/pages?locale=de');
         $resp1->assertOk();
 
         $url1 = $page->getUrl(['locale' => 'de']);

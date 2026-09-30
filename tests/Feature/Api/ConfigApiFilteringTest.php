@@ -57,7 +57,7 @@ class ConfigApiFilteringTest extends TestCase
             ]
         );
 
-        $response = $this->getJson('/api/config/header?locale=de');
+        $response = $this->getJson('/api/v1/config/header?locale=de');
 
         $response->assertOk();
         $items = $response->json('data.navigation_items');
@@ -89,7 +89,7 @@ class ConfigApiFilteringTest extends TestCase
             ]
         );
 
-        $response = $this->getJson('/api/config/footer?locale=de');
+        $response = $this->getJson('/api/v1/config/footer?locale=de');
 
         $response->assertOk();
         $items = $response->json('data.footer_navigation_items');
@@ -123,7 +123,7 @@ class ConfigApiFilteringTest extends TestCase
             ]
         );
 
-        $response = $this->getJson('/api/config/header?locale=de');
+        $response = $this->getJson('/api/v1/config/header?locale=de');
 
         $response->assertOk();
         $items = $response->json('data.navigation_items');
@@ -157,7 +157,7 @@ class ConfigApiFilteringTest extends TestCase
             ]
         );
 
-        $response = $this->getJson('/api/config/header?locale=de');
+        $response = $this->getJson('/api/v1/config/header?locale=de');
 
         $response->assertOk();
         $items = $response->json('data.navigation_items');
@@ -191,7 +191,7 @@ class ConfigApiFilteringTest extends TestCase
             ]
         );
 
-        $response = $this->getJson('/api/config/footer?locale=de');
+        $response = $this->getJson('/api/v1/config/footer?locale=de');
 
         $response->assertOk();
         $socialLinks = $response->json('data.social_links');
@@ -211,7 +211,7 @@ class ConfigApiFilteringTest extends TestCase
             ]
         );
 
-        $response = $this->getJson('/api/config/header?locale=de');
+        $response = $this->getJson('/api/v1/config/header?locale=de');
 
         $response->assertOk()
             ->assertJsonPath('data.dropdown_enabled', true)
@@ -232,7 +232,7 @@ class ConfigApiFilteringTest extends TestCase
             ]
         );
 
-        $response = $this->getJson('/api/config/footer?locale=de');
+        $response = $this->getJson('/api/v1/config/footer?locale=de');
 
         $response->assertOk()
             ->assertJsonPath('data.layout_type', 'columns')

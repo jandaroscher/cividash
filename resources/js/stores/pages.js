@@ -33,7 +33,7 @@ export const usePagesStore = defineStore('pages', {
             try {
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
-                    `${apiUrl}/api/content/pages/${id}?locale=${locale}`,
+                    `${apiUrl}/api/v1/content/pages/${id}?locale=${locale}`,
                     { credentials: 'include', cache: 'no-store' }
                 );
                 
@@ -82,7 +82,7 @@ export const usePagesStore = defineStore('pages', {
             try {
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
-                    `${apiUrl}/api/content/pages/root?locale=${locale}`,
+                    `${apiUrl}/api/v1/content/pages/root?locale=${locale}`,
                     { credentials: 'include', cache: 'no-store' }
                 );
                 
@@ -129,7 +129,7 @@ export const usePagesStore = defineStore('pages', {
             try {
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
-                    `${apiUrl}/api/content/pages?locale=${locale}`,
+                    `${apiUrl}/api/v1/content/pages?locale=${locale}`,
                     { credentials: 'include', cache: 'no-store' }
                 );
                 
@@ -217,7 +217,7 @@ export const usePagesStore = defineStore('pages', {
                 // Inline fetch to avoid loading state conflicts
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
-                    `${apiUrl}/api/content/pages?locale=${locale}`,
+                    `${apiUrl}/api/v1/content/pages?locale=${locale}`,
                     { credentials: 'include', cache: 'no-store' }
                 );
 
@@ -238,7 +238,7 @@ export const usePagesStore = defineStore('pages', {
 
                 // Inline fetch full page data by ID to avoid loading state conflicts
                 const pageRes = await fetch(
-                    `${apiUrl}/api/content/pages/${pageMeta.id}?locale=${locale}`,
+                    `${apiUrl}/api/v1/content/pages/${pageMeta.id}?locale=${locale}`,
                     { credentials: 'include', cache: 'no-store' }
                 );
 

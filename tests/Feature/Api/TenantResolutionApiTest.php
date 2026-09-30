@@ -91,7 +91,7 @@ class TenantResolutionApiTest extends TestCase
         $token->accessToken->save();
 
         $response = $this->withHeader('Authorization', "Bearer {$token->plainTextToken}")
-            ->getJson('/api/tiles');
+            ->getJson('/api/v1/tiles');
 
         $response->assertStatus(200);
 
@@ -111,7 +111,7 @@ class TenantResolutionApiTest extends TestCase
         // Request with tenant A token but tenant B domain
         $response = $this->withHeader('Authorization', "Bearer {$token->plainTextToken}")
             ->withHeader('Host', 'tenant-b.example.com')
-            ->getJson('/api/tiles');
+            ->getJson('/api/v1/tiles');
 
         $response->assertStatus(200);
 
@@ -128,7 +128,7 @@ class TenantResolutionApiTest extends TestCase
 
     public function test_domain_resolves_correct_tenant(): void
     {
-        $response = $this->getJson('http://tenant-a.example.com/api/tiles');
+        $response = $this->getJson('http://tenant-a.example.com/api/v1/tiles');
 
         $response->assertStatus(200);
 
@@ -139,7 +139,7 @@ class TenantResolutionApiTest extends TestCase
 
     public function test_www_prefix_is_stripped_from_domain(): void
     {
-        $response = $this->getJson('http://www.tenant-b.example.com/api/tiles');
+        $response = $this->getJson('http://www.tenant-b.example.com/api/v1/tiles');
 
         $response->assertStatus(200);
 
@@ -152,7 +152,7 @@ class TenantResolutionApiTest extends TestCase
 
     public function test_no_token_no_domain_falls_back_to_default(): void
     {
-        $response = $this->call('GET', '/api/tiles', [], [], [], [
+        $response = $this->call('GET', '/api/v1/tiles', [], [], [], [
             'HTTP_HOST' => 'unknown.example.com',
         ]);
 
@@ -177,7 +177,7 @@ class TenantResolutionApiTest extends TestCase
 
         Filament::setTenant(null);
 
-        $response = $this->call('GET', '/api/tiles', [], [], [], [
+        $response = $this->call('GET', '/api/v1/tiles', [], [], [], [
             'HTTP_HOST' => 'unknown.example.com',
         ]);
 
@@ -197,7 +197,7 @@ class TenantResolutionApiTest extends TestCase
         $token->accessToken->save();
 
         $response = $this->withHeader('Authorization', "Bearer {$token->plainTextToken}")
-            ->getJson('/api/config/tenant');
+            ->getJson('/api/v1/config/tenant');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -213,7 +213,7 @@ class TenantResolutionApiTest extends TestCase
 
     public function test_config_tenant_returns_domain_resolution_info(): void
     {
-        $response = $this->getJson('http://tenant-a.example.com/api/config/tenant');
+        $response = $this->getJson('http://tenant-a.example.com/api/v1/config/tenant');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -229,7 +229,7 @@ class TenantResolutionApiTest extends TestCase
 
     public function test_config_tenant_returns_default_resolution_info(): void
     {
-        $response = $this->call('GET', '/api/config/tenant', [], [], [], [
+        $response = $this->call('GET', '/api/v1/config/tenant', [], [], [], [
             'HTTP_HOST' => 'unknown.example.com',
         ]);
 
@@ -249,7 +249,7 @@ class TenantResolutionApiTest extends TestCase
         $this->tenantA->theme_id = $theme->id;
         $this->tenantA->save();
 
-        $response = $this->getJson('http://tenant-a.example.com/api/config/tenant');
+        $response = $this->getJson('http://tenant-a.example.com/api/v1/config/tenant');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -269,7 +269,7 @@ class TenantResolutionApiTest extends TestCase
         // Don't set tenant_id
 
         $response = $this->withHeader('Authorization', "Bearer {$token->plainTextToken}")
-            ->getJson('/api/tiles');
+            ->getJson('/api/v1/tiles');
 
         $response->assertStatus(200);
 

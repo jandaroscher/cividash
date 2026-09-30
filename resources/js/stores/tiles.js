@@ -25,7 +25,7 @@ export const useTilesStore = defineStore('tiles', {
                 const apiUrl = getApiBaseUrl();
                 // Use provided locale, store locale, or default to 'de'
                 const requestLocale = locale || this.locale || 'de';
-                const res = await fetch(`${apiUrl}/api/tiles?locale=${requestLocale}`);
+                const res = await fetch(`${apiUrl}/api/v1/tiles?locale=${requestLocale}`);
                 const json = await res.json();
                 // ResourceCollection comes back as { data: [ … ] }
                 this.tiles = json.data;
@@ -54,7 +54,7 @@ export const useTilesStore = defineStore('tiles', {
             try {
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
-                    `${apiUrl}/api/tiles/${encodeURIComponent(slug)}?locale=${locale}`,
+                    `${apiUrl}/api/v1/tiles/${encodeURIComponent(slug)}?locale=${locale}`,
                     { cache: 'no-store' }
                 );
 

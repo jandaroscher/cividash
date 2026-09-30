@@ -135,7 +135,7 @@ describe('brandingStore', () => {
             await store.fetch();
 
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/config/branding'),
+                expect.stringContaining('/api/v1/config/branding'),
                 expect.objectContaining({ credentials: 'include' }),
             );
         });

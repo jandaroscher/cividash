@@ -31,7 +31,7 @@ class TokenEdgeCasesTest extends TestCase
         $token->accessToken->save();
 
         $response = $this->withToken($token->plainTextToken)
-            ->postJson('/api/admin/tiles', ['title' => ['de' => 'Test']]);
+            ->postJson('/api/v1/admin/tiles', ['title' => ['de' => 'Test']]);
 
         $response->assertForbidden();
     }
@@ -43,7 +43,7 @@ class TokenEdgeCasesTest extends TestCase
         $token->accessToken->save();
 
         $response = $this->withToken($token->plainTextToken)
-            ->postJson('/api/admin/tiles', ['title' => ['de' => 'Test']]);
+            ->postJson('/api/v1/admin/tiles', ['title' => ['de' => 'Test']]);
 
         $response->assertForbidden();
     }
@@ -60,7 +60,7 @@ class TokenEdgeCasesTest extends TestCase
         $token->accessToken->delete();
 
         $response = $this->withToken($plainToken)
-            ->getJson('/api/user');
+            ->getJson('/api/v1/user');
 
         $response->assertUnauthorized();
     }
@@ -71,7 +71,7 @@ class TokenEdgeCasesTest extends TestCase
         // Explicitly NOT setting tenant_id
 
         $response = $this->withToken($token->plainTextToken)
-            ->postJson('/api/admin/tiles', ['title' => ['de' => 'Test']]);
+            ->postJson('/api/v1/admin/tiles', ['title' => ['de' => 'Test']]);
 
         $response->assertStatus(400);
     }
@@ -81,7 +81,7 @@ class TokenEdgeCasesTest extends TestCase
         $token = $this->user->createToken('user-token', ['*']);
 
         $response = $this->withToken($token->plainTextToken)
-            ->getJson('/api/user');
+            ->getJson('/api/v1/user');
 
         $response->assertOk();
         $response->assertJsonFragment(['email' => $this->user->email]);
@@ -89,7 +89,7 @@ class TokenEdgeCasesTest extends TestCase
 
     public function test_no_token_gets_401_on_protected_endpoint(): void
     {
-        $response = $this->getJson('/api/user');
+        $response = $this->getJson('/api/v1/user');
 
         $response->assertUnauthorized();
     }
@@ -97,7 +97,7 @@ class TokenEdgeCasesTest extends TestCase
     public function test_invalid_token_format_gets_401(): void
     {
         $response = $this->withToken('not-a-real-token-at-all')
-            ->getJson('/api/user');
+            ->getJson('/api/v1/user');
 
         $response->assertUnauthorized();
     }
@@ -110,7 +110,7 @@ class TokenEdgeCasesTest extends TestCase
 
         // Send intentionally invalid body — if we get 422, auth/ability/tenant checks passed
         $response = $this->withToken($token->plainTextToken)
-            ->postJson('/api/admin/tiles', []);
+            ->postJson('/api/v1/admin/tiles', []);
 
         // 422 proves auth (not 401), ability (not 403), and tenant (not 400) all passed
         $response->assertStatus(422);

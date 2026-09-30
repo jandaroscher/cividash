@@ -32,7 +32,7 @@ class ContentPagesApiEdgeCasesTest extends TestCase
             'layout' => 'default',
         ]);
 
-        $response = $this->getJson('/api/content/pages');
+        $response = $this->getJson('/api/v1/content/pages');
 
         $response->assertOk();
 
@@ -50,7 +50,7 @@ class ContentPagesApiEdgeCasesTest extends TestCase
 
     public function test_index_with_invalid_locale_returns_400(): void
     {
-        $this->getJson('/api/content/pages?locale=fr')
+        $this->getJson('/api/v1/content/pages?locale=fr')
             ->assertStatus(400)
             ->assertJsonPath('error', 'Invalid locale parameter. Must be "de" or "en".');
     }
@@ -62,7 +62,7 @@ class ContentPagesApiEdgeCasesTest extends TestCase
             'slug' => ['de' => 'geheim', 'en' => 'secret'],
         ]);
 
-        $this->getJson("/api/content/pages/{$page->id}?locale=de")
+        $this->getJson("/api/v1/content/pages/{$page->id}?locale=de")
             ->assertNotFound();
     }
 
@@ -74,7 +74,7 @@ class ContentPagesApiEdgeCasesTest extends TestCase
             'layout' => 'default',
         ]);
 
-        $response = $this->getJson("/api/content/pages/{$page->id}?locale=de");
+        $response = $this->getJson("/api/v1/content/pages/{$page->id}?locale=de");
 
         $response->assertOk();
         $etag = $response->headers->get('ETag');
@@ -90,13 +90,13 @@ class ContentPagesApiEdgeCasesTest extends TestCase
         ]);
 
         // First request to get ETag
-        $response = $this->getJson("/api/content/pages/{$page->id}?locale=de");
+        $response = $this->getJson("/api/v1/content/pages/{$page->id}?locale=de");
         $response->assertOk();
         $etag = $response->headers->get('ETag');
 
         // Second request with If-None-Match
         $this->withHeader('If-None-Match', $etag)
-            ->getJson("/api/content/pages/{$page->id}?locale=de")
+            ->getJson("/api/v1/content/pages/{$page->id}?locale=de")
             ->assertStatus(304);
     }
 
@@ -108,7 +108,7 @@ class ContentPagesApiEdgeCasesTest extends TestCase
             'layout' => 'landingpage',
         ]);
 
-        $response = $this->getJson('/api/content/pages/root?locale=de');
+        $response = $this->getJson('/api/v1/content/pages/root?locale=de');
 
         $response->assertOk()
             ->assertJsonPath('slug', '/')
@@ -126,7 +126,7 @@ class ContentPagesApiEdgeCasesTest extends TestCase
         ]);
 
         // Requesting EN root should fall back to DE root page
-        $response = $this->getJson('/api/content/pages/root?locale=en');
+        $response = $this->getJson('/api/v1/content/pages/root?locale=en');
 
         $response->assertOk()
             ->assertJsonPath('title', 'Home');
@@ -148,7 +148,7 @@ class ContentPagesApiEdgeCasesTest extends TestCase
         $this->assertEquals('/', $page->getTranslation('slug', 'en'));
 
         // API should find this page as root
-        $response = $this->getJson('/api/content/pages/root?locale=de');
+        $response = $this->getJson('/api/v1/content/pages/root?locale=de');
 
         $response->assertOk()
             ->assertJsonPath('title', 'Startseite');
@@ -162,7 +162,7 @@ class ContentPagesApiEdgeCasesTest extends TestCase
             'slug' => ['de' => 'impressum', 'en' => 'imprint'],
         ]);
 
-        $this->getJson('/api/content/pages/root?locale=de')
+        $this->getJson('/api/v1/content/pages/root?locale=de')
             ->assertNotFound();
     }
 
@@ -174,14 +174,14 @@ class ContentPagesApiEdgeCasesTest extends TestCase
         ]);
 
         // First request to get ETag
-        $response = $this->getJson('/api/content/pages?locale=de');
+        $response = $this->getJson('/api/v1/content/pages?locale=de');
         $response->assertOk();
         $etag = $response->headers->get('ETag');
         $this->assertNotNull($etag);
 
         // Second request with If-None-Match
         $this->withHeader('If-None-Match', $etag)
-            ->getJson('/api/content/pages?locale=de')
+            ->getJson('/api/v1/content/pages?locale=de')
             ->assertStatus(304);
     }
 }

@@ -62,7 +62,7 @@ class ExportFilteredTest extends TestCase
 
     public function test_category_filter_limits_result_set(): void
     {
-        $response = $this->getJson('/api/exports/tiles?format=json&categories[]=energy');
+        $response = $this->getJson('/api/v1/exports/tiles?format=json&categories[]=energy');
         $body = json_decode($response->streamedContent(), true, flags: JSON_THROW_ON_ERROR);
 
         $titles = array_unique(array_column($body['data'], 'tile.title'));
@@ -71,7 +71,7 @@ class ExportFilteredTest extends TestCase
 
     public function test_tile_id_filter_limits_result_set(): void
     {
-        $response = $this->getJson('/api/exports/tiles?format=json&tiles[]='.$this->energy->id);
+        $response = $this->getJson('/api/v1/exports/tiles?format=json&tiles[]='.$this->energy->id);
         $body = json_decode($response->streamedContent(), true, flags: JSON_THROW_ON_ERROR);
 
         $titles = array_unique(array_column($body['data'], 'tile.title'));
@@ -80,7 +80,7 @@ class ExportFilteredTest extends TestCase
 
     public function test_year_range_filter_drops_values_outside_range(): void
     {
-        $response = $this->getJson('/api/exports/tiles?format=json&tiles[]='.$this->mobility->id.'&year_from=2020&year_to=2022');
+        $response = $this->getJson('/api/v1/exports/tiles?format=json&tiles[]='.$this->mobility->id.'&year_from=2020&year_to=2022');
         $body = json_decode($response->streamedContent(), true, flags: JSON_THROW_ON_ERROR);
 
         $years = array_filter(array_column($body['data'], 'value.year'));
@@ -90,7 +90,7 @@ class ExportFilteredTest extends TestCase
 
     public function test_year_to_lower_than_year_from_returns_422(): void
     {
-        $this->getJson('/api/exports/tiles?year_from=2024&year_to=2020')
+        $this->getJson('/api/v1/exports/tiles?year_from=2024&year_to=2020')
             ->assertStatus(422)
             ->assertJsonStructure(['message', 'errors' => ['year_to']]);
     }

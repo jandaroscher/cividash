@@ -43,7 +43,7 @@ class FabricatorContentApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson("/api/content/pages/{$page->id}?locale=de");
+        $response = $this->getJson("/api/v1/content/pages/{$page->id}?locale=de");
 
         $response->assertStatus(200);
 
@@ -110,7 +110,7 @@ class FabricatorContentApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson("/api/content/pages/{$page->id}?locale=de");
+        $response = $this->getJson("/api/v1/content/pages/{$page->id}?locale=de");
 
         $response->assertStatus(200);
         $json = $response->json();
@@ -121,7 +121,7 @@ class FabricatorContentApiTest extends TestCase
 
     public function test_content_api_returns_404_for_unknown_page(): void
     {
-        $response = $this->getJson('/api/content/pages/99999');
+        $response = $this->getJson('/api/v1/content/pages/99999');
 
         $response->assertStatus(404);
     }
@@ -146,8 +146,8 @@ class FabricatorContentApiTest extends TestCase
             ],
         ]);
 
-        // Request /api/content/pages/root
-        $response = $this->getJson('/api/content/pages/root');
+        // Request /api/v1/content/pages/root
+        $response = $this->getJson('/api/v1/content/pages/root');
 
         $response->assertStatus(200);
         $response->assertJsonFragment([
@@ -174,8 +174,8 @@ class FabricatorContentApiTest extends TestCase
             'blocks' => ['de' => [], 'en' => []],
         ]);
 
-        // Request /api/content/pages/root should return root page (prioritized)
-        $response = $this->getJson('/api/content/pages/root');
+        // Request /api/v1/content/pages/root should return root page (prioritized)
+        $response = $this->getJson('/api/v1/content/pages/root');
 
         $response->assertStatus(200);
         $response->assertJsonFragment([
@@ -216,8 +216,8 @@ class FabricatorContentApiTest extends TestCase
             'blocks' => ['de' => [], 'en' => []],
         ]);
 
-        // Request /api/content/pages (list endpoint) with locale parameter
-        $response = $this->getJson('/api/content/pages?locale=de');
+        // Request /api/v1/content/pages (list endpoint) with locale parameter
+        $response = $this->getJson('/api/v1/content/pages?locale=de');
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -244,8 +244,8 @@ class FabricatorContentApiTest extends TestCase
         // Set locale for consistent test results
         app()->setLocale('en');
 
-        // Request /api/content/pages (list endpoint) with no pages and locale parameter
-        $response = $this->getJson('/api/content/pages?locale=en');
+        // Request /api/v1/content/pages (list endpoint) with no pages and locale parameter
+        $response = $this->getJson('/api/v1/content/pages?locale=en');
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -267,7 +267,7 @@ class FabricatorContentApiTest extends TestCase
             'is_public' => false,
         ]);
 
-        $response = $this->getJson("/api/content/pages/{$page->id}?locale=de");
+        $response = $this->getJson("/api/v1/content/pages/{$page->id}?locale=de");
 
         $response->assertStatus(404);
     }

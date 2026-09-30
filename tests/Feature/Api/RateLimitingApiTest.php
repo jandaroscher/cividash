@@ -15,10 +15,10 @@ class RateLimitingApiTest extends TestCase
     public function test_public_endpoint_returns_429_after_exceeding_rate_limit(): void
     {
         for ($i = 0; $i < 60; $i++) {
-            $this->getJson('/api/tiles?locale=de');
+            $this->getJson('/api/v1/tiles?locale=de');
         }
 
-        $response = $this->getJson('/api/tiles?locale=de');
+        $response = $this->getJson('/api/v1/tiles?locale=de');
 
         $response->assertStatus(429);
         $response->assertHeader('Retry-After');
@@ -26,7 +26,7 @@ class RateLimitingApiTest extends TestCase
 
     public function test_public_endpoint_returns_rate_limit_headers(): void
     {
-        $response = $this->getJson('/api/tiles?locale=de');
+        $response = $this->getJson('/api/v1/tiles?locale=de');
 
         $response->assertHeader('X-RateLimit-Limit', 60);
         $response->assertHeader('X-RateLimit-Remaining');
@@ -45,7 +45,7 @@ class RateLimitingApiTest extends TestCase
         // POST to create tile — exercises the admin throttle group
         // May return 201 (created) or 422 (validation) but must not be 429
         $response = $this->withToken($token->plainTextToken)
-            ->postJson('/api/admin/tiles', ['title' => ['de' => 'Rate Limit Test']]);
+            ->postJson('/api/v1/admin/tiles', ['title' => ['de' => 'Rate Limit Test']]);
 
         $this->assertNotEquals(429, $response->status(), 'First admin request must not be rate-limited');
         $this->assertTrue(

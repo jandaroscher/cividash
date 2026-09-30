@@ -29,7 +29,7 @@ class TilesApiLocaleTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson('/api/tiles?locale=de');
+        $response = $this->getJson('/api/v1/tiles?locale=de');
 
         $response->assertStatus(200);
 
@@ -48,7 +48,7 @@ class TilesApiLocaleTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson('/api/tiles?locale=en');
+        $response = $this->getJson('/api/v1/tiles?locale=en');
 
         $response->assertStatus(200);
 
@@ -67,7 +67,7 @@ class TilesApiLocaleTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson('/api/tiles');
+        $response = $this->getJson('/api/v1/tiles');
 
         $response->assertStatus(200);
 
@@ -86,7 +86,7 @@ class TilesApiLocaleTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=de");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=de");
 
         $response->assertStatus(200)
             ->assertJsonPath('data.title', 'Mobilität')
@@ -103,7 +103,7 @@ class TilesApiLocaleTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=en");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=en");
 
         $response->assertStatus(200)
             ->assertJsonPath('data.title', 'Mobility')
@@ -125,7 +125,7 @@ class TilesApiLocaleTest extends TestCase
             'position' => 1,
         ]);
 
-        $response = $this->getJson('/api/tiles?locale=de');
+        $response = $this->getJson('/api/v1/tiles?locale=de');
 
         $response->assertStatus(200)
             ->assertJsonCount(1, 'data')

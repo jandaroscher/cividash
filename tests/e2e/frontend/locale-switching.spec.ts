@@ -129,14 +129,14 @@ test.describe('Locale Switching', () => {
   test.describe('API locale parameter', () => {
     test('API calls use correct ?locale= parameter', async ({ request }) => {
       // Test German locale
-      const deResponse = await request.get(`${BASE_URL}/api/tiles?locale=de`);
+      const deResponse = await request.get(`${BASE_URL}/api/v1/tiles?locale=de`);
       expect(deResponse.ok()).toBeTruthy();
 
       const deData = await deResponse.json();
       expect(deData.data).toBeDefined();
 
       // Test English locale
-      const enResponse = await request.get(`${BASE_URL}/api/tiles?locale=en`);
+      const enResponse = await request.get(`${BASE_URL}/api/v1/tiles?locale=en`);
       expect(enResponse.ok()).toBeTruthy();
 
       const enData = await enResponse.json();

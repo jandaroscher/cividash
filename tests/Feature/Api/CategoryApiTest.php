@@ -37,7 +37,7 @@ class CategoryApiTest extends TestCase
             'position' => 1,
         ]);
 
-        $response = $this->getJson('/api/categories/fields');
+        $response = $this->getJson('/api/v1/categories/fields');
 
         $response->assertStatus(200)
             ->assertJsonCount(2, 'data');
@@ -45,7 +45,7 @@ class CategoryApiTest extends TestCase
 
     public function test_invalid_group_key_returns_empty_collection(): void
     {
-        $response = $this->getJson('/api/categories/nonexistent');
+        $response = $this->getJson('/api/v1/categories/nonexistent');
 
         $response->assertStatus(200)
             ->assertJsonCount(0, 'data');
@@ -57,7 +57,7 @@ class CategoryApiTest extends TestCase
             'key' => 'empty-group',
         ]);
 
-        $response = $this->getJson('/api/categories/empty-group');
+        $response = $this->getJson('/api/v1/categories/empty-group');
 
         $response->assertStatus(200)
             ->assertJsonCount(0, 'data');
@@ -74,7 +74,7 @@ class CategoryApiTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson('/api/categories/fields?locale=de');
+        $response = $this->getJson('/api/v1/categories/fields?locale=de');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.0.title', 'Energie');
@@ -91,7 +91,7 @@ class CategoryApiTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson('/api/categories/fields?locale=en');
+        $response = $this->getJson('/api/v1/categories/fields?locale=en');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.0.title', 'Energy');
@@ -108,7 +108,7 @@ class CategoryApiTest extends TestCase
             'slug' => ['de' => 'Energie', 'en' => 'Energy'],
         ]);
 
-        $response = $this->getJson('/api/categories/inactive-group');
+        $response = $this->getJson('/api/v1/categories/inactive-group');
 
         $response->assertStatus(200)
             ->assertJsonCount(0, 'data');
@@ -132,7 +132,7 @@ class CategoryApiTest extends TestCase
             'position' => 1,
         ]);
 
-        $response = $this->getJson('/api/categories/fields?locale=de');
+        $response = $this->getJson('/api/v1/categories/fields?locale=de');
 
         $response->assertStatus(200)
             ->assertJsonCount(1, 'data')
@@ -155,7 +155,7 @@ class CategoryApiTest extends TestCase
             'position' => 1,
         ]);
 
-        $response = $this->getJson('/api/categories/fields?locale=de');
+        $response = $this->getJson('/api/v1/categories/fields?locale=de');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.0.title', 'Erste')

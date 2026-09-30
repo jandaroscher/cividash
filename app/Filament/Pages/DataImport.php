@@ -84,12 +84,12 @@ class DataImport extends Page implements HasForms, HasTable
                 ->label(__('filament.pages.data_import.actions.download_schema'))
                 ->icon('heroicon-o-document-text')
                 ->color('gray')
-                ->url(url('/api/import/schemas/bundle'), shouldOpenInNewTab: true),
+                ->url(url('/api/v1/import/schemas/bundle'), shouldOpenInNewTab: true),
             Action::make('downloadExample')
                 ->label(__('filament.pages.data_import.actions.download_example'))
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('gray')
-                ->url(url('/api/import/examples/valid-full'), shouldOpenInNewTab: true),
+                ->url(url('/api/v1/import/examples/valid-full'), shouldOpenInNewTab: true),
         ];
     }
 

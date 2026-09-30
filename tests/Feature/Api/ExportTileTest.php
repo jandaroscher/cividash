@@ -64,7 +64,7 @@ class ExportTileTest extends TestCase
 
     public function test_json_export_returns_envelope_with_schema_version(): void
     {
-        $response = $this->getJson('/api/tiles/mobilitaet/export?format=json&locale=de');
+        $response = $this->getJson('/api/v1/tiles/mobilitaet/export?format=json&locale=de');
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/json');
@@ -93,7 +93,7 @@ class ExportTileTest extends TestCase
 
     public function test_csv_export_has_bom_semicolon_and_localized_headers(): void
     {
-        $response = $this->get('/api/tiles/mobilitaet/export?format=csv&locale=de');
+        $response = $this->get('/api/v1/tiles/mobilitaet/export?format=csv&locale=de');
 
         $response->assertOk();
         $this->assertStringContainsString('text/csv', $response->headers->get('Content-Type'));
@@ -109,7 +109,7 @@ class ExportTileTest extends TestCase
 
     public function test_unknown_slug_returns_404(): void
     {
-        $this->getJson('/api/tiles/does-not-exist/export')->assertNotFound();
+        $this->getJson('/api/v1/tiles/does-not-exist/export')->assertNotFound();
     }
 
     public function test_tile_from_another_tenant_is_not_accessible(): void
@@ -121,12 +121,12 @@ class ExportTileTest extends TestCase
         ]);
 
         // Default-tenant request must not see the 'other' tile.
-        $this->getJson('/api/tiles/geheim/export')->assertNotFound();
+        $this->getJson('/api/v1/tiles/geheim/export')->assertNotFound();
     }
 
     public function test_invalid_format_returns_422(): void
     {
-        $this->getJson('/api/tiles/mobilitaet/export?format=xml')
+        $this->getJson('/api/v1/tiles/mobilitaet/export?format=xml')
             ->assertStatus(422)
             ->assertJsonStructure(['message', 'errors' => ['format']]);
     }
@@ -134,7 +134,7 @@ class ExportTileTest extends TestCase
     public function test_field_whitelist_limits_exported_columns(): void
     {
         $response = $this->getJson(
-            '/api/tiles/mobilitaet/export?format=json&fields[]=tile.title&fields[]=metric.label&fields[]=value.value'
+            '/api/v1/tiles/mobilitaet/export?format=json&fields[]=tile.title&fields[]=metric.label&fields[]=value.value'
         );
 
         $response->assertOk();
@@ -151,7 +151,7 @@ class ExportTileTest extends TestCase
 
     public function test_fields_with_only_unknown_values_returns_422(): void
     {
-        $this->getJson('/api/tiles/mobilitaet/export?fields[]=bogus&fields[]=also_bad')
+        $this->getJson('/api/v1/tiles/mobilitaet/export?fields[]=bogus&fields[]=also_bad')
             ->assertStatus(422)
             ->assertJsonPath('message', trans('export.errors.no_valid_fields', [], 'de'));
     }

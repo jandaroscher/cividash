@@ -34,7 +34,7 @@ class LargeDatasetTest extends TestCase
             ->count(5)
             ->create(['is_public' => false]);
 
-        $response = $this->getJson('/api/tiles?locale=de');
+        $response = $this->getJson('/api/v1/tiles?locale=de');
 
         $response->assertOk();
         $data = $response->json('data');
@@ -52,7 +52,7 @@ class LargeDatasetTest extends TestCase
             ]);
         }
 
-        $response = $this->getJson('/api/tiles?locale=de');
+        $response = $this->getJson('/api/v1/tiles?locale=de');
         $response->assertOk();
 
         $data = $response->json('data');
@@ -89,7 +89,7 @@ class LargeDatasetTest extends TestCase
             ->count(5)
             ->create(['is_public' => true]);
 
-        $response = $this->getJson('/api/tiles?locale=de');
+        $response = $this->getJson('/api/v1/tiles?locale=de');
         $response->assertOk();
 
         $data = $response->json('data');
