@@ -22,7 +22,7 @@ All data is provided via REST API endpoints, among them:
 - `/api/v1/config/*` - Configuration (branding, general, header, footer, tenant, dashboard, content)
 - `/api/v1/filters` - Filter options
 
-The unversioned `/api/*` paths still work as a deprecated alias (`Deprecation` and `Link`
+The unversioned `/api/*` paths of these endpoints still work as a deprecated alias (`Deprecation` and `Link`
 response headers); see [API versioning](../api/versioning.md).
 
 All endpoints support `?locale=de` or `?locale=en` query parameter for localization. The full

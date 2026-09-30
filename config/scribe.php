@@ -40,8 +40,8 @@ return [
 
         This is API version 1 (`/api/v1`). The API is versioned in the URL path; a breaking
         change gets a new major version (`/api/v2`), and additive, backwards-compatible
-        changes stay in `v1`. The unversioned `/api/*` paths are a deprecated alias of
-        `/api/v1` (see the `Deprecation` and `Link` response headers).
+        changes stay in `v1`. The unversioned `/api/*` paths of these endpoints are a deprecated
+        alias of `/api/v1` (see the `Deprecation` and `Link` response headers).
 
         ## Authentication
 

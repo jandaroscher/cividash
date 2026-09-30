@@ -1,6 +1,6 @@
 # API Versioning
 
-The API is versioned in the URL path. All routes are served under `/api/v1/...`
+The API is versioned in the URL path. All routes from `routes/api.php` are served under `/api/v1/...`
 (public, admin, `/api/v1/user`, `/api/v1/me`, exports, import schemas).
 
 - A breaking change gets a new major version, e.g. `/api/v2`. The previous version
