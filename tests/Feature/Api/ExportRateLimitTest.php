@@ -32,7 +32,7 @@ class ExportRateLimitTest extends TestCase
     {
         $request = fn () => $this
             ->withServerVariables(['REMOTE_ADDR' => self::TEST_IP])
-            ->getJson('/api/exports/catalog?format=json');
+            ->getJson('/api/v1/exports/catalog?format=json');
 
         for ($i = 0; $i < 30; $i++) {
             $request()->assertOk();

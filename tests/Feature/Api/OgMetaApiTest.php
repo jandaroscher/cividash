@@ -20,7 +20,7 @@ class OgMetaApiTest extends TestCase
             'meta_description' => ['de' => 'Energieverbrauch', 'en' => 'Energy consumption'],
         ]);
 
-        $response = $this->getJson('/api/og-meta?path=/tiles/energie');
+        $response = $this->getJson('/api/v1/og-meta?path=/tiles/energie');
 
         $response->assertStatus(200);
         $response->assertJsonFragment(['locale' => 'de']);
@@ -48,7 +48,7 @@ class OgMetaApiTest extends TestCase
             'blocks' => ['de' => [], 'en' => []],
         ]);
 
-        $response = $this->getJson('/api/og-meta?path=/impressum');
+        $response = $this->getJson('/api/v1/og-meta?path=/impressum');
 
         $response->assertStatus(200);
         $this->assertStringContainsString('Impressum SEO', $response->json('title'));
@@ -63,7 +63,7 @@ class OgMetaApiTest extends TestCase
             'meta_description' => ['de' => '', 'en' => ''],
         ]);
 
-        $response = $this->getJson('/api/og-meta?path=/en/tiles/energy');
+        $response = $this->getJson('/api/v1/og-meta?path=/en/tiles/energy');
 
         $response->assertStatus(200);
         $response->assertJsonFragment(['locale' => 'en']);
@@ -71,14 +71,14 @@ class OgMetaApiTest extends TestCase
 
     public function test_og_meta_endpoint_requires_path(): void
     {
-        $response = $this->getJson('/api/og-meta');
+        $response = $this->getJson('/api/v1/og-meta');
 
         $response->assertStatus(422);
     }
 
     public function test_og_meta_endpoint_returns_defaults_for_unknown_path(): void
     {
-        $response = $this->getJson('/api/og-meta?path=/nonexistent');
+        $response = $this->getJson('/api/v1/og-meta?path=/nonexistent');
 
         $response->assertStatus(200);
         $response->assertJsonFragment(['og_type' => 'website']);
@@ -86,7 +86,7 @@ class OgMetaApiTest extends TestCase
 
     public function test_og_meta_endpoint_has_cache_headers(): void
     {
-        $response = $this->getJson('/api/og-meta?path=/tiles');
+        $response = $this->getJson('/api/v1/og-meta?path=/tiles');
 
         $response->assertStatus(200);
         $this->assertStringContainsString('private', $response->headers->get('Cache-Control'));
@@ -94,7 +94,7 @@ class OgMetaApiTest extends TestCase
 
     public function test_og_meta_endpoint_strips_utm_from_canonical(): void
     {
-        $response = $this->getJson('/api/og-meta?path=/tiles?utm_source=twitter');
+        $response = $this->getJson('/api/v1/og-meta?path=/tiles?utm_source=twitter');
 
         $response->assertStatus(200);
         $this->assertStringNotContainsString('utm_source', $response->json('canonical_url'));

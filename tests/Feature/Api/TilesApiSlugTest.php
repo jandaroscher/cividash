@@ -31,7 +31,7 @@ class TilesApiSlugTest extends TestCase
             'position' => 0,
         ]);
 
-        $this->getJson("/api/tiles/{$tile->id}")
+        $this->getJson("/api/v1/tiles/{$tile->id}")
             ->assertOk()
             ->assertJsonPath('data.id', $tile->id)
             ->assertJsonPath('data.title', ['de' => 'Energie', 'en' => 'Energy']);
@@ -46,7 +46,7 @@ class TilesApiSlugTest extends TestCase
             'position' => 0,
         ]);
 
-        $this->getJson('/api/tiles/energie?locale=de')
+        $this->getJson('/api/v1/tiles/energie?locale=de')
             ->assertOk()
             ->assertJsonPath('data.title', 'Energie')
             ->assertJsonPath('data.slug', 'energie');
@@ -62,14 +62,14 @@ class TilesApiSlugTest extends TestCase
         ]);
 
         // Request with locale=en but use the German slug - should fall back to de lookup
-        $this->getJson('/api/tiles/mobilitaet?locale=en')
+        $this->getJson('/api/v1/tiles/mobilitaet?locale=en')
             ->assertOk()
             ->assertJsonPath('data.title', 'Mobility');
     }
 
     public function test_show_nonexistent_slug_returns_404(): void
     {
-        $this->getJson('/api/tiles/nonexistent')
+        $this->getJson('/api/v1/tiles/nonexistent')
             ->assertNotFound();
     }
 
@@ -87,7 +87,7 @@ class TilesApiSlugTest extends TestCase
             'position' => 1,
         ]);
 
-        $response = $this->getJson('/api/tiles?locale=de');
+        $response = $this->getJson('/api/v1/tiles?locale=de');
 
         $response->assertOk()
             ->assertJsonCount(1, 'data')
@@ -103,7 +103,7 @@ class TilesApiSlugTest extends TestCase
             'position' => 0,
         ]);
 
-        $this->getJson('/api/tiles/geheim?locale=de')
+        $this->getJson('/api/v1/tiles/geheim?locale=de')
             ->assertNotFound();
     }
 
@@ -131,7 +131,7 @@ class TilesApiSlugTest extends TestCase
 
         $tile->categories()->attach([$activeCategory->id, $inactiveCategory->id]);
 
-        $response = $this->getJson('/api/tiles?locale=de');
+        $response = $this->getJson('/api/v1/tiles?locale=de');
 
         $response->assertOk();
 

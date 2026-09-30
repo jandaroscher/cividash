@@ -29,7 +29,7 @@ class TileBackgroundBlocksApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=de");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=de");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -73,7 +73,7 @@ class TileBackgroundBlocksApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}");
 
         $response->assertStatus(200);
         $data = $response->json('data');
@@ -104,7 +104,7 @@ class TileBackgroundBlocksApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=de");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=de");
 
         $response->assertStatus(200);
         $data = $response->json('data');
@@ -139,7 +139,7 @@ class TileBackgroundBlocksApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=de");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=de");
 
         $response->assertStatus(200);
         $data = $response->json('data');
@@ -155,7 +155,7 @@ class TileBackgroundBlocksApiTest extends TestCase
             'slug' => ['de' => 'test-tile', 'en' => 'test-tile'],
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=de");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=de");
 
         $response->assertStatus(200);
         $data = $response->json('data');
@@ -179,7 +179,7 @@ class TileBackgroundBlocksApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=de");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=de");
 
         $response->assertStatus(200);
         $data = $response->json('data');
@@ -203,7 +203,7 @@ class TileBackgroundBlocksApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson('/api/tiles');
+        $response = $this->getJson('/api/v1/tiles');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -227,12 +227,12 @@ class TileBackgroundBlocksApiTest extends TestCase
             'slug' => ['de' => 'kachel-de', 'en' => 'tile-en'],
         ]);
 
-        $response = $this->getJson('/api/tiles/kachel-de?locale=de');
+        $response = $this->getJson('/api/v1/tiles/kachel-de?locale=de');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.id', $tile->id);
 
-        $response = $this->getJson('/api/tiles/tile-en?locale=en');
+        $response = $this->getJson('/api/v1/tiles/tile-en?locale=en');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.id', $tile->id);
@@ -267,13 +267,13 @@ class TileBackgroundBlocksApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=de");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=de");
 
         $response->assertStatus(200);
         $data = $response->json('data');
         $this->assertEquals('Hintergrund', $data['background_blocks'][0]['props']['jump_mark_label']);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=en");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=en");
 
         $response->assertStatus(200);
         $data = $response->json('data');
@@ -307,12 +307,12 @@ class TileBackgroundBlocksApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=de");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=de");
         $response->assertStatus(200);
         $data = $response->json('data');
         $this->assertEquals('Deutsche Ueberschrift', $data['background_blocks'][0]['props']['heading']);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=en");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=en");
         $response->assertStatus(200);
         $data = $response->json('data');
         $this->assertEquals('English Heading', $data['background_blocks'][0]['props']['heading']);
@@ -340,7 +340,7 @@ class TileBackgroundBlocksApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=en");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=en");
 
         $response->assertStatus(200);
         $data = $response->json('data');
@@ -363,7 +363,7 @@ class TileBackgroundBlocksApiTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}?locale=en");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}?locale=en");
 
         $response->assertStatus(200);
         $data = $response->json('data');

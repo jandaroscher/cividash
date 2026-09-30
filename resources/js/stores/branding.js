@@ -72,7 +72,7 @@ export const useBrandingStore = defineStore('branding', {
             try {
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
-                    apiUrl + '/api/config/branding',
+                    apiUrl + '/api/v1/config/branding',
                     { credentials: 'include' },
                 );
                 const json = await res.json();

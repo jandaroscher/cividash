@@ -51,7 +51,7 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_get_branding_config_returns_all_fields(): void
     {
-        $response = $this->getJson('/api/config/branding');
+        $response = $this->getJson('/api/v1/config/branding');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -78,7 +78,7 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_get_branding_config_returns_default_values(): void
     {
-        $response = $this->getJson('/api/config/branding');
+        $response = $this->getJson('/api/v1/config/branding');
 
         $response->assertStatus(200);
         $data = $response->json('data');
@@ -99,7 +99,7 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_post_branding_config_requires_authentication(): void
     {
-        $response = $this->postJson('/api/admin/config/branding', [
+        $response = $this->postJson('/api/v1/admin/config/branding', [
             'primary_color' => '#FF0000',
         ]);
 
@@ -113,7 +113,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'primary_color' => '#FF0000',
                 'secondary_color' => '#00FF00',
                 'accent_color' => '#0000FF',
@@ -153,7 +153,7 @@ class BrandingConfigApiTest extends TestCase
 
         // Update only primary_color
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson('/api/admin/config/branding', [
+            ->patchJson('/api/v1/admin/config/branding', [
                 'primary_color' => '#FF0000',
             ]);
 
@@ -175,7 +175,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'primary_color' => 'invalid-color',
             ]);
 
@@ -188,7 +188,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'primary_color' => '#GGG',
             ]);
 
@@ -201,7 +201,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'primary_color' => '#ABC',
                 'secondary_color' => '#ABCDEF',
             ]);
@@ -214,7 +214,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'typography_font_weights' => [50, 1500], // Invalid weights
             ]);
 
@@ -233,7 +233,7 @@ class BrandingConfigApiTest extends TestCase
         ];
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'slider_colors' => $sliderColors,
             ]);
 
@@ -253,7 +253,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'slider_colors' => [
                     'rail' => 'invalid-color',
                 ],
@@ -269,13 +269,13 @@ class BrandingConfigApiTest extends TestCase
 
         // Update settings
         $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'primary_color' => '#123456',
                 'typography_font_family' => 'Inter',
             ]);
 
         // Get settings (public endpoint, no auth required)
-        $response = $this->getJson('/api/config/branding');
+        $response = $this->getJson('/api/v1/config/branding');
 
         $response->assertStatus(200);
         $data = $response->json('data');
@@ -289,7 +289,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'header_background_color' => '#F0F0F0',
                 'footer_background_color' => '#CCCCCC',
             ]);
@@ -310,7 +310,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'header_background_color' => 'invalid-color',
             ]);
 
@@ -330,7 +330,7 @@ class BrandingConfigApiTest extends TestCase
 
         // Tenant A sets a custom primary color
         $this->withHeader('Authorization', "Bearer {$tokenA}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'primary_color' => '#FF0000',
             ])
             ->assertStatus(200);
@@ -340,7 +340,7 @@ class BrandingConfigApiTest extends TestCase
 
         // Tenant B should still see the global default (not Tenant A's color)
         $responseB = $this->withHeader('Authorization', "Bearer {$tokenB}")
-            ->getJson('/api/config/branding');
+            ->getJson('/api/v1/config/branding');
 
         $responseB->assertStatus(200);
         $this->assertNotEquals('#FF0000', $responseB->json('data.primary_color'));
@@ -351,7 +351,7 @@ class BrandingConfigApiTest extends TestCase
 
     public function test_get_branding_config_returns_font_schema_defaults(): void
     {
-        $response = $this->getJson('/api/config/branding');
+        $response = $this->getJson('/api/v1/config/branding');
 
         $response->assertStatus(200);
         $data = $response->json('data');
@@ -367,7 +367,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'font_family_heading' => 'Montserrat, sans-serif',
                 'font_family_body' => 'Open Sans, sans-serif',
                 'font_scale' => 'large',
@@ -395,7 +395,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'font_family_heading' => 'Evil<script>alert(1)</script>',
             ]);
 
@@ -408,7 +408,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'font_scale' => 'huge',
             ]);
 
@@ -421,7 +421,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'font_faces' => [
                     ['family' => 'House Sans', 'src' => 'fonts/custom/house-sans.ttf', 'weight' => 400],
                 ],
@@ -436,7 +436,7 @@ class BrandingConfigApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/config/branding', [
+            ->postJson('/api/v1/admin/config/branding', [
                 'font_faces' => [
                     ['family' => 'House Sans', 'src' => 'fonts/custom/house-sans.woff2', 'weight' => 50],
                 ],
@@ -457,7 +457,7 @@ class BrandingConfigApiTest extends TestCase
         ];
         $settings->save();
 
-        $data = $this->getJson('/api/config/branding')->assertStatus(200)->json('data');
+        $data = $this->getJson('/api/v1/config/branding')->assertStatus(200)->json('data');
 
         $this->assertNull($data['font_family_heading']);
         $this->assertCount(1, $data['font_faces']);

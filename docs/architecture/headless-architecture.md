@@ -15,12 +15,15 @@ This document describes the headless architecture of CiviDash.
 
 All data is provided via REST API endpoints, among them:
 
-- `/api/tiles`, `/api/tiles/{slug}` - Tile data
-- `/api/content/pages` - Content pages list
-- `/api/content/pages/root` - Root/home page
-- `/api/content/pages/{id}` - Specific page by ID
-- `/api/config/*` - Configuration (branding, general, header, footer, tenant, dashboard, content)
-- `/api/filters` - Filter options
+- `/api/v1/tiles`, `/api/v1/tiles/{slug}` - Tile data
+- `/api/v1/content/pages` - Content pages list
+- `/api/v1/content/pages/root` - Root/home page
+- `/api/v1/content/pages/{id}` - Specific page by ID
+- `/api/v1/config/*` - Configuration (branding, general, header, footer, tenant, dashboard, content)
+- `/api/v1/filters` - Filter options
+
+The unversioned `/api/*` paths of these endpoints still work as a deprecated alias (`Deprecation` and `Link`
+response headers); see [API versioning](../api/versioning.md).
 
 All endpoints support `?locale=de` or `?locale=en` query parameter for localization. The full
 reference is served at `/docs`.
@@ -152,7 +155,7 @@ API calls use the page origin as base URL (`getApiBaseUrl()` in `resources/js/ut
 
 Example API call:
 ```javascript
-const res = await fetch(`${getApiBaseUrl()}/api/content/pages/root?locale=de`);
+const res = await fetch(`${getApiBaseUrl()}/api/v1/content/pages/root?locale=de`);
 const json = await res.json();
 const pageData = json.data;
 ```

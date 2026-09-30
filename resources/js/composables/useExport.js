@@ -4,7 +4,7 @@ import { getApiBaseUrl } from '../utils/api';
 /**
  * Composable for triggering data exports.
  *
- * Builds query strings against the public /api/exports/* endpoints,
+ * Builds query strings against the public /api/v1/exports/* endpoints,
  * downloads the streamed file via fetch → Blob → <a download>, and
  * exposes loading/error state so components can show a spinner or toast.
  */
@@ -100,15 +100,15 @@ export function useExport() {
     }
 
     function tileUrl(slug, params) {
-        return `${getApiBaseUrl()}/api/tiles/${encodeURIComponent(slug)}/export${buildQuery(params)}`;
+        return `${getApiBaseUrl()}/api/v1/tiles/${encodeURIComponent(slug)}/export${buildQuery(params)}`;
     }
 
     function filteredTilesUrl(params) {
-        return `${getApiBaseUrl()}/api/exports/tiles${buildQuery(params)}`;
+        return `${getApiBaseUrl()}/api/v1/exports/tiles${buildQuery(params)}`;
     }
 
     function catalogUrl(params) {
-        return `${getApiBaseUrl()}/api/exports/catalog${buildQuery(params)}`;
+        return `${getApiBaseUrl()}/api/v1/exports/catalog${buildQuery(params)}`;
     }
 
     return {

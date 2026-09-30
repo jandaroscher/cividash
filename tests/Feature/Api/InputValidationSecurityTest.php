@@ -33,7 +33,7 @@ class InputValidationSecurityTest extends TestCase
     public function test_overlong_tile_title_returns_422(): void
     {
         $response = $this->withToken($this->adminToken)
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => str_repeat('A', 10000)],
             ]);
 
@@ -45,7 +45,7 @@ class InputValidationSecurityTest extends TestCase
     public function test_script_tags_in_tile_title_do_not_cause_server_error(): void
     {
         $response = $this->withToken($this->adminToken)
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => '<script>alert("xss")</script>'],
             ]);
 
@@ -61,7 +61,7 @@ class InputValidationSecurityTest extends TestCase
     public function test_non_numeric_tile_id_returns_client_error(): void
     {
         $response = $this->withToken($this->adminToken)
-            ->patchJson('/api/admin/tiles/abc', ['title' => ['de' => 'Test']]);
+            ->patchJson('/api/v1/admin/tiles/abc', ['title' => ['de' => 'Test']]);
 
         // Route constraint where('id', '[0-9]+') rejects non-numeric IDs (404 or 405)
         $this->assertGreaterThanOrEqual(400, $response->status());
@@ -71,7 +71,7 @@ class InputValidationSecurityTest extends TestCase
     public function test_negative_tile_id_returns_client_error(): void
     {
         $response = $this->withToken($this->adminToken)
-            ->deleteJson('/api/admin/tiles/-1');
+            ->deleteJson('/api/v1/admin/tiles/-1');
 
         // Route constraint where('id', '[0-9]+') rejects negative IDs (404 or 405)
         $this->assertGreaterThanOrEqual(400, $response->status());
@@ -81,7 +81,7 @@ class InputValidationSecurityTest extends TestCase
     public function test_nonexistent_tile_id_returns_404(): void
     {
         $response = $this->withToken($this->adminToken)
-            ->patchJson('/api/admin/tiles/999999', ['title' => ['de' => 'Ghost']]);
+            ->patchJson('/api/v1/admin/tiles/999999', ['title' => ['de' => 'Ghost']]);
 
         $response->assertNotFound();
     }
@@ -91,7 +91,7 @@ class InputValidationSecurityTest extends TestCase
     public function test_creating_tile_without_title_returns_422(): void
     {
         $response = $this->withToken($this->adminToken)
-            ->postJson('/api/admin/tiles', []);
+            ->postJson('/api/v1/admin/tiles', []);
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors('title');
@@ -101,7 +101,7 @@ class InputValidationSecurityTest extends TestCase
 
     public function test_unsupported_locale_falls_back_gracefully(): void
     {
-        $response = $this->getJson('/api/tiles?locale=xx');
+        $response = $this->getJson('/api/v1/tiles?locale=xx');
 
         // Should not error — either falls back to 'de' or returns empty data
         $this->assertTrue(in_array($response->status(), [200, 422]), "Expected 200 or 422, got {$response->status()}");
@@ -111,14 +111,14 @@ class InputValidationSecurityTest extends TestCase
 
     public function test_special_characters_in_slug_returns_404(): void
     {
-        $response = $this->getJson('/api/tiles/'.urlencode('<script>alert(1)</script>'));
+        $response = $this->getJson('/api/v1/tiles/'.urlencode('<script>alert(1)</script>'));
 
         $response->assertNotFound();
     }
 
     public function test_very_long_slug_returns_404(): void
     {
-        $response = $this->getJson('/api/tiles/'.str_repeat('a', 500));
+        $response = $this->getJson('/api/v1/tiles/'.str_repeat('a', 500));
 
         $response->assertNotFound();
     }
@@ -127,7 +127,7 @@ class InputValidationSecurityTest extends TestCase
 
     public function test_sql_injection_in_category_group_key_is_safe(): void
     {
-        $response = $this->getJson("/api/categories/'; DROP TABLE tiles; --");
+        $response = $this->getJson("/api/v1/categories/'; DROP TABLE tiles; --");
 
         // Must not cause 500 (SQL error) — 200 with empty data or 404 are both safe
         $this->assertNotEquals(500, $response->status(), 'SQL injection must not cause server error');

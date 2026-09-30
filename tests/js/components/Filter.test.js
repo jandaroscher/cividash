@@ -118,7 +118,7 @@ describe('Filter', () => {
         await wrapper.vm.$nextTick();
 
         expect(fetchMock).toHaveBeenCalledWith(
-            expect.stringContaining('/api/filters?locale=de')
+            expect.stringContaining('/api/v1/filters?locale=de')
         );
 
         const buttons = wrapper.findAll('[role="tab"]');

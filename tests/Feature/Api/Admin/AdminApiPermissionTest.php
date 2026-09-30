@@ -51,7 +51,7 @@ class AdminApiPermissionTest extends TestCase
         $token = $this->createTokenForTenant($this->adminUser, $this->tenant, ['admin-api']);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Test', 'en' => 'Test'],
             ]);
 
@@ -64,7 +64,7 @@ class AdminApiPermissionTest extends TestCase
         $token = $this->createTokenForTenant($this->adminUser, $this->tenant, ['public-read']);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Test', 'en' => 'Test'],
             ]);
 
@@ -77,7 +77,7 @@ class AdminApiPermissionTest extends TestCase
         $token = $this->createTokenForTenant($this->adminUser, $this->tenant, ['admin-api']);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Test', 'en' => 'Test'],
             ]);
 
@@ -90,7 +90,7 @@ class AdminApiPermissionTest extends TestCase
         $token = $this->createTokenForTenant($this->adminUser, $this->tenant, ['*']);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Test', 'en' => 'Test'],
             ]);
 

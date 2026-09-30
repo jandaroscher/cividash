@@ -27,7 +27,7 @@ export const useFooterStore = defineStore('footer', {
             try {
                 const apiUrl = getApiBaseUrl();
                 const res = await fetch(
-                    `${apiUrl}/api/config/footer?locale=${locale}`,
+                    `${apiUrl}/api/v1/config/footer?locale=${locale}`,
                     { credentials: 'include' }
                 );
                 

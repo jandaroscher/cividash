@@ -40,12 +40,12 @@ class ContentPagesCachingTest extends TestCase
             'layout' => 'default',
         ]);
 
-        $response = $this->getJson("/api/content/pages/{$page->id}?locale=de");
+        $response = $this->getJson("/api/v1/content/pages/{$page->id}?locale=de");
         $response->assertOk();
 
         // Send a request with a stale/wrong ETag
         $response = $this->withHeader('If-None-Match', '"stale-etag-value"')
-            ->getJson("/api/content/pages/{$page->id}?locale=de");
+            ->getJson("/api/v1/content/pages/{$page->id}?locale=de");
 
         $response->assertOk();
         $response->assertJsonPath('title', 'Testseite');
@@ -58,7 +58,7 @@ class ContentPagesCachingTest extends TestCase
             'slug' => ['de' => 'seite-eins', 'en' => 'page-one'],
         ]);
 
-        $response = $this->getJson('/api/content/pages?locale=de');
+        $response = $this->getJson('/api/v1/content/pages?locale=de');
 
         $response->assertOk();
         $this->assertNotNull($response->headers->get('ETag'), 'Index should return an ETag header');
@@ -71,7 +71,7 @@ class ContentPagesCachingTest extends TestCase
             'slug' => ['de' => 'kontakt', 'en' => 'contact'],
         ]);
 
-        $response = $this->getJson('/api/content/pages');
+        $response = $this->getJson('/api/v1/content/pages');
 
         $response->assertOk();
         $this->assertNotNull($response->headers->get('ETag'), 'Both-locales index should return an ETag header');
@@ -85,14 +85,14 @@ class ContentPagesCachingTest extends TestCase
         ]);
 
         // First request to get ETag
-        $response = $this->getJson('/api/content/pages');
+        $response = $this->getJson('/api/v1/content/pages');
         $response->assertOk();
         $etag = $response->headers->get('ETag');
         $this->assertNotNull($etag);
 
         // Second request with matching ETag
         $this->withHeader('If-None-Match', $etag)
-            ->getJson('/api/content/pages')
+            ->getJson('/api/v1/content/pages')
             ->assertStatus(304);
     }
 
@@ -104,7 +104,7 @@ class ContentPagesCachingTest extends TestCase
             'layout' => 'default',
         ]);
 
-        $response = $this->getJson("/api/content/pages/{$page->id}?locale=de");
+        $response = $this->getJson("/api/v1/content/pages/{$page->id}?locale=de");
 
         $response->assertOk();
         $cacheControl = $response->headers->get('Cache-Control');

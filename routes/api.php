@@ -57,7 +57,7 @@ Route::middleware(['throttle:60,1', 'resolve.tenant'])->group(function () {
 
 // Public export endpoints. Separate, tighter rate limit (10/min per IP)
 // since exports are more expensive than regular list endpoints. Data is public
-// (same as /api/tiles) — no authentication required.
+// (same as /api/v1/tiles) — no authentication required.
 Route::middleware(['throttle:export', 'resolve.tenant'])->group(function () {
     Route::get('/tiles/{slug}/export', [ExportController::class, 'tile']);
     Route::get('/exports/tiles', [ExportController::class, 'tiles']);

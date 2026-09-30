@@ -61,7 +61,7 @@ class AdminImportApiTest extends TestCase
         return $this->withHeaders([
             'Authorization' => "Bearer {$token}",
             'Accept' => 'application/json',
-        ])->post('/api/admin/import', [
+        ])->post('/api/v1/admin/import', [
             'file' => $file,
             'mode' => $mode,
         ]);
@@ -74,7 +74,7 @@ class AdminImportApiTest extends TestCase
             $headers['Authorization'] = "Bearer {$token}";
         }
 
-        return $this->withHeaders($headers)->post('/api/admin/import', $data);
+        return $this->withHeaders($headers)->post('/api/v1/admin/import', $data);
     }
 
     public function test_dry_run_creates_nothing_but_reports_diff(): void

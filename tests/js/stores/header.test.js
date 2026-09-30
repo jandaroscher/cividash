@@ -64,7 +64,7 @@ describe('headerStore', () => {
             expect(store.error).toBeNull();
             expect(result).toBeTruthy();
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/config/header?locale=de'),
+                expect.stringContaining('/api/v1/config/header?locale=de'),
                 expect.objectContaining({ credentials: 'include' }),
             );
         });
@@ -81,7 +81,7 @@ describe('headerStore', () => {
             await store.fetchConfig('en');
 
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/config/header?locale=en'),
+                expect.stringContaining('/api/v1/config/header?locale=en'),
                 expect.any(Object),
             );
         });

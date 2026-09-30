@@ -82,7 +82,7 @@ class CrossTenantSecurityTest extends TestCase
         });
 
         $response = $this->withToken($this->tokenA)
-            ->patchJson("/api/admin/metric-definitions/{$definition->id}", ['label' => ['de' => 'Hacked']]);
+            ->patchJson("/api/v1/admin/metric-definitions/{$definition->id}", ['label' => ['de' => 'Hacked']]);
 
         $response->assertNotFound();
     }
@@ -96,7 +96,7 @@ class CrossTenantSecurityTest extends TestCase
         });
 
         $response = $this->withToken($this->tokenA)
-            ->deleteJson("/api/admin/metric-definitions/{$definition->id}");
+            ->deleteJson("/api/v1/admin/metric-definitions/{$definition->id}");
 
         $response->assertNotFound();
     }
@@ -113,7 +113,7 @@ class CrossTenantSecurityTest extends TestCase
         });
 
         $response = $this->withToken($this->tokenA)
-            ->patchJson("/api/admin/metric-values/{$value->id}", ['value' => 999]);
+            ->patchJson("/api/v1/admin/metric-values/{$value->id}", ['value' => 999]);
 
         $response->assertNotFound();
     }
@@ -128,7 +128,7 @@ class CrossTenantSecurityTest extends TestCase
         });
 
         $response = $this->withToken($this->tokenA)
-            ->deleteJson("/api/admin/metric-values/{$value->id}");
+            ->deleteJson("/api/v1/admin/metric-values/{$value->id}");
 
         $response->assertNotFound();
     }
@@ -140,7 +140,7 @@ class CrossTenantSecurityTest extends TestCase
         $group = $this->createInTenant($this->tenantB, fn () => CategoryGroup::factory()->create());
 
         $response = $this->withToken($this->tokenA)
-            ->patchJson("/api/admin/category-groups/{$group->id}", ['name' => 'Hacked']);
+            ->patchJson("/api/v1/admin/category-groups/{$group->id}", ['name' => 'Hacked']);
 
         $response->assertNotFound();
     }
@@ -150,7 +150,7 @@ class CrossTenantSecurityTest extends TestCase
         $group = $this->createInTenant($this->tenantB, fn () => CategoryGroup::factory()->create());
 
         $response = $this->withToken($this->tokenA)
-            ->deleteJson("/api/admin/category-groups/{$group->id}");
+            ->deleteJson("/api/v1/admin/category-groups/{$group->id}");
 
         $response->assertNotFound();
     }
@@ -166,7 +166,7 @@ class CrossTenantSecurityTest extends TestCase
         });
 
         $response = $this->withToken($this->tokenA)
-            ->patchJson("/api/admin/categories/{$category->id}", ['name' => 'Hacked']);
+            ->patchJson("/api/v1/admin/categories/{$category->id}", ['name' => 'Hacked']);
 
         $response->assertNotFound();
     }
@@ -180,7 +180,7 @@ class CrossTenantSecurityTest extends TestCase
         });
 
         $response = $this->withToken($this->tokenA)
-            ->deleteJson("/api/admin/categories/{$category->id}");
+            ->deleteJson("/api/v1/admin/categories/{$category->id}");
 
         $response->assertNotFound();
     }
@@ -196,7 +196,7 @@ class CrossTenantSecurityTest extends TestCase
         });
 
         $response = $this->withToken($this->tokenA)
-            ->patchJson("/api/admin/time-periods/{$timePeriod->id}", ['period_key' => '2020']);
+            ->patchJson("/api/v1/admin/time-periods/{$timePeriod->id}", ['period_key' => '2020']);
 
         $response->assertNotFound();
     }
@@ -210,7 +210,7 @@ class CrossTenantSecurityTest extends TestCase
         });
 
         $response = $this->withToken($this->tokenA)
-            ->deleteJson("/api/admin/time-periods/{$timePeriod->id}");
+            ->deleteJson("/api/v1/admin/time-periods/{$timePeriod->id}");
 
         $response->assertNotFound();
     }
@@ -223,7 +223,7 @@ class CrossTenantSecurityTest extends TestCase
 
         // Send valid payload so validation passes — tenant-scoped lookup must return 404
         $response = $this->withToken($this->tokenA)
-            ->patchJson("/api/admin/pages/{$page->id}", ['title' => ['de' => 'Hacked', 'en' => 'Hacked']]);
+            ->patchJson("/api/v1/admin/pages/{$page->id}", ['title' => ['de' => 'Hacked', 'en' => 'Hacked']]);
 
         $response->assertNotFound();
     }
@@ -233,7 +233,7 @@ class CrossTenantSecurityTest extends TestCase
         $page = $this->createInTenant($this->tenantB, fn () => Page::factory()->create());
 
         $response = $this->withToken($this->tokenA)
-            ->deleteJson("/api/admin/pages/{$page->id}");
+            ->deleteJson("/api/v1/admin/pages/{$page->id}");
 
         $response->assertNotFound();
     }

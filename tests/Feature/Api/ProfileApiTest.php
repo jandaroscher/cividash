@@ -25,7 +25,7 @@ class ProfileApiTest extends TestCase
         $user->tenants()->attach($tenant->id);
 
         $response = $this->actingAs($user)
-            ->getJson('/api/me');
+            ->getJson('/api/v1/me');
 
         $response->assertOk()
             ->assertJson([
@@ -54,7 +54,7 @@ class ProfileApiTest extends TestCase
         $user->tenants()->attach($tenant->id);
 
         $response = $this->actingAs($user)
-            ->getJson('/api/me');
+            ->getJson('/api/v1/me');
 
         $response->assertOk();
 
@@ -75,7 +75,7 @@ class ProfileApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->patchJson('/api/me', [
+            ->patchJson('/api/v1/me', [
                 'first_name' => 'New',
                 'last_name' => 'Surname',
                 'locale' => 'en',
@@ -103,7 +103,7 @@ class ProfileApiTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
-            ->patchJson('/api/me', [
+            ->patchJson('/api/v1/me', [
                 'last_name' => 'User',
                 'locale' => 'en',
             ]);
@@ -117,7 +117,7 @@ class ProfileApiTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
-            ->patchJson('/api/me', [
+            ->patchJson('/api/v1/me', [
                 'first_name' => 'Test',
                 'last_name' => 'User',
                 'locale' => 'invalid',
@@ -134,7 +134,7 @@ class ProfileApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->putJson('/api/me/password', [
+            ->putJson('/api/v1/me/password', [
                 'current_password' => 'oldpassword1!',
                 'password' => 'newpassword123',
                 'password_confirmation' => 'newpassword123',
@@ -155,7 +155,7 @@ class ProfileApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->putJson('/api/me/password', [
+            ->putJson('/api/v1/me/password', [
                 'current_password' => 'wrongpassword',
                 'password' => 'newpassword123',
                 'password_confirmation' => 'newpassword123',
@@ -172,7 +172,7 @@ class ProfileApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->putJson('/api/me/password', [
+            ->putJson('/api/v1/me/password', [
                 'current_password' => 'oldpassword1!',
                 'password' => 'newpassword123',
                 'password_confirmation' => 'differentpassword',
@@ -189,7 +189,7 @@ class ProfileApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->putJson('/api/me/password', [
+            ->putJson('/api/v1/me/password', [
                 'current_password' => 'oldpassword1!',
                 'password' => 'short1!',
                 'password_confirmation' => 'short1!',
@@ -201,7 +201,7 @@ class ProfileApiTest extends TestCase
 
     public function test_unauthenticated_user_cannot_access_profile(): void
     {
-        $response = $this->getJson('/api/me');
+        $response = $this->getJson('/api/v1/me');
 
         $response->assertUnauthorized();
     }

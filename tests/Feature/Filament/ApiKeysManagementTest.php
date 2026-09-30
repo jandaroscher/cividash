@@ -247,7 +247,7 @@ class ApiKeysManagementTest extends TestCase
 
         // Verify token works before revocation
         $responseBefore = $this->withHeader('Authorization', "Bearer {$plainTextToken}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Test', 'en' => 'Test'],
             ]);
 
@@ -260,7 +260,7 @@ class ApiKeysManagementTest extends TestCase
         // Note: Returns 401 (unauthenticated) or 400 (missing tenant context) depending on middleware order
         // Both indicate the token is no longer valid
         $responseAfter = $this->withHeader('Authorization', "Bearer {$plainTextToken}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Test 2', 'en' => 'Test 2'],
             ]);
 
@@ -398,7 +398,7 @@ class ApiKeysManagementTest extends TestCase
 
         // Inactive token should fail authentication
         $response = $this->withHeader('Authorization', "Bearer {$plainTextToken}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Test', 'en' => 'Test'],
             ]);
 
@@ -422,7 +422,7 @@ class ApiKeysManagementTest extends TestCase
 
         // Reactivated token should work
         $response = $this->withHeader('Authorization', "Bearer {$plainTextToken}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Test', 'en' => 'Test'],
             ]);
 

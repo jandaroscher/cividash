@@ -20,7 +20,7 @@ test.describe('Content Pages', () => {
   test.describe('CMS page rendering', () => {
     test('a CMS page loads successfully from the API', async ({ page, request }) => {
       // First, fetch available pages from the API to find a valid slug
-      const response = await request.get(`${BASE_URL}/api/pages?locale=de`);
+      const response = await request.get(`${BASE_URL}/api/v1/pages?locale=de`);
 
       if (!response.ok()) {
         test.skip(true, 'Pages API not available');
@@ -59,7 +59,7 @@ test.describe('Content Pages', () => {
 
     test('page renders block content (not empty)', async ({ page, request }) => {
       // Fetch available pages from the API
-      const response = await request.get(`${BASE_URL}/api/pages?locale=de`);
+      const response = await request.get(`${BASE_URL}/api/v1/pages?locale=de`);
 
       if (!response.ok()) {
         test.skip(true, 'Pages API not available');
@@ -120,7 +120,7 @@ test.describe('Content Pages', () => {
   test.describe('Page title', () => {
     test('page title is visible on CMS page', async ({ page, request }) => {
       // Fetch available pages from the API
-      const response = await request.get(`${BASE_URL}/api/pages?locale=de`);
+      const response = await request.get(`${BASE_URL}/api/v1/pages?locale=de`);
 
       if (!response.ok()) {
         test.skip(true, 'Pages API not available');

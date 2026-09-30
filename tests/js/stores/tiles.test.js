@@ -70,7 +70,7 @@ describe('tilesStore', () => {
             expect(store.error).toBeNull();
             expect(store.loading).toBe(false);
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/tiles?locale=de'),
+                expect.stringContaining('/api/v1/tiles?locale=de'),
             );
         });
 
@@ -82,7 +82,7 @@ describe('tilesStore', () => {
             await store.fetchAll();
 
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/tiles?locale=en'),
+                expect.stringContaining('/api/v1/tiles?locale=en'),
             );
         });
 
@@ -93,7 +93,7 @@ describe('tilesStore', () => {
             await store.fetchAll();
 
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/tiles?locale=de'),
+                expect.stringContaining('/api/v1/tiles?locale=de'),
             );
         });
 
@@ -146,7 +146,7 @@ describe('tilesStore', () => {
             expect(store.currentTile).toEqual(tileData);
             expect(store.error).toBeNull();
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/tiles/tile-1?locale=de'),
+                expect.stringContaining('/api/v1/tiles/tile-1?locale=de'),
                 expect.objectContaining({ cache: 'no-store' }),
             );
         });
@@ -280,7 +280,7 @@ describe('tilesStore', () => {
             await store.fetchBySlug('special tile', 'de');
 
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/tiles/special%20tile?locale=de'),
+                expect.stringContaining('/api/v1/tiles/special%20tile?locale=de'),
                 expect.any(Object),
             );
         });

@@ -32,7 +32,7 @@ class ContentPagesApiLocaleTest extends TestCase
             'layout' => 'default',
         ]);
 
-        $response = $this->getJson('/api/content/pages?locale=de');
+        $response = $this->getJson('/api/v1/content/pages?locale=de');
 
         $response->assertStatus(200);
 
@@ -51,7 +51,7 @@ class ContentPagesApiLocaleTest extends TestCase
             'layout' => 'default',
         ]);
 
-        $response = $this->getJson('/api/content/pages?locale=en');
+        $response = $this->getJson('/api/v1/content/pages?locale=en');
 
         $response->assertStatus(200);
 
@@ -70,7 +70,7 @@ class ContentPagesApiLocaleTest extends TestCase
             'layout' => 'default',
         ]);
 
-        $response = $this->getJson('/api/content/pages');
+        $response = $this->getJson('/api/v1/content/pages');
 
         $response->assertStatus(200);
 
@@ -89,7 +89,7 @@ class ContentPagesApiLocaleTest extends TestCase
 
     public function test_invalid_locale_returns_400(): void
     {
-        $response = $this->getJson('/api/content/pages?locale=fr');
+        $response = $this->getJson('/api/v1/content/pages?locale=fr');
 
         $response->assertStatus(400)
             ->assertJsonPath('error', 'Invalid locale parameter. Must be "de" or "en".');
@@ -109,7 +109,7 @@ class ContentPagesApiLocaleTest extends TestCase
             'is_public' => false,
         ]);
 
-        $response = $this->getJson('/api/content/pages?locale=de');
+        $response = $this->getJson('/api/v1/content/pages?locale=de');
 
         $response->assertStatus(200);
         $this->assertCount(1, $response->json('data'));
@@ -120,7 +120,7 @@ class ContentPagesApiLocaleTest extends TestCase
     {
         Page::factory()->forTenant($this->tenant)->count(3)->create();
 
-        $response = $this->getJson('/api/content/pages?locale=de');
+        $response = $this->getJson('/api/v1/content/pages?locale=de');
 
         $response->assertStatus(200)
             ->assertJsonPath('meta.count', 3);

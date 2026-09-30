@@ -32,7 +32,7 @@ class ErrorResponseConsistencyTest extends TestCase
     public function test_404_response_is_json_with_message(): void
     {
         $response = $this->withToken($this->adminToken)
-            ->deleteJson('/api/admin/tiles/999999');
+            ->deleteJson('/api/v1/admin/tiles/999999');
 
         $response->assertNotFound();
         $response->assertJsonStructure(['message']);
@@ -40,7 +40,7 @@ class ErrorResponseConsistencyTest extends TestCase
 
     public function test_public_404_for_nonexistent_tile_slug_is_json(): void
     {
-        $response = $this->getJson('/api/tiles/does-not-exist-at-all');
+        $response = $this->getJson('/api/v1/tiles/does-not-exist-at-all');
 
         $response->assertNotFound();
         $response->assertJsonStructure(['message']);
@@ -51,7 +51,7 @@ class ErrorResponseConsistencyTest extends TestCase
     public function test_422_response_has_message_and_errors(): void
     {
         $response = $this->withToken($this->adminToken)
-            ->postJson('/api/admin/tiles', []);
+            ->postJson('/api/v1/admin/tiles', []);
 
         $response->assertStatus(422);
         $response->assertJsonStructure(['message', 'errors']);
@@ -60,7 +60,7 @@ class ErrorResponseConsistencyTest extends TestCase
     public function test_422_errors_reference_failing_field(): void
     {
         $response = $this->withToken($this->adminToken)
-            ->postJson('/api/admin/tiles', []);
+            ->postJson('/api/v1/admin/tiles', []);
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors('title');
@@ -70,7 +70,7 @@ class ErrorResponseConsistencyTest extends TestCase
 
     public function test_401_response_is_json_with_message(): void
     {
-        $response = $this->getJson('/api/user');
+        $response = $this->getJson('/api/v1/user');
 
         $response->assertUnauthorized();
         $response->assertJsonStructure(['message']);
@@ -89,7 +89,7 @@ class ErrorResponseConsistencyTest extends TestCase
         $token->accessToken->save();
 
         $response = $this->withToken($token->plainTextToken)
-            ->postJson('/api/admin/tiles', ['title' => ['de' => 'Test']]);
+            ->postJson('/api/v1/admin/tiles', ['title' => ['de' => 'Test']]);
 
         $response->assertForbidden();
         $response->assertJsonStructure(['message']);

@@ -59,7 +59,7 @@ class TileMetricsApiTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}");
 
         $response->assertStatus(200);
 
@@ -113,7 +113,7 @@ class TileMetricsApiTest extends TestCase
             'is_active' => false,
         ]);
 
-        $response = $this->getJson("/api/tiles/{$tile->id}");
+        $response = $this->getJson("/api/v1/tiles/{$tile->id}");
 
         $response->assertStatus(200);
 

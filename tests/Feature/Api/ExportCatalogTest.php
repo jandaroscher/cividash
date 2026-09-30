@@ -41,7 +41,7 @@ class ExportCatalogTest extends TestCase
 
     public function test_catalog_returns_only_default_tenant_tiles(): void
     {
-        $response = $this->getJson('/api/exports/catalog?format=json&locale=de');
+        $response = $this->getJson('/api/v1/exports/catalog?format=json&locale=de');
 
         $response->assertOk();
         $response->assertHeader('X-Export-Schema-Version', '1.0');
@@ -58,7 +58,7 @@ class ExportCatalogTest extends TestCase
 
     public function test_catalog_csv_streams_attachment_with_filename(): void
     {
-        $response = $this->get('/api/exports/catalog?format=csv&locale=de');
+        $response = $this->get('/api/v1/exports/catalog?format=csv&locale=de');
 
         $response->assertOk();
         $this->assertStringContainsString('text/csv', $response->headers->get('Content-Type'));
@@ -78,7 +78,7 @@ class ExportCatalogTest extends TestCase
     {
         Tile::where('tenant_id', $this->defaultTenant->id)->delete();
 
-        $response = $this->getJson('/api/exports/catalog?format=json');
+        $response = $this->getJson('/api/v1/exports/catalog?format=json');
 
         $response->assertOk();
         $body = json_decode($response->streamedContent(), true, flags: JSON_THROW_ON_ERROR);
@@ -89,7 +89,7 @@ class ExportCatalogTest extends TestCase
 
     public function test_english_locale_returns_english_titles(): void
     {
-        $response = $this->getJson('/api/exports/catalog?format=json&locale=en');
+        $response = $this->getJson('/api/v1/exports/catalog?format=json&locale=en');
 
         $body = json_decode($response->streamedContent(), true, flags: JSON_THROW_ON_ERROR);
 

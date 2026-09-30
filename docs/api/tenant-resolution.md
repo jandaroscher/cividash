@@ -29,7 +29,7 @@ The middleware tries to resolve the tenant in the following order:
 If a valid bearer token is present and it has a `tenant_id`:
 
 ```http
-GET /api/tiles
+GET /api/v1/tiles
 Authorization: Bearer 1|abc123...
 ```
 
@@ -50,7 +50,7 @@ This allows API access to a specific tenant regardless of the domain.
 If no tenant is resolved from the token — no bearer token, an invalid token, a token without `tenant_id`, or a `tenant_id` whose tenant no longer exists — the request host is checked against `tenants.domain`:
 
 ```http
-GET /api/tiles
+GET /api/v1/tiles
 Host: regensburg.example.org
 ```
 
@@ -70,7 +70,7 @@ A `www.` prefix is stripped automatically, and domain matching is case-insensiti
 If neither token nor domain match:
 
 ```http
-GET /api/tiles
+GET /api/v1/tiles
 Host: unknown.example.com
 # → uses the tenant with slug='default'
 ```
@@ -79,10 +79,10 @@ Host: unknown.example.com
 
 ## Config endpoint
 
-The `/api/config/tenant` endpoint shows the resolved tenant:
+The `/api/v1/config/tenant` endpoint shows the resolved tenant:
 
 ```http
-GET /api/config/tenant
+GET /api/v1/config/tenant
 Host: regensburg.example.org
 ```
 
@@ -161,14 +161,14 @@ regensburg.example.org → Tenant "Stadt Regensburg"
 demo-city.example.org  → Tenant "Demo City"
 ```
 
-The frontend calls `/api/tiles`, and the middleware recognizes the tenant via the domain.
+The frontend calls `/api/v1/tiles`, and the middleware recognizes the tenant via the domain.
 
 ### 2. API client with token
 
 ```bash
 # Client has a token for a specific tenant
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.example.org/api/tiles
+  https://api.example.org/api/v1/tiles
 ```
 
 The token contains `tenant_id`, so the domain is irrelevant.
@@ -177,7 +177,7 @@ The token contains `tenant_id`, so the domain is irrelevant.
 
 ```bash
 # Without special configuration → default tenant
-curl http://localhost/api/tiles
+curl http://localhost/api/v1/tiles
 ```
 
 ---

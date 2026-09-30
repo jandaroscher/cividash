@@ -12,7 +12,7 @@ class ConfigGeneralApiTest extends TestCase
 
     public function test_general_config_returns_expected_structure(): void
     {
-        $response = $this->getJson('/api/config/general');
+        $response = $this->getJson('/api/v1/config/general');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -26,7 +26,7 @@ class ConfigGeneralApiTest extends TestCase
 
     public function test_general_config_returns_default_values(): void
     {
-        $response = $this->getJson('/api/config/general');
+        $response = $this->getJson('/api/v1/config/general');
 
         $response->assertStatus(200);
         $data = $response->json('data');
@@ -42,7 +42,7 @@ class ConfigGeneralApiTest extends TestCase
         $settings->site_name = 'Nachhaltigkeits-Dashboard';
         $settings->save();
 
-        $response = $this->getJson('/api/config/general');
+        $response = $this->getJson('/api/v1/config/general');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.site_name', 'Nachhaltigkeits-Dashboard');
@@ -54,7 +54,7 @@ class ConfigGeneralApiTest extends TestCase
         $settings->site_active = false;
         $settings->save();
 
-        $response = $this->getJson('/api/config/general');
+        $response = $this->getJson('/api/v1/config/general');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.site_active', false);

@@ -57,7 +57,7 @@ class BundleImporterProvenanceTest extends TestCase
         return $this->withHeaders([
             'Authorization' => "Bearer {$token}",
             'Accept' => 'application/json',
-        ])->post('/api/admin/import', [
+        ])->post('/api/v1/admin/import', [
             'file' => $file,
             'mode' => $mode,
         ]);

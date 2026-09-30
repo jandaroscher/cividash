@@ -29,7 +29,7 @@ class TenantUsersApiTest extends TestCase
         $this->createUserWithRoleInTenant($this->tenant, 'Redakteur');
 
         $response = $this->actingAs($this->admin)
-            ->getJson("/api/tenants/{$this->tenant->slug}/users");
+            ->getJson("/api/v1/tenants/{$this->tenant->slug}/users");
 
         $response->assertOk()
             ->assertJsonStructure([
@@ -48,7 +48,7 @@ class TenantUsersApiTest extends TestCase
         $redakteur = $this->createUserWithRoleInTenant($this->tenant, 'Redakteur');
 
         $response = $this->actingAs($redakteur)
-            ->getJson("/api/tenants/{$this->tenant->slug}/users");
+            ->getJson("/api/v1/tenants/{$this->tenant->slug}/users");
 
         $response->assertForbidden();
     }
@@ -58,7 +58,7 @@ class TenantUsersApiTest extends TestCase
         $user = $this->createUserWithRoleInTenant($this->tenant, 'Redakteur');
 
         $response = $this->actingAs($this->admin)
-            ->deleteJson("/api/tenants/{$this->tenant->slug}/users/{$user->id}");
+            ->deleteJson("/api/v1/tenants/{$this->tenant->slug}/users/{$user->id}");
 
         $response->assertOk();
 
@@ -71,7 +71,7 @@ class TenantUsersApiTest extends TestCase
         $this->admin->tenants()->attach($this->tenant->id);
 
         $response = $this->actingAs($this->admin)
-            ->deleteJson("/api/tenants/{$this->tenant->slug}/users/{$this->admin->id}");
+            ->deleteJson("/api/v1/tenants/{$this->tenant->slug}/users/{$this->admin->id}");
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['user']);
@@ -82,14 +82,14 @@ class TenantUsersApiTest extends TestCase
         $otherUser = User::factory()->create();
 
         $response = $this->actingAs($otherUser)
-            ->getJson("/api/tenants/{$this->tenant->slug}/users");
+            ->getJson("/api/v1/tenants/{$this->tenant->slug}/users");
 
         $response->assertForbidden();
     }
 
     public function test_unauthenticated_user_cannot_access_tenant_users(): void
     {
-        $response = $this->getJson("/api/tenants/{$this->tenant->slug}/users");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->slug}/users");
 
         $response->assertUnauthorized();
     }
@@ -99,7 +99,7 @@ class TenantUsersApiTest extends TestCase
         $token = $this->admin->createToken('public-read-token', ['public-read'])->plainTextToken;
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->getJson("/api/tenants/{$this->tenant->slug}/users");
+            ->getJson("/api/v1/tenants/{$this->tenant->slug}/users");
 
         $response->assertForbidden();
     }
@@ -110,7 +110,7 @@ class TenantUsersApiTest extends TestCase
         $token = $this->admin->createToken('admin-api-token', ['admin-api'])->plainTextToken;
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->getJson("/api/tenants/{$this->tenant->slug}/users");
+            ->getJson("/api/v1/tenants/{$this->tenant->slug}/users");
 
         $response->assertOk();
         $this->assertEquals(1, $response->json('meta.total'));

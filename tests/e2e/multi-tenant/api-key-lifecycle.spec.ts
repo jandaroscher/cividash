@@ -56,8 +56,8 @@ test.describe('API Key Lifecycle', () => {
   });
 
   test.describe('Valid token access', () => {
-    test('lifecycle token can access /api/tiles', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/tiles`, {
+    test('lifecycle token can access /api/v1/tiles', async ({ request }) => {
+      const response = await request.get(`${BASE_URL}/api/v1/tiles`, {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.lifecycle}`,
           Accept: 'application/json',
@@ -70,8 +70,8 @@ test.describe('API Key Lifecycle', () => {
       expect(data.data).toBeDefined();
     });
 
-    test('lifecycle token can access /api/config/tenant', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/config/tenant`, {
+    test('lifecycle token can access /api/v1/config/tenant', async ({ request }) => {
+      const response = await request.get(`${BASE_URL}/api/v1/config/tenant`, {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.lifecycle}`,
           Accept: 'application/json',
@@ -89,7 +89,7 @@ test.describe('API Key Lifecycle', () => {
   test.describe('Token revocation', () => {
     test('revoked token returns 401', async ({ request }) => {
       // Step 1: Verify the lifecycle token works before revocation
-      const beforeResponse = await request.get(`${BASE_URL}/api/tiles`, {
+      const beforeResponse = await request.get(`${BASE_URL}/api/v1/tiles`, {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.lifecycle}`,
           Accept: 'application/json',
@@ -108,7 +108,7 @@ test.describe('API Key Lifecycle', () => {
       );
 
       // Step 3: Verify the revoked token returns 401
-      const afterResponse = await request.get(`${BASE_URL}/api/tiles`, {
+      const afterResponse = await request.get(`${BASE_URL}/api/v1/tiles`, {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.lifecycle}`,
           Accept: 'application/json',
@@ -117,8 +117,8 @@ test.describe('API Key Lifecycle', () => {
 
       // The token should no longer be valid
       // Public routes with resolve.tenant may still work (falling back to default tenant),
-      // but the token-based resolution should fail. Let's check /api/user which requires auth.
-      const userResponse = await request.get(`${BASE_URL}/api/user`, {
+      // but the token-based resolution should fail. Let's check /api/v1/user which requires auth.
+      const userResponse = await request.get(`${BASE_URL}/api/v1/user`, {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.lifecycle}`,
           Accept: 'application/json',
@@ -131,7 +131,7 @@ test.describe('API Key Lifecycle', () => {
 
   test.describe('Invalid token handling', () => {
     test('completely invalid token returns 401 on protected route', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/user`, {
+      const response = await request.get(`${BASE_URL}/api/v1/user`, {
         headers: {
           Authorization: 'Bearer invalid-token-that-does-not-exist',
           Accept: 'application/json',
@@ -142,7 +142,7 @@ test.describe('API Key Lifecycle', () => {
     });
 
     test('empty Authorization header returns 401 on protected route', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/user`, {
+      const response = await request.get(`${BASE_URL}/api/v1/user`, {
         headers: {
           Authorization: '',
           Accept: 'application/json',
@@ -153,7 +153,7 @@ test.describe('API Key Lifecycle', () => {
     });
 
     test('missing Authorization header returns 401 on protected route', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/user`, {
+      const response = await request.get(`${BASE_URL}/api/v1/user`, {
         headers: {
           Accept: 'application/json',
         },

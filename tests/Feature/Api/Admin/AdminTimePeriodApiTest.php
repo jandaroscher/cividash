@@ -116,7 +116,7 @@ class AdminTimePeriodApiTest extends TestCase
         $token = $this->createTokenWithoutTenant();
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/time-periods', [
+            ->postJson('/api/v1/admin/time-periods', [
                 'tile_id' => $this->tile->id,
                 'period_key' => '2024',
                 'granularity' => 'year',
@@ -135,7 +135,7 @@ class AdminTimePeriodApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/time-periods', [
+            ->postJson('/api/v1/admin/time-periods', [
                 'tile_id' => $this->tile->id,
                 'period_key' => '2024',
                 'granularity' => 'year',
@@ -156,7 +156,7 @@ class AdminTimePeriodApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/time-periods', [
+            ->postJson('/api/v1/admin/time-periods', [
                 'tile_id' => $this->tile->id,
                 'period_key' => '2025',
                 'granularity' => 'year',
@@ -174,7 +174,7 @@ class AdminTimePeriodApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/time-periods', []);
+            ->postJson('/api/v1/admin/time-periods', []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['tile_id', 'period_key']);
@@ -188,7 +188,7 @@ class AdminTimePeriodApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/time-periods/{$timePeriod->id}", [
+            ->patchJson("/api/v1/admin/time-periods/{$timePeriod->id}", [
                 'period_key' => '2025',
             ]);
 
@@ -234,7 +234,7 @@ class AdminTimePeriodApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/time-periods/{$otherTimePeriod->id}", [
+            ->patchJson("/api/v1/admin/time-periods/{$otherTimePeriod->id}", [
                 'period_key' => '2025',
             ]);
 
@@ -247,7 +247,7 @@ class AdminTimePeriodApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/time-periods/{$timePeriod->id}", [
+            ->patchJson("/api/v1/admin/time-periods/{$timePeriod->id}", [
                 'period_key' => '2021',
                 'tenant_id' => $this->otherTenant->id,
             ]);
@@ -266,7 +266,7 @@ class AdminTimePeriodApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson("/api/admin/time-periods/{$timePeriod->id}");
+            ->deleteJson("/api/v1/admin/time-periods/{$timePeriod->id}");
 
         $response->assertStatus(204);
 
@@ -288,7 +288,7 @@ class AdminTimePeriodApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson("/api/admin/time-periods/{$otherTimePeriod->id}");
+            ->deleteJson("/api/v1/admin/time-periods/{$otherTimePeriod->id}");
 
         $response->assertStatus(404);
     }
@@ -300,7 +300,7 @@ class AdminTimePeriodApiTest extends TestCase
         // Ensure no residual auth from setUp
         Filament::auth()->logout();
 
-        $response = $this->postJson('/api/admin/time-periods', [
+        $response = $this->postJson('/api/v1/admin/time-periods', [
             'tile_id' => 1,
             'period_key' => '2024',
             'granularity' => 'year',
@@ -313,7 +313,7 @@ class AdminTimePeriodApiTest extends TestCase
     {
         Filament::auth()->logout();
 
-        $response = $this->patchJson('/api/admin/time-periods/1', [
+        $response = $this->patchJson('/api/v1/admin/time-periods/1', [
             'period_key' => '2025',
         ]);
 
@@ -324,7 +324,7 @@ class AdminTimePeriodApiTest extends TestCase
     {
         Filament::auth()->logout();
 
-        $response = $this->deleteJson('/api/admin/time-periods/1');
+        $response = $this->deleteJson('/api/v1/admin/time-periods/1');
 
         $response->assertStatus(401);
     }

@@ -7,7 +7,7 @@ import { execSync } from 'child_process';
  * These tests verify the ResolveTenantFromRequest middleware behavior:
  * - Priority: Token > Domain > Default
  * - Domain normalization (www. stripping, lowercase)
- * - /api/config/tenant endpoint returns correct resolved_by
+ * - /api/v1/config/tenant endpoint returns correct resolved_by
  *
  * Prerequisites:
  * - ddev running with additional hostnames configured
@@ -61,7 +61,7 @@ test.describe('Domain-based Tenant Resolution', () => {
 
   test.describe('Domain → Tenant Mapping', () => {
     test('resolves tenant A from a.open-source-dashboard.ddev.site domain', async ({ request }) => {
-      const response = await request.get(`${BASE_URLS.tenantA}/api/config/tenant`);
+      const response = await request.get(`${BASE_URLS.tenantA}/api/v1/config/tenant`);
       
       expect(response.ok()).toBeTruthy();
       
@@ -74,7 +74,7 @@ test.describe('Domain-based Tenant Resolution', () => {
     });
 
     test('resolves tenant B from b.open-source-dashboard.ddev.site domain', async ({ request }) => {
-      const response = await request.get(`${BASE_URLS.tenantB}/api/config/tenant`);
+      const response = await request.get(`${BASE_URLS.tenantB}/api/v1/config/tenant`);
       
       expect(response.ok()).toBeTruthy();
       
@@ -92,7 +92,7 @@ test.describe('Domain-based Tenant Resolution', () => {
       // This test requires www.a.open-source-dashboard.ddev.site to be configured in ddev
       // If not available, the test will be skipped
       try {
-        const response = await request.get(`${BASE_URLS.wwwTenantA}/api/config/tenant`, {
+        const response = await request.get(`${BASE_URLS.wwwTenantA}/api/v1/config/tenant`, {
           timeout: 5000,
         });
         
@@ -119,7 +119,7 @@ test.describe('Domain-based Tenant Resolution', () => {
     test('token takes precedence over domain (tenant A token on tenant B domain)', async ({ request }) => {
       // Request tenant B domain but with tenant A token
       // Token should win -> resolved_by = 'token', slug = 'tenant-a'
-      const response = await request.get(`${BASE_URLS.tenantB}/api/config/tenant`, {
+      const response = await request.get(`${BASE_URLS.tenantB}/api/v1/config/tenant`, {
         headers: {
           'Authorization': `Bearer ${fixtures.tokens.tenantA}`,
         },
@@ -138,7 +138,7 @@ test.describe('Domain-based Tenant Resolution', () => {
     test('domain takes precedence over default (no token, known domain)', async ({ request }) => {
       // Request tenant A domain without token
       // Domain should match -> resolved_by = 'domain'
-      const response = await request.get(`${BASE_URLS.tenantA}/api/config/tenant`);
+      const response = await request.get(`${BASE_URLS.tenantA}/api/v1/config/tenant`);
       
       expect(response.ok()).toBeTruthy();
       
@@ -155,7 +155,7 @@ test.describe('Domain-based Tenant Resolution', () => {
     test('resolves default tenant from its configured domain', async ({ request }) => {
       // Request default domain without token
       // Default tenant has domain open-source-dashboard.ddev.site -> resolved_by = 'domain'
-      const response = await request.get(`${BASE_URLS.default}/api/config/tenant`);
+      const response = await request.get(`${BASE_URLS.default}/api/v1/config/tenant`);
 
       expect(response.ok()).toBeTruthy();
 
@@ -169,7 +169,7 @@ test.describe('Domain-based Tenant Resolution', () => {
 
     test('default domain without token resolves via domain match', async ({ request }) => {
       // Request default domain without token - resolved by domain mapping
-      const response = await request.get(`${BASE_URLS.default}/api/config/tenant`);
+      const response = await request.get(`${BASE_URLS.default}/api/v1/config/tenant`);
 
       expect(response.ok()).toBeTruthy();
 
@@ -181,8 +181,8 @@ test.describe('Domain-based Tenant Resolution', () => {
   });
 
   test.describe('API Response Structure', () => {
-    test('/api/config/tenant returns expected fields', async ({ request }) => {
-      const response = await request.get(`${BASE_URLS.tenantA}/api/config/tenant`);
+    test('/api/v1/config/tenant returns expected fields', async ({ request }) => {
+      const response = await request.get(`${BASE_URLS.tenantA}/api/v1/config/tenant`);
       
       expect(response.ok()).toBeTruthy();
       

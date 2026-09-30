@@ -34,7 +34,7 @@ class FilterApiTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson('/api/filters?locale=de');
+        $response = $this->getJson('/api/v1/filters?locale=de');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.labels.header', 'Filter')
@@ -66,7 +66,7 @@ class FilterApiTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson('/api/filters?locale=de');
+        $response = $this->getJson('/api/v1/filters?locale=de');
 
         $response->assertStatus(200);
 
@@ -84,7 +84,7 @@ class FilterApiTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson('/api/filters?locale=de');
+        $response = $this->getJson('/api/v1/filters?locale=de');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.labels.header', 'Filter')
@@ -99,7 +99,7 @@ class FilterApiTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson('/api/filters?locale=en');
+        $response = $this->getJson('/api/v1/filters?locale=en');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.labels.header', 'Filter')
@@ -119,11 +119,11 @@ class FilterApiTest extends TestCase
             'position' => 0,
         ]);
 
-        $responseDe = $this->getJson('/api/filters?locale=de');
+        $responseDe = $this->getJson('/api/v1/filters?locale=de');
         $responseDe->assertStatus(200)
             ->assertJsonPath('data.groups.0.items.0.title', 'Energie');
 
-        $responseEn = $this->getJson('/api/filters?locale=en');
+        $responseEn = $this->getJson('/api/v1/filters?locale=en');
         $responseEn->assertStatus(200)
             ->assertJsonPath('data.groups.0.items.0.title', 'Energy');
     }
@@ -136,7 +136,7 @@ class FilterApiTest extends TestCase
             'position' => 0,
         ]);
 
-        $response = $this->getJson('/api/filters?locale=de');
+        $response = $this->getJson('/api/v1/filters?locale=de');
 
         $response->assertStatus(200);
 
@@ -160,7 +160,7 @@ class FilterApiTest extends TestCase
             'position' => 1,
         ]);
 
-        $response = $this->getJson('/api/filters?locale=de');
+        $response = $this->getJson('/api/v1/filters?locale=de');
 
         $response->assertStatus(200);
 
@@ -186,7 +186,7 @@ class FilterApiTest extends TestCase
             'position' => 1,
         ]);
 
-        $response = $this->getJson('/api/filters?locale=de');
+        $response = $this->getJson('/api/v1/filters?locale=de');
 
         $response->assertStatus(200);
 
@@ -215,7 +215,7 @@ class FilterApiTest extends TestCase
             'position' => 1,
         ]);
 
-        $response = $this->getJson('/api/filters?locale=de');
+        $response = $this->getJson('/api/v1/filters?locale=de');
 
         $response->assertStatus(200);
 
@@ -238,7 +238,7 @@ class FilterApiTest extends TestCase
             'position' => 1,
         ]);
 
-        $response = $this->getJson('/api/filters?locale=de');
+        $response = $this->getJson('/api/v1/filters?locale=de');
 
         $response->assertStatus(200);
 
@@ -256,7 +256,7 @@ class FilterApiTest extends TestCase
         ]);
 
         // No locale parameter - should default to 'de'
-        $response = $this->getJson('/api/filters');
+        $response = $this->getJson('/api/v1/filters');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.groups.0.title', 'Handlungsfelder');

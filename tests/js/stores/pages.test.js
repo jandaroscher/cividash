@@ -65,7 +65,7 @@ describe('pagesStore', () => {
             expect(store.currentPage).toEqual(pageData);
             expect(store.error).toBeNull();
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/content/pages/1?locale=de'),
+                expect.stringContaining('/api/v1/content/pages/1?locale=de'),
                 expect.objectContaining({ credentials: 'include', cache: 'no-store' }),
             );
         });
@@ -190,7 +190,7 @@ describe('pagesStore', () => {
             expect(result).toEqual(rootPageData);
             expect(store.currentPage).toEqual(rootPageData);
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/content/pages/root?locale=de'),
+                expect.stringContaining('/api/v1/content/pages/root?locale=de'),
                 expect.any(Object),
             );
         });
@@ -253,7 +253,7 @@ describe('pagesStore', () => {
             expect(result).toEqual(pagesData);
             expect(store.pages).toEqual(pagesData);
             expect(globalThis.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/content/pages?locale=de'),
+                expect.stringContaining('/api/v1/content/pages?locale=de'),
                 expect.any(Object),
             );
         });
@@ -320,7 +320,7 @@ describe('pagesStore', () => {
             let callCount = 0;
             globalThis.fetch = vi.fn().mockImplementation((url) => {
                 callCount++;
-                if (url.includes('/api/content/pages?')) {
+                if (url.includes('/api/v1/content/pages?')) {
                     return Promise.resolve({
                         ok: true,
                         status: 200,
@@ -351,7 +351,7 @@ describe('pagesStore', () => {
             const fullPageData = { id: 1, title: 'Home', slug: 'home', blocks: [] };
 
             globalThis.fetch = vi.fn().mockImplementation((url) => {
-                if (url.includes('/api/content/pages?')) {
+                if (url.includes('/api/v1/content/pages?')) {
                     return Promise.resolve({
                         ok: true,
                         status: 200,
@@ -402,7 +402,7 @@ describe('pagesStore', () => {
             const fullPageData = { id: 1, title: 'Home', slug: { de: 'startseite', en: 'home' }, blocks: [] };
 
             globalThis.fetch = vi.fn().mockImplementation((url) => {
-                if (url.includes('/api/content/pages?')) {
+                if (url.includes('/api/v1/content/pages?')) {
                     return Promise.resolve({
                         ok: true,
                         status: 200,
@@ -429,7 +429,7 @@ describe('pagesStore', () => {
         it('handles 404 on the page detail fetch', async () => {
             const pagesListData = [{ id: 1, title: 'Home', slug: 'home', parent_id: null }];
             globalThis.fetch = vi.fn().mockImplementation((url) => {
-                if (url.includes('/api/content/pages?')) {
+                if (url.includes('/api/v1/content/pages?')) {
                     return Promise.resolve({
                         ok: true,
                         status: 200,

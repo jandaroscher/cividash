@@ -84,7 +84,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->createTokenWithoutTenant();
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Test', 'en' => 'Test'],
                 'slug' => ['de' => 'test', 'en' => 'test'],
             ]);
@@ -102,7 +102,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Neue Kachel', 'en' => 'New Tile'],
                 'slug' => ['de' => 'neue-kachel', 'en' => 'new-tile'],
                 'description' => ['de' => 'Beschreibung', 'en' => 'Description'],
@@ -124,7 +124,7 @@ class AdminTileApiTest extends TestCase
 
         // Attempt to pass a different tenant_id in payload (should be ignored)
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Kachel', 'en' => 'Tile'],
                 'slug' => ['de' => 'kachel', 'en' => 'tile'],
                 'description' => ['de' => 'Desc', 'en' => 'Desc'],
@@ -143,7 +143,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', []);
+            ->postJson('/api/v1/admin/tiles', []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['title']);
@@ -151,7 +151,7 @@ class AdminTileApiTest extends TestCase
 
     public function test_unauthenticated_request_returns_401(): void
     {
-        $response = $this->postJson('/api/admin/tiles', [
+        $response = $this->postJson('/api/v1/admin/tiles', [
             'title' => ['de' => 'Test', 'en' => 'Test'],
             'slug' => ['de' => 'test', 'en' => 'test'],
         ]);
@@ -164,7 +164,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->postJson('/api/admin/tiles', [
+            ->postJson('/api/v1/admin/tiles', [
                 'title' => ['de' => 'Neue Kachel', 'en' => 'New Tile'],
                 'description' => ['de' => 'Beschreibung', 'en' => 'Description'],
             ]);
@@ -186,7 +186,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/tiles/{$tile->id}", [
+            ->patchJson("/api/v1/admin/tiles/{$tile->id}", [
                 'title' => ['de' => 'Updated', 'en' => 'Updated'],
                 'slug' => ['de' => 'updated', 'en' => 'updated'],
                 'position' => 5,
@@ -213,7 +213,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/tiles/{$otherTile->id}", [
+            ->patchJson("/api/v1/admin/tiles/{$otherTile->id}", [
                 'title' => ['de' => 'Hacked', 'en' => 'Hacked'],
                 'slug' => ['de' => 'hacked', 'en' => 'hacked'],
             ]);
@@ -232,7 +232,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/tiles/{$tile->id}", [
+            ->patchJson("/api/v1/admin/tiles/{$tile->id}", [
                 'title' => ['de' => 'Updated', 'en' => 'Updated'],
                 'slug' => ['de' => 'updated', 'en' => 'updated'],
                 'tenant_id' => $this->otherTenant->id, // Attempt to change tenant
@@ -255,7 +255,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->patchJson("/api/admin/tiles/{$tile->id}", [
+            ->patchJson("/api/v1/admin/tiles/{$tile->id}", [
                 'position' => 'not-a-number', // Invalid
             ]);
 
@@ -275,7 +275,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson("/api/admin/tiles/{$tile->id}");
+            ->deleteJson("/api/v1/admin/tiles/{$tile->id}");
 
         $response->assertStatus(204);
 
@@ -296,7 +296,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson("/api/admin/tiles/{$otherTile->id}");
+            ->deleteJson("/api/v1/admin/tiles/{$otherTile->id}");
 
         // Should return 404 because tile is not visible in token's tenant context
         $response->assertStatus(404);
@@ -312,7 +312,7 @@ class AdminTileApiTest extends TestCase
         $token = $this->createTokenForTenant($this->tenant);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->deleteJson('/api/admin/tiles/99999');
+            ->deleteJson('/api/v1/admin/tiles/99999');
 
         $response->assertStatus(404);
     }
