@@ -37,7 +37,7 @@ Required fields per row: `tile.slug` as a URL-safe tile key (lowercase, hyphens)
 
 Optional structure data at the bundle level: `category_groups` for category groups (e.g. "Action fields") and `categories` for individual categories referencing a `group_key`.
 
-Two buttons sit at the top-right of the import page: _Download schema_ gives the JSON Schema draft-07 for validation in your editor or CI pipeline, _Example bundle_ a complete valid example to start from. The schemas are also available as public API endpoints at `/api/import/schemas/{bundle|row|category|category-group}`.
+Two buttons sit at the top-right of the import page: _Download schema_ gives the JSON Schema draft-07 for validation in your editor or CI pipeline, _Example bundle_ a complete valid example to start from. The schemas are also available as public API endpoints at `/api/v1/import/schemas/{bundle|row|category|category-group}`.
 
 ## Modes
 
@@ -76,7 +76,7 @@ The tenant is always derived from the logged-in session (or the API token). A `t
 
 ## Admin API (programmatic)
 
-For automated pipelines, use the `POST /api/admin/import` endpoint with bearer token authentication. Rate limit: 5 runs per minute per tenant. Documentation available at `/docs` (Scribe).
+For automated pipelines, use the `POST /api/v1/admin/import` endpoint with bearer token authentication. Rate limit: 5 runs per minute per tenant. Documentation available at `/docs` (Scribe).
 
 ## Limitations in v1.0
 

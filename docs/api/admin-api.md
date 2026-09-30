@@ -82,11 +82,11 @@ Authorization: Bearer 1|abc123def456...
 
 | Method | Endpoint | Description |
 |--------|----------|--------------|
-| `POST` | `/api/admin/tiles` | Create a new tile |
-| `PATCH` | `/api/admin/tiles/{id}` | Update a tile |
-| `DELETE` | `/api/admin/tiles/{id}` | Delete a tile |
+| `POST` | `/api/v1/admin/tiles` | Create a new tile |
+| `PATCH` | `/api/v1/admin/tiles/{id}` | Update a tile |
+| `DELETE` | `/api/v1/admin/tiles/{id}` | Delete a tile |
 
-#### POST /api/admin/tiles
+#### POST /api/v1/admin/tiles
 
 ```json
 {
@@ -108,7 +108,7 @@ Response (201):
 }
 ```
 
-#### PATCH /api/admin/tiles/{id}
+#### PATCH /api/v1/admin/tiles/{id}
 
 Partial update – only the fields provided are updated.
 
@@ -126,11 +126,11 @@ Partial update – only the fields provided are updated.
 
 | Method | Endpoint | Description |
 |--------|----------|--------------|
-| `POST` | `/api/admin/time-periods` | Create a time period |
-| `PATCH` | `/api/admin/time-periods/{id}` | Update a time period |
-| `DELETE` | `/api/admin/time-periods/{id}` | Delete a time period |
+| `POST` | `/api/v1/admin/time-periods` | Create a time period |
+| `PATCH` | `/api/v1/admin/time-periods/{id}` | Update a time period |
+| `DELETE` | `/api/v1/admin/time-periods/{id}` | Delete a time period |
 
-#### POST /api/admin/time-periods
+#### POST /api/v1/admin/time-periods
 
 ```json
 {
@@ -145,11 +145,11 @@ Partial update – only the fields provided are updated.
 
 | Method | Endpoint | Description |
 |--------|----------|--------------|
-| `POST` | `/api/admin/metric-definitions` | Create a new metric definition |
-| `PATCH` | `/api/admin/metric-definitions/{id}` | Update a definition |
-| `DELETE` | `/api/admin/metric-definitions/{id}` | Delete a definition |
+| `POST` | `/api/v1/admin/metric-definitions` | Create a new metric definition |
+| `PATCH` | `/api/v1/admin/metric-definitions/{id}` | Update a definition |
+| `DELETE` | `/api/v1/admin/metric-definitions/{id}` | Delete a definition |
 
-#### POST /api/admin/metric-definitions
+#### POST /api/v1/admin/metric-definitions
 
 ```json
 {
@@ -167,11 +167,11 @@ Partial update – only the fields provided are updated.
 
 | Method | Endpoint | Description |
 |--------|----------|--------------|
-| `POST` | `/api/admin/metric-values` | Create a new metric value |
-| `PATCH` | `/api/admin/metric-values/{id}` | Update a value |
-| `DELETE` | `/api/admin/metric-values/{id}` | Delete a value |
+| `POST` | `/api/v1/admin/metric-values` | Create a new metric value |
+| `PATCH` | `/api/v1/admin/metric-values/{id}` | Update a value |
+| `DELETE` | `/api/v1/admin/metric-values/{id}` | Delete a value |
 
-#### POST /api/admin/metric-values
+#### POST /api/v1/admin/metric-values
 
 ```json
 {
@@ -187,10 +187,10 @@ Partial update – only the fields provided are updated.
 
 | Method | Endpoint | Description |
 |--------|----------|--------------|
-| `POST` | `/api/admin/config/branding` | Set branding completely |
-| `PATCH` | `/api/admin/config/branding` | Partially update branding |
+| `POST` | `/api/v1/admin/config/branding` | Set branding completely |
+| `PATCH` | `/api/v1/admin/config/branding` | Partially update branding |
 
-#### PATCH /api/admin/config/branding
+#### PATCH /api/v1/admin/config/branding
 
 ```json
 {
@@ -226,7 +226,7 @@ Attempts to modify resources of another tenant end in 404 Not Found, not 403:
 
 ```bash
 # User belongs to Tenant A, tries to edit a tile of Tenant B
-PATCH /api/admin/tiles/999
+PATCH /api/v1/admin/tiles/999
 # => 404 Not Found
 ```
 
@@ -268,25 +268,25 @@ Route::middleware(['auth:sanctum', 'admin.api', 'resolve.tenant', 'admin.tenant'
 # The token must be assigned a tenant_id on the backend!
 
 # 2. Create a new tile
-curl -X POST https://example.com/api/admin/tiles \
+curl -X POST https://example.com/api/v1/admin/tiles \
   -H "Authorization: Bearer 1|abc123..." \
   -H "Content-Type: application/json" \
   -d '{"title": {"de": "Energie", "en": "Energy"}}'
 
 # 3. Add a time period
-curl -X POST https://example.com/api/admin/time-periods \
+curl -X POST https://example.com/api/v1/admin/time-periods \
   -H "Authorization: Bearer 1|abc123..." \
   -H "Content-Type: application/json" \
   -d '{"tile_id": 42, "period_key": "2024"}'
 
 # 4. Create a metric definition
-curl -X POST https://example.com/api/admin/metric-definitions \
+curl -X POST https://example.com/api/v1/admin/metric-definitions \
   -H "Authorization: Bearer 1|abc123..." \
   -H "Content-Type: application/json" \
   -d '{"tile_id": 42, "key": "co2", "label": {"de": "CO2-Ausstoß"}}'
 
 # 5. Set a metric value
-curl -X POST https://example.com/api/admin/metric-values \
+curl -X POST https://example.com/api/v1/admin/metric-values \
   -H "Authorization: Bearer 1|abc123..." \
   -H "Content-Type: application/json" \
   -d '{"metric_definition_id": 1, "time_period_id": 1, "value": 1250}'

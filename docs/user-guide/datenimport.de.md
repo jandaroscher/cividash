@@ -37,7 +37,7 @@ Pflichtfelder pro Zeile: `tile.slug` als URL-sicherer Schlüssel der Kachel (Kle
 
 Optionale Strukturdaten auf Bundle-Ebene: `category_groups` für Kategorie-Gruppen (z. B. „Handlungsfelder") und `categories` für einzelne Kategorien mit Referenz auf `group_key`.
 
-Auf der Import-Seite oben rechts liegen zwei Buttons zum Herunterladen: _Schema herunterladen_ liefert das JSON Schema draft-07 zur Validierung im eigenen Editor oder in der CI-Pipeline, _Beispiel-Bundle_ ein vollständiges, valides Beispiel als Ausgangspunkt für eigene Importe. Die Schemas sind auch als API-Endpoints unter `/api/import/schemas/{bundle|row|category|category-group}` öffentlich erreichbar.
+Auf der Import-Seite oben rechts liegen zwei Buttons zum Herunterladen: _Schema herunterladen_ liefert das JSON Schema draft-07 zur Validierung im eigenen Editor oder in der CI-Pipeline, _Beispiel-Bundle_ ein vollständiges, valides Beispiel als Ausgangspunkt für eigene Importe. Die Schemas sind auch als API-Endpoints unter `/api/v1/import/schemas/{bundle|row|category|category-group}` öffentlich erreichbar.
 
 ## Modi
 
@@ -76,7 +76,7 @@ Der Tenant wird immer aus der eingeloggten Session (oder dem API-Token) abgeleit
 
 ## Admin-API (programmatisch)
 
-Für automatisierte Pipelines gibt es den Endpoint `POST /api/admin/import` mit Bearer-Token-Authentifizierung. Rate-Limit: 5 Läufe pro Minute und Tenant. Dokumentation unter `/docs` (Scribe).
+Für automatisierte Pipelines gibt es den Endpoint `POST /api/v1/admin/import` mit Bearer-Token-Authentifizierung. Rate-Limit: 5 Läufe pro Minute und Tenant. Dokumentation unter `/docs` (Scribe).
 
 ## Begrenzungen v1.0
 

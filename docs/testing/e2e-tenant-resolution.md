@@ -104,7 +104,7 @@ tests/e2e/
 - www. prefix stripping: verifies www. is stripped before domain lookup
 - Precedence (token, then domain, then default): token always wins over domain
 - Default fallback: unknown domains resolve to default tenant
-- API response structure: verifies /api/config/tenant response format
+- API response structure: verifies /api/v1/config/tenant response format
 
 ## CI Integration
 

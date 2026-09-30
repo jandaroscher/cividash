@@ -27,14 +27,21 @@ use Knuckles\Scribe\Extracting\Strategies\UrlParameters\GetFromUrlParamTag;
 
 return [
     // The HTML <title> for the generated documentation.
-    'title' => 'CiviDash API Documentation',
+    'title' => 'CiviDash API Documentation (v1)',
 
     // A short description of your API. Will be included in the docs webpage, Postman collection and OpenAPI spec.
-    'description' => 'REST API for CiviDash. Provides endpoints for tiles, metrics, filters, content pages, and configuration.',
+    'description' => 'REST API for CiviDash, version 1. Provides endpoints for tiles, metrics, filters, content pages, and configuration.',
 
     // Text to place in the "Introduction" section, right after the `description`. Markdown and HTML are supported.
     'intro_text' => <<<'INTRO'
         This documentation provides all the information you need to work with the CiviDash API.
+
+        ## Versioning
+
+        This is API version 1 (`/api/v1`). The API is versioned in the URL path; a breaking
+        change gets a new major version (`/api/v2`), and additive, backwards-compatible
+        changes stay in `v1`. The unversioned `/api/*` paths are a deprecated alias of
+        `/api/v1` (see the `Deprecation` and `Link` response headers).
 
         ## Authentication
 
@@ -65,12 +72,12 @@ return [
     'routes' => [
         [
             'match' => [
-                'prefixes' => ['api/*'],
+                'prefixes' => ['api/v1/*'],
                 'domains' => ['*'],
             ],
             'include' => [],
             'exclude' => [
-                'GET /api/user',
+                'GET /api/v1/user',
             ],
         ],
     ],
@@ -110,7 +117,7 @@ return [
         'use_value' => env('SCRIBE_AUTH_KEY'),
         'placeholder' => '{YOUR_AUTH_TOKEN}',
         'extra_info' => <<<'AUTH'
-            **Admin API** (`/api/admin/*`): Requires a Bearer token with:
+            **Admin API** (`/api/v1/admin/*`): Requires a Bearer token with:
             - Token ability `admin-api` or `*`
             - Token must have `tenant_id` set (no default fallback)
 
