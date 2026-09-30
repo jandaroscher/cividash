@@ -26,7 +26,7 @@ class AuthApiTest extends TestCase
             'password' => Hash::make('password123'),
         ]);
 
-        $response = $this->postJson('/api/v1/login', [
+        $response = $this->postJson('/api/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ]);
@@ -45,7 +45,7 @@ class AuthApiTest extends TestCase
             'password' => Hash::make('password123'),
         ]);
 
-        $response = $this->postJson('/api/v1/login', [
+        $response = $this->postJson('/api/login', [
             'email' => 'test@example.com',
             'password' => 'wrongpassword',
         ]);
@@ -58,7 +58,7 @@ class AuthApiTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
-            ->postJson('/api/v1/logout');
+            ->postJson('/api/logout');
 
         $response->assertOk()
             ->assertJson(['message' => __('auth.logout_success')]);
@@ -68,7 +68,7 @@ class AuthApiTest extends TestCase
     {
         User::factory()->create(['email' => 'test@example.com']);
 
-        $response = $this->postJson('/api/v1/forgot-password', [
+        $response = $this->postJson('/api/forgot-password', [
             'email' => 'test@example.com',
         ]);
 
@@ -78,7 +78,7 @@ class AuthApiTest extends TestCase
 
     public function test_password_reset_request_with_nonexistent_email(): void
     {
-        $response = $this->postJson('/api/v1/forgot-password', [
+        $response = $this->postJson('/api/forgot-password', [
             'email' => 'nonexistent@example.com',
         ]);
 

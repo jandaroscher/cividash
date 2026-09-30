@@ -11,6 +11,7 @@ use App\Http\Middleware\ResolveTenantFromRequest;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +61,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             LocaleDetector::class,
         ]);
+
+        // Sort the alias header middleware outermost, so 401/429 responses from
+        // auth and throttle middleware still carry the deprecation headers.
+        $middleware->prependToPriorityList(
+            before: HandlePrecognitiveRequests::class,
+            prepend: AddDeprecatedApiAliasHeaders::class,
+        );
 
         $middleware->alias([
             'admin.api' => EnsureAdminApiAccess::class,

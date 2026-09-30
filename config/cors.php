@@ -31,7 +31,8 @@ return [
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    // Lets cross-origin clients read the deprecation signal of the unversioned /api alias.
+    'exposed_headers' => ['Deprecation', 'Link'],
 
     'max_age' => 0,
 

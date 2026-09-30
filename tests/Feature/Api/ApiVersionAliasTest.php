@@ -26,6 +26,14 @@ class ApiVersionAliasTest extends TestCase
         $this->assertStringContainsString('rel="successor-version"', $link);
     }
 
+    public function test_alias_error_responses_from_auth_middleware_carry_deprecation_headers(): void
+    {
+        $response = $this->getJson('/api/user');
+
+        $response->assertUnauthorized();
+        $response->assertHeader('Deprecation', 'true');
+    }
+
     public function test_v1_response_does_not_carry_deprecation_headers(): void
     {
         $response = $this->getJson('/api/v1/tiles');
