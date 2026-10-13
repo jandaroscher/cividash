@@ -17,7 +17,7 @@ management and context broker rather than shipping its own.
 
 | CORE platform component | Role for the dashboard |
 |-------------------------|------------------------|
-| **APISIX Web Gateway** | Single entry point. Routes public, read-only traffic from anonymous users to the dashboard's public frontend. |
+| **APISIX Web Gateway** | Single entry point. One open host route without an authentication plugin forwards all dashboard traffic to the add-on: the public frontend, the REST API and the Filament admin UI. |
 | **Keycloak / IDM** | Identity provider. Offers optional single sign-on (OIDC) for editorial and admin users of the Filament admin UI, and issues the OAuth2 tokens the backend uses for the NGSI-LD pull. |
 | **Stellio Context Broker** | The platform's [ETSI NGSI-LD](https://www.etsi.org/technologies/internet-of-things) data store. Holds the sustainability indicators the dashboard ingests. |
 

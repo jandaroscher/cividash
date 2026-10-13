@@ -61,7 +61,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | When enabled, users can authenticate via CORE's Keycloak instance
-    | using OpenID Connect. This is optional and can be toggled per tenant.
+    | using OpenID Connect. This is optional and enabled per deployment via
+    | KEYCLOAK_SSO_ENABLED; the local password login stays available.
     |
     */
 
