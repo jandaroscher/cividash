@@ -130,15 +130,15 @@ const tenantStore = useTenantStore();
     padding: 1rem;
 }
 .demo-city-title-text {
-    color: #FFFFFF;
+    color: var(--text-inverse-color, #FFFFFF);
     font-weight: 800;
     font-size: 1.35rem;
     line-height: 1.12;
     letter-spacing: -0.01em;
 }
-/* Inverted tag inside the blue bar: white block, blue caps, kantig. */
+/* Inverted tag inside the blue bar: white block, blue caps, square corners. */
 .demo-city-badge {
-    background-color: #FFFFFF;
+    background-color: var(--text-inverse-color, #FFFFFF);
     color: var(--accent-color, #1465A4);
     font-size: 0.7rem;
     font-weight: 800;

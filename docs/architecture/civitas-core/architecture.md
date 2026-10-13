@@ -17,8 +17,8 @@ management and context broker rather than shipping its own.
 
 | CORE platform component | Role for the dashboard |
 |-------------------------|------------------------|
-| **APISIX Web Gateway** | Single entry point. Routes public, read-only traffic from anonymous users to the dashboard's public frontend. |
-| **Keycloak / IDM** | Identity provider. Authenticates editorial and admin users before they reach the Filament admin UI, and issues the OAuth2 tokens the backend uses for the NGSI-LD pull. |
+| **APISIX Web Gateway** | Single entry point. One open host route without an authentication plugin forwards all dashboard traffic to the add-on: the public frontend, the REST API and the Filament admin UI. |
+| **Keycloak / IDM** | Identity provider. Offers optional single sign-on (OIDC) for editorial and admin users of the Filament admin UI, and issues the OAuth2 tokens the backend uses for the NGSI-LD pull. |
 | **Stellio Context Broker** | The platform's [ETSI NGSI-LD](https://www.etsi.org/technologies/internet-of-things) data store. Holds the sustainability indicators the dashboard ingests. |
 
 ## The dashboard add-on
@@ -30,8 +30,9 @@ cluster it consists of four parts:
 - **Public Frontend (Vue SPA)** — the citizen-facing dashboard. Served to
   anonymous users through APISIX. All routing is client-side; data is fetched
   from the backend via REST.
-- **Admin UI (Filament)** — the editorial back office. Reachable only after a
-  Keycloak login.
+- **Admin UI (Filament)** — the editorial back office. The application itself
+  requires a login: email and password, or Keycloak SSO when it is enabled.
+  APISIX does not put an authentication gate in front of it.
 - **Backend API (Laravel)** — serves the REST API to both frontends and runs the
   scheduled NGSI-LD pull synchronisation against Stellio.
 - **Database (Postgres schema in the CORE cluster)**: the dashboard's own relational
@@ -48,9 +49,10 @@ There are two distinct access paths, both entering through APISIX:
 1. **Anonymous users (public)** reach the **public frontend** read-only. They
    never authenticate and never see the admin UI. Their requests resolve against
    the dashboard's own database, not the broker.
-2. **Editorial / admin users** authenticate against **Keycloak** and then use the
-   **Filament admin UI**. (Keycloak SSO for the dashboard is optional and
-   togglable per tenant; see `config/integrations.php`.)
+2. **Editorial / admin users** sign in to the **Filament admin UI** with email
+   and password or, when Keycloak SSO is enabled, through **Keycloak**. SSO is
+   optional and switched on per deployment with `KEYCLOAK_SSO_ENABLED`; see
+   `config/integrations.php`. The local password login stays available either way.
 
 ## External data source
 

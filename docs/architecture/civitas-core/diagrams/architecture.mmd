@@ -26,8 +26,9 @@ flowchart TB
     backend --> db
 
     %% Login-Pfad Fachnutzer
-    fach -->|"Login"| keycloak
-    keycloak --> admin
+    fach -->|"Login (E-Mail/Passwort)"| apisix
+    apisix --> admin
+    admin -.->|"optional: SSO (OIDC)"| keycloak
     admin -->|"REST-API"| backend
 
     %% Pull-Sync aus Stellio
