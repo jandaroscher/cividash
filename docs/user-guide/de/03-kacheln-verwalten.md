@@ -153,7 +153,7 @@ Erst nach Bestätigung mit **Löschen** wird die Kachel inklusive aller Sprachve
 
 ## 3.9 Kachel auf anderen Webseiten einbetten
 
-Jede öffentliche Kachel lässt sich auf anderen Webseiten anzeigen. Im Dashboard die Detailansicht der Kachel öffnen und oben rechts auf das Symbol **Kachel einbetten** (`</>`) klicken. Der Dialog zeigt zwei Codes zum Kopieren:
+Jede öffentliche Kachel lässt sich auf anderen Webseiten anzeigen. Im Dashboard auf der Kachel auf das Symbol **Kachel einbetten** (`</>`) klicken; das Symbol steht auch oben rechts in der Detailansicht. Die Seitenleiste zeigt zwei Codes zum Kopieren:
 
 - **Einbettung mit automatischer Höhe (empfohlen):** ein `<cividash-tile>`-Element und ein Skript-Tag. Die Höhe passt sich dem Inhalt an. Die Zielseite muss Skripte vom Dashboard erlauben.
 - **Nur iFrame:** für Seiten, die keine Skripte zulassen. Die Höhe ist fest und muss bei Bedarf im Code angepasst werden.

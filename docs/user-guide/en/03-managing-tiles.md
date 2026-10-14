@@ -153,7 +153,7 @@ The tile — including all its language versions, category assignments, blocks, 
 
 ## 3.9 Embed a Tile on Other Websites
 
-Every public tile can be shown on other websites. Open the tile's detail view in the dashboard and click the **Embed tile** icon (`</>`) at the top right. The dialog shows two codes to copy:
+Every public tile can be shown on other websites. In the dashboard, click the **Embed tile** icon (`</>`) on the tile; the icon also sits at the top right of the detail view. The side panel shows two codes to copy:
 
 - **Embed with automatic height (recommended):** a `<cividash-tile>` element and a script tag. The height follows the content. The target page must allow scripts from the dashboard.
 - **iframe only:** for pages that do not allow scripts. The height is fixed; adjust it in the code if needed.

@@ -52,7 +52,8 @@
           class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
           :style="{ color: brandingStore.primaryColor }"
           :aria-label="currentLocale === 'en' ? 'Embed tile' : 'Kachel einbetten'"
-          @click="embedDialogOpen = true"
+          :aria-pressed="overlayStore.view === 'embed'"
+          @click="overlayStore.view = overlayStore.view === 'embed' ? 'info' : 'embed'"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -70,13 +71,6 @@
             <polyline points="8 6 2 12 8 18" />
           </svg>
         </button>
-        <EmbedDialog
-          v-if="tileSlug"
-          :open="embedDialogOpen"
-          :tile-slug="tileSlug"
-          :tile-title="title"
-          @close="embedDialogOpen = false"
-        />
         <button
           class="h-9 rounded-full flex justify-center shrink-0 hover:shadow-info-close transition-shadow duration-200"
           :aria-label="currentLocale === 'en' ? 'Close overlay' : 'Overlay schließen'"
@@ -128,7 +122,10 @@
         </button>
       </div>
     </div>
-    <div class="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-6">
+    <div
+      v-if="overlayStore.view !== 'embed'"
+      class="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-6"
+    >
       <div class="flex flex-col gap-[10px]">
         <a
           v-for="mark in jumpMarks"
@@ -187,9 +184,11 @@ import { useLocale } from '../../../composables/useLocale';
 import { useBrandingStore } from '../../../stores/branding';
 import { buildVisibleJumpMarks } from '../../../utils/jumpMarks';
 import ExportDialog from '../../export/ExportDialog.vue';
-import EmbedDialog from '../../export/EmbedDialog.vue';
+import { useOverlayStore } from '../../../stores/overlay';
+import { resolveTileSlug } from '../../../utils/tileSlug';
 
 const brandingStore = useBrandingStore();
+const overlayStore = useOverlayStore();
 
 const props = defineProps({
     tile: {
@@ -203,7 +202,6 @@ defineEmits(['close']);
 const { currentLocale } = useLocale();
 
 const exportDialogOpen = ref(false);
-const embedDialogOpen = ref(false);
 
 const title = computed(() => {
     if (!props.tile) return 'Tile Details';
@@ -215,17 +213,7 @@ const title = computed(() => {
     );
 });
 
-const tileSlug = computed(() => {
-    const slug = props.tile?.slug;
-    if (slug) {
-        if (typeof slug === 'string') return slug;
-        const resolved = slug[currentLocale.value] || slug.de || slug.en;
-        if (resolved) return resolved;
-    }
-    // Fallback to tile ID so the export button stays visible even when
-    // the slug is missing — the export endpoint accepts numeric IDs.
-    return props.tile?.id ? String(props.tile.id) : null;
-});
+const tileSlug = computed(() => resolveTileSlug(props.tile, currentLocale.value));
 
 const backgroundCategories = computed(() => {
     const groupKey = brandingStore.tileBackgroundCategoryGroupKey;

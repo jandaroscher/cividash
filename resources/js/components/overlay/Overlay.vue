@@ -26,7 +26,13 @@
             :tile="overlayStore.tile"
             @close="closeOverlay"
           />
+          <OverlayEmbed
+            v-if="overlayStore.view === 'embed' && embedSlug"
+            :tile-slug="embedSlug"
+            :tile-title="embedTitle"
+          />
           <OverlayContent
+            v-else
             :tile="overlayStore.tile"
             :data="overlayStore.data"
           />
@@ -71,12 +77,22 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useOverlayStore } from '../../stores/overlay.js';
+import { useLocale } from '../../composables/useLocale';
+import { resolveTileSlug } from '../../utils/tileSlug';
 import OverlayHeader from './parts/Header.vue';
 import OverlayContent from './parts/Content.vue';
+import OverlayEmbed from './parts/Embed.vue';
 
 const overlayStore = useOverlayStore();
+const { currentLocale } = useLocale();
+
+const embedSlug = computed(() => resolveTileSlug(overlayStore.tile, currentLocale.value));
+const embedTitle = computed(() => {
+    const title = overlayStore.tile?.title;
+    return typeof title === 'string' ? title : title?.[currentLocale.value] || title?.de || null;
+});
 
 const sidebar = ref(null);
 const sidebarContainer = ref(null);
