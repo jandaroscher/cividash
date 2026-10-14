@@ -5,6 +5,28 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/jandaroscher/cividash/compare/v1.0.0...v1.1.0) (2026-10-14)
+
+
+### Features
+
+* **api:** serve all API routes under /api/v1 ([#21](https://github.com/jandaroscher/cividash/issues/21)) ([3b1b1aa](https://github.com/jandaroscher/cividash/commit/3b1b1aa80be147d9133f259702b1faf7ceb9488d))
+* **tiles:** embed tiles on third-party websites ([#29](https://github.com/jandaroscher/cividash/issues/29)) ([2449504](https://github.com/jandaroscher/cividash/commit/2449504acd9cc2365118a86b5cc7d880e3da515d))
+
+
+### Bug Fixes
+
+* **deps:** update league/commonmark, dompurify and source-map-js ([#26](https://github.com/jandaroscher/cividash/issues/26)) ([4891337](https://github.com/jandaroscher/cividash/commit/489133789786ec255647926b478f354d20de8afc))
+* **embed:** align tile buttons and match the embed panel to content styles ([#30](https://github.com/jandaroscher/cividash/issues/30)) ([d86cf5d](https://github.com/jandaroscher/cividash/commit/d86cf5dbbb060777414365b22c6ff90d00669bd7))
+* load tile animations reliably in the embed view ([#31](https://github.com/jandaroscher/cividash/issues/31)) ([85ab986](https://github.com/jandaroscher/cividash/commit/85ab9865d85f317b3b39f2c5a369803b28113544))
+* **theme:** use inverse text token in Demo City tile card ([#25](https://github.com/jandaroscher/cividash/issues/25)) ([8506207](https://github.com/jandaroscher/cividash/commit/8506207c851ae21b42bce744576b904547233e72))
+
+
+### Documentation
+
+* **architecture:** describe password and optional SSO login for the admin UI ([#28](https://github.com/jandaroscher/cividash/issues/28)) ([065c1ce](https://github.com/jandaroscher/cividash/commit/065c1cecbc987d5142663c6c51c6a7ce16345337))
+* show the CiviDash logo in the README ([#17](https://github.com/jandaroscher/cividash/issues/17)) ([e5d41eb](https://github.com/jandaroscher/cividash/commit/e5d41eb94c8fca95e0f65445969d3bbc51d5593d))
+
 ## 1.0.0 (2026-09-23)
 
 ### ⚠ Breaking Changes
