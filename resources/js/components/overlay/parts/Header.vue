@@ -12,7 +12,7 @@
       </div>
       <div class="flex items-center gap-3 shrink-0">
         <button
-          v-if="tileSlug && overlayStore.view !== 'embed'"
+          v-if="tileSlug && !embedView"
           class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
           :style="{ color: brandingStore.primaryColor }"
           :aria-label="currentLocale === 'en' ? 'Download data' : 'Daten herunterladen'"
@@ -48,7 +48,7 @@
           @close="exportDialogOpen = false"
         />
         <button
-          v-if="tileSlug && overlayStore.view !== 'embed'"
+          v-if="tileSlug && embeddable && !embedView"
           class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
           :style="{ color: brandingStore.primaryColor }"
           :aria-label="currentLocale === 'en' ? 'Embed tile' : 'Kachel einbetten'"
@@ -123,7 +123,7 @@
       </div>
     </div>
     <div
-      v-if="overlayStore.view !== 'embed'"
+      v-if="!embedView"
       class="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-6"
     >
       <div class="flex flex-col gap-[10px]">
@@ -195,6 +195,11 @@ const props = defineProps({
         type: Object,
         default: null,
     },
+    // Only the side overlay renders the embed view; the standalone tile page does not.
+    embeddable: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 defineEmits(['close']);
@@ -203,6 +208,7 @@ const { currentLocale } = useLocale();
 
 const exportDialogOpen = ref(false);
 const closeButton = ref(null);
+const embedView = computed(() => props.embeddable && overlayStore.view === 'embed');
 
 // The embed view hides the clicked button; keep focus in the overlay so Esc still closes it.
 function showEmbed() {

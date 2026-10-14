@@ -24,6 +24,7 @@
         >
           <OverlayHeader
             :tile="overlayStore.tile"
+            embeddable
             @close="closeOverlay"
           />
           <OverlayEmbed
