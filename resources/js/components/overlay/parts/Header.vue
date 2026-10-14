@@ -12,7 +12,7 @@
       </div>
       <div class="flex items-center gap-3 shrink-0">
         <button
-          v-if="tileSlug"
+          v-if="tileSlug && overlayStore.view !== 'embed'"
           class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
           :style="{ color: brandingStore.primaryColor }"
           :aria-label="currentLocale === 'en' ? 'Download data' : 'Daten herunterladen'"
@@ -48,12 +48,11 @@
           @close="exportDialogOpen = false"
         />
         <button
-          v-if="tileSlug"
+          v-if="tileSlug && overlayStore.view !== 'embed'"
           class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
           :style="{ color: brandingStore.primaryColor }"
           :aria-label="currentLocale === 'en' ? 'Embed tile' : 'Kachel einbetten'"
-          :aria-pressed="overlayStore.view === 'embed'"
-          @click="overlayStore.view = overlayStore.view === 'embed' ? 'info' : 'embed'"
+          @click="showEmbed"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -72,6 +71,7 @@
           </svg>
         </button>
         <button
+          ref="closeButton"
           class="h-9 rounded-full flex justify-center shrink-0 hover:shadow-info-close transition-shadow duration-200"
           :aria-label="currentLocale === 'en' ? 'Close overlay' : 'Overlay schließen'"
           @click="$emit('close')"
@@ -179,7 +179,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { useLocale } from '../../../composables/useLocale';
 import { useBrandingStore } from '../../../stores/branding';
 import { buildVisibleJumpMarks } from '../../../utils/jumpMarks';
@@ -202,6 +202,13 @@ defineEmits(['close']);
 const { currentLocale } = useLocale();
 
 const exportDialogOpen = ref(false);
+const closeButton = ref(null);
+
+// The embed view hides the clicked button; keep focus in the overlay so Esc still closes it.
+function showEmbed() {
+    overlayStore.view = 'embed';
+    nextTick(() => closeButton.value?.focus());
+}
 
 const title = computed(() => {
     if (!props.tile) return 'Tile Details';
