@@ -8,7 +8,8 @@
  * resizes it to the height reported by /embed/tiles/{slug}.
  */
 (() => {
-    if (customElements.get('cividash-tile')) return;
+    // currentScript is null in module scripts; the snippet uses a classic script tag.
+    if (customElements.get('cividash-tile') || !document.currentScript) return;
 
     // The script is served by the dashboard itself, so its origin is the tenant.
     const origin = new URL(document.currentScript.src).origin;
