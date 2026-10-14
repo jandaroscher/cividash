@@ -234,7 +234,8 @@ const closeButton = ref(null);
 const viewToggle = ref(null);
 const embedView = computed(() => props.embeddable && overlayStore.view === 'embed');
 
-const hasDetails = computed(() => (props.tile?.background_blocks || []).some(blockHasVisibleContent));
+// Mirrors what Content.vue renders: visible background blocks or indicators.
+const hasDetails = computed(() => (props.tile?.background_blocks || []).some(blockHasVisibleContent) || props.tile?.metrics?.length > 0);
 
 // The clicked toggle is swapped for the other one; move focus to it so keyboard users stay in place.
 function setView(view) {

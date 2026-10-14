@@ -38,6 +38,13 @@ describe('OverlayHeader', () => {
         expect(wrapper.find(detailsButton).exists()).toBe(false);
     });
 
+    it('offers a details button when the tile only has indicators', () => {
+        useOverlayStore().view = 'embed';
+        const wrapper = shallowMount(OverlayHeader, { props: { tile: { ...tile, background_blocks: [], metrics: [{ id: 1 }] }, embeddable: true } });
+
+        expect(wrapper.find(detailsButton).exists()).toBe(true);
+    });
+
     // The standalone tile page reuses this header but has no embed view.
     it('offers no embed button on the standalone tile page', () => {
         useOverlayStore().view = 'embed';
