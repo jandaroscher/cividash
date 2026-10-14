@@ -127,6 +127,11 @@ It deliberately does **not** set `Strict-Transport-Security` (HSTS) or a Content
 since both are unsafe or need tuning without knowing the deployment's TLS setup and CSP needs
 (Filament/Livewire, Fabricator blocks) — add those at your TLS-terminating reverse proxy/ingress.
 
+Tile embeds are the one exception to `X-Frame-Options: SAMEORIGIN`: `/embed/tiles/{slug}` and
+`/en/embed/tiles/{slug}` are served without it so other websites can frame them (via
+`public/embed.js` or a plain iframe). If your proxy adds its own `X-Frame-Options` or a CSP
+`frame-ancestors` directive, exempt these two paths as well, or embedded tiles stay blank.
+
 ## Limitations
 
 - This repo has no packaged queue-worker or scheduler compose service. The entrypoint comment

@@ -12,7 +12,7 @@
       </div>
       <div class="flex items-center gap-3 shrink-0">
         <button
-          v-if="tileSlug"
+          v-if="tileSlug && !embedView"
           class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
           :style="{ color: brandingStore.primaryColor }"
           :aria-label="currentLocale === 'en' ? 'Download data' : 'Daten herunterladen'"
@@ -48,6 +48,30 @@
           @close="exportDialogOpen = false"
         />
         <button
+          v-if="tileSlug && embeddable && !embedView"
+          class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
+          :style="{ color: brandingStore.primaryColor }"
+          :aria-label="currentLocale === 'en' ? 'Embed tile' : 'Kachel einbetten'"
+          @click="showEmbed"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+        </button>
+        <button
+          ref="closeButton"
           class="h-9 rounded-full flex justify-center shrink-0 hover:shadow-info-close transition-shadow duration-200"
           :aria-label="currentLocale === 'en' ? 'Close overlay' : 'Overlay schließen'"
           @click="$emit('close')"
@@ -98,7 +122,10 @@
         </button>
       </div>
     </div>
-    <div class="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-6">
+    <div
+      v-if="!embedView"
+      class="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-6"
+    >
       <div class="flex flex-col gap-[10px]">
         <a
           v-for="mark in jumpMarks"
@@ -152,18 +179,26 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { useLocale } from '../../../composables/useLocale';
 import { useBrandingStore } from '../../../stores/branding';
 import { buildVisibleJumpMarks } from '../../../utils/jumpMarks';
 import ExportDialog from '../../export/ExportDialog.vue';
+import { useOverlayStore } from '../../../stores/overlay';
+import { resolveTileSlug } from '../../../utils/tileSlug';
 
 const brandingStore = useBrandingStore();
+const overlayStore = useOverlayStore();
 
 const props = defineProps({
     tile: {
         type: Object,
         default: null,
+    },
+    // Only the side overlay renders the embed view; the standalone tile page does not.
+    embeddable: {
+        type: Boolean,
+        default: false,
     },
 });
 
@@ -172,6 +207,14 @@ defineEmits(['close']);
 const { currentLocale } = useLocale();
 
 const exportDialogOpen = ref(false);
+const closeButton = ref(null);
+const embedView = computed(() => props.embeddable && overlayStore.view === 'embed');
+
+// The embed view hides the clicked button; keep focus in the overlay so Esc still closes it.
+function showEmbed() {
+    overlayStore.view = 'embed';
+    nextTick(() => closeButton.value?.focus());
+}
 
 const title = computed(() => {
     if (!props.tile) return 'Tile Details';
@@ -183,17 +226,7 @@ const title = computed(() => {
     );
 });
 
-const tileSlug = computed(() => {
-    const slug = props.tile?.slug;
-    if (slug) {
-        if (typeof slug === 'string') return slug;
-        const resolved = slug[currentLocale.value] || slug.de || slug.en;
-        if (resolved) return resolved;
-    }
-    // Fallback to tile ID so the export button stays visible even when
-    // the slug is missing — the export endpoint accepts numeric IDs.
-    return props.tile?.id ? String(props.tile.id) : null;
-});
+const tileSlug = computed(() => resolveTileSlug(props.tile, currentLocale.value));
 
 const backgroundCategories = computed(() => {
     const groupKey = brandingStore.tileBackgroundCategoryGroupKey;

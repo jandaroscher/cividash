@@ -213,6 +213,33 @@
           class="flex justify-end mt-2.5 space-x-2.5 items-center"
         >
           <Tooltip
+            :text="embedLabel"
+            position="left"
+          >
+            <button
+              class="rounded-full shrink-0 w-9 h-9 flex items-center justify-center border-2 border-[#191919] hover:shadow-info transition-shadow duration-200"
+              :style="{ color: brandingStore.primaryColor }"
+              :aria-label="embedLabel"
+              @click="openEmbed"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
+              </svg>
+            </button>
+          </Tooltip>
+          <Tooltip
             v-if="infoButtonVisible"
             :text="getInfoButtonTooltip()"
             position="left"
@@ -582,6 +609,12 @@ function onIntersectionObserver([{ isIntersecting }]) {
 
 function toggleOverlay() {
     overlayStore.openOverlay(props.tile);
+}
+
+const embedLabel = computed(() => (currentLocale.value === 'en' ? 'Embed tile' : 'Kachel einbetten'));
+
+function openEmbed() {
+    overlayStore.openOverlay(props.tile, null, 'embed');
 }
 
 function getInfoButtonTooltip() {

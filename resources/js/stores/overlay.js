@@ -46,11 +46,14 @@ export const useOverlayStore = defineStore('overlay', {
         open: false,
         tile: null,
         data: null,
+        // 'info' shows the tile's background content, 'embed' its embed codes.
+        view: 'info',
     }),
     actions: {
-        openOverlay(tile, data = null) {
+        openOverlay(tile, data = null, view = 'info') {
             this.tile = tile;
             this.data = data;
+            this.view = view;
             this.open = true;
             // Update URL with tile parameter
             const tileSlug = getTileSlug(tile);
@@ -62,6 +65,7 @@ export const useOverlayStore = defineStore('overlay', {
             this.open = false;
             this.tile = null;
             this.data = null;
+            this.view = 'info';
             // Remove tile parameter from URL
             updateUrlWithTile(null);
         },

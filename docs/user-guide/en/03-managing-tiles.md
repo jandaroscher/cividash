@@ -150,3 +150,12 @@ The red-highlighted **Delete** action is available on the right of every row in 
 The tile — including all its language versions, category assignments, blocks, and metrics — is only permanently removed after confirming with **Delete**. **Cancel** aborts the process without any changes.
 
 > **Note:** Deleting cannot be undone. If unsure, disable the tile via the **Active** toggle (see [Chapter 3.5, Tile Order and Status](03-managing-tiles.md#35-tile-order-and-status)) instead of deleting it.
+
+## 3.9 Embed a Tile on Other Websites
+
+Every public tile can be shown on other websites. In the dashboard, click the **Embed tile** icon (`</>`) on the tile; the icon also sits at the top right of the detail view. The side panel shows two codes to copy:
+
+- **Embed with automatic height (recommended):** a `<cividash-tile>` element and a script tag. The height follows the content. The target page must allow scripts from the dashboard.
+- **iframe only:** for pages that do not allow scripts. The height is fixed; adjust it in the code if needed.
+
+The embedded tile always shows current data in the language the code was copied in. If the tile is deactivated, the embed shows "Tile not found."

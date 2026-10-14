@@ -3,6 +3,7 @@ import { shallowMount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import TileCard from '@/components/TileCard.vue';
 import { useBrandingStore } from '@/stores/branding';
+import { useOverlayStore } from '@/stores/overlay';
 
 // Mock composables that use vue-router internally
 vi.mock('@/composables/useLocale', () => ({
@@ -206,6 +207,24 @@ describe('TileCard', () => {
 
         const infoButton = wrapper.find('button[aria-label="Info"]');
         expect(infoButton.exists()).toBe(true);
+    });
+
+    it('opens the overlay with the embed codes from the embed button', async () => {
+        const tile = createTile();
+        const wrapper = createWrapper(tile);
+
+        await wrapper.find('button[aria-label="Kachel einbetten"]').trigger('click');
+
+        const overlayStore = useOverlayStore();
+        expect(overlayStore.open).toBe(true);
+        expect(overlayStore.tile).toEqual(tile);
+        expect(overlayStore.view).toBe('embed');
+    });
+
+    it('hides the embed button inside an embed', () => {
+        const wrapper = createWrapper(createTile(), { isIframe: true });
+
+        expect(wrapper.find('button[aria-label="Kachel einbetten"]').exists()).toBe(false);
     });
 
     it('is visible by default when no filter is active', () => {
