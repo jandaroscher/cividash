@@ -74,32 +74,23 @@
         <button
           v-if="embedView && hasDetails"
           ref="viewToggle"
-          class="h-9 rounded-full flex justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
+          class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
           :style="{ color: brandingStore.primaryColor }"
           :aria-label="currentLocale === 'en' ? 'Show details' : 'Details anzeigen'"
           @click="setView('info')"
         >
-          <!-- Same plus as the tile's info button, outlined instead of filled. -->
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="36"
-            height="36"
-            viewBox="0 0 36 36"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
             fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
             aria-hidden="true"
           >
-            <circle
-              cx="18"
-              cy="18"
-              r="17"
-              stroke="#191919"
-              stroke-width="2"
-            />
-            <path
-              d="M18 9v18M9 18h18"
-              stroke="currentColor"
-              stroke-width="2"
-            />
+            <path d="M12 3v18M3 12h18" />
           </svg>
         </button>
         <button
