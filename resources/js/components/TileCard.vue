@@ -215,6 +215,8 @@
           <Tooltip
             :text="embedLabel"
             position="left"
+            wrapper-class="relative flex"
+            trigger-class="flex"
           >
             <button
               class="rounded-full shrink-0 w-9 h-9 flex items-center justify-center border-2 border-[#191919] hover:shadow-info transition-shadow duration-200"
@@ -243,6 +245,8 @@
             v-if="infoButtonVisible"
             :text="getInfoButtonTooltip()"
             position="left"
+            wrapper-class="relative flex"
+            trigger-class="flex"
           >
             <button
               class="rounded-full shrink-0 w-9 h-9 text-xl font-bold hover:shadow-info transition-shadow duration-200"

@@ -12,7 +12,7 @@
       </div>
       <div class="flex items-center gap-3 shrink-0">
         <button
-          v-if="tileSlug && !embedView"
+          v-if="tileSlug"
           class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
           :style="{ color: brandingStore.primaryColor }"
           :aria-label="currentLocale === 'en' ? 'Download data' : 'Daten herunterladen'"
@@ -49,10 +49,11 @@
         />
         <button
           v-if="tileSlug && embeddable && !embedView"
+          ref="viewToggle"
           class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
           :style="{ color: brandingStore.primaryColor }"
           :aria-label="currentLocale === 'en' ? 'Embed tile' : 'Kachel einbetten'"
-          @click="showEmbed"
+          @click="setView('embed')"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -68,6 +69,28 @@
           >
             <polyline points="16 18 22 12 16 6" />
             <polyline points="8 6 2 12 8 18" />
+          </svg>
+        </button>
+        <button
+          v-if="embedView && hasDetails"
+          ref="viewToggle"
+          class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
+          :style="{ color: brandingStore.primaryColor }"
+          :aria-label="currentLocale === 'en' ? 'Show details' : 'Details anzeigen'"
+          @click="setView('info')"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path d="M12 3v18M3 12h18" />
           </svg>
         </button>
         <button
@@ -182,7 +205,7 @@
 import { computed, nextTick, ref } from 'vue';
 import { useLocale } from '../../../composables/useLocale';
 import { useBrandingStore } from '../../../stores/branding';
-import { buildVisibleJumpMarks } from '../../../utils/jumpMarks';
+import { blockHasVisibleContent, buildVisibleJumpMarks } from '../../../utils/jumpMarks';
 import ExportDialog from '../../export/ExportDialog.vue';
 import { useOverlayStore } from '../../../stores/overlay';
 import { resolveTileSlug } from '../../../utils/tileSlug';
@@ -208,12 +231,16 @@ const { currentLocale } = useLocale();
 
 const exportDialogOpen = ref(false);
 const closeButton = ref(null);
+const viewToggle = ref(null);
 const embedView = computed(() => props.embeddable && overlayStore.view === 'embed');
 
-// The embed view hides the clicked button; keep focus in the overlay so Esc still closes it.
-function showEmbed() {
-    overlayStore.view = 'embed';
-    nextTick(() => closeButton.value?.focus());
+// Mirrors what Content.vue renders: visible background blocks or indicators.
+const hasDetails = computed(() => (props.tile?.background_blocks || []).some(blockHasVisibleContent) || props.tile?.metrics?.length > 0);
+
+// The clicked toggle is swapped for the other one; move focus to it so keyboard users stay in place.
+function setView(view) {
+    overlayStore.view = view;
+    nextTick(() => (viewToggle.value || closeButton.value)?.focus());
 }
 
 const title = computed(() => {

@@ -1,13 +1,13 @@
 <template>
-  <div class="px-6 xl:px-20 py-8 flex flex-col gap-6">
+  <div class="px-6 xl:px-20 py-8 flex flex-col gap-10">
     <div>
       <h2
         :id="headingId"
-        class="content-heading text-theme-h2"
+        class="content-heading mb-6 hyphens-auto"
       >
         {{ labels.title }}
       </h2>
-      <p class="mt-2 text-sm text-gray-600">
+      <p class="text-xl text-black">
         {{ labels.description }}
       </p>
     </div>
@@ -18,11 +18,11 @@
     >
       <label
         :for="`${headingId}-${snippet.key}`"
-        class="block font-semibold mb-1"
+        class="block text-theme-h5 font-bold mb-2"
       >
         {{ snippet.label }}
       </label>
-      <p class="text-sm text-gray-600 mb-2">
+      <p class="text-black mb-4">
         {{ snippet.hint }}
       </p>
       <textarea
@@ -36,8 +36,7 @@
       />
       <button
         type="button"
-        class="mt-2 px-4 py-2 text-sm font-semibold"
-        :style="{ backgroundColor: brandingStore.primaryColor, color: inverseColor }"
+        class="mt-4 bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
         @click="copy(snippet)"
       >
         {{ copied === snippet.key ? labels.copied : labels.copy }}
@@ -55,7 +54,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useLocale } from '../../../composables/useLocale';
-import { useBrandingStore } from '../../../stores/branding';
 import { buildEmbedSnippets } from '../../../utils/embedSnippets';
 
 /**
@@ -66,7 +64,6 @@ const props = defineProps({
     tileTitle: { type: String, default: null },
 });
 
-const brandingStore = useBrandingStore();
 const { currentLocale } = useLocale();
 
 const headingId = `embed-${Math.random().toString(36).slice(2)}`;
@@ -124,8 +121,4 @@ async function copy(snippet) {
 }
 
 const dividerStyle = { borderColor: 'var(--divider-color, #E5E7EB)' };
-
-const inverseColor = computed(() =>
-    brandingStore.textInverseColor || 'var(--text-inverse-color, #FFFFFF)'
-);
 </script>
