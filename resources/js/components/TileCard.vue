@@ -86,8 +86,10 @@
           v-intersection-observer="onIntersectionObserver"
           class="text-center"
         >
+          <!-- Created with src already set: a src set after mount is dropped while the player WASM is still loading. -->
           <dotlottie-wc
-            ref="lottiePlayer"
+            v-if="intersected"
+            :src="lottieUrl"
             autoplay="true"
             loop="true"
             class="mx-auto h-[216px]"
@@ -469,7 +471,6 @@ const currentYear = ref(null);
 const periodLabelMap = ref({});
 const imageUrl = ref(null);
 const lottieUrl = ref(null);
-const lottiePlayer = ref(null);
 const intersected = ref(false);
 // The info/"+" button opens the tile's background-page overlay, so it should
 // only be shown when at least one background block actually renders visible
@@ -603,11 +604,6 @@ function onImageError() {
 function onIntersectionObserver([{ isIntersecting }]) {
     if (isIntersecting && !intersected.value) {
         intersected.value = true;
-        if (lottieUrl.value && lottiePlayer.value) {
-            // dotlottie-wc only (re)loads on an attribute change, not a
-            // property write (verified empirically, see PR description).
-            lottiePlayer.value.setAttribute('src', lottieUrl.value);
-        }
     }
 }
 

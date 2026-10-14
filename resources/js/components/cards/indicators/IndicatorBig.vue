@@ -8,8 +8,10 @@
         v-intersection-observer="onIntersectionObserver"
         class="h-[216px]"
       >
+        <!-- Created with src already set: a src set after mount is dropped while the player WASM is still loading. -->
         <dotlottie-wc
-          ref="lottiePlayer"
+          v-if="intersected"
+          :src="lottieUrl"
           autoplay="true"
           loop="true"
           class="mx-auto h-[216px]"
@@ -100,7 +102,7 @@ const indicatorComposable = useIndicator(
 
 // Destructure composable return values
 const {
-    lottiePlayer,
+    intersected,
     lottieUrl,
     imageUrl,
     title,

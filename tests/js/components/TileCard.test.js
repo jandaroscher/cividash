@@ -235,7 +235,7 @@ describe('TileCard', () => {
         expect(wrapper.find('.tile-waterfall-item').element.style.display).not.toBe('none');
     });
 
-    it('sets the dotlottie-wc src only after the tile intersects the viewport (lazy load)', async () => {
+    it('creates the dotlottie-wc with its src only after the tile intersects the viewport (lazy load)', async () => {
         const tile = createTile({ icon: 'https://example.com/animation.lottie' });
         // Render the real <dotlottie-wc> element (not stubbed) so its `src`
         // attribute can be inspected directly.
@@ -262,14 +262,12 @@ describe('TileCard', () => {
         });
 
         await wrapper.vm.$nextTick();
-        const player = wrapper.find('dotlottie-wc');
-        expect(player.exists()).toBe(true);
-        expect(player.attributes('src')).toBeUndefined();
+        expect(wrapper.find('dotlottie-wc').exists()).toBe(false);
 
         // Simulate the IntersectionObserver reporting the tile as visible
-        player.element.parentElement.__intersectionCallback([{ isIntersecting: true }]);
+        wrapper.find('[class="text-center"]').element.__intersectionCallback([{ isIntersecting: true }]);
         await wrapper.vm.$nextTick();
 
-        expect(player.attributes('src')).toBe(tile.icon);
+        expect(wrapper.find('dotlottie-wc').attributes('src')).toBe(tile.icon);
     });
 });
