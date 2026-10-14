@@ -48,6 +48,36 @@
           @close="exportDialogOpen = false"
         />
         <button
+          v-if="tileSlug"
+          class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 hover:shadow-info transition-shadow duration-200"
+          :style="{ color: brandingStore.primaryColor }"
+          :aria-label="currentLocale === 'en' ? 'Embed tile' : 'Kachel einbetten'"
+          @click="embedDialogOpen = true"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+        </button>
+        <EmbedDialog
+          v-if="tileSlug"
+          :open="embedDialogOpen"
+          :tile-slug="tileSlug"
+          :tile-title="title"
+          @close="embedDialogOpen = false"
+        />
+        <button
           class="h-9 rounded-full flex justify-center shrink-0 hover:shadow-info-close transition-shadow duration-200"
           :aria-label="currentLocale === 'en' ? 'Close overlay' : 'Overlay schließen'"
           @click="$emit('close')"
@@ -157,6 +187,7 @@ import { useLocale } from '../../../composables/useLocale';
 import { useBrandingStore } from '../../../stores/branding';
 import { buildVisibleJumpMarks } from '../../../utils/jumpMarks';
 import ExportDialog from '../../export/ExportDialog.vue';
+import EmbedDialog from '../../export/EmbedDialog.vue';
 
 const brandingStore = useBrandingStore();
 
@@ -172,6 +203,7 @@ defineEmits(['close']);
 const { currentLocale } = useLocale();
 
 const exportDialogOpen = ref(false);
+const embedDialogOpen = ref(false);
 
 const title = computed(() => {
     if (!props.tile) return 'Tile Details';
