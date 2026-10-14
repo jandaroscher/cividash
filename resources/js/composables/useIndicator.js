@@ -12,7 +12,6 @@ export function useIndicator(indicator, currentYear) {
     const { currentLocale } = useLocale();
 
     // Reactive state
-    const lottiePlayer = ref(null);
     const intersected = ref(false);
     const lottieUrl = ref(null);
     const imageUrl = ref(null);
@@ -150,12 +149,6 @@ export function useIndicator(indicator, currentYear) {
     function onIntersectionObserver([{ isIntersecting }]) {
         if (isIntersecting && !intersected.value) {
             intersected.value = true;
-
-            if (lottieUrl.value && lottiePlayer.value) {
-                // dotlottie-wc only (re)loads on an attribute change, not a
-                // property write (verified empirically, see PR description).
-                lottiePlayer.value.setAttribute('src', lottieUrl.value);
-            }
         }
     }
 
@@ -209,7 +202,6 @@ export function useIndicator(indicator, currentYear) {
 
     return {
         // Refs
-        lottiePlayer,
         intersected,
         lottieUrl,
         imageUrl,
