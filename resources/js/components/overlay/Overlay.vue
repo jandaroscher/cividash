@@ -91,7 +91,7 @@ const { currentLocale } = useLocale();
 const embedSlug = computed(() => resolveTileSlug(overlayStore.tile, currentLocale.value));
 const embedTitle = computed(() => {
     const title = overlayStore.tile?.title;
-    return typeof title === 'string' ? title : title?.[currentLocale.value] || title?.de || null;
+    return typeof title === 'string' ? title : title?.[currentLocale.value] || title?.de || title?.en || null;
 });
 
 const sidebar = ref(null);
