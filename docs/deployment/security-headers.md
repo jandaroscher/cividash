@@ -49,16 +49,19 @@ Starting policy for all paths except the tile embed routes:
 default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
 ```
 
-For `/embed/tiles/` and `/en/embed/tiles/`, use the same policy with `frame-ancestors *`, or
-with the list of origins that may embed tiles (e.g. `frame-ancestors 'self' https://www.example.org`).
+For the tile embed route (`/embed/tiles/{slug}` and `/en/embed/tiles/{slug}`), use the same
+policy with `frame-ancestors *`, or with the list of origins that may embed tiles (e.g.
+`frame-ancestors 'self' https://www.example.org`). Match exactly one slug segment, as the
+examples below do: browsers ignore `X-Frame-Options` when `frame-ancestors` is present, so a
+loose prefix match would let crafted paths such as `/embed/tiles/..%2fadmin` be framed.
 
 Why the relaxations are needed:
 
 - `'unsafe-inline'` in `script-src`: the SPA boots with an inline script that passes the tenant
   to the frontend, and the admin panel (Filament, Livewire) uses inline scripts.
 - `'unsafe-eval'` in `script-src`: Livewire and Alpine.js in the admin panel evaluate
-  expressions at runtime. It also covers the WebAssembly module of the Lottie player used for
-  animated tiles.
+  expressions at runtime. It also allows the self-hosted WebAssembly module of the Lottie
+  player used for animated tiles; if you drop `'unsafe-eval'`, keep `'wasm-unsafe-eval'`.
 - `'unsafe-inline'` in `style-src`: the frontend and the admin panel set inline styles.
 - `https://fonts.bunny.net` in `style-src` and `font-src`: the admin panel loads its font from
   there. The public frontend serves all fonts locally.
@@ -90,7 +93,8 @@ add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment
 
 set $cividash_csp "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'";
 set $cividash_frame_ancestors "'self'";
-if ($request_uri ~* "^/(en/)?embed/tiles/") {
+# Same matcher as docker/production/nginx/nginx.conf: one slug segment, no encoded dots or slashes.
+if ($request_uri ~* "^/(en/)?embed/tiles/(?![^?]*%2[ef])(?!\.\.?(\?|$))[^/?]+(\?|$)") {
     set $cividash_frame_ancestors "*";
 }
 add_header Content-Security-Policy-Report-Only "$cividash_csp; frame-ancestors $cividash_frame_ancestors" always;
@@ -108,7 +112,7 @@ Header always set X-Content-Type-Options "nosniff"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
 Define CIVIDASH_CSP "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'"
-<If "%{REQUEST_URI} =~ m#^/(en/)?embed/tiles/#">
+<If "%{REQUEST_URI} =~ m#^/(en/)?embed/tiles/[^/]+$#">
     Header always set Content-Security-Policy-Report-Only "${CIVIDASH_CSP}; frame-ancestors *"
 </If>
 <Else>
