@@ -22,10 +22,13 @@ server, outside of the DDEV/CI setup used for development. It reflects the curre
   supported by Laravel, but no CI job in this repo runs against either, treat them as
   **supported, not CI-tested**. `.env.example` defaults `DB_CONNECTION` to `pgsql`, matching the
   CI-verified target; override the `DB_*` values with your own connection details.
-- **Webserver**: nginx (DDEV uses `nginx-fpm`); Apache with `mod_php`/PHP-FPM also works since
-  Laravel only needs `public/` as docroot. No repo-provided Apache/nginx vhost exists for a
-  non-container install, the example below is derived from Laravel conventions. A container
-  nginx config does exist for the Docker path, see docker.md.
+- **Webserver**: nginx (DDEV uses `nginx-fpm`) or Apache with `mod_php`/PHP-FPM, since
+  Laravel only needs `public/` as docroot. For Apache, `public/.htaccess` is Laravel's
+  standard front-controller rewrite; it needs `mod_rewrite` and `AllowOverride All` for the
+  docroot. The repo ships no access protection such as HTTP Basic Auth: if a staging instance
+  must not be public, configure that in your webserver. No repo-provided Apache/nginx vhost
+  exists for a non-container install, the example below is derived from Laravel conventions.
+  A container nginx config does exist for the Docker path, see docker.md.
 - **Docroot**: `public/` (see `.ddev/config.yaml` `docroot: public`, and standard Laravel
   `resources/views/app.blade.php` SPA bootstrap per `AGENTS.md`).
 - This guide covers a classic (non-container) install: composer/npm build on the target host,
@@ -222,8 +225,9 @@ Source: `.env.example`. "Required" = must have a real value for a working produc
 | `SESSION_SECURE_COOKIE` | Required | Set to `true` once TLS is terminated in front of the app. |
 | `SESSION_ENCRYPT` | Optional | Set to `true` in production to encrypt session data in the configured session store. HTTPS-only cookies are controlled by `SESSION_SECURE_COOKIE`. |
 
-See "Production hardening" in `docs/deployment/docker.md` for the full rationale and the
-recommended reverse-proxy security headers (HSTS/CSP stay the operator's responsibility).
+See "Production hardening" in `docs/deployment/docker.md` for the full rationale, and
+[security-headers.md](security-headers.md) for the HTTP security headers your webserver or
+reverse proxy should add (the nginx example above sets none).
 
 ## 6. Update procedure
 
