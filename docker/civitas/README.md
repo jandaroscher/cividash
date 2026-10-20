@@ -1,88 +1,13 @@
 # CIVITAS/CORE local dev environment
 
-Local development setup for testing the dashboard's CIVITAS/CORE integration against a real CORE V2 instance.
+CiviDash supports CIVITAS/CORE v1 (1.6.x) only. The add-on
+([cividash-addon](https://github.com/jandaroscher/cividash-addon))
+targets the same version.
 
-## Quick start
+The local test environment is a Stellio NGSI-LD broker aligned with CORE 1.6.2:
+see [v1.6.2/README.md](v1.6.2/README.md).
 
 ```bash
-# Infrastructure only (FROST + Keycloak + Kafka, for API integration work)
-./docker/civitas/setup.sh
-
-# Full CORE Portal (includes Backend API, Config Adapter, Frontend UI)
-./docker/civitas/setup.sh --full
-
-# Stop everything (keeps data)
-./docker/civitas/teardown.sh
-
-# Stop and remove all data (clean slate)
-./docker/civitas/teardown.sh --volumes
+./docker/civitas/v1.6.2/setup.sh     # start and seed
+./docker/civitas/v1.6.2/teardown.sh  # stop and remove its data
 ```
-
-## Prerequisites
-
-Infrastructure only (default):
-- Docker + Docker Compose v2
-- git (setup.sh clones the CORE repo)
-- curl (used for health checks and FROST seeding)
-- jq
-
-Full mode (`--full`) needs all of the above, plus:
-- Java 21+ JDK (`brew install openjdk@21`)
-- Maven 3.9+ (`brew install maven`)
-- pnpm (for the Next.js frontend)
-
-## Services
-
-### Infrastructure (always started)
-
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| FROST SensorThings | http://localhost:8085/FROST-Server/v1.1 | - |
-| Keycloak | http://localhost:8080 | admin / admin |
-| Kafka UI | http://localhost:8090 | - |
-| APISIX Gateway | http://localhost:9080 | - |
-| PostgreSQL (Portal) | localhost:5432 | admin / admin |
-| PostgreSQL (Keycloak) | localhost:5433 | keycloak / keycloak |
-
-### CORE Portal (--full mode)
-
-| Service | URL | Notes |
-|---------|-----|-------|
-| Portal Frontend | http://localhost:3000 | Next.js 15 |
-| Portal Backend API | http://localhost:8089 | Spring Boot |
-| Swagger UI | http://localhost:8089/v1/swagger-ui/index.html | API docs |
-| Config Adapter | http://localhost:8088 | Keycloak sync |
-
-Portal login: `dev@civitas.local` / `dev123`
-
-## Dashboard .env
-
-Add these to your `.env` to connect the dashboard to the local CORE instance:
-
-```dotenv
-CIVITAS_ENABLED=true
-CIVITAS_API_URL=http://localhost:8085/FROST-Server/v1.1
-CIVITAS_OAUTH_TOKEN_URL=http://localhost:8080/realms/civitas-core/protocol/openid-connect/token
-CIVITAS_OAUTH_CLIENT_ID=cividash-dashboard
-CIVITAS_OAUTH_CLIENT_SECRET=cividash-secret
-```
-
-## Test data
-
-The setup script seeds FROST with three sustainability indicators:
-
-| Thing | Datastreams | Years |
-|-------|------------|-------|
-| Erneuerbare Energien | PV-Leistung (MW), Gesamte Erneuerbare (MW) | 2015-2023 |
-| Radverkehr | Modal Split Radverkehr (%) | 2015-2022 |
-| CO2-Emissionen | CO2 pro Kopf (t CO2/a) | 2015-2022 |
-
-## Known issues
-
-The Config Adapter loads only the Keycloak adapter (the APISIX/FROST/Redpanda adapters aren't bundled in the fat JAR). APISIX routes stay unconfigured as a result, so the frontend connects directly to the backend (port 8089) instead of through APISIX (port 9080).
-
-If port 8025 is already in use (e.g. by DDEV), Mailpit fails to start. This only affects Keycloak email verification in dev, nothing else breaks.
-
-## Customisation
-
-Edit `seed-data.json` to add or change test data indicators. Set the `CIVITAS_CORE_DIR` env variable to point at a different CORE repo location (default: `../civitas-core`, a checkout next to this repository). Set `FROST_DB_PASSWORD` to change the FROST DB password (default: `frost_secret`).
