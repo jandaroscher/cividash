@@ -9,5 +9,5 @@ see [v1.6.2/README.md](v1.6.2/README.md).
 
 ```bash
 ./docker/civitas/v1.6.2/setup.sh     # start and seed
-./docker/civitas/v1.6.2/teardown.sh  # stop and remove its data
+./docker/civitas/v1.6.2/teardown.sh  # stop and delete its volumes
 ```
