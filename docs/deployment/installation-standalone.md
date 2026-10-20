@@ -11,7 +11,7 @@ server, outside of the DDEV/CI setup used for development. It reflects the curre
   use 8.2.
 - **PHP extensions**: `mbstring`, `intl`, `bcmath`, `gd`, `curl`, `xml`, `zip`, `redis`
   (from the CI `setup-php` step; see Known limitations on whether `redis` is strictly required).
-- **Node.js**: 20 (`.github/workflows/ci.yml` `actions/setup-node`). `npm ci` is used,
+- **Node.js**: 22 (`.github/workflows/ci.yml` `actions/setup-node`). `npm ci` is used,
   so a `package-lock.json` must be present.
 - **Composer**: v2.
 - **Database**: `config/database.php` defines four Laravel connections: `sqlite`, `mysql`,
