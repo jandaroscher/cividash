@@ -6,7 +6,7 @@ publiccodeYmlVersion: "0"
 
 name: CiviDash
 applicationSuite: CiviDash
-url: "https://gitlab.opencode.de/regensburg_next/cividash"
+url: "https://github.com/jandaroscher/cividash"
 softwareType: standalone/web
 
 softwareVersion: 1.0.0 # x-release-please-version
@@ -47,7 +47,7 @@ description:
       auf Laravel (Backend/Admin via Filament) und Vue 3 (Frontend) basiert.
       Es unterstützt Mehrmandantenfähigkeit (mehrere Dashboards/Tenants) und
       mehrsprachige Inhalte (Deutsch/Englisch). Das zugehörige CIVITAS/CORE-Add-on wird
-      separat unter https://gitlab.opencode.de/regensburg_next/cividash-addon gepflegt.
+      separat unter https://github.com/jandaroscher/cividash-addon gepflegt.
     features:
       - Kennzahl-Kacheln mit Zeitreihen
       - Filter nach Kategoriegruppen
@@ -57,8 +57,8 @@ description:
       - Filament-Admin mit Seitenbaukasten
       - Datenimport (JSON/CSV)
       - CIVITAS/CORE-Integration
-    documentation: "https://gitlab.opencode.de/regensburg_next/cividash/-/tree/main/docs"
-    apiDocumentation: "https://gitlab.opencode.de/regensburg_next/cividash/-/tree/main/docs/api"
+    documentation: "https://github.com/jandaroscher/cividash/tree/main/docs"
+    apiDocumentation: "https://github.com/jandaroscher/cividash/tree/main/docs/api"
   en:
     shortDescription: "Open-source sustainability dashboard for municipalities"
     longDescription: >
@@ -66,7 +66,7 @@ description:
       built on Laravel (backend/admin via Filament) and Vue 3 (frontend). It
       supports multi-tenancy (multiple dashboards/tenants) and multilingual
       content (German/English). The related CIVITAS/CORE add-on is maintained
-      separately at https://gitlab.opencode.de/regensburg_next/cividash-addon.
+      separately at https://github.com/jandaroscher/cividash-addon.
     features:
       - KPI tiles with time series
       - Filtering by category groups
@@ -76,5 +76,5 @@ description:
       - Filament admin with page builder
       - Data import (JSON/CSV)
       - CIVITAS/CORE integration
-    documentation: "https://gitlab.opencode.de/regensburg_next/cividash/-/tree/main/docs"
-    apiDocumentation: "https://gitlab.opencode.de/regensburg_next/cividash/-/tree/main/docs/api"
+    documentation: "https://github.com/jandaroscher/cividash/tree/main/docs"
+    apiDocumentation: "https://github.com/jandaroscher/cividash/tree/main/docs/api"

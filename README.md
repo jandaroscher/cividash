@@ -11,9 +11,9 @@ Laravel (backend/admin via Filament) and Vue 3 (frontend). It supports multi-ten
 tiles, filtering, full-text search, a Filament-based page builder and data import. The
 related CIVITAS/CORE add-on is maintained separately.
 
-- Repository: https://gitlab.opencode.de/regensburg_next/cividash
+- Repository: https://github.com/jandaroscher/cividash (mirror on openCode: https://gitlab.opencode.de/regensburg_next/cividash)
 - Issues: https://github.com/jandaroscher/cividash/issues
-- CIVITAS/CORE add-on: https://gitlab.opencode.de/regensburg_next/cividash-addon
+- CIVITAS/CORE add-on: https://github.com/jandaroscher/cividash-addon
 - Installation guide: [docs/deployment/installation-standalone.md](docs/deployment/installation-standalone.md)
 - Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Security policy: [SECURITY.md](SECURITY.md)
@@ -68,7 +68,7 @@ ddev delete --omit-snapshot && ddev start
 
 - Standalone (bare server / VM): [docs/deployment/installation-standalone.md](docs/deployment/installation-standalone.md)
 - Docker: [docs/deployment/docker.md](docs/deployment/docker.md)
-- CIVITAS/CORE add-on: [cividash-addon](https://gitlab.opencode.de/regensburg_next/cividash-addon), architecture in [docs/architecture/civitas-core/architecture.md](docs/architecture/civitas-core/architecture.md)
+- CIVITAS/CORE add-on: [cividash-addon](https://github.com/jandaroscher/cividash-addon), architecture in [docs/architecture/civitas-core/architecture.md](docs/architecture/civitas-core/architecture.md)
 - Local CIVITAS/CORE test environment: [docker/civitas/README.md](docker/civitas/README.md)
 
 See [docs/deployment/README.md](docs/deployment/README.md) for the full deployment
@@ -89,6 +89,16 @@ Hosted deployments are maintained outside this repository.
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Where maintenance happens
+
+GitHub is the working and release repository. Development, issues and pull requests,
+dependency updates (Dependabot), releases (tags, GitHub Releases and
+[CHANGELOG.md](CHANGELOG.md), created by release-please) and the production images
+`ghcr.io/jandaroscher/cividash-app` and `ghcr.io/jandaroscher/cividash-web` all come from
+https://github.com/jandaroscher/cividash. Watch that repository for new releases and
+security fixes. The openCode repository is a mirror for discoverability; changes made
+there are not merged back.
 
 ## Privacy
 
