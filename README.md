@@ -43,7 +43,7 @@ related CIVITAS/CORE add-on is maintained separately.
 
 ## Quickstart
 
-Local development runs through [DDEV](https://ddev.com/). Node.js 20 or newer is
+Local development runs through [DDEV](https://ddev.com/). Node.js 22 or newer is
 required outside of DDEV (e.g. for editor tooling); see `.nvmrc` (`nvm use`).
 
 ```bash

@@ -8353,7 +8353,7 @@
       "properties": [
         {
           "name": "cdx:npm:package:constraint:engine:node",
-          "value": ">=20"
+          "value": ">=22"
         },
         {
           "name": "cdx:npm:package:private",

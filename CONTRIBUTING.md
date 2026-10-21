@@ -7,7 +7,7 @@ The maintainers develop on GitHub (`jandaroscher/cividash`), which is mirrored t
 
 ## Getting started
 
-The project runs on [DDEV](https://ddev.com/). Node.js 20 or newer is required
+The project runs on [DDEV](https://ddev.com/). Node.js 22 or newer is required
 outside of DDEV (see `.nvmrc`, `nvm use`).
 
 ```bash
