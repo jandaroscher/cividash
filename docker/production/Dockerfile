@@ -5,7 +5,7 @@
 # Multi-stage build:
 #   1. assets  — node:22-alpine  -> compiles the Vue/Tailwind frontend (public/build)
 #   2. vendor  — composer:2       -> installs production PHP deps + optimized autoloader
-#   3. runtime — php:8.2-fpm-alpine -> final image: app code + vendor + built assets
+#   3. runtime — php:8.2.35-fpm-alpine -> final image: app code + vendor + built assets
 #
 # The image runs PHP-FPM on tcp 9000 as the non-root www-data user. It is the
 # single source workload for: fpm (php-fpm), queue (queue:work), scheduler
@@ -48,7 +48,7 @@ WORKDIR /app
 # not yet available / no app code present). --no-dev keeps dev tooling out.
 # --ignore-platform-reqs: the composer:2 image's PHP lacks some runtime
 # extensions (ext-intl, ext-gd, ...), but composer.lock pins exact versions and
-# the php:8.2-fpm-alpine runtime stage installs every required extension, so we
+# the php:8.2.35-fpm-alpine runtime stage installs every required extension, so we
 # only need to assemble vendor/ here, not satisfy platform reqs.
 COPY composer.json composer.lock ./
 RUN composer install \
@@ -68,7 +68,8 @@ RUN composer dump-autoload --optimize --no-dev --no-interaction --ignore-platfor
 # ---------------------------------------------------------------------------
 # Stage 3: runtime — the final PHP-FPM image.
 # ---------------------------------------------------------------------------
-FROM php:8.2-fpm-alpine AS runtime
+# Pinned to a patch release that fixes CVE-2026-109618 and CVE-2026-109619.
+FROM php:8.2.35-fpm-alpine AS runtime
 
 WORKDIR /var/www/html
 
