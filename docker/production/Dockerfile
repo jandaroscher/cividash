@@ -5,7 +5,7 @@
 # Multi-stage build:
 #   1. assets  — node:22-alpine  -> compiles the Vue/Tailwind frontend (public/build)
 #   2. vendor  — composer:2       -> installs production PHP deps + optimized autoloader
-#   3. runtime — php:8.2-fpm-alpine -> final image: app code + vendor + built assets
+#   3. runtime — php:8.2.35-fpm-alpine -> final image: app code + vendor + built assets
 #
 # The image runs PHP-FPM on tcp 9000 as the non-root www-data user. It is the
 # single source workload for: fpm (php-fpm), queue (queue:work), scheduler

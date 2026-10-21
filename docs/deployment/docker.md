@@ -9,7 +9,7 @@ Two images, built from the repo root as build context:
 
 - `cividash-app` (`docker/production/Dockerfile`): multi-stage build. Stage 1 (`node:22-alpine`)
   builds the Vite frontend into `public/build`. Stage 2 (`composer:2`) installs production PHP
-  dependencies. Stage 3 (`php:8.2-fpm-alpine`) is the runtime image: PHP-FPM on port 9000,
+  dependencies. Stage 3 (`php:8.2.35-fpm-alpine`) is the runtime image: PHP-FPM on port 9000,
   running as `www-data`. This one image is the workload for `fpm`, `queue:work`, the
   `schedule:run` loop and one-shot `migrate --force`.
 - `cividash-web` (`docker/production/nginx/Dockerfile`): thin rootless `nginxinc/nginx-unprivileged:alpine`
