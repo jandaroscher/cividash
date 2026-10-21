@@ -48,7 +48,7 @@ WORKDIR /app
 # not yet available / no app code present). --no-dev keeps dev tooling out.
 # --ignore-platform-reqs: the composer:2 image's PHP lacks some runtime
 # extensions (ext-intl, ext-gd, ...), but composer.lock pins exact versions and
-# the php:8.2-fpm-alpine runtime stage installs every required extension, so we
+# the php:8.2.35-fpm-alpine runtime stage installs every required extension, so we
 # only need to assemble vendor/ here, not satisfy platform reqs.
 COPY composer.json composer.lock ./
 RUN composer install \
