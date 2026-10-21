@@ -68,7 +68,8 @@ RUN composer dump-autoload --optimize --no-dev --no-interaction --ignore-platfor
 # ---------------------------------------------------------------------------
 # Stage 3: runtime — the final PHP-FPM image.
 # ---------------------------------------------------------------------------
-FROM php:8.2-fpm-alpine AS runtime
+# Pinned to a patch release that fixes CVE-2026-109618 and CVE-2026-109619.
+FROM php:8.2.35-fpm-alpine AS runtime
 
 WORKDIR /var/www/html
 
