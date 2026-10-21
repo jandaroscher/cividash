@@ -4,7 +4,7 @@ A local-only NGSI-LD context broker for validating the dashboard's CIVITAS/CORE 
 
 We run Stellio 2.21.0 (the latest stable release, 2025-02-26). Stellio is the same FIWARE Generic Enabler that sits behind APISIX in CORE production, so a bare local Stellio exposes the exact NGSI-LD API our `NgsiLdClient` and `NgsiLdDataMapper` consume.
 
-> This stack is LOCAL ONLY. It is a separate `docker compose` project from the V2 reference stack in the parent directory (`docker/civitas/`), which stays untouched as a SensorThings/FROST reference.
+> This stack is LOCAL ONLY. It is the only local CIVITAS/CORE environment: CiviDash targets CORE v1 (1.6.x), see [../README.md](../README.md).
 
 ## What's in the stack
 
@@ -78,7 +78,7 @@ ddev exec php artisan integration:sync-civitas --tenant=<slug>             # per
 
 ## Seed data
 
-`seed-ngsi-ld.json` contains the 3 indicators from the V2 `seed-data.json`, re-shaped as NGSI-LD `NachhaltigkeitsIndikator` entities exactly as our `NgsiLdDataMapper` expects. `id` follows `urn:ngsi-ld:NachhaltigkeitsIndikator:<slug>`. `name` and `description` are a `LanguageProperty` with a `de`/`en` `languageMap`. `unit` is a `Property` holding a scalar string. `category` is a `Relationship` to `urn:ngsi-ld:Category:<key>` (`energie` / `mobilitaet` / `klima`; the mapper slugifies the last URN segment into the category key). `dataPoints` is a `Property` whose `value` is `[{ "year": int, "value": float }]`, deliberately not `values`: under the NGSI-LD core context, `values` expands to the reserved term `hasValues`, which Stellio, and thus production CORE, rejects with 400. Each entity also carries a top-level `@context` (NGSI-LD core context).
+`seed-ngsi-ld.json` contains 3 sustainability indicators, modelled as NGSI-LD `NachhaltigkeitsIndikator` entities exactly as our `NgsiLdDataMapper` expects. `id` follows `urn:ngsi-ld:NachhaltigkeitsIndikator:<slug>`. `name` and `description` are a `LanguageProperty` with a `de`/`en` `languageMap`. `unit` is a `Property` holding a scalar string. `category` is a `Relationship` to `urn:ngsi-ld:Category:<key>` (`energie` / `mobilitaet` / `klima`; the mapper slugifies the last URN segment into the category key). `dataPoints` is a `Property` whose `value` is `[{ "year": int, "value": float }]`, deliberately not `values`: under the NGSI-LD core context, `values` expands to the reserved term `hasValues`, which Stellio, and thus production CORE, rejects with 400. Each entity also carries a top-level `@context` (NGSI-LD core context).
 
 | Indicator | Category | Unit | Years (value) |
 |-----------|----------|------|---------------|

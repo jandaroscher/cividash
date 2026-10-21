@@ -4,6 +4,9 @@ This document describes how CiviDash is deployed and operated as an **add-on** o
 a [CIVITAS/CORE](https://gitlab.opencode.de/civitas-connect/civitas-core) urban data
 platform. CiviDash also runs standalone; see the deployment docs for that setup.
 
+**Supported platform version:** CIVITAS/CORE v1 (1.6.x). CORE v2 is not supported
+or tested.
+
 > Diagram labels are in German to match the CIVITAS/CORE reference diagram.
 
 ![Architecture diagram](diagrams/architecture.svg)
