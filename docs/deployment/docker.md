@@ -126,6 +126,8 @@ nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cr
 It deliberately does **not** set `Strict-Transport-Security` (HSTS) or a Content-Security-Policy,
 since both are unsafe or need tuning without knowing the deployment's TLS setup and CSP needs
 (Filament/Livewire, Fabricator blocks) — add those at your TLS-terminating reverse proxy/ingress.
+[security-headers.md](security-headers.md) lists recommended values, including a tested
+Content-Security-Policy.
 
 Tile embeds are the one exception to `X-Frame-Options: SAMEORIGIN`: `/embed/tiles/{slug}` and
 `/en/embed/tiles/{slug}` are served without it so other websites can frame them (via

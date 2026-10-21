@@ -36,7 +36,7 @@
       "externalReferences": [
         {
           "type": "website",
-          "url": "https://gitlab.opencode.de/regensburg_next/cividash",
+          "url": "https://github.com/jandaroscher/cividash",
           "comment": "as detected from Composer manifest 'homepage'"
         },
         {
@@ -46,7 +46,7 @@
         },
         {
           "type": "vcs",
-          "url": "https://gitlab.opencode.de/regensburg_next/cividash",
+          "url": "https://github.com/jandaroscher/cividash",
           "comment": "as detected from Composer manifest 'support.source'"
         }
       ],
@@ -8342,10 +8342,10 @@
           "acknowledgement": "declared"
         }
       ],
-      "purl": "pkg:npm/cividash?vcs_url=https%3A%2F%2Fgitlab.opencode.de%2Fregensburg_next%2Fcividash",
+      "purl": "pkg:npm/cividash?vcs_url=https%3A%2F%2Fgithub.com%2Fjandaroscher%2Fcividash",
       "externalReferences": [
         {
-          "url": "https://gitlab.opencode.de/regensburg_next/cividash",
+          "url": "https://github.com/jandaroscher/cividash",
           "type": "vcs",
           "comment": "as detected from PackageJson property \"repository.url\""
         }

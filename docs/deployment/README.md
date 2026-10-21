@@ -15,6 +15,8 @@ to run it: local development, production deployment, CI and a few operational to
 
 - [seeding.md](seeding.md): database seed commands and when to use them.
 - [timezone.md](timezone.md): `APP_TIMEZONE` handling and the one UTC exception.
+- [security-headers.md](security-headers.md): HTTP security headers the app sends and the ones
+  operators should add.
 
 ## CI
 

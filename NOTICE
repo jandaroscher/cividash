@@ -8,7 +8,8 @@ option) any later version of the EUPL.
 SPDX-License-Identifier: EUPL-1.2+
 See the LICENSE file for the full licence text.
 
-Source: https://gitlab.opencode.de/regensburg_next/cividash
+Source: https://github.com/jandaroscher/cividash
+Mirror: https://gitlab.opencode.de/regensburg_next/cividash
 
 ------------------------------------------------------------------------------
 Third-party components shipped with this repository or its build output
