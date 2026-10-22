@@ -360,7 +360,7 @@ class PageSeeder extends Seeder
                 'type' => 'intro-text',
                 'data' => [
                     'heading' => 'Allgemeine Informationen',
-                    'text' => '<p>Die Musterstadt beachtet selbstverständlich die datenschutzrechtlichen Bestimmungen der EU-DSGVO und das Telemediengesetz. Verantwortlich für die Einhaltung der datenschutzrechtlichen Bestimmungen laut Datenschutz-Grundverordnung ist die Bürgermeisterin/der Bürgermeister.</p><p>Die Sicherheit Ihrer Daten ist uns wichtig, deshalb werden alle unsere Internetseiten mit einer Transportverschlüsselung (https) angeboten, damit die Daten nach dem aktuellen Stand der Technik sicher übertragen werden.</p>',
+                    'text' => '<p>Die Musterstadt beachtet selbstverständlich die datenschutzrechtlichen Bestimmungen der EU-DSGVO und des Telekommunikation-Digitale-Dienste-Datenschutz-Gesetzes (TDDDG). Verantwortlich für die Einhaltung der datenschutzrechtlichen Bestimmungen laut Datenschutz-Grundverordnung ist die Bürgermeisterin/der Bürgermeister.</p><p>Die Sicherheit Ihrer Daten ist uns wichtig, deshalb werden alle unsere Internetseiten mit einer Transportverschlüsselung (https) angeboten, damit die Daten nach dem aktuellen Stand der Technik sicher übertragen werden.</p>',
                 ],
             ],
             [
@@ -404,14 +404,14 @@ class PageSeeder extends Seeder
             [
                 'type' => 'intro-text',
                 'data' => [
-                    'heading' => 'Herausgeber (gemäß § 5 TMG; § 55 II RStV):',
+                    'heading' => 'Herausgeber (gemäß § 5 DDG; § 18 Abs. 2 MStV):',
                     'text' => '<p><strong>Musterstadt</strong></p><p>Beispielstraße 1<br/>12345 Musterstadt</p><p>E-Mail: <a href="mailto:presse@example.org">presse@example.org</a><br/>Internet: <a href="https://www.example.org">www.example.org</a></p><p>Die Musterstadt ist eine Gebietskörperschaft des Öffentlichen Rechts.<br/>Sie wird vertreten durch die Bürgermeisterin/den Bürgermeister.</p><p>USt-Identifikationsnummer gemäß<br/>§ 27 a UStG: DE 000000000</p>',
                 ],
             ],
             [
                 'type' => 'intro-text',
                 'data' => [
-                    'heading' => 'Inhaltlich verantwortlich (nach § 55 II RStV):',
+                    'heading' => 'Inhaltlich verantwortlich (nach § 18 Abs. 2 MStV):',
                     'text' => '<p><strong>Musterstadt</strong><br/><strong>Referat für Verwaltung - Koordination für kommunale Entwicklungspolitik</strong></p><p>Ansprechperson Kommunale Entwicklungspolitik</p><p>Beispielstraße 1<br/>12345 Musterstadt</p><p>Telefon: +49 123 4567890<br/>E-Mail: <a href="mailto:impressum@example.org">impressum@example.org</a></p>',
                 ],
             ],
@@ -443,7 +443,7 @@ class PageSeeder extends Seeder
                 'type' => 'intro-text',
                 'data' => [
                     'heading' => 'General Information',
-                    'text' => '<p>The Sample City complies with the data protection regulations of the EU GDPR and the Telemedia Act. Responsible for compliance with data protection regulations according to the General Data Protection Regulation is the Mayor.</p><p>The security of your data is important to us, which is why all our websites are offered with transport encryption (https) so that data is transmitted securely according to the current state of the art.</p>',
+                    'text' => '<p>The Sample City complies with the data protection regulations of the EU GDPR and the German Telecommunications Digital Services Data Protection Act (TDDDG). Responsible for compliance with data protection regulations according to the General Data Protection Regulation is the Mayor.</p><p>The security of your data is important to us, which is why all our websites are offered with transport encryption (https) so that data is transmitted securely according to the current state of the art.</p>',
                 ],
             ],
             [
@@ -487,14 +487,14 @@ class PageSeeder extends Seeder
             [
                 'type' => 'intro-text',
                 'data' => [
-                    'heading' => 'Publisher (according to § 5 TMG; § 55 II RStV):',
+                    'heading' => 'Publisher (according to § 5 DDG; § 18 (2) MStV):',
                     'text' => '<p><strong>Sample City</strong></p><p>Sample Street 1<br/>12345 Sample City</p><p>Email: <a href="mailto:presse@example.org">presse@example.org</a><br/>Internet: <a href="https://www.example.org">www.example.org</a></p><p>The Sample City is a public law corporation.<br/>It is represented by the Mayor.</p><p>VAT identification number according to<br/>§ 27 a UStG: DE 000000000</p>',
                 ],
             ],
             [
                 'type' => 'intro-text',
                 'data' => [
-                    'heading' => 'Content responsible (according to § 55 II RStV):',
+                    'heading' => 'Content responsible (according to § 18 (2) MStV):',
                     'text' => '<p><strong>Sample City</strong><br/><strong>Administration Department - Coordination for Municipal Development Policy</strong></p><p>Coordinator for Municipal Development Policy</p><p>Sample Street 1<br/>12345 Sample City</p><p>Phone: +49 123 4567890<br/>Email: <a href="mailto:impressum@example.org">impressum@example.org</a></p>',
                 ],
             ],
