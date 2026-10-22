@@ -52,7 +52,7 @@ Areas that require an admin role are not visible to editor accounts (see [Chapte
 
 ### Switch dashboard
 
-The active dashboard is shown at the top of the sidebar (in the example, "Stadt Regensburg"). When multiple dashboards are available, clicking it opens a selection menu to switch between them; the menu also offers the **Dashboard configuration** and — for admins only — **Create new dashboard**. All content — pages, tiles, categories — is always displayed and edited in the context of the selected dashboard.
+The active dashboard is shown at the top of the sidebar (in the example, "Stadt Regensburg"). When multiple dashboards are available, clicking it opens a selection menu to switch between them; the menu also offers the **Dashboard configuration** and — for admins only — **Create new dashboard**. A new dashboard starts with an empty public start page (layout `Landingpage`) that is filled in under **Pages**. All content — pages, tiles, categories — is always displayed and edited in the context of the selected dashboard.
 
 <!-- Screenshot: Dashboard selection menu at the top of the sidebar -->
 ![Switch dashboard](../assets/screenshots/en/01-switch-dashboard.png)

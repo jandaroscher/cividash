@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages\Tenancy;
 
+use App\Models\Page;
 use App\Models\Tenant;
 use Filament\Facades\Filament;
 use Filament\Forms;
@@ -93,6 +94,8 @@ class RegisterTenant extends BaseRegisterTenant
             if (! $user->default_tenant_id) {
                 $user->forceFill(['default_tenant_id' => $tenant->id])->save();
             }
+
+            Page::ensureMinimalRootPage($tenant);
 
             return $tenant;
         });

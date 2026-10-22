@@ -6,6 +6,7 @@ use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
@@ -34,6 +35,43 @@ class Page extends FabricatorPage implements PageContract
 
         static::saved(function (self $page) {
             $page->flushContentCache();
+        });
+    }
+
+    /**
+     * Create an empty public landing page for a tenant that has no pages at all.
+     *
+     * Without it the frontend has no root page and shows "Root page not found"
+     * on a fresh installation. Tenants with any page are left alone, so a start
+     * page with another slug or layout is never shadowed and a deliberately
+     * deleted one is not recreated on upgrade.
+     *
+     * @return bool Whether a page was created.
+     */
+    public static function ensureMinimalRootPage(Tenant $tenant): bool
+    {
+        return DB::transaction(function () use ($tenant): bool {
+            // Lock the tenant row so concurrent callers cannot both pass the check.
+            Tenant::whereKey($tenant->id)->lockForUpdate()->first();
+
+            $exists = static::withoutGlobalScope('tenant')
+                ->where('tenant_id', $tenant->id)
+                ->exists();
+
+            if ($exists) {
+                return false;
+            }
+
+            static::create([
+                'title' => ['de' => 'Dashboard', 'en' => 'Dashboard'],
+                'slug' => ['de' => '/', 'en' => '/'],
+                'blocks' => ['de' => [], 'en' => []],
+                'layout' => 'landingpage',
+                'is_public' => true,
+                'tenant_id' => $tenant->id,
+            ]);
+
+            return true;
         });
     }
 
