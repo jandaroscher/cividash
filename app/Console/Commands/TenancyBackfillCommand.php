@@ -27,7 +27,7 @@ class TenancyBackfillCommand extends Command
     /**
      * Create or reuse a default tenant (based on the `--default-tenant` option) and backfill existing records to associate them with that tenant inside a single database transaction.
      *
-     * This command ensures a tenant with the requested slug exists, attaches that tenant to existing users (and sets users' default tenant when missing), and updates existing model records with a null `tenant_id` to point to the default tenant. The operation is atomic: changes are committed only if all backfill steps succeed.
+     * This command ensures a tenant with the requested slug exists, attaches that tenant to existing users (and sets users' default tenant when missing), updates existing model records with a null `tenant_id` to point to the default tenant, and creates an empty public root page when the tenant has none. The operation is atomic: changes are committed only if all backfill steps succeed.
      *
      * @return int Command exit status code: `SUCCESS` (0) on success.
      */
@@ -43,6 +43,7 @@ class TenancyBackfillCommand extends Command
 
             $this->backfillUsers($tenant);
             $this->backfillModels($tenant);
+            Page::ensureMinimalRootPage($tenant);
         });
 
         $this->info('Tenancy backfill completed.');

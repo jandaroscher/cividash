@@ -38,6 +38,37 @@ class Page extends FabricatorPage implements PageContract
     }
 
     /**
+     * Create an empty public landing page for the tenant unless it already has one.
+     *
+     * Without it the frontend has no root page and shows "Root page not found"
+     * on a fresh installation.
+     *
+     * @return bool Whether a page was created.
+     */
+    public static function ensureMinimalRootPage(Tenant $tenant): bool
+    {
+        $exists = static::withoutGlobalScope('tenant')
+            ->where('tenant_id', $tenant->id)
+            ->where('layout', 'landingpage')
+            ->exists();
+
+        if ($exists) {
+            return false;
+        }
+
+        static::create([
+            'title' => ['de' => 'Dashboard', 'en' => 'Dashboard'],
+            'slug' => ['de' => '/', 'en' => '/'],
+            'blocks' => ['de' => [], 'en' => []],
+            'layout' => 'landingpage',
+            'is_public' => true,
+            'tenant_id' => $tenant->id,
+        ]);
+
+        return true;
+    }
+
+    /**
      * List of translatable fields.
      */
     public array $translatable = [

@@ -52,7 +52,7 @@ Bereiche, die eine Admin-Rolle erfordern, sind für Redaktions-Accounts nicht si
 
 ### Dashboard wechseln
 
-Am oberen Rand der Seitenleiste wird das aktive Dashboard angezeigt (im Beispiel „Stadt Regensburg"). Bei Zugriff auf mehrere Dashboards öffnet ein Klick darauf ein Auswahlmenü zum Wechsel zwischen den verfügbaren Dashboards; darin stehen zusätzlich die **Dashboard-Konfiguration** und — nur für Admins — **Neues Dashboard anlegen**. Alle Inhalte — Seiten, Kacheln, Kategorien — werden immer im Kontext des gewählten Dashboards angezeigt und bearbeitet.
+Am oberen Rand der Seitenleiste wird das aktive Dashboard angezeigt (im Beispiel „Stadt Regensburg"). Bei Zugriff auf mehrere Dashboards öffnet ein Klick darauf ein Auswahlmenü zum Wechsel zwischen den verfügbaren Dashboards; darin stehen zusätzlich die **Dashboard-Konfiguration** und — nur für Admins — **Neues Dashboard anlegen**. Ein neues Dashboard startet mit einer leeren, öffentlichen Startseite (Layout `Landingpage`), die unter **Seiten** befüllt wird. Alle Inhalte — Seiten, Kacheln, Kategorien — werden immer im Kontext des gewählten Dashboards angezeigt und bearbeitet.
 
 <!-- Screenshot: Dashboard-Auswahl-Menü am oberen Rand der Seitenleiste -->
 ![Dashboard wechseln](../assets/screenshots/de/01-dashboard-wechseln.png)

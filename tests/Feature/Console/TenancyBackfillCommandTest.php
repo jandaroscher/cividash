@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Console;
 
+use App\Models\Page;
 use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\User;
@@ -135,5 +136,27 @@ class TenancyBackfillCommandTest extends TestCase
 
         $user->refresh();
         $this->assertEquals($tenant->id, $user->default_tenant_id);
+    }
+
+    public function test_fresh_install_serves_a_root_page(): void
+    {
+        $this->getJson('/api/content/pages/root?locale=de')->assertNotFound();
+
+        $this->artisan('tenancy:backfill')->assertExitCode(0);
+
+        $this->getJson('/api/content/pages/root?locale=de')->assertOk();
+        $this->getJson('/api/content/pages/root?locale=en')->assertOk();
+    }
+
+    public function test_keeps_an_existing_landing_page(): void
+    {
+        $this->artisan('tenancy:backfill')->assertExitCode(0);
+        $this->artisan('tenancy:backfill')->assertExitCode(0);
+
+        $tenant = Tenant::where('slug', 'default')->first();
+        $this->assertSame(1, Page::withoutGlobalScope('tenant')
+            ->where('tenant_id', $tenant->id)
+            ->where('layout', 'landingpage')
+            ->count());
     }
 }

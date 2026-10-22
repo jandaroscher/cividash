@@ -198,25 +198,9 @@ class DashboardResetCommand extends Command
 
     protected function seedMinimalRootPage(Tenant $tenant): void
     {
-        $exists = Page::withoutGlobalScope('tenant')
-            ->where('tenant_id', $tenant->id)
-            ->where('layout', 'landingpage')
-            ->exists();
-
-        if ($exists) {
-            return;
+        if (Page::ensureMinimalRootPage($tenant)) {
+            $this->info("Seeded root page for tenant '{$tenant->slug}'.");
         }
-
-        Page::create([
-            'title' => ['de' => 'Dashboard', 'en' => 'Dashboard'],
-            'slug' => ['de' => '/', 'en' => '/'],
-            'blocks' => ['de' => [], 'en' => []],
-            'layout' => 'landingpage',
-            'is_public' => true,
-            'tenant_id' => $tenant->id,
-        ]);
-
-        $this->info("Seeded root page for tenant '{$tenant->slug}'.");
     }
 
     protected function ensureAdminExists(): void
