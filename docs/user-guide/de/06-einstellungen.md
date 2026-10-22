@@ -256,19 +256,20 @@ Die Seite **API Keys** verwaltet Zugriffstoken für die Dashboard-API dieses Ten
 
 #### 6.1.5.1 API-Schlüssel Übersicht
 
-Die Tabelle zeigt pro Token: Name, Besitzer, Berechtigungen (Badge), Aktiv-Status, Erstellungs- und letztes Nutzungsdatum sowie (ausblendbar) das letzte Aktualisierungsdatum. Filterbar nach Berechtigung und Aktiv-Status, durchsuchbar über das Suchfeld.
+Die Tabelle zeigt pro Token: Name, Besitzer, Berechtigungen (Badge), Aktiv-Status, Erstellungsdatum, Ablaufdatum (abgelaufene rot), letztes Nutzungsdatum sowie (ausblendbar) das letzte Aktualisierungsdatum. Filterbar nach Berechtigung und Aktiv-Status, durchsuchbar über das Suchfeld.
 
 <!-- Screenshot: API Keys — Tabellenübersicht mit einem Beispiel-Token -->
 ![API Keys: Übersicht](../assets/screenshots/de/06-api-keys-uebersicht.png)
 
 #### 6.1.5.2 Neuen Key erstellen
 
-Über **Token erstellen** öffnet sich ein Dialog mit zwei Feldern:
+Über **Token erstellen** öffnet sich ein Dialog mit drei Feldern:
 
 | Feld | Beschreibung |
 |------|-------------|
 | **Token-Name** | Beschreibender Name zur späteren Identifikation (z. B. „Produktions-API"). |
 | **Berechtigungen** | **Nur Lesen** (Lesezugriff auf öffentliche API-Endpunkte) oder **Lesen und Schreiben** (vollständiger CRUD-Zugriff auf Admin-Endpunkte). |
+| **Ablaufdatum** | Danach funktioniert der Schlüssel nicht mehr. Vorbelegt mit der Standard-Laufzeit (365 Tage, einstellbar über `API_TOKEN_LIFETIME_DAYS`). |
 
 <!-- Screenshot: API Keys — Dialog "API Token erstellen" mit Token-Name und Berechtigungen -->
 ![API Keys: Token erstellen](../assets/screenshots/de/06-api-key-erstellen.png)
@@ -277,7 +278,7 @@ Die Tabelle zeigt pro Token: Name, Besitzer, Berechtigungen (Badge), Aktiv-Statu
 
 #### 6.1.5.3 Key bearbeiten
 
-Über **Bearbeiten** lassen sich Name, Berechtigungen und Aktiv-Status eines bestehenden Tokens ändern (der Token-Wert selbst bleibt unverändert und wird nicht erneut angezeigt).
+Über **Bearbeiten** lassen sich Name, Berechtigungen, Ablaufdatum (leer = läuft nicht ab) und Aktiv-Status eines bestehenden Tokens ändern (der Token-Wert selbst bleibt unverändert und wird nicht erneut angezeigt).
 
 <!-- Screenshot: API-Schlüssel bearbeiten -->
 ![API-Schlüssel bearbeiten](../assets/screenshots/de/06-api-key-bearbeiten.png)

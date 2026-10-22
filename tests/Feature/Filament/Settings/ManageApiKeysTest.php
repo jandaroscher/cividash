@@ -3,6 +3,7 @@
 namespace Tests\Feature\Filament\Settings;
 
 use App\Filament\Pages\ManageApiKeys;
+use App\Models\PersonalAccessToken;
 use App\Models\Tenant;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -44,6 +45,69 @@ class ManageApiKeysTest extends TestCase
     {
         Livewire::test(ManageApiKeys::class)
             ->assertSuccessful();
+    }
+
+    public function test_create_action_stores_the_chosen_expiry_date(): void
+    {
+        $expiresOn = now()->addMonth()->toDateString();
+
+        Livewire::test(ManageApiKeys::class)
+            ->callAction('create', [
+                'name' => 'Partner feed',
+                'abilities' => 'public-read',
+                'expires_at' => $expiresOn,
+            ])
+            ->assertHasNoActionErrors();
+
+        $token = PersonalAccessToken::where('name', 'Partner feed')->firstOrFail();
+        $this->assertSame($expiresOn, $token->expires_at->toDateString());
+    }
+
+    public function test_edit_action_changes_the_expiry_date(): void
+    {
+        $token = $this->user->createToken('Partner feed', ['public-read'], now()->addDays(5));
+        $token->accessToken->forceFill(['tenant_id' => $this->tenant->id])->save();
+        $extendedTo = now()->addYear()->toDateString();
+
+        Livewire::test(ManageApiKeys::class)
+            ->callTableAction('edit', $token->accessToken, [
+                'name' => 'Partner feed',
+                'abilities' => 'public-read',
+                'is_active' => true,
+                'expires_at' => $extendedTo,
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertSame($extendedTo, $token->accessToken->fresh()->expires_at->toDateString());
+    }
+
+    public function test_editing_the_name_keeps_an_expired_key_expired(): void
+    {
+        $this->freezeSecond();
+        $expiredAt = now()->subMinute();
+        $token = $this->user->createToken('Old feed', ['public-read'], $expiredAt);
+        $token->accessToken->forceFill(['tenant_id' => $this->tenant->id])->save();
+
+        Livewire::test(ManageApiKeys::class)
+            ->callTableAction('edit', $token->accessToken, [
+                'name' => 'Old feed (renamed)',
+                'abilities' => 'public-read',
+                'is_active' => true,
+                'expires_at' => $expiredAt->toDateString(),
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertTrue($token->accessToken->fresh()->expires_at->isPast());
+    }
+
+    public function test_create_action_defaults_to_the_configured_lifetime(): void
+    {
+        config(['sanctum.token_lifetime_days' => 90]);
+        $this->freezeSecond();
+
+        Livewire::test(ManageApiKeys::class)
+            ->mountAction('create')
+            ->assertActionDataSet(['expires_at' => now()->addDays(90)->toDateString()]);
     }
 
     public function test_page_shows_empty_state_when_no_tokens(): void

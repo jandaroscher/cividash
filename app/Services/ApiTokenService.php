@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\PersonalAccessToken;
 use App\Models\Tenant;
 use App\Models\User;
+use Carbon\CarbonInterface;
+use DateTimeInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\NewAccessToken;
@@ -44,16 +46,16 @@ class ApiTokenService
      * @param  Tenant  $tenant  The tenant context to scope the token to.
      * @param  string  $name  Display name for the token.
      * @param  array  $abilities  Array of abilities for the token; must contain at least one entry and only values from ALLOWED_ABILITIES.
+     * @param  DateTimeInterface|null  $expiresAt  Expiry date; defaults to the configured token lifetime (sanctum.token_lifetime_days).
      * @return NewAccessToken The newly created access token (includes `plainTextToken`).
      *
      * @throws ValidationException When abilities are empty or contain invalid entries.
      */
-    public function createForTenant(User $user, Tenant $tenant, string $name, array $abilities): NewAccessToken
+    public function createForTenant(User $user, Tenant $tenant, string $name, array $abilities, ?DateTimeInterface $expiresAt = null): NewAccessToken
     {
         $this->validateAbilities($abilities);
 
-        // Create the token
-        $newToken = $user->createToken($name, $abilities);
+        $newToken = $user->createToken($name, $abilities, $expiresAt ?? $this->defaultExpiry());
 
         // Associate with tenant (critical for Admin API to work)
         $newToken->accessToken->tenant_id = $tenant->id;
@@ -68,7 +70,7 @@ class ApiTokenService
      *
      * @param  PersonalAccessToken  $token  The token to update.
      * @param  Tenant  $tenant  The tenant that must own the token.
-     * @param  array  $data  The data to update (name, abilities, is_active).
+     * @param  array  $data  The data to update (name, abilities, expires_at, is_active).
      *
      * @throws \InvalidArgumentException If the token does not belong to the tenant.
      * @throws ValidationException When abilities are invalid.
@@ -125,6 +127,17 @@ class ApiTokenService
         }
 
         $token->delete();
+    }
+
+    /**
+     * Expiry date for new tokens from the configured lifetime, or null when tokens
+     * should not expire (lifetime unset or 0).
+     */
+    public function defaultExpiry(): ?CarbonInterface
+    {
+        $days = (int) config('sanctum.token_lifetime_days');
+
+        return $days > 0 ? now()->addDays($days)->endOfDay() : null;
     }
 
     /**

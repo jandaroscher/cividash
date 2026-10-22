@@ -171,6 +171,10 @@ return [
             'column_abilities' => 'Abilities',
             'column_active' => 'Active',
             'column_created' => 'Created',
+            'column_expires' => 'Expires',
+            'expires_at' => 'Expiry date',
+            'expires_at_helper' => 'The key stops working after this date. Leave empty to use the default lifetime.',
+            'expires_at_edit_helper' => 'Leave empty for a key that does not expire.',
             'column_last_used' => 'Last Used',
             'column_updated' => 'Updated at',
             'filter_abilities' => 'Abilities',
@@ -831,4 +835,5 @@ return [
         'account_inactive' => 'Your account is inactive. Please contact the administrator.',
     ],
     'date_time_format' => 'm/d/y H:i',
+    'date_format' => 'm/d/y',
 ];

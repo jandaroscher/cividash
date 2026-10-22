@@ -7,6 +7,7 @@ use App\Models\Tenant;
 use App\Services\ApiTokenService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -25,6 +26,7 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 
 class ManageApiKeys extends Page implements HasForms, HasTable
@@ -131,6 +133,14 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable(),
 
+                TextColumn::make('expires_at')
+                    ->label(__('filament.pages.manage_api_keys.column_expires'))
+                    ->date(__('filament.date_format'))
+                    ->placeholder(__('filament.pages.manage_api_keys.never'))
+                    ->color(fn (PersonalAccessToken $record) => $record->expires_at?->isPast() ? 'danger' : null)
+                    ->sortable()
+                    ->toggleable(),
+
                 TextColumn::make('last_used_at')
                     ->label(__('filament.pages.manage_api_keys.column_last_used'))
                     ->dateTime(__('filament.date_time_format'))
@@ -159,12 +169,16 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                             ->options($availableAbilities)
                             ->selectablePlaceholder(false)
                             ->required(),
+                        DatePicker::make('expires_at')
+                            ->label(__('filament.pages.manage_api_keys.expires_at'))
+                            ->helperText(__('filament.pages.manage_api_keys.expires_at_edit_helper')),
                         Toggle::make('is_active')
                             ->label(__('filament.pages.manage_api_keys.column_active')),
                     ])
                     ->fillForm(fn (PersonalAccessToken $record) => [
                         'name' => $record->name,
                         'abilities' => $record->abilities[0] ?? 'public-read',
+                        'expires_at' => $record->expires_at?->toDateString(),
                         'is_active' => $record->is_active,
                     ])
                     ->modalHeading(__('filament.pages.manage_api_keys.edit_modal_title'))
@@ -172,6 +186,12 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                     ->action(function (PersonalAccessToken $record, array $data) {
                         try {
                             $data['abilities'] = [$data['abilities']];
+                            $selected = filled($data['expires_at'] ?? null) ? Carbon::parse($data['expires_at']) : null;
+                            // Keep the exact stored time when the date is unchanged, so editing
+                            // the name cannot move an expired key to the end of the day again.
+                            $data['expires_at'] = $selected?->toDateString() === $record->expires_at?->toDateString()
+                                ? $record->expires_at
+                                : $selected?->endOfDay();
                             $this->getTokenService()->updateForTenant($record, $this->getTenant(), $data);
 
                             Notification::make()
@@ -297,6 +317,12 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                         ->required()
                         ->helperText(__('filament.pages.manage_api_keys.abilities_helper')),
 
+                    DatePicker::make('expires_at')
+                        ->label(__('filament.pages.manage_api_keys.expires_at'))
+                        ->default(fn () => $this->getTokenService()->defaultExpiry()?->toDateString())
+                        ->minDate(now()->addDay()->startOfDay())
+                        ->helperText(__('filament.pages.manage_api_keys.expires_at_helper')),
+
                     Placeholder::make('warning')
                         ->label('')
                         ->content(__('filament.pages.manage_api_keys.token_warning'))
@@ -313,7 +339,8 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                             $user,
                             $tenant,
                             $data['name'],
-                            [$data['abilities']]
+                            [$data['abilities']],
+                            filled($data['expires_at'] ?? null) ? Carbon::parse($data['expires_at'])->endOfDay() : null,
                         );
 
                         // Store for one-time display
