@@ -81,6 +81,25 @@ class ManageApiKeysTest extends TestCase
         $this->assertSame($extendedTo, $token->accessToken->fresh()->expires_at->toDateString());
     }
 
+    public function test_editing_the_name_keeps_an_expired_key_expired(): void
+    {
+        $this->freezeSecond();
+        $expiredAt = now()->subMinute();
+        $token = $this->user->createToken('Old feed', ['public-read'], $expiredAt);
+        $token->accessToken->forceFill(['tenant_id' => $this->tenant->id])->save();
+
+        Livewire::test(ManageApiKeys::class)
+            ->callTableAction('edit', $token->accessToken, [
+                'name' => 'Old feed (renamed)',
+                'abilities' => 'public-read',
+                'is_active' => true,
+                'expires_at' => $expiredAt->toDateString(),
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertTrue($token->accessToken->fresh()->expires_at->isPast());
+    }
+
     public function test_create_action_defaults_to_the_configured_lifetime(): void
     {
         config(['sanctum.token_lifetime_days' => 90]);

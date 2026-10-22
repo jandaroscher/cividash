@@ -186,7 +186,12 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                     ->action(function (PersonalAccessToken $record, array $data) {
                         try {
                             $data['abilities'] = [$data['abilities']];
-                            $data['expires_at'] = filled($data['expires_at'] ?? null) ? Carbon::parse($data['expires_at'])->endOfDay() : null;
+                            $selected = filled($data['expires_at'] ?? null) ? Carbon::parse($data['expires_at']) : null;
+                            // Keep the exact stored time when the date is unchanged, so editing
+                            // the name cannot move an expired key to the end of the day again.
+                            $data['expires_at'] = $selected?->toDateString() === $record->expires_at?->toDateString()
+                                ? $record->expires_at
+                                : $selected?->endOfDay();
                             $this->getTokenService()->updateForTenant($record, $this->getTenant(), $data);
 
                             Notification::make()
