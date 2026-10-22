@@ -77,7 +77,9 @@ class KeycloakSsoController extends Controller
         $tokenData = $socialiteUser->user ?? [];
         $this->ssoService->syncRolesFromToken($user, $tokenData);
 
-        Auth::login($user, remember: true);
+        // No remember-me cookie: a lock in Keycloak must take effect once the
+        // session expires instead of being bypassed by a long-lived recaller.
+        Auth::login($user);
         session()->regenerate();
 
         return redirect()->to('/admin');
