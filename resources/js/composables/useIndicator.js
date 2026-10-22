@@ -64,14 +64,14 @@ export function useIndicator(indicator, currentYear) {
             const yearData = indicator.value.years.find(
                 (y) => (y.year?.toString() || y.year) === yearStr || (y.title?.toString() || y.title) === yearStr
             );
-            return yearData?.value || null;
+            return yearData?.value ?? null;
         }
         
         return null;
     });
 
     const formattedValue = computed(() => {
-        if (!indicatorValue.value) return '-';
+        if (indicatorValue.value === null || indicatorValue.value === undefined || indicatorValue.value === '') return '-';
         return Number(indicatorValue.value).toLocaleString(currentLocale.value);
     });
 
