@@ -278,9 +278,12 @@ package):
 4. In Docker/DDEV setups where the app can't resolve the Keycloak host name normally, set
    `KEYCLOAK_BASE_URL_INTERNAL` to a container-reachable URL.
 5. Optional: set `KEYCLOAK_SSO_PASSWORD_LOGIN=false` to switch off the local email/password
-   login (admin panel and `/api/login`). Every login then goes through Keycloak, so realm
-   policies such as MFA apply to all accounts. For emergency access while Keycloak is
-   unavailable, set it back to `true`. The switch has no effect while SSO is disabled.
+   login (admin panel and `/api/login`). New logins then go through Keycloak, so realm
+   policies such as MFA apply to them. Sessions and "Remember me" cookies from earlier
+   password logins stay valid; to end them when you switch, clear the sessions table and the
+   remember tokens (`UPDATE users SET remember_token = NULL;`). For emergency access while
+   Keycloak is unavailable, set the switch back to `true`. It has no effect while SSO is
+   disabled.
 
 Linking a Keycloak login to an existing local account by email, or provisioning a brand new
 account for a first-time login, requires the realm to send a verified `email_verified` claim

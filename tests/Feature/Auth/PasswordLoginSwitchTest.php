@@ -95,7 +95,8 @@ class PasswordLoginSwitchTest extends TestCase
         $this->ssoOnly();
 
         $this->postJson('/api/login', ['email' => 'admin@example.com', 'password' => 'correct-horse-battery'])
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertJson(['message' => __('auth.password_login_disabled')]);
 
         $this->assertGuest();
     }

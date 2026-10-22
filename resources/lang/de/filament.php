@@ -827,7 +827,6 @@ return [
     'sso' => [
         'divider' => 'oder',
         'login_with_keycloak' => 'Mit Keycloak anmelden',
-        'password_login_disabled' => 'Die Anmeldung mit Passwort ist deaktiviert. Bitte über den zentralen Login anmelden.',
         'login_failed' => 'Anmeldung mit Keycloak fehlgeschlagen.',
         'account_inactive' => 'Ihr Konto ist deaktiviert. Bitte kontaktieren Sie den Administrator.',
     ],

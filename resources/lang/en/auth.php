@@ -18,5 +18,6 @@ return [
 
     // Custom auth messages
     'login_success' => 'Successfully logged in.',
+    'password_login_disabled' => 'Password login is disabled. Please sign in via the central login.',
     'logout_success' => 'Successfully logged out.',
 ];

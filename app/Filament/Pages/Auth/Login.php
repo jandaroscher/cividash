@@ -34,7 +34,7 @@ class Login extends BaseLogin
         // Also guard the Livewire action itself, not only the rendered form.
         if (! $this->passwordLoginAllowed()) {
             throw ValidationException::withMessages([
-                'data.email' => __('filament.sso.password_login_disabled'),
+                'data.email' => __('auth.password_login_disabled'),
             ]);
         }
 

@@ -827,7 +827,6 @@ return [
     'sso' => [
         'divider' => 'or',
         'login_with_keycloak' => 'Sign in with Keycloak',
-        'password_login_disabled' => 'Password login is disabled. Please sign in via the central login.',
         'login_failed' => 'Keycloak authentication failed. Please try again.',
         'account_inactive' => 'Your account is inactive. Please contact the administrator.',
     ],
