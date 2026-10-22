@@ -62,12 +62,16 @@ return [
     |
     | When enabled, users can authenticate via CORE's Keycloak instance
     | using OpenID Connect. This is optional and enabled per deployment via
-    | KEYCLOAK_SSO_ENABLED; the local password login stays available.
+    | KEYCLOAK_SSO_ENABLED. The local password login stays available unless
+    | KEYCLOAK_SSO_PASSWORD_LOGIN=false; then every login goes through
+    | Keycloak and its policies (e.g. MFA). Set it back to true for emergency
+    | access when Keycloak is unavailable.
     |
     */
 
     'keycloak_sso' => [
         'enabled' => env('KEYCLOAK_SSO_ENABLED', false),
+        'password_login' => env('KEYCLOAK_SSO_PASSWORD_LOGIN', true),
         'base_url' => env('KEYCLOAK_BASE_URL'),
         'realm' => env('KEYCLOAK_REALM', 'civitas'),
         'client_id' => env('KEYCLOAK_CLIENT_ID'),

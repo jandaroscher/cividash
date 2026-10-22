@@ -214,6 +214,7 @@ Source: `.env.example`. "Required" = must have a real value for a working produc
 | `CIVITAS_SYNC_SCHEDULE` | Optional | `daily` (default) or `hourly`; drives the `integration:sync-civitas` cron cadence. |
 | `CIVITAS_SYNC_PRUNE_REMOVED` | Optional | Prune local records absent from a full source sync. |
 | `KEYCLOAK_SSO_ENABLED` | Optional | Enables Keycloak OIDC login for the Filament admin panel. |
+| `KEYCLOAK_SSO_PASSWORD_LOGIN` | Optional | `false` switches off the local password login while SSO is enabled (default `true`). |
 | `KEYCLOAK_BASE_URL` | Required if SSO enabled | Keycloak server base URL (`config/services.php` `keycloak.base_url`). |
 | `KEYCLOAK_REALM` | Optional | Defaults to `civitas` in `config/services.php`; set it if your realm is named differently. |
 | `KEYCLOAK_CLIENT_ID` / `KEYCLOAK_CLIENT_SECRET` | Required if SSO enabled | OIDC client credentials. |
@@ -276,6 +277,13 @@ package):
 3. Adjust `KEYCLOAK_REDIRECT_URI` if the admin panel isn't served at `/admin`.
 4. In Docker/DDEV setups where the app can't resolve the Keycloak host name normally, set
    `KEYCLOAK_BASE_URL_INTERNAL` to a container-reachable URL.
+5. Optional: set `KEYCLOAK_SSO_PASSWORD_LOGIN=false` to switch off the local email/password
+   login (admin panel and `/api/login`). New logins then go through Keycloak, so realm
+   policies such as MFA apply to them. Sessions and "Remember me" cookies from earlier
+   password logins stay valid; to end them when you switch, clear the sessions table and the
+   remember tokens (`UPDATE users SET remember_token = NULL;`). For emergency access while
+   Keycloak is unavailable, set the switch back to `true`. It has no effect while SSO is
+   disabled.
 
 Linking a Keycloak login to an existing local account by email, or provisioning a brand new
 account for a first-time login, requires the realm to send a verified `email_verified` claim

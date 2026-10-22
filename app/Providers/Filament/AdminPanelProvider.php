@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\AvatarProviders\LocalAvatarProvider;
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\Tenancy\EditTenantProfile;
@@ -133,7 +134,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.system')),
             ])
             ->sidebarCollapsibleOnDesktop()
-            ->login()
+            ->login(Login::class)
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
                 fn () => config('integrations.keycloak_sso.enabled')

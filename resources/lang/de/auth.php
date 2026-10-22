@@ -18,5 +18,6 @@ return [
 
     // Custom auth messages
     'login_success' => 'Erfolgreich angemeldet.',
+    'password_login_disabled' => 'Die Anmeldung mit Passwort ist deaktiviert. Bitte über den zentralen Login anmelden.',
     'logout_success' => 'Erfolgreich abgemeldet.',
 ];

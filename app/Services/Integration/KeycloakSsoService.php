@@ -25,6 +25,15 @@ class KeycloakSsoService
     }
 
     /**
+     * Whether the local email/password login is offered. It can only be turned
+     * off while SSO is enabled, so a deployment never locks everyone out.
+     */
+    public function passwordLoginAllowed(): bool
+    {
+        return ! $this->isEnabled() || (bool) config('integrations.keycloak_sso.password_login', true);
+    }
+
+    /**
      * Find an existing user or create a new one from a Socialite user.
      *
      * Matching order: keycloak_id → email → create new.
