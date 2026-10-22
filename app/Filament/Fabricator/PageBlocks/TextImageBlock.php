@@ -2,6 +2,7 @@
 
 namespace App\Filament\Fabricator\PageBlocks;
 
+use App\Filament\Support\ImageMetadataFields;
 use App\Filament\Support\RichEditorConfig;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\FileUpload;
@@ -15,7 +16,7 @@ class TextImageBlock extends PageBlock
     /**
      * Create and return the Block definition for the "text-image" fabricator block.
      *
-     * Schema includes a required rich text field `text`, an image upload `image` (stored in `text-images` on the `public` disk with an image editor and aspect ratios 4:3, 16:9, 1:1), a text `image_alt` (max length 255) for accessibility, a required radio `image_position` with options `left` (default) and `right`, and a hidden `is_active` field that defaults to `true` when not provided.
+     * Schema includes a required rich text field `text`, an image upload `image` (stored in `text-images` on the `public` disk with an image editor and aspect ratios 4:3, 16:9, 1:1), `image_title`, `image_alt` and `image_copyright` (see ImageMetadataFields), a required radio `image_position` with options `left` (default) and `right`, and a hidden `is_active` field that defaults to `true` when not provided.
      *
      * @return Block The configured Block instance for the `text-image` block.
      */
@@ -31,16 +32,14 @@ class TextImageBlock extends PageBlock
                 RichEditorConfig::make('text')
                     ->label(__('filament.blocks.text_image.text'))
                     ->required(),
-                FileUpload::make('image')
-                    ->label(__('filament.blocks.text_image.image'))
-                    ->image()
-                    ->directory('text-images')
-                    ->disk('public')
-                    ->maxSize(5120), // 5 MB
-                TextInput::make('image_alt')
-                    ->label(__('filament.blocks.text_image.image_alt'))
-                    ->helperText(__('filament.blocks.text_image.image_alt_helper'))
-                    ->maxLength(255),
+                ImageMetadataFields::make(
+                    FileUpload::make('image')
+                        ->label(__('filament.blocks.text_image.image'))
+                        ->image()
+                        ->directory('text-images')
+                        ->disk('public')
+                        ->maxSize(5120), // 5 MB
+                ),
                 Radio::make('image_position')
                     ->label(__('filament.blocks.text_image.image_position'))
                     ->options([

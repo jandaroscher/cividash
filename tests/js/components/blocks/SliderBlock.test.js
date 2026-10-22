@@ -148,4 +148,21 @@ describe('SliderBlock', () => {
         expect(img.exists()).toBe(true);
         expect(img.attributes('src')).toBe('/storage/slides/photo.jpg');
     });
+
+    it('shows alt text, title and copyright of a slide image', () => {
+        const wrapper = createWrapper({
+            items: [{ title: 'Slide', image: 'slides/photo.jpg', image_alt: 'Cyclists', image_title: 'Bike day', image_copyright: 'Jane Doe' }],
+        });
+        const img = wrapper.find('img');
+        expect(img.attributes('alt')).toBe('Cyclists');
+        expect(img.attributes('title')).toBe('Bike day');
+        expect(wrapper.find('figcaption').text()).toBe('© Jane Doe');
+    });
+
+    it('falls back to the slide title as alt text', () => {
+        const wrapper = createWrapper({
+            items: [{ title: 'Slide', image: 'slides/photo.jpg' }],
+        });
+        expect(wrapper.find('img').attributes('alt')).toBe('Slide');
+    });
 });

@@ -59,7 +59,7 @@ The following block types are available: **Tiles**, **Downloads**, **FAQ**, **In
 
 ### 2.4.1 Intro Text (Heading, Text, Image)
 
-An introductory text block with a **heading**, an optional **subheading**, formattable **text** (bold, italic, lists, links), an **image**, and an optional **second image** — each with its own alt text for accessibility.
+An introductory text block with a **heading**, an optional **subheading**, formattable **text** (bold, italic, lists, links), an **image**, and an optional **second image** — each with its own image title, alt text and copyright (see [Chapter 5.3, Alt Text and Accessibility](05-images-and-files.md#53-alt-text-and-accessibility)).
 
 <!-- Screenshot: Intro Text block fully filled with heading, text, and image fields -->
 ![Intro Text block](../assets/screenshots/en/02-block-intro-text.png)
@@ -68,7 +68,7 @@ An introductory text block with a **heading**, an optional **subheading**, forma
 
 ### 2.4.2 Text-Image Block (Text with Positioned Image)
 
-Combines a **heading**, formattable **text**, and an **image** with a selectable **image position** (left/right).
+Combines a **heading**, formattable **text**, and an **image** (with image title, alt text and copyright) with a selectable **image position** (left/right).
 
 <!-- Screenshot: Text & Image block with heading, text, image upload, and image position selector -->
 ![Text & Image block](../assets/screenshots/en/02-block-text-image.png)
@@ -77,7 +77,7 @@ Combines a **heading**, formattable **text**, and an **image** with a selectable
 
 ### 2.4.3 Slider (Image Carousel with Links)
 
-A slider consists of an optional **heading** and any number of **slider items**. Each item has a **title**, **description**, **image**, **link URL**, and **link text**.
+A slider consists of an optional **heading** and any number of **slider items**. Each item has a **title**, **description**, **image** (with image title, alt text and copyright, see [Chapter 5.3](05-images-and-files.md#53-alt-text-and-accessibility)), **link URL**, and **link text**.
 
 <!-- Screenshot: Slider block with one filled slider item (title, description, link) -->
 ![Slider block](../assets/screenshots/en/02-block-slider.png)

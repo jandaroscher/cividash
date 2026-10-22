@@ -39,11 +39,13 @@
                   v-if="slide.image"
                   class="relative h-fit slide-media"
                 >
-                  <img
+                  <BlockImage
                     :src="slide.imageUrl"
-                    :alt="slide.title || ''"
-                    class="aspect-[3/2] w-full object-cover slide-image"
-                  >
+                    :alt="slide.imageAlt"
+                    :title="slide.imageTitle"
+                    :copyright="slide.imageCopyright"
+                    img-class="aspect-[3/2] w-full object-cover slide-image"
+                  />
                 </div>
 
                 <div
@@ -175,6 +177,7 @@ import '@egjs/flicking-plugins/dist/pagination.css';
 import { useLocale } from '../../composables/useLocale';
 import { useBrandingStore } from '../../stores/branding';
 import { isExternalUrl, sanitizeHtml } from '../../utils/sanitizeHtml';
+import BlockImage from '../BlockImage.vue';
 
 const brandingStore = useBrandingStore();
 
@@ -228,6 +231,9 @@ const slides = computed(() => {
                 sanitizedDescription: item.description ? sanitizeHtml(item.description) : '',
                 image: item.image || null,
                 imageUrl,
+                imageAlt: item.image_alt || item.title || '',
+                imageTitle: item.image_title || '',
+                imageCopyright: item.image_copyright || '',
                 link_url: item.link_url || null,
                 link_text: item.link_text || '',
             };

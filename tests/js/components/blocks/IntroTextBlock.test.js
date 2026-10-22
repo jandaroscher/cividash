@@ -31,6 +31,7 @@ describe('IntroTextBlock', () => {
                     props: blockProps,
                 },
             },
+            global: { stubs: { BlockImage: false } },
         });
     }
 
@@ -61,6 +62,30 @@ describe('IntroTextBlock', () => {
         const images = wrapper.findAll('img');
         expect(images.length).toBeGreaterThan(0);
         expect(images[0].attributes('src')).toBe('/storage/photos/test.jpg');
+    });
+
+    it('shows alt text, title and copyright of both images', () => {
+        const wrapper = createWrapper({
+            image: 'a.jpg',
+            image_alt: 'Main alt',
+            image_title: 'Main title',
+            image_copyright: 'Jane Doe',
+            image_secondary: 'b.jpg',
+            image_secondary_alt: 'Second alt',
+            image_secondary_title: 'Second title',
+            image_secondary_copyright: 'John Doe',
+        });
+        const secondary = wrapper.findAll('figure').find((f) => f.find('img').attributes('src') === '/storage/b.jpg');
+        expect(secondary.find('img').attributes('alt')).toBe('Second alt');
+        expect(secondary.find('img').attributes('title')).toBe('Second title');
+        expect(secondary.find('figcaption').text()).toBe('© John Doe');
+        const main = wrapper.findAll('figure').filter((f) => f.find('img').attributes('src') === '/storage/a.jpg');
+        expect(main.length).toBeGreaterThan(0);
+        main.forEach((f) => {
+            expect(f.find('img').attributes('alt')).toBe('Main alt');
+            expect(f.find('img').attributes('title')).toBe('Main title');
+            expect(f.find('figcaption').text()).toBe('© Jane Doe');
+        });
     });
 
     it('does not render images when not provided', () => {
