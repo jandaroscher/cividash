@@ -79,6 +79,8 @@ class KeycloakSsoController extends Controller
 
         // No remember-me cookie: a lock in Keycloak must take effect once the
         // session expires instead of being bypassed by a long-lived recaller.
+        // Recallers issued before this change stay valid until the user's
+        // remember_token rotates (logout) or is reset.
         Auth::login($user);
         session()->regenerate();
 
