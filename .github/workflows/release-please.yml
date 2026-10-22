@@ -37,3 +37,11 @@ jobs:
     uses: ./.github/workflows/release-images.yml
     with:
       tag: ${{ needs.release-please.outputs.tag_name }}
+
+  mirror:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/mirror-opencode.yml
+    secrets: inherit
