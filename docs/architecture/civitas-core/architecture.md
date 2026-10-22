@@ -55,7 +55,8 @@ There are two distinct access paths, both entering through APISIX:
 2. **Editorial / admin users** sign in to the **Filament admin UI** with email
    and password or, when Keycloak SSO is enabled, through **Keycloak**. SSO is
    optional and switched on per deployment with `KEYCLOAK_SSO_ENABLED`; see
-   `config/integrations.php`. The local password login stays available either way.
+   `config/integrations.php`. The local password login stays available unless
+   `KEYCLOAK_SSO_PASSWORD_LOGIN=false` switches it off while SSO is enabled.
 
 ## External data source
 
