@@ -49,7 +49,6 @@ Jedes Inhaltsbild in den Blöcken **Intro-Text** (Haupt- und zweites Bild), **Te
 
 - Alt-Text knapp halten und beschreiben, was auf dem Bild zu sehen ist, nicht „Bild von …“.
 - Alt-Text leer lassen, wenn das Bild rein dekorativ ist. Screenreader überspringen es dann.
-- Im Slider gilt ohne Alt-Text der Titel des Slider-Eintrags als Alt-Text.
 - Das Zeichen „©“ muss nicht eingegeben werden, es wird automatisch ergänzt.
 - Alle drei Felder sind pro Sprache getrennt, wie die übrigen Blockinhalte.
 

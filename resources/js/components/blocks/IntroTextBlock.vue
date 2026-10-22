@@ -18,7 +18,7 @@
                 
         <BlockImage
           v-if="imageUrl"
-          class="lg:hidden mb-6"
+          class="lg:hidden mb-6 w-fit"
           :src="imageUrl"
           :alt="block.props.image_alt"
           :title="block.props.image_title"
@@ -35,7 +35,7 @@
       <div class="col-span-1">
         <BlockImage
           v-if="imageUrl"
-          class="hidden lg:block mb-10"
+          class="hidden lg:block mb-10 w-fit"
           :src="imageUrl"
           :alt="block.props.image_alt"
           :title="block.props.image_title"
@@ -43,7 +43,7 @@
         />
         <BlockImage
           v-if="imageSecondaryUrl"
-          class="hidden lg:block"
+          class="hidden lg:block w-fit"
           :src="imageSecondaryUrl"
           :alt="block.props.image_secondary_alt"
           :title="block.props.image_secondary_title"

@@ -2,8 +2,8 @@
 
 namespace App\Filament\Support;
 
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 
 class ImageMetadataFields
@@ -13,7 +13,8 @@ class ImageMetadataFields
      *
      * The metadata keys derive from the upload's name (`image` → `image_title`,
      * `image_alt`, `image_copyright`), so existing `*_alt` values keep working.
-     * The fieldset is layout only and does not nest the state.
+     * The fieldset is layout only and does not nest the state. It carries the
+     * upload's label; the upload hides its own but keeps it for validation messages.
      */
     public static function make(FileUpload $upload): Fieldset
     {
@@ -21,7 +22,7 @@ class ImageMetadataFields
 
         return Fieldset::make($upload->getLabel())
             ->schema([
-                $upload->label(__('filament.blocks.image_metadata.file'))->columnSpanFull(),
+                $upload->hiddenLabel()->columnSpanFull(),
                 TextInput::make("{$name}_title")
                     ->label(__('filament.blocks.image_metadata.title'))
                     ->helperText(__('filament.blocks.image_metadata.title_helper'))

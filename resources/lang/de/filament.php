@@ -702,7 +702,6 @@ return [
     ],
     'blocks' => [
         'image_metadata' => [
-            'file' => 'Bilddatei',
             'title' => 'Bildtitel',
             'title_helper' => 'Wird als Tooltip angezeigt.',
             'alt' => 'Alt-Text',

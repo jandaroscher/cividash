@@ -49,7 +49,6 @@ Every content image in the **Intro Text** (main and second image), **Text & Imag
 
 - Keep alt text short and describe what the image shows, not “image of …”.
 - Leave alt text empty if the image is purely decorative. Screen readers then skip it.
-- In the slider, the slide title serves as alt text when no alt text is set.
 - There is no need to type “©”, it is added automatically.
 - All three fields are separate per language, like the rest of the block content.
 

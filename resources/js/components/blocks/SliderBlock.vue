@@ -231,7 +231,7 @@ const slides = computed(() => {
                 sanitizedDescription: item.description ? sanitizeHtml(item.description) : '',
                 image: item.image || null,
                 imageUrl,
-                imageAlt: item.image_alt || item.title || '',
+                imageAlt: item.image_alt || '',
                 imageTitle: item.image_title || '',
                 imageCopyright: item.image_copyright || '',
                 link_url: item.link_url || null,

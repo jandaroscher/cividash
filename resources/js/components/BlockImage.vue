@@ -1,5 +1,5 @@
 <template>
-  <figure class="relative">
+  <figure class="relative max-w-full">
     <img
       :src="src"
       :alt="alt || ''"

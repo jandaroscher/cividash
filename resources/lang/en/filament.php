@@ -702,7 +702,6 @@ return [
     ],
     'blocks' => [
         'image_metadata' => [
-            'file' => 'Image file',
             'title' => 'Image title',
             'title_helper' => 'Shown as a tooltip.',
             'alt' => 'Alt text',

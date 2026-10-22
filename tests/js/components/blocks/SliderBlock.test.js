@@ -159,10 +159,10 @@ describe('SliderBlock', () => {
         expect(wrapper.find('figcaption').text()).toBe('© Jane Doe');
     });
 
-    it('falls back to the slide title as alt text', () => {
+    it('treats a slide image without alt text as decorative', () => {
         const wrapper = createWrapper({
             items: [{ title: 'Slide', image: 'slides/photo.jpg' }],
         });
-        expect(wrapper.find('img').attributes('alt')).toBe('Slide');
+        expect(wrapper.find('img').attributes('alt')).toBe('');
     });
 });
