@@ -1,0 +1,37 @@
+# Mirrors main and all tags to openCode. GitHub is canonical; openCode on the
+# Free tier only offers push mirrors from GitLab, so the push starts here.
+name: mirror-opencode
+
+on:
+  push:
+    branches: [main]
+    tags: ['*']
+  workflow_dispatch:
+
+concurrency:
+  group: mirror-opencode
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Push main and tags to openCode
+        env:
+          OPENCODE_MIRROR_TOKEN: ${{ secrets.OPENCODE_MIRROR_TOKEN }}
+        run: |
+          if [ -z "$OPENCODE_MIRROR_TOKEN" ]; then
+            echo "::warning::OPENCODE_MIRROR_TOKEN is not set, skipping the mirror."
+            exit 0
+          fi
+          remote="https://oauth2:${OPENCODE_MIRROR_TOKEN}@gitlab.opencode.de/regensburg_next/cividash.git"
+          git push "$remote" origin/main:refs/heads/main
+          git push "$remote" 'refs/tags/*:refs/tags/*'
