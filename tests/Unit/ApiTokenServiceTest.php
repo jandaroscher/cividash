@@ -25,6 +25,35 @@ class ApiTokenServiceTest extends TestCase
         $this->tenant = Tenant::where('slug', 'default')->first();
     }
 
+    public function test_create_for_tenant_expires_after_the_configured_lifetime(): void
+    {
+        config(['sanctum.token_lifetime_days' => 365]);
+        $this->freezeSecond();
+
+        $token = $this->service->createForTenant(User::factory()->create(), $this->tenant, 'Default', ['public-read']);
+
+        $this->assertTrue($token->accessToken->fresh()->expires_at->equalTo(now()->addDays(365)));
+    }
+
+    public function test_create_for_tenant_uses_an_explicit_expiry_date(): void
+    {
+        $this->freezeSecond();
+        $expiresAt = now()->addDays(30);
+
+        $token = $this->service->createForTenant(User::factory()->create(), $this->tenant, 'Short', ['public-read'], $expiresAt);
+
+        $this->assertTrue($token->accessToken->fresh()->expires_at->equalTo($expiresAt));
+    }
+
+    public function test_create_for_tenant_without_lifetime_never_expires(): void
+    {
+        config(['sanctum.token_lifetime_days' => null]);
+
+        $token = $this->service->createForTenant(User::factory()->create(), $this->tenant, 'Forever', ['public-read']);
+
+        $this->assertNull($token->accessToken->fresh()->expires_at);
+    }
+
     public function test_list_for_tenant_returns_only_own_tokens(): void
     {
         $tenantB = Tenant::create(['name' => 'Other Tenant', 'slug' => 'other']);

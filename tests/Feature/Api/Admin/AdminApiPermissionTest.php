@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Admin;
 
+use App\Models\PersonalAccessToken;
 use App\Models\Tenant;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -56,6 +57,21 @@ class AdminApiPermissionTest extends TestCase
             ]);
 
         $response->assertStatus(201);
+    }
+
+    public function test_expired_token_is_rejected(): void
+    {
+        $token = $this->adminUser->createToken('expired', ['admin-api'], now()->subMinute());
+        $token->accessToken->tenant_id = $this->tenant->id;
+        $token->accessToken->save();
+
+        $response = $this->withHeader('Authorization', "Bearer {$token->plainTextToken}")
+            ->postJson('/api/v1/admin/tiles', [
+                'title' => ['de' => 'Test', 'en' => 'Test'],
+            ]);
+
+        $response->assertStatus(401);
+        $this->assertNull(PersonalAccessToken::findToken($token->plainTextToken));
     }
 
     public function test_token_without_admin_api_ability_gets_403(): void

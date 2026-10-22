@@ -3,6 +3,7 @@
 namespace Tests\Feature\Filament\Settings;
 
 use App\Filament\Pages\ManageApiKeys;
+use App\Models\PersonalAccessToken;
 use App\Models\Tenant;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -44,6 +45,30 @@ class ManageApiKeysTest extends TestCase
     {
         Livewire::test(ManageApiKeys::class)
             ->assertSuccessful();
+    }
+
+    public function test_create_action_stores_the_chosen_expiry_date(): void
+    {
+        Livewire::test(ManageApiKeys::class)
+            ->callAction('create', [
+                'name' => 'Partner feed',
+                'abilities' => 'public-read',
+                'expires_at' => '2027-03-31',
+            ])
+            ->assertHasNoActionErrors();
+
+        $token = PersonalAccessToken::where('name', 'Partner feed')->firstOrFail();
+        $this->assertSame('2027-03-31', $token->expires_at->toDateString());
+    }
+
+    public function test_create_action_defaults_to_the_configured_lifetime(): void
+    {
+        config(['sanctum.token_lifetime_days' => 90]);
+        $this->freezeSecond();
+
+        Livewire::test(ManageApiKeys::class)
+            ->mountAction('create')
+            ->assertActionDataSet(['expires_at' => now()->addDays(90)->toDateString()]);
     }
 
     public function test_page_shows_empty_state_when_no_tokens(): void

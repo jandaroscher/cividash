@@ -24,13 +24,15 @@ class PersonalAccessToken extends SanctumPersonalAccessToken
     /**
      * Find the token instance matching the given token.
      *
-     * Returns null for inactive tokens so they fail authentication automatically.
+     * Returns null for inactive and expired tokens so they fail authentication
+     * automatically, also where the token is looked up outside the Sanctum guard
+     * (tenant resolution).
      */
     public static function findToken($token): ?SanctumPersonalAccessToken
     {
         $model = parent::findToken($token);
 
-        if ($model && ! $model->is_active) {
+        if ($model && (! $model->is_active || $model->expires_at?->isPast())) {
             return null;
         }
 
