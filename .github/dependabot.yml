@@ -52,6 +52,9 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@tailwindcss/vite"
         update-types: ["version-update:semver-major"]
+      # laravel-vite-plugin 2+ requires a newer Vite major, so it moves with Vite.
+      - dependency-name: "laravel-vite-plugin"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
