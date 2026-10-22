@@ -38,10 +38,12 @@ class Page extends FabricatorPage implements PageContract
     }
 
     /**
-     * Create an empty public landing page for the tenant unless it already has one.
+     * Create an empty public landing page for a tenant that has no pages at all.
      *
      * Without it the frontend has no root page and shows "Root page not found"
-     * on a fresh installation.
+     * on a fresh installation. Tenants with any page are left alone, so a start
+     * page with another slug or layout is never shadowed and a deliberately
+     * deleted one is not recreated on upgrade.
      *
      * @return bool Whether a page was created.
      */
@@ -49,7 +51,6 @@ class Page extends FabricatorPage implements PageContract
     {
         $exists = static::withoutGlobalScope('tenant')
             ->where('tenant_id', $tenant->id)
-            ->where('layout', 'landingpage')
             ->exists();
 
         if ($exists) {

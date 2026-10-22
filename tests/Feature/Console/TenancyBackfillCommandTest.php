@@ -148,15 +148,23 @@ class TenancyBackfillCommandTest extends TestCase
         $this->getJson('/api/content/pages/root?locale=en')->assertOk();
     }
 
-    public function test_keeps_an_existing_landing_page(): void
+    public function test_keeps_an_existing_start_page(): void
     {
-        $this->artisan('tenancy:backfill')->assertExitCode(0);
+        $tenant = Tenant::where('slug', 'default')->first();
+        $page = Page::create([
+            'title' => ['de' => 'Start', 'en' => 'Start'],
+            'slug' => ['de' => 'home', 'en' => 'home'],
+            'blocks' => ['de' => [], 'en' => []],
+            'layout' => 'subpage',
+            'is_public' => true,
+            'tenant_id' => $tenant->id,
+        ]);
+
         $this->artisan('tenancy:backfill')->assertExitCode(0);
 
-        $tenant = Tenant::where('slug', 'default')->first();
-        $this->assertSame(1, Page::withoutGlobalScope('tenant')
-            ->where('tenant_id', $tenant->id)
-            ->where('layout', 'landingpage')
-            ->count());
+        $this->getJson('/api/content/pages/root?locale=de')
+            ->assertOk()
+            ->assertJsonPath('id', $page->id);
+        $this->assertSame(1, Page::withoutGlobalScope('tenant')->where('tenant_id', $tenant->id)->count());
     }
 }
