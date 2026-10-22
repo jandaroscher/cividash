@@ -2,6 +2,7 @@
 
 namespace App\Filament\Fabricator\PageBlocks;
 
+use App\Filament\Support\ImageMetadataFields;
 use App\Filament\Support\RichEditorConfig;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\FileUpload;
@@ -19,7 +20,7 @@ class IntroTextBlock extends PageBlock
      * - `subheading`: text (max 255)
      * - `text`: required rich text (uses shared RichEditorConfig)
      * - `image` and `image_secondary`: image uploads stored in `intro-images` on the `public` disk with image editor enabled and aspect ratios `4:3`, `16:9`, `1:1`
-     * - `image_alt` and `image_secondary_alt`: alt text fields (max 255) with accessibility helper text
+     * - `{image}_title`, `{image}_alt` and `{image}_copyright` for both images (see ImageMetadataFields)
      * - `is_active`: hidden boolean defaulting to `true`; if hydrated value is `null`, the state is set to `true`
      *
      * @return Block The configured block schema for the `intro-text` block.
@@ -40,26 +41,22 @@ class IntroTextBlock extends PageBlock
                 RichEditorConfig::make('text')
                     ->label(__('filament.blocks.intro_text.text'))
                     ->required(),
-                FileUpload::make('image')
-                    ->label(__('filament.blocks.intro_text.image'))
-                    ->image()
-                    ->directory('intro-images')
-                    ->disk('public')
-                    ->maxSize(5120), // 5 MB
-                TextInput::make('image_alt')
-                    ->label(__('filament.blocks.intro_text.image_alt'))
-                    ->helperText(__('filament.blocks.intro_text.image_alt_helper'))
-                    ->maxLength(255),
-                FileUpload::make('image_secondary')
-                    ->label(__('filament.blocks.intro_text.image_secondary'))
-                    ->image()
-                    ->directory('intro-images')
-                    ->disk('public')
-                    ->maxSize(5120), // 5 MB
-                TextInput::make('image_secondary_alt')
-                    ->label(__('filament.blocks.intro_text.image_secondary_alt'))
-                    ->helperText(__('filament.blocks.intro_text.image_secondary_alt_helper'))
-                    ->maxLength(255),
+                ImageMetadataFields::make(
+                    FileUpload::make('image')
+                        ->label(__('filament.blocks.intro_text.image'))
+                        ->image()
+                        ->directory('intro-images')
+                        ->disk('public')
+                        ->maxSize(5120), // 5 MB
+                ),
+                ImageMetadataFields::make(
+                    FileUpload::make('image_secondary')
+                        ->label(__('filament.blocks.intro_text.image_secondary'))
+                        ->image()
+                        ->directory('intro-images')
+                        ->disk('public')
+                        ->maxSize(5120), // 5 MB
+                ),
                 Hidden::make('is_active')
                     ->default(true)
                     ->afterStateHydrated(function (Hidden $component, $state): void {

@@ -15,6 +15,7 @@ describe('TextImageBlock', () => {
                     props: blockProps,
                 },
             },
+            global: { stubs: { BlockImage: false } },
         });
     }
 
@@ -60,9 +61,15 @@ describe('TextImageBlock', () => {
         expect(wrapper.find('img').attributes('alt')).toBe('My Alt');
     });
 
-    it('defaults alt text to Image', () => {
+    it('renders an empty alt text when none is set', () => {
         const wrapper = createWrapper({ image: 'pic.jpg' });
-        expect(wrapper.find('img').attributes('alt')).toBe('Image');
+        expect(wrapper.find('img').attributes('alt')).toBe('');
+    });
+
+    it('shows title and copyright overlay of the image', () => {
+        const wrapper = createWrapper({ image: 'pic.jpg', image_title: 'Town hall', image_copyright: 'Jane Doe' });
+        expect(wrapper.find('img').attributes('title')).toBe('Town hall');
+        expect(wrapper.find('figcaption').text()).toBe('© Jane Doe');
     });
 
     it('renders image on left by default', () => {
@@ -79,7 +86,7 @@ describe('TextImageBlock', () => {
         // With right position, the image div should have md:order-2 class
         const imgs = wrapper.findAll('img');
         expect(imgs.length).toBeGreaterThan(0);
-        const imageParent = imgs[0].element.parentElement;
+        const imageParent = imgs[0].element.closest('div');
         expect(imageParent.classList.contains('md:order-2')).toBe(true);
     });
 });

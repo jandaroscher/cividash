@@ -39,11 +39,20 @@ Which file formats and size limits apply depends on the specific field:
 
 ## 5.3 Alt Text and Accessibility
 
-<!-- WIP: This section is intentionally a placeholder. The documentation on alt text and accessibility is being reworked and will be added later. -->
+Every content image in the **Intro Text** (main and second image), **Text & Image** and **Slider** blocks has three companion fields. They sit in their own frame together with the upload field.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**This section is currently being revised.**</span> The description of alt text and accessibility is not yet final and will be added in a later version of the manual.
+| Field | Purpose | Effect in the frontend |
+|-------|---------|------------------------|
+| **Image title** | Short title of the image | Shown as a tooltip on mouse hover |
+| **Alt text** | Description of the image content for screen readers and search engines | Not visible, read out by screen readers |
+| **Copyright** | Author or rights holder, e.g. “Jane Doe / Sample City” | Shown as a small notice in the bottom right corner of the image, prefixed with “©” |
+
+- Keep alt text short and describe what the image shows, not “image of …”.
+- Leave alt text empty if the image is purely decorative. Screen readers then skip it.
+- There is no need to type “©”, it is added automatically.
+- All three fields are separate per language, like the rest of the block content.
+
+> **Note:** Logos, favicon, tile and category icons and social media icons are design elements and have no image metadata of their own.
 
 ## 5.4 Special Formats: Lottie Animations, SVG Icons
 
