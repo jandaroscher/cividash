@@ -169,12 +169,16 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                             ->options($availableAbilities)
                             ->selectablePlaceholder(false)
                             ->required(),
+                        DatePicker::make('expires_at')
+                            ->label(__('filament.pages.manage_api_keys.expires_at'))
+                            ->helperText(__('filament.pages.manage_api_keys.expires_at_edit_helper')),
                         Toggle::make('is_active')
                             ->label(__('filament.pages.manage_api_keys.column_active')),
                     ])
                     ->fillForm(fn (PersonalAccessToken $record) => [
                         'name' => $record->name,
                         'abilities' => $record->abilities[0] ?? 'public-read',
+                        'expires_at' => $record->expires_at?->toDateString(),
                         'is_active' => $record->is_active,
                     ])
                     ->modalHeading(__('filament.pages.manage_api_keys.edit_modal_title'))
@@ -182,6 +186,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                     ->action(function (PersonalAccessToken $record, array $data) {
                         try {
                             $data['abilities'] = [$data['abilities']];
+                            $data['expires_at'] = filled($data['expires_at'] ?? null) ? Carbon::parse($data['expires_at'])->endOfDay() : null;
                             $this->getTokenService()->updateForTenant($record, $this->getTenant(), $data);
 
                             Notification::make()

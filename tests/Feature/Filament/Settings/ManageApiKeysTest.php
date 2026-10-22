@@ -49,16 +49,36 @@ class ManageApiKeysTest extends TestCase
 
     public function test_create_action_stores_the_chosen_expiry_date(): void
     {
+        $expiresOn = now()->addMonth()->toDateString();
+
         Livewire::test(ManageApiKeys::class)
             ->callAction('create', [
                 'name' => 'Partner feed',
                 'abilities' => 'public-read',
-                'expires_at' => '2027-03-31',
+                'expires_at' => $expiresOn,
             ])
             ->assertHasNoActionErrors();
 
         $token = PersonalAccessToken::where('name', 'Partner feed')->firstOrFail();
-        $this->assertSame('2027-03-31', $token->expires_at->toDateString());
+        $this->assertSame($expiresOn, $token->expires_at->toDateString());
+    }
+
+    public function test_edit_action_changes_the_expiry_date(): void
+    {
+        $token = $this->user->createToken('Partner feed', ['public-read'], now()->addDays(5));
+        $token->accessToken->forceFill(['tenant_id' => $this->tenant->id])->save();
+        $extendedTo = now()->addYear()->toDateString();
+
+        Livewire::test(ManageApiKeys::class)
+            ->callTableAction('edit', $token->accessToken, [
+                'name' => 'Partner feed',
+                'abilities' => 'public-read',
+                'is_active' => true,
+                'expires_at' => $extendedTo,
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertSame($extendedTo, $token->accessToken->fresh()->expires_at->toDateString());
     }
 
     public function test_create_action_defaults_to_the_configured_lifetime(): void

@@ -278,7 +278,7 @@ The table shows, per token: name, owner, abilities (badge), active status, creat
 
 #### 6.1.5.3 Edit a Key
 
-**Edit** lets you change the name, abilities, and active status of an existing token (the token value itself is unchanged and is not shown again).
+**Edit** lets you change the name, abilities, expiry date (empty = never expires), and active status of an existing token (the token value itself is unchanged and is not shown again).
 
 <!-- Screenshot: Edit an API key -->
 ![Edit an API key](../assets/screenshots/en/06-api-key-edit.png)

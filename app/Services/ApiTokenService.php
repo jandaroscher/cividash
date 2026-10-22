@@ -70,7 +70,7 @@ class ApiTokenService
      *
      * @param  PersonalAccessToken  $token  The token to update.
      * @param  Tenant  $tenant  The tenant that must own the token.
-     * @param  array  $data  The data to update (name, abilities, is_active).
+     * @param  array  $data  The data to update (name, abilities, expires_at, is_active).
      *
      * @throws \InvalidArgumentException If the token does not belong to the tenant.
      * @throws ValidationException When abilities are invalid.
@@ -137,7 +137,7 @@ class ApiTokenService
     {
         $days = (int) config('sanctum.token_lifetime_days');
 
-        return $days > 0 ? now()->addDays($days) : null;
+        return $days > 0 ? now()->addDays($days)->endOfDay() : null;
     }
 
     /**

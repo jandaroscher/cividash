@@ -32,7 +32,7 @@ class ApiTokenServiceTest extends TestCase
 
         $token = $this->service->createForTenant(User::factory()->create(), $this->tenant, 'Default', ['public-read']);
 
-        $this->assertTrue($token->accessToken->fresh()->expires_at->equalTo(now()->addDays(365)));
+        $this->assertSame(now()->addDays(365)->endOfDay()->toDateTimeString(), $token->accessToken->fresh()->expires_at->toDateTimeString());
     }
 
     public function test_create_for_tenant_uses_an_explicit_expiry_date(): void

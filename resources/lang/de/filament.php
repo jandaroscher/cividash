@@ -339,6 +339,7 @@ return [
             'column_expires' => 'Läuft ab',
             'expires_at' => 'Ablaufdatum',
             'expires_at_helper' => 'Danach funktioniert der Schlüssel nicht mehr. Leer lassen übernimmt die Standard-Laufzeit.',
+            'expires_at_edit_helper' => 'Leer lassen: Der Schlüssel läuft nicht ab.',
             'column_last_used' => 'Zuletzt verwendet',
             'column_updated' => 'Aktualisiert am',
             'filter_abilities' => 'Berechtigungen',

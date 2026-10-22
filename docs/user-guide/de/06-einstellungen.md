@@ -278,7 +278,7 @@ Die Tabelle zeigt pro Token: Name, Besitzer, Berechtigungen (Badge), Aktiv-Statu
 
 #### 6.1.5.3 Key bearbeiten
 
-Über **Bearbeiten** lassen sich Name, Berechtigungen und Aktiv-Status eines bestehenden Tokens ändern (der Token-Wert selbst bleibt unverändert und wird nicht erneut angezeigt).
+Über **Bearbeiten** lassen sich Name, Berechtigungen, Ablaufdatum (leer = läuft nicht ab) und Aktiv-Status eines bestehenden Tokens ändern (der Token-Wert selbst bleibt unverändert und wird nicht erneut angezeigt).
 
 <!-- Screenshot: API-Schlüssel bearbeiten -->
 ![API-Schlüssel bearbeiten](../assets/screenshots/de/06-api-key-bearbeiten.png)
