@@ -122,13 +122,10 @@ This adds a `Signed-off-by` trailer to your commit message. See
 
 ## Releases
 
-release-please opens the release PR from the Conventional Commits on `main`. Before
-merging it, regenerate the software bill of materials so it matches the locked
-dependencies of the release, and commit the result:
-
-```bash
-bash scripts/generate-sbom.sh   # writes SBOM.cdx.json and SBOM.csv (needs Docker, Node.js, python3)
-```
+release-please opens the release PR from the Conventional Commits on `main`. Merging
+it creates the release; the release workflow then publishes the images and attaches
+SPDX SBOMs (source lockfiles, `cividash-app`, `cividash-web`) to the GitHub release.
+CI also builds the source SBOM for every pull request, so a broken scan shows up early.
 
 Update [NOTICE](NOTICE) when a release adds or removes a bundled third-party asset.
 
