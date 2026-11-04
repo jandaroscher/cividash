@@ -18,7 +18,9 @@
 # ---------------------------------------------------------------------------
 # Stage 1: assets — build the frontend bundle with Vite into public/build.
 # ---------------------------------------------------------------------------
-FROM node:22-alpine AS assets
+# Assets and vendor/ are architecture-independent, so these two stages run on
+# the build host and are shared by every target platform.
+FROM --platform=$BUILDPLATFORM node:22-alpine AS assets
 
 WORKDIR /app
 
@@ -40,7 +42,7 @@ RUN npm run build
 # ---------------------------------------------------------------------------
 # Stage 2: vendor — install production-only Composer dependencies.
 # ---------------------------------------------------------------------------
-FROM composer:2 AS vendor
+FROM --platform=$BUILDPLATFORM composer:2 AS vendor
 
 WORKDIR /app
 

@@ -26,6 +26,8 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # The arm64 runtime stage compiles the PHP extensions under QEMU.
+    timeout-minutes: 90
     # Two runs for the same tag would push and scan the same mutable image tags.
     concurrency:
       group: release-images-${{ inputs.tag }}
@@ -99,7 +101,8 @@ jobs:
             ${{ env.REGISTRY }}/cividash-web:latest
 
       # SBOMs: the source scan covers composer.lock and package-lock.json with
-      # all transitive packages, the image scans cover what actually ships.
+      # all transitive packages, the image scans cover what actually ships
+      # (the linux/amd64 variant; arm64 differs only in its Alpine binaries).
       - name: SBOM for the source lockfiles
         uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c  # v0.24.3
         with:
