@@ -109,9 +109,11 @@ include secrets, customer data, or internal documents in any contribution.
 
 ## Developer Certificate of Origin
 
-This project requires the Developer Certificate of Origin (DCO 1.1) instead of a CLA for
-external contributions. Every commit in an external contribution must be signed off,
-confirming you have the right to submit the change under the project's license:
+This project requires the Developer Certificate of Origin (DCO 1.1) instead of a CLA.
+Every commit that lands on `main` must be signed off by a person, confirming they have
+the right to submit the change under the project's license. This applies to the core
+team and to external contributors alike. External contributors sign off their own
+commits:
 
 ```bash
 git commit -s
@@ -120,15 +122,21 @@ git commit -s
 This adds a `Signed-off-by` trailer to your commit message. See
 [developercertificate.org](https://developercertificate.org/) for the full text.
 
+Pull requests are squash-merged, and the maintainer adds their sign-off to the squash
+commit. Put the `Signed-off-by` line in the last block of the message, next to the
+`Co-authored-by` lines GitHub adds, with no blank line in between; otherwise git does not
+read it as a trailer. When merging an external contribution, keep the contributor's
+`Signed-off-by` lines in the squash message as well. An AI assistant never signs off: the person who submits AI-assisted work signs
+off for it, and a `Co-authored-by` trailer may show the assistant's involvement. The
+`DCO` workflow checks every commit pushed to `main` and fails when a person's sign-off
+is missing. Commits authored by bots (Dependabot, release-please) are exempt.
+
 ## Releases
 
-release-please opens the release PR from the Conventional Commits on `main`. Before
-merging it, regenerate the software bill of materials so it matches the locked
-dependencies of the release, and commit the result:
-
-```bash
-bash scripts/generate-sbom.sh   # writes SBOM.cdx.json and SBOM.csv (needs Docker, Node.js, python3)
-```
+release-please opens the release PR from the Conventional Commits on `main`. Merging
+it creates the release; the release workflow then publishes the images and attaches
+SPDX SBOMs (source lockfiles, `cividash-app`, `cividash-web`) to the GitHub release.
+CI also builds the source SBOM for every pull request, so a broken scan shows up early.
 
 Update [NOTICE](NOTICE) when a release adds or removes a bundled third-party asset.
 

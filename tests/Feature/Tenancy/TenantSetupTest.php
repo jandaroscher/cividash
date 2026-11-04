@@ -69,7 +69,7 @@ class TenantSetupTest extends TestCase
 
         $this->seed(TenantSeeder::class);
 
-        $tenant = Tenant::where('slug', 'stadt-regensburg')->first();
+        $tenant = Tenant::where('slug', 'demo-city')->first();
 
         $this->assertNotNull($tenant);
         $this->assertTrue($user->fresh()->tenants()->whereKey($tenant->id)->exists());

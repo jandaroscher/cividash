@@ -3,6 +3,7 @@
   "release-type": "simple",
   "include-component-in-tag": false,
   "bootstrap-sha": "e44b800dca5f37e3113a676a1cc06f23cd6408c4",
+  "last-release-sha": "dcfa9249cbd2bd08a63154811210238b93b18c55",
   "changelog-sections": [
     {
       "type": "feat",

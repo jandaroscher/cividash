@@ -35,7 +35,7 @@ class DashboardResetCommandTest extends TestCase
             'seeding.default_json_path' => $jsonPath,
         ]);
 
-        $tenant = Tenant::factory()->create(['slug' => 'stadt-regensburg']);
+        $tenant = Tenant::factory()->create(['slug' => 'demo-city']);
         $tile = Tile::factory()->create(['tenant_id' => $tenant->id]);
 
         $this->artisan('dashboard:reset', ['--force' => true])->assertFailed();

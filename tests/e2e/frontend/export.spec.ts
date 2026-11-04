@@ -9,11 +9,11 @@ import { test, expect } from '@playwright/test';
  *  - Footer: global catalog export dialog
  *
  * Prerequisites:
- *  - ddev running with the regensburg tenant seeded
- *    (Tenant resolution via the regensburg subdomain)
+ *  - ddev running with the demo-city tenant seeded (dashboard:reset)
+ *    (Tenant resolution via the demo-city subdomain)
  */
 
-const BASE_URL = 'https://regensburg.open-source-dashboard.ddev.site';
+const BASE_URL = 'https://demo-city.open-source-dashboard.ddev.site';
 
 test.describe('Exports', () => {
     test('tile card offers a direct CSV download', async ({ page }) => {

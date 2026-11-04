@@ -20,6 +20,9 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // Panel and SPA layouts load Vite entries; CI runs PHP tests without a frontend build.
+        $this->withoutVite();
+
         // Only run when a DB is available (when RefreshDatabase is used)
         if ($this->usesDatabase()) {
             try {
