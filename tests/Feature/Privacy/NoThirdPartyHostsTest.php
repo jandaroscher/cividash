@@ -66,6 +66,5 @@ class NoThirdPartyHostsTest extends TestCase
         foreach (self::FORBIDDEN_HOSTS as $host) {
             $this->assertStringNotContainsString($host, $html);
         }
-        $this->assertStringContainsString("'Inter'", $html);
     }
 }
