@@ -28,6 +28,9 @@ Fonts, self-hosted via Fontsource and bundled into the frontend build
 dotLottie player, installed via npm and bundled into the frontend and admin build
   - @lottiefiles/dotlottie-wc, @lottiefiles/dotlottie-web
   MIT License, Copyright (c) 2023 LottieFiles.com
+  The player's WebAssembly module contains ThorVG (https://github.com/thorvg/thorvg),
+  MIT License, Copyright (c) 2020 - 2026 ThorVG Project. Both are covered by
+  the permission notice below.
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -50,4 +53,4 @@ dotLottie player, installed via npm and bundled into the frontend and admin buil
 Filament Peek assets, published into public/ by `composer install`
 (filament:upgrade) and not stored in this repository
   - pboivin/filament-peek
-  MIT License, Copyright (c) Patrick Boivin
+  MIT License, Copyright (c) pboivin <pboivin@gmail.com>
