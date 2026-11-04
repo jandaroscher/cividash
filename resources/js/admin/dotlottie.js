@@ -8,7 +8,7 @@
 // @lottiefiles/dotlottie-wc registers the custom element as a side effect, and the
 // browser upgrades any already-connected <dotlottie-wc> tag immediately,
 // which starts loading the default (CDN) WASM before the next line here gets
-// a chance to override it — verified empirically, see PR description. So the
+// a chance to override it (verified empirically). So the
 // Blade views render a `[data-dotlottie-wc]` placeholder <div> instead, and
 // this script swaps in the real element only afterwards.
 import { setWasmUrl } from '@lottiefiles/dotlottie-wc';

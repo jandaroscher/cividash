@@ -16,7 +16,7 @@ ddev exec npm install                   # Install Node dependencies
 ddev exec php artisan migrate           # Run migrations
 ddev exec php artisan tenancy:backfill  # Create the default tenant
 ddev exec php artisan db:seed           # Seed demo data (tenants, roles)
-ddev exec npm run build                 # Build frontend assets (public routes need the Vite manifest)
+ddev exec npm run build                 # Build frontend assets (public routes and /admin need the Vite manifest)
 ```
 
 The one exception is `composer run dev` (Laravel server, queue, logs and Vite with hot
