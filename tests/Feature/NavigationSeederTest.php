@@ -161,6 +161,21 @@ class NavigationSeederTest extends TestCase
         $this->assertEquals(count($footerItems1), count($footerItems2));
     }
 
+    public function test_navigation_seeder_keeps_configured_social_links_on_rerun(): void
+    {
+        $links = [['platform' => 'mastodon', 'url' => 'https://social.example/@city']];
+        $footer = FooterNavigation::getOrCreateInstance();
+        $footer->setTranslation('social_links', 'de', $links);
+        $footer->social_links_enabled = true;
+        $footer->save();
+
+        $this->seeder->run($this->pageSeeder->run());
+
+        $footer = FooterNavigation::getInstance();
+        $this->assertEquals($links, $footer->getTranslation('social_links', 'de', false));
+        $this->assertTrue($footer->social_links_enabled);
+    }
+
     public function test_navigation_seeder_handles_missing_pages_gracefully(): void
     {
         // Run with empty page map

@@ -210,9 +210,15 @@ class NavigationSeeder extends Seeder
 
         // No social links by default: platform logos are third-party trademarks
         // outside the EUPL, so each tenant adds its own icons and profile URLs in the CMS.
-        $footer->setTranslation('social_links', 'de', []);
-        $footer->setTranslation('social_links', 'en', []);
-        $footer->social_links_enabled = false;
+        // A rerun keeps links a tenant has already configured.
+        $hasSocialLinks = ! empty($footer->getTranslation('social_links', 'de', false))
+            || ! empty($footer->getTranslation('social_links', 'en', false));
+
+        if (! $hasSocialLinks) {
+            $footer->setTranslation('social_links', 'de', []);
+            $footer->setTranslation('social_links', 'en', []);
+            $footer->social_links_enabled = false;
+        }
 
         $footer->save();
 
