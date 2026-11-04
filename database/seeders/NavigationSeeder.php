@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Seeder for Header and Footer Navigation from reference site.
  *
- * Seeds navigation items based on the stadt-regensburg-dashboard reference site.
+ * Seeds neutral example navigation items for the demo tenant.
  * Supports idempotent behavior and bilingual labels.
  */
 class NavigationSeeder extends Seeder
@@ -163,12 +163,12 @@ class NavigationSeeder extends Seeder
             'type' => 'manual',
             'page_id' => null,
             'label' => [
-                'de' => 'regensburg.de',
-                'en' => 'regensburg.de',
+                'de' => 'example.org',
+                'en' => 'example.org',
             ],
             'url' => [
-                'de' => 'https://www.regensburg.de/',
-                'en' => 'https://www.regensburg.de/',
+                'de' => 'https://www.example.org/',
+                'en' => 'https://www.example.org/',
             ],
         ];
 
@@ -176,12 +176,12 @@ class NavigationSeeder extends Seeder
             'type' => 'manual',
             'page_id' => null,
             'label' => [
-                'de' => 'mein.regensburg.de',
-                'en' => 'mein.regensburg.de',
+                'de' => 'mein.example.org',
+                'en' => 'mein.example.org',
             ],
             'url' => [
-                'de' => 'https://mein.regensburg.de/',
-                'en' => 'https://mein.regensburg.de/',
+                'de' => 'https://mein.example.org/',
+                'en' => 'https://mein.example.org/',
             ],
         ];
 

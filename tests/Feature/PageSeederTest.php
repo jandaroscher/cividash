@@ -53,8 +53,8 @@ class PageSeederTest extends TestCase
         $homePage = Page::find($pageIdMap['/']);
         $this->assertNotNull($homePage);
         $this->assertEquals('landingpage', $homePage->layout);
-        $this->assertEquals('Zukunftsbarometer Regensburg', $homePage->getTranslation('title', 'de'));
-        $this->assertEquals('Future Barometer Regensburg', $homePage->getTranslation('title', 'en'));
+        $this->assertEquals('Zukunftsbarometer Demo City', $homePage->getTranslation('title', 'de'));
+        $this->assertEquals('Future Barometer Demo City', $homePage->getTranslation('title', 'en'));
         $this->assertEquals('/', $homePage->getTranslation('slug', 'de'));
         $this->assertEquals('/', $homePage->getTranslation('slug', 'en'));
     }
