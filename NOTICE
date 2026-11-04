@@ -16,7 +16,7 @@ Third-party components shipped with this repository or its build output
 ------------------------------------------------------------------------------
 
 The components below keep their own licences. The complete list of
-dependencies (Composer and npm) with versions and licences is in the SPDX SBOMs
+production dependencies (Composer and npm) with versions and licences is in the SPDX SBOMs
 attached to each release: https://github.com/jandaroscher/cividash/releases
 
 Fonts, self-hosted via Fontsource and bundled into the frontend build
