@@ -1,7 +1,8 @@
 name: Release images
 
 # Publishes the production images (cividash-app, cividash-web) to GHCR for a
-# release tag. release-please calls this after it creates a release; run it
+# release tag and attaches SPDX SBOMs (source lockfiles and both images) to the
+# GitHub release. release-please calls this after it creates a release; run it
 # manually to (re)publish an existing tag.
 
 on:
@@ -19,7 +20,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write  # upload the SBOMs as release assets
   packages: write
 
 jobs:
@@ -77,3 +78,47 @@ jobs:
             ${{ env.REGISTRY }}/cividash-web:${{ steps.v.outputs.version }}
             ${{ env.REGISTRY }}/cividash-web:${{ steps.v.outputs.minor }}
             ${{ env.REGISTRY }}/cividash-web:latest
+
+      # SBOMs: the source scan covers composer.lock and package-lock.json with
+      # all transitive packages, the image scans cover what actually ships.
+      - name: SBOM for the source lockfiles
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c  # v0.24.3
+        with:
+          path: .
+          format: spdx-json
+          output-file: cividash-${{ steps.v.outputs.version }}-source.spdx.json
+          upload-artifact: false
+          dependency-snapshot: false
+
+      - name: SBOM for cividash-app
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c  # v0.24.3
+        with:
+          image: ${{ env.REGISTRY }}/cividash-app:${{ steps.v.outputs.version }}
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          format: spdx-json
+          output-file: cividash-app-${{ steps.v.outputs.version }}.spdx.json
+          upload-artifact: false
+          dependency-snapshot: false
+
+      - name: SBOM for cividash-web
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c  # v0.24.3
+        with:
+          image: ${{ env.REGISTRY }}/cividash-web:${{ steps.v.outputs.version }}
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          format: spdx-json
+          output-file: cividash-web-${{ steps.v.outputs.version }}.spdx.json
+          upload-artifact: false
+          dependency-snapshot: false
+
+      - name: Attach SBOMs to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+            "cividash-$VERSION-source.spdx.json" \
+            "cividash-app-$VERSION.spdx.json" \
+            "cividash-web-$VERSION.spdx.json"
