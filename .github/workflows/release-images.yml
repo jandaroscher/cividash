@@ -40,16 +40,21 @@ jobs:
       REGISTRY: ghcr.io/jandaroscher
     steps:
       # The Syft config comes from the workflow revision, so republishing an
-      # older tag that predates it still produces the source SBOM.
+      # older tag that predates it still produces the source SBOM. It is checked
+      # out into its own directory: a sparse checkout in the workspace root would
+      # stay sparse for the tag checkout below.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           ref: ${{ github.workflow_sha }}
+          path: workflow-src
           persist-credentials: false
           sparse-checkout: .github/syft-source.yaml
           sparse-checkout-cone-mode: false
 
       - name: Keep the Syft config outside the workspace
-        run: cp .github/syft-source.yaml "$RUNNER_TEMP/syft-source.yaml"
+        run: |
+          cp workflow-src/.github/syft-source.yaml "$RUNNER_TEMP/syft-source.yaml"
+          rm -rf workflow-src
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
