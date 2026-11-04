@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 import { createRouter, createWebHistory } from 'vue-router';
 import { supportedLocales, defaultLocale } from '../utils/locale';
 import { useHeaderStore } from '../stores/header';

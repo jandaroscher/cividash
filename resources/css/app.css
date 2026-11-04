@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+ *
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
 /* Self-hosted faces for the fonts selectable in Settings > Theme (privacy:
    no third-party font requests). Browsers only download the family that the
    branding CSS variables actually reference. */

@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+#
+# SPDX-License-Identifier: EUPL-1.2+
+
 #
 # Tear down the local Stellio NGSI-LD broker and remove its volumes (clean
 # slate). Run with no arguments — `down -v` always removes the named postgres

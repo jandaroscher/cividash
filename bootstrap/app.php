@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 use App\Console\Commands\DashboardSeedCommand;
 use App\Console\Commands\PagesSeedCommand;
 use App\Console\Commands\TenancyBackfillCommand;

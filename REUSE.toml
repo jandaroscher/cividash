@@ -1,0 +1,27 @@
+version = 1
+SPDX-PackageName = "CiviDash"
+SPDX-PackageDownloadLocation = "https://github.com/jandaroscher/cividash"
+
+# Files that carry no SPDX header of their own (JSON, images, Markdown,
+# lockfiles, config without comment syntax). Files with a header keep it.
+[[annotations]]
+path = "**"
+precedence = "closest"
+SPDX-FileCopyrightText = "2025-2026 JANDA+ROSCHER GmbH & Co. KG"
+SPDX-License-Identifier = "EUPL-1.2+"
+
+# Translations published from the Filament packages (php artisan vendor:publish).
+[[annotations]]
+path = [
+  "resources/lang/vendor/filament-panels/**",
+  "resources/lang/vendor/filament-spatie-laravel-translatable-plugin-translations/**",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Dan Harrin"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "resources/lang/vendor/filament-fabricator/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Ziyaan Hassan"
+SPDX-License-Identifier = "MIT"
