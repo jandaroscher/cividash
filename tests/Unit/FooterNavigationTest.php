@@ -36,7 +36,7 @@ class FooterNavigationTest extends TestCase
         $this->assertNotNull($footer->tenant_id, 'Footer should be associated with a tenant');
         $this->assertEquals('multi-column', $footer->layout_type);
         $this->assertEquals(4, $footer->columns);
-        $this->assertTrue($footer->social_links_enabled);
+        $this->assertFalse($footer->social_links_enabled);
         $this->assertEmpty($footer->sponsors);
     }
 

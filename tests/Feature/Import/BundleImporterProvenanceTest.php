@@ -28,7 +28,7 @@ class BundleImporterProvenanceTest extends TestCase
     {
         parent::setUp();
 
-        $this->tenant = Tenant::create(['name' => 'Regensburg', 'slug' => 'regensburg']);
+        $this->tenant = Tenant::create(['name' => 'Example Town', 'slug' => 'example-town']);
         $this->user = User::factory()->create();
         $this->user->tenants()->attach($this->tenant->id);
     }

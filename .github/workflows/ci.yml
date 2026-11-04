@@ -71,6 +71,21 @@ jobs:
         with:
           persist-credentials: false
 
+      # The product core must not carry tenant-specific (Regensburg) names or content.
+      - name: Check product core for tenant-specific names
+        run: |
+          set +e
+          git grep -n -i regensburg -- app config database resources tests
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            echo "::error::Tenant-specific name found in the product core (see matches above)."
+            exit 1
+          elif [ "$status" -ne 1 ]; then
+            echo "::error::git grep failed with exit code $status."
+            exit "$status"
+          fi
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -93,3 +108,25 @@ jobs:
 
       - name: PHP Security Audit (composer audit)
         run: composer audit --no-dev
+
+  sbom:
+    name: SBOM (SPDX)
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft != true
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Same scan as the release workflow, so a broken SBOM shows up before a release.
+      - name: Generate SPDX SBOM from the lockfiles
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c  # v0.24.3
+        with:
+          path: .
+          config: .github/syft-source.yaml
+          format: spdx-json
+          artifact-name: cividash-source.spdx.json
+          dependency-snapshot: false

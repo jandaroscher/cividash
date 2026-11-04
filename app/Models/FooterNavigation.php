@@ -224,7 +224,7 @@ class FooterNavigation extends Model
                         ],
                         'layout_type' => 'multi-column',
                         'columns' => 4,
-                        'social_links_enabled' => true,
+                        'social_links_enabled' => false,
                         'copyright_text' => [
                             'de' => '',
                             'en' => '',
@@ -252,7 +252,7 @@ class FooterNavigation extends Model
                 ],
                 'layout_type' => 'multi-column',
                 'columns' => 4,
-                'social_links_enabled' => true,
+                'social_links_enabled' => false,
                 'copyright_text' => [
                     'de' => '',
                     'en' => '',

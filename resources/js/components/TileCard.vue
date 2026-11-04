@@ -642,7 +642,7 @@ function handleSliderInteractionEnd() {
 <style scoped>
 /*
  * Tiles use the fixed design card width of 363px (matching the
- * reference at zukunft.regensburg.de). The grid fits as many 363px columns as
+ * reference design). The grid fits as many 363px columns as
  * the container allows (3 at desktop where .container maxes at 1230/inner 1170
  * = 3×363 + 2×40 gap; 2 on tablet; 1 on mobile), controlled by Cards.vue's
  * `:col` / `break-at`. A fixed width (not `max-w`, not a container fraction)
