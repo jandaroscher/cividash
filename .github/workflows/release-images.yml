@@ -26,6 +26,8 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # The arm64 runtime stage compiles the PHP extensions under QEMU.
+    timeout-minutes: 90
     # Two runs for the same tag would push and scan the same mutable image tags.
     concurrency:
       group: release-images-${{ inputs.tag }}
@@ -66,6 +68,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # arm64 for clusters on ARM nodes (e.g. Apple Silicon k3d); built under QEMU.
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1  # v4.4.0
+
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069  # v4.4.1
 
       - name: Build & push cividash-app
@@ -73,7 +78,7 @@ jobs:
         with:
           context: .
           file: docker/production/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.REGISTRY }}/cividash-app:${{ steps.v.outputs.version }}
@@ -85,7 +90,7 @@ jobs:
         with:
           context: .
           file: docker/production/nginx/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           # cividash-web copies public/ from the app image of the same version.
           build-args: |
@@ -96,7 +101,8 @@ jobs:
             ${{ env.REGISTRY }}/cividash-web:latest
 
       # SBOMs: the source scan covers composer.lock and package-lock.json with
-      # all transitive packages, the image scans cover what actually ships.
+      # all transitive packages, the image scans cover what actually ships
+      # (the linux/amd64 variant; arm64 differs only in its Alpine binaries).
       - name: SBOM for the source lockfiles
         uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c  # v0.24.3
         with:
