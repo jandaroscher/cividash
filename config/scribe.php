@@ -1,9 +1,5 @@
 <?php
 
-// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
-//
-// SPDX-License-Identifier: EUPL-1.2+
-
 use Knuckles\Scribe\Extracting\Strategies\BodyParameters\GetFromBodyParamAttribute;
 use Knuckles\Scribe\Extracting\Strategies\BodyParameters\GetFromBodyParamTag;
 use Knuckles\Scribe\Extracting\Strategies\Headers\GetFromHeaderAttribute;

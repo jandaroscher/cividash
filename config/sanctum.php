@@ -1,9 +1,5 @@
 <?php
 
-// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
-//
-// SPDX-License-Identifier: EUPL-1.2+
-
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Laravel\Sanctum\Http\Middleware\AuthenticateSession;

@@ -1,9 +1,5 @@
 <?php
 
-// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
-//
-// SPDX-License-Identifier: EUPL-1.2+
-
 use App\Filament\Fabricator\Layouts\LandingpageLayout;
 use App\Filament\Fabricator\Layouts\SubpageLayout;
 use App\Filament\Fabricator\PageBlocks\CardGridBlock;

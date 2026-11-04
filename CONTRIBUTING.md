@@ -111,7 +111,8 @@ include secrets, customer data, or internal documents in any contribution.
 
 The project follows the [REUSE specification](https://reuse.software). Start
 every new source file (PHP, Blade, Vue, JS/TS, CSS, shell, YAML) with an SPDX
-header, for example:
+header naming the copyright holder (you or your employer; maintainers use
+JANDA+ROSCHER GmbH & Co. KG), for example:
 
 ```php
 // SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
@@ -119,10 +120,11 @@ header, for example:
 // SPDX-License-Identifier: EUPL-1.2+
 ```
 
-`reuse annotate --copyright "JANDA+ROSCHER GmbH & Co. KG" --license EUPL-1.2+ <file>`
+`reuse annotate --copyright "<holder>" --license EUPL-1.2+ <file>`
 writes it in the right comment style. Files without comment syntax (JSON,
-images, Markdown) are covered by `REUSE.toml`; third-party files get their own
-entry there. CI runs `reuse lint` on every pull request.
+images, Markdown) are covered by `REUSE.toml`; files copied or adapted from
+third-party packages (published configs, views, translations) get their own
+entry there with the upstream copyright and licence. CI runs `reuse lint` on every pull request.
 
 ## Developer Certificate of Origin
 
