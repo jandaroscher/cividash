@@ -208,29 +208,17 @@ class NavigationSeeder extends Seeder
         $footer->setTranslation('sponsors', 'de', $sponsors);
         $footer->setTranslation('sponsors', 'en', $sponsors);
 
-        // Copy social icons to public storage
-        $socialAssetsDir = database_path('seeders/assets/footer-social-icons');
-        if (is_dir($socialAssetsDir)) {
-            Storage::disk('public')->makeDirectory('footer-social-icons');
-            foreach (glob($socialAssetsDir.'/*.svg') as $file) {
-                Storage::disk('public')->put(
-                    'footer-social-icons/'.basename($file),
-                    file_get_contents($file)
-                );
-            }
-        }
+        // No social links by default: platform logos are third-party trademarks
+        // outside the EUPL, so each tenant adds its own icons and profile URLs in the CMS.
+        // A rerun keeps links a tenant has already configured.
+        $hasSocialLinks = ! empty($footer->getTranslation('social_links', 'de', false))
+            || ! empty($footer->getTranslation('social_links', 'en', false));
 
-        // Social Links (fields: icon, link, title — matching Filament form). Inactive
-        // placeholders until a tenant enters its own profile URLs.
-        $socialLinks = [
-            ['icon' => 'footer-social-icons/facebook.svg', 'link' => 'https://example.org', 'title' => 'Facebook', 'is_active' => false],
-            ['icon' => 'footer-social-icons/twitter.svg', 'link' => 'https://example.org', 'title' => 'Twitter', 'is_active' => false],
-            ['icon' => 'footer-social-icons/instagram.svg', 'link' => 'https://example.org', 'title' => 'Instagram', 'is_active' => false],
-            ['icon' => 'footer-social-icons/youtube.svg', 'link' => 'https://example.org', 'title' => 'Youtube', 'is_active' => false],
-        ];
-        $footer->setTranslation('social_links', 'de', $socialLinks);
-        $footer->setTranslation('social_links', 'en', $socialLinks);
-        $footer->social_links_enabled = true;
+        if (! $hasSocialLinks) {
+            $footer->setTranslation('social_links', 'de', []);
+            $footer->setTranslation('social_links', 'en', []);
+            $footer->social_links_enabled = false;
+        }
 
         $footer->save();
 

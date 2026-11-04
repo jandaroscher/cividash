@@ -65,6 +65,8 @@ public/docs/
 public/css/filament/*
 !public/css/filament/admin-overrides.css
 public/js/filament/
+public/css/pboivin/
+public/js/pboivin/
 
 # Local (scratch, planning, agent-local settings)
 .claude/settings.local.json

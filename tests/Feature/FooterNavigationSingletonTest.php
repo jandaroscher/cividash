@@ -58,7 +58,7 @@ class FooterNavigationSingletonTest extends TestCase
         $this->assertEquals($this->tenant->id, $instance->tenant_id);
         $this->assertEquals('multi-column', $instance->layout_type);
         $this->assertEquals(4, $instance->columns);
-        $this->assertTrue($instance->social_links_enabled);
+        $this->assertFalse($instance->social_links_enabled);
     }
 
     public function test_get_or_create_instance_returns_existing(): void

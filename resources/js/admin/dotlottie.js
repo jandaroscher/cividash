@@ -1,17 +1,20 @@
 // Registers <dotlottie-wc> for the Filament admin panel and points its WASM
 // renderer at our self-hosted copy instead of the jsdelivr/unpkg CDN default
 // (no third-party hosts at runtime, see tests/Feature/Privacy/NoThirdPartyHostsTest.php).
+// Built by Vite from the same npm packages as the public frontend
+// (resources/js/lib/dotlottie.js), so admin and frontend share one version.
 //
 // The element must NOT exist in the DOM before setWasmUrl() has run: importing
-// dotlottie-wc.js registers the custom element as a side effect, and the
+// @lottiefiles/dotlottie-wc registers the custom element as a side effect, and the
 // browser upgrades any already-connected <dotlottie-wc> tag immediately,
 // which starts loading the default (CDN) WASM before the next line here gets
-// a chance to override it — verified empirically, see PR description. So the
+// a chance to override it (verified empirically). So the
 // Blade views render a `[data-dotlottie-wc]` placeholder <div> instead, and
 // this script swaps in the real element only afterwards.
-import { setWasmUrl } from './dotlottie-wc.js';
+import { setWasmUrl } from '@lottiefiles/dotlottie-wc';
+import dotlottieWasmUrl from '@lottiefiles/dotlottie-web/dotlottie-player.wasm?url';
 
-setWasmUrl(new URL('./dotlottie-player.wasm', import.meta.url).href);
+setWasmUrl(dotlottieWasmUrl);
 
 function upgrade(root) {
     root.querySelectorAll('[data-dotlottie-wc]').forEach((placeholder) => {

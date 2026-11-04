@@ -54,7 +54,7 @@ ddev exec npm install                   # Install Node dependencies
 ddev exec php artisan migrate           # Run migrations
 ddev exec php artisan tenancy:backfill  # Setup multi-tenancy (creates default tenant)
 ddev exec php artisan db:seed           # Seed demo data (tenants, roles)
-ddev exec npm run build                 # Build frontend assets (public routes need the Vite manifest)
+ddev exec npm run build                 # Build frontend assets (public routes and /admin need the Vite manifest)
 ```
 
 DDEV cannot change the database engine of an existing project. On a database type

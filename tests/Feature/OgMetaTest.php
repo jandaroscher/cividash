@@ -11,13 +11,6 @@ class OgMetaTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->withoutVite();
-    }
-
     public function test_home_page_contains_og_tags(): void
     {
         Page::create([
