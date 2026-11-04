@@ -1,0 +1,4 @@
+# Syft config for the source SBOM: keep the scan to the application's
+# dependencies. GitHub Actions used by CI are not part of what ships.
+select-catalogers:
+  - "-github-actions"

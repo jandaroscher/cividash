@@ -125,7 +125,7 @@ This adds a `Signed-off-by` trailer to your commit message. See
 release-please opens the release PR from the Conventional Commits on `main`. Merging
 it creates the release; the release workflow then publishes the images and attaches
 SPDX SBOMs (source lockfiles, `cividash-app`, `cividash-web`) to the GitHub release.
-CI builds the source SBOM on every pull request, so a broken scan shows up early.
+CI also builds the source SBOM for every pull request, so a broken scan shows up early.
 
 Update [NOTICE](NOTICE) when a release adds or removes a bundled third-party asset.
 
