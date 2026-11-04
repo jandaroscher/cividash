@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -31,8 +31,12 @@ jobs:
           AFTER: ${{ github.sha }}
         run: |
           if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            # Branch creation: only the pushed tip is new.
             range="$AFTER^!"
-          else
+          elif git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
             range="$BEFORE..$AFTER"
+          else
+            echo "::error::Previous tip $BEFORE is gone (force push?); check the history by hand."
+            exit 1
           fi
           .github/scripts/check-dco.sh "$range"
