@@ -25,17 +25,11 @@ Fonts, self-hosted via Fontsource and bundled into the frontend build
   - Roboto (@fontsource/roboto)        SIL Open Font License 1.1 (OFL-1.1)
   https://fontsource.org, https://openfontlicense.org
 
-dotLottie player (public/js/vendor/)
-  - @lottiefiles/dotlottie-wc 0.9.28   (dotlottie-wc.js)
-  - @lottiefiles/dotlottie-web 0.80.0  (dotlottie-player.wasm)
+dotLottie player, installed via npm and bundled into the frontend and admin build
+  - @lottiefiles/dotlottie-wc, @lottiefiles/dotlottie-web
   MIT License, Copyright (c) 2023 LottieFiles.com
-  Full text: public/js/vendor/dotlottie-wc.LICENSE.txt
 
-Filament Peek assets (public/css/pboivin/, public/js/pboivin/)
-  - pboivin/filament-peek 2.4.0, published by the Composer package
+Filament Peek assets, published into public/ by `composer install`
+(filament:upgrade) and not stored in this repository
+  - pboivin/filament-peek
   MIT License, Copyright (c) Patrick Boivin
-
-Social media icons (database/seeders/assets/footer-social-icons/)
-  Facebook, Instagram, Twitter and YouTube icons are trademarks of their
-  respective owners. They are used only to link to the corresponding
-  profiles and are not covered by the EUPL.
