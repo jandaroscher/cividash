@@ -1,0 +1,38 @@
+name: DCO
+
+# Every commit that lands on main needs a Developer Certificate of Origin
+# sign-off by a person (see CONTRIBUTING.md). Pull request branches are not
+# checked: commits there may come from AI assistants, and the maintainer signs
+# off on the squash merge.
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  dco:
+    name: DCO sign-off
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check sign-off on pushed commits
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            range="$AFTER^!"
+          else
+            range="$BEFORE..$AFTER"
+          fi
+          .github/scripts/check-dco.sh "$range"

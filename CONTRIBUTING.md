@@ -109,9 +109,10 @@ include secrets, customer data, or internal documents in any contribution.
 
 ## Developer Certificate of Origin
 
-This project requires the Developer Certificate of Origin (DCO 1.1) instead of a CLA for
-external contributions. Every commit in an external contribution must be signed off,
-confirming you have the right to submit the change under the project's license:
+This project requires the Developer Certificate of Origin (DCO 1.1) instead of a CLA.
+Every commit that lands on `main` must be signed off by a person, confirming they have
+the right to submit the change under the project's license. This applies to the core
+team as well as to external contributors:
 
 ```bash
 git commit -s
@@ -119,6 +120,12 @@ git commit -s
 
 This adds a `Signed-off-by` trailer to your commit message. See
 [developercertificate.org](https://developercertificate.org/) for the full text.
+
+Pull requests are squash-merged, and the maintainer adds their sign-off to the squash
+commit. An AI assistant never signs off: the person who submits AI-assisted work signs
+off for it, and a `Co-authored-by` trailer may show the assistant's involvement. The
+`DCO` workflow checks every commit pushed to `main` and fails when a person's sign-off
+is missing. Commits authored by bots (Dependabot, release-please) are exempt.
 
 ## Releases
 
