@@ -9,7 +9,7 @@ export default defineConfig({
             origin: [
                 // Vite default: localhost, 127.0.0.1, [::1] with any port
                 /^https?:\/\/(?:(?:[^:]+\.)?localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/,
-                // DDEV subdomains (e.g. regensburg.open-source-dashboard.ddev.site)
+                // DDEV subdomains (e.g. demo-city.open-source-dashboard.ddev.site)
                 /^https?:\/\/[\w-]+(?:\.[\w-]+)*\.ddev\.site$/,
             ],
         },

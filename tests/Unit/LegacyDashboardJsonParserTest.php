@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Services\DashboardJsonParser;
+use App\Services\LegacyDashboardJsonParser;
 use App\Services\ParsedCategory;
 use App\Services\ParsedLink;
 use App\Services\ParsedMetric;
@@ -12,12 +12,12 @@ use Tests\TestCase;
 
 class DashboardJsonParserTest extends TestCase
 {
-    protected DashboardJsonParser $parser;
+    protected LegacyDashboardJsonParser $parser;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->parser = new DashboardJsonParser;
+        $this->parser = new LegacyDashboardJsonParser;
     }
 
     public function test_parser_parses_minimal_json_successfully(): void

@@ -71,6 +71,14 @@ jobs:
         with:
           persist-credentials: false
 
+      # The product core must not carry tenant-specific (Regensburg) names or content.
+      - name: Check product core for tenant-specific names
+        run: |
+          if git grep -n -i regensburg -- app config database resources tests; then
+            echo "::error::Tenant-specific name found in the product core (see matches above)."
+            exit 1
+          fi
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:

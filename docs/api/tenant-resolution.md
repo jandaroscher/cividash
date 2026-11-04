@@ -51,14 +51,14 @@ If no tenant is resolved from the token — no bearer token, an invalid token, a
 
 ```http
 GET /api/v1/tiles
-Host: regensburg.example.org
+Host: demo-city.example.org
 ```
 
 Tenant configuration:
 
 | Tenant | Domain |
 |--------|--------|
-| Stadt Regensburg | `regensburg.example.org` |
+| Demo City | `demo-city.example.org` |
 | Demo City | `demo-city.example.org` |
 
 A `www.` prefix is stripped automatically, and domain matching is case-insensitive.
@@ -83,17 +83,17 @@ The `/api/v1/config/tenant` endpoint shows the resolved tenant:
 
 ```http
 GET /api/v1/config/tenant
-Host: regensburg.example.org
+Host: demo-city.example.org
 ```
 
 Response:
 ```json
 {
   "data": {
-    "slug": "stadt-regensburg",
-    "name": "Stadt Regensburg",
-    "domain": "regensburg.example.org",
-    "frontend_base_url": "https://regensburg.example.org",
+    "slug": "demo-city",
+    "name": "Demo City",
+    "domain": "demo-city.example.org",
+    "frontend_base_url": "https://demo-city.example.org",
     "resolved_by": "domain"
   }
 }
@@ -157,7 +157,7 @@ protected static function resolveTenant(): ?Tenant
 ### 1. SPA with domain routing
 
 ```
-regensburg.example.org → Tenant "Stadt Regensburg"
+demo-city.example.org → Tenant "Demo City"
 demo-city.example.org  → Tenant "Demo City"
 ```
 

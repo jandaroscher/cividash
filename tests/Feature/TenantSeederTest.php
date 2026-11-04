@@ -25,24 +25,15 @@ class TenantSeederTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('tenants', [
-            'slug' => 'stadt-regensburg',
-            'name' => 'Stadt Regensburg',
-        ]);
-
-        $this->assertDatabaseHas('tenants', [
             'slug' => 'demo-city',
             'name' => 'Demo City',
         ]);
 
         // Verify the user is associated with the tenants
         $user = User::where('email', 'demo@example.com')->first();
-        $regensburg = Tenant::where('slug', 'stadt-regensburg')->first();
         $demoCity = Tenant::where('slug', 'demo-city')->first();
 
-        $this->assertTrue(
-            $user->tenants->contains($regensburg),
-            'Demo user should be attached to the stadt-regensburg tenant'
-        );
+        $this->assertEquals($demoCity->id, $user->default_tenant_id);
         $this->assertTrue(
             $user->tenants->contains($demoCity),
             'Demo user should be attached to the demo-city tenant'
@@ -56,7 +47,6 @@ class TenantSeederTest extends TestCase
         $this->seed(TenantSeeder::class);
 
         $this->assertEquals(1, User::where('email', 'demo@example.com')->count());
-        $this->assertEquals(1, Tenant::where('slug', 'stadt-regensburg')->count());
         $this->assertEquals(1, Tenant::where('slug', 'demo-city')->count());
     }
 
@@ -72,12 +62,12 @@ class TenantSeederTest extends TestCase
         // Run the seeder
         $this->seed(TenantSeeder::class);
 
-        // User should now belong to default, stadt-regensburg, and demo-city tenants
+        // User should now belong to the default and demo-city tenants
         $user->refresh();
-        $this->assertEquals(3, $user->tenants()->count());
+        $this->assertEquals(2, $user->tenants()->count());
 
         $tenantSlugs = $user->tenants->pluck('slug')->sort()->values()->toArray();
-        $this->assertEquals(['default', 'demo-city', 'stadt-regensburg'], $tenantSlugs);
+        $this->assertEquals(['default', 'demo-city'], $tenantSlugs);
     }
 
     public function test_seeder_uses_configured_admin_password(): void

@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 /**
  * Seeder for Tiles from dashboard.json.
  *
- * Seeds tiles (kacheln) from the Regensburg dashboard.json file.
+ * Seeds tiles (kacheln) from a legacy dashboard.json export.
  * Supports idempotent upserts, background block transformation, and category relationships.
  */
 class TileSeeder extends Seeder

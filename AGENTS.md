@@ -69,7 +69,7 @@ Write tests first (TDD).
 - The Filament panel is tenant-aware (`->tenant(Tenant::class)`). It also accepts
   `?tenant=slug` / `X-Tenant` for authenticated users (`SetFilamentDefaultTenant`),
   gated by `canAccessTenant()`.
-- Use the demo tenants (`default`, `demo-city`, `stadt-regensburg`) in examples and tests.
+- Use the demo tenants (`default`, `demo-city`) in examples and tests.
 
 ## Filament icons
 

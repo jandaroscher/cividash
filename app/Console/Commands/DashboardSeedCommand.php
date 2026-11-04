@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\CategoryGroup;
 use App\Models\Tenant;
-use App\Services\DashboardJsonParser;
+use App\Services\LegacyDashboardJsonParser;
 use App\Services\MediaDownloadService;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\MetricSeeder;
@@ -30,7 +30,7 @@ class DashboardSeedCommand extends Command
                             {--only= : Seed only a subset (categories|handlungsfelder)}
                             {--dry-run : Run without persisting data}';
 
-    protected $description = 'Seed Tiles and Categories from Regensburg dashboard.json';
+    protected $description = 'Seed Tiles and Categories from a legacy dashboard.json export';
 
     public function handle(): int
     {
@@ -71,7 +71,7 @@ class DashboardSeedCommand extends Command
         }
 
         try {
-            $parser = new DashboardJsonParser;
+            $parser = new LegacyDashboardJsonParser;
             $parsed = $parser->parse($jsonPath);
 
             $this->info("Parsed {$parsed['categories']->count()} categories, {$parsed['tiles']->count()} tiles, {$parsed['metrics']->count()} metrics, and {$parsed['sdg_ziele']->count()} SDG-Ziele");
@@ -155,7 +155,6 @@ class DashboardSeedCommand extends Command
         }
 
         $tenant ??= Tenant::where('slug', 'default')->first()
-            ?? Tenant::where('slug', 'stadt-regensburg')->first()
             ?? Tenant::first();
 
         if (! $tenant) {
