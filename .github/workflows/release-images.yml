@@ -26,6 +26,10 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # Two runs for the same tag would push and scan the same mutable image tags.
+    concurrency:
+      group: release-images-${{ inputs.tag }}
+      cancel-in-progress: false
     env:
       REGISTRY: ghcr.io/jandaroscher
     steps:
