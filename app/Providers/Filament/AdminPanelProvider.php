@@ -23,7 +23,6 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\SpatieLaravelTranslatablePlugin;
 use Filament\Support\Assets\Css;
-use Filament\Support\Assets\Js;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
@@ -33,6 +32,7 @@ use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Vite;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
@@ -48,10 +48,6 @@ class AdminPanelProvider extends PanelProvider
     public function boot(): void
     {
         FilamentAsset::register([
-            // Registers <dotlottie-wc> and points it at the self-hosted WASM
-            // renderer (public/js/vendor/dotlottie-player.wasm), see
-            // public/js/vendor/dotlottie-wc.LICENSE.txt for update instructions.
-            Js::make('dotlottie-wc', asset('js/vendor/dotlottie-wc-init.js'))->module(),
             Css::make('admin-overrides', asset('css/filament/admin-overrides.css')),
         ]);
 
@@ -135,6 +131,12 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->sidebarCollapsibleOnDesktop()
             ->login(Login::class)
+            // Registers <dotlottie-wc> with the self-hosted WASM renderer; built by
+            // Vite from npm, see resources/js/admin/dotlottie.js.
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn () => app(Vite::class)('resources/js/admin/dotlottie.js')
+            )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
                 fn () => config('integrations.keycloak_sso.enabled')

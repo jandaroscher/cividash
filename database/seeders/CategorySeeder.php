@@ -385,7 +385,6 @@ class CategorySeeder extends Seeder
         }
 
         return Tenant::where('slug', 'default')->value('id')
-            ?? Tenant::where('slug', 'stadt-regensburg')->value('id')
             ?? Tenant::first()?->id;
     }
 

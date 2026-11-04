@@ -30,7 +30,7 @@ class AdminImportApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->tenant = Tenant::create(['name' => 'Regensburg', 'slug' => 'regensburg']);
+        $this->tenant = Tenant::create(['name' => 'Example Town', 'slug' => 'example-town']);
         $this->otherTenant = Tenant::create(['name' => 'Demo City', 'slug' => 'demo-city']);
 
         $this->user = User::factory()->create();
@@ -236,7 +236,7 @@ class AdminImportApiTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonFragment(['code' => 'tenant_mismatch']);
 
-        // Imported into token tenant (regensburg), not demo-city.
+        // Imported into token tenant (example-town), not demo-city.
         $this->assertDatabaseHas('tiles', ['tenant_id' => $this->tenant->id]);
         $this->assertDatabaseMissing('tiles', ['tenant_id' => $this->otherTenant->id]);
     }
@@ -250,13 +250,13 @@ class AdminImportApiTest extends TestCase
         Filament::setTenant(null);
         Filament::auth()->logout();
 
-        $token = $this->token($this->tenant); // Regensburg token
+        $token = $this->token($this->tenant); // Example Town token
 
         $bundle = [
             'schema_version' => '1.0',
             'data' => [[
                 'tile.slug' => 'nur-demo-city',
-                'tile.title' => ['de' => 'Neu angelegt in Regensburg'],
+                'tile.title' => ['de' => 'Neu angelegt in Example Town'],
             ]],
         ];
 

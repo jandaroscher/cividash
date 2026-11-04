@@ -167,11 +167,11 @@ handle it). Adjust the PHP-FPM socket path and TLS termination for your environm
 
   **Warning: `dashboard:reset` deletes data.** Its description in
   `app/Console/Commands/DashboardResetCommand.php` is explicit: *"Reset demo tenants: Default
-  cleaned, Regensburg re-seeded, Demo City emptied."* This is a **demo-data reset command**, not a
-  generic maintenance task. "Emptied" means all seeded content is removed and only a minimal public root page remains. On a production instance seeded with real dashboards, do **not** set
+  cleaned, Demo City re-seeded."* This is a **demo-data reset command**, not a
+  generic maintenance task. "Cleaned" means all content is removed and only a minimal public root page remains. On a production instance seeded with real dashboards, do **not** set
   `DASHBOARD_DEMO_RESET=true`; leave it unset (default `false`) so the schedule entry is never
   registered. Only set `DASHBOARD_DEMO_RESET=true` on an actual demo/showcase instance where the
-  nightly wipe of the default and Demo City tenants and reseed of Regensburg is intended. Rebuild the config
+  nightly wipe of the default tenant and reseed of Demo City is intended. Rebuild the config
   cache after changing the env value (`php artisan config:cache` does not pick up new `.env`
   values on its own). See `docs/deployment/seeding.md` (Scheduler and Cron-Setup section) for how
   the schedule behaves.

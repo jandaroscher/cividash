@@ -54,7 +54,7 @@ ddev exec npm install                   # Install Node dependencies
 ddev exec php artisan migrate           # Run migrations
 ddev exec php artisan tenancy:backfill  # Setup multi-tenancy (creates default tenant)
 ddev exec php artisan db:seed           # Seed demo data (tenants, roles)
-ddev exec npm run build                 # Build frontend assets (public routes need the Vite manifest)
+ddev exec npm run build                 # Build frontend assets (public routes and /admin need the Vite manifest)
 ```
 
 DDEV cannot change the database engine of an existing project. On a database type
@@ -116,4 +116,4 @@ See [SECURITY.md](SECURITY.md) for how to report vulnerabilities.
 
 ## License
 
-Licensed under the EUPL-1.2 or (at your option) any later version (SPDX: `EUPL-1.2+`). See [LICENSE](LICENSE) for the full text and [NOTICE](NOTICE) for bundled third-party components. The runtime dependencies with their licences are listed in [SBOM.cdx.json](SBOM.cdx.json) (CycloneDX) and [SBOM.csv](SBOM.csv).
+Licensed under the EUPL-1.2 or (at your option) any later version (SPDX: `EUPL-1.2+`). See [LICENSE](LICENSE) for the full text and [NOTICE](NOTICE) for bundled third-party components. From v1.1.0 on, every [release](https://github.com/jandaroscher/cividash/releases) carries SPDX SBOMs: one for the locked production dependencies from Composer and npm including all transitive packages (development tooling is left out), and one for each container image.

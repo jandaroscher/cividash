@@ -33,7 +33,7 @@ ddev delete --omit-snapshot && ddev start
 
 `.ddev/config.yaml` configures `additional_hostnames` for multi-tenant local testing:
 `a.open-source-dashboard`, `b.open-source-dashboard`, `demo-city.open-source-dashboard`,
-`regensburg.open-source-dashboard`, alongside the default `open-source-dashboard.ddev.site`.
+alongside the default `open-source-dashboard.ddev.site`.
 Useful for testing domain-based tenant resolution locally (see
 `app/Http/Middleware/ResolveTenantFromRequest.php`).
 
