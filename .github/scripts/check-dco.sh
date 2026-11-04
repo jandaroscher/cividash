@@ -15,7 +15,7 @@ for sha in $shas; do
   # A valid sign-off is "Name <email>"; folded trailers are unfolded first.
   signoffs=$(git show -s --format='%(trailers:key=Signed-off-by,valueonly,unfold)' "$sha" \
     | grep -E '^[^<]*[^<[:space:]][^<]*<[^>@]+@[^>]+>' \
-    | grep -v -i -e 'noreply@anthropic.com' -e '<agent+[^>]*@janda-roscher.de>' || true)
+    | grep -v -i -e 'noreply@anthropic.com' -e '<agent+[^>]*@janda-roscher.de>' -e '\[bot\]@users.noreply.github.com>' || true)
   if [ -z "$signoffs" ]; then
     echo "::error::$(git show -s --format='%h %s' "$sha"): no Signed-off-by from a person"
     failed=1
