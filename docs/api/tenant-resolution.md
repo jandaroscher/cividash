@@ -59,7 +59,7 @@ Tenant configuration:
 | Tenant | Domain |
 |--------|--------|
 | Demo City | `demo-city.example.org` |
-| Demo City | `demo-city.example.org` |
+| Other City | `other-city.example.org` |
 
 A `www.` prefix is stripped automatically, and domain matching is case-insensitive.
 
@@ -157,8 +157,8 @@ protected static function resolveTenant(): ?Tenant
 ### 1. SPA with domain routing
 
 ```
-demo-city.example.org → Tenant "Demo City"
 demo-city.example.org  → Tenant "Demo City"
+other-city.example.org → Tenant "Other City"
 ```
 
 The frontend calls `/api/v1/tiles`, and the middleware recognizes the tenant via the domain.

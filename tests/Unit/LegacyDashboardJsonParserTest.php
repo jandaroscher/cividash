@@ -10,7 +10,7 @@ use App\Services\ParsedTile;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
-class DashboardJsonParserTest extends TestCase
+class LegacyDashboardJsonParserTest extends TestCase
 {
     protected LegacyDashboardJsonParser $parser;
 

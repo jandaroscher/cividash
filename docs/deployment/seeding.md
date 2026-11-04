@@ -91,7 +91,7 @@ Seeds tiles, categories, metrics, SDG goals, and their relationships from a `das
 
 Options:
 
-- `--path=`: path to the `dashboard.json` file. Optional; the default path `storage/app/seeds/dashboard.json` applies if omitted. This file is not part of the repository and only exists after it has been downloaded with `--url`. A relative path is also possible (e.g. `dashboard.json` at the project root).
+- `--path=`: path to the `dashboard.json` file. Optional; the default path `storage/app/seeds/dashboard.json` applies if omitted. This file is not part of the repository and only exists after it has been downloaded with `--url`. Earlier versions used `storage/app/seeds/regensburg/dashboard.json`; move an existing file to the new path or pass `--path`, otherwise the nightly demo reset aborts before it deletes anything. A relative path is also possible (e.g. `dashboard.json` at the project root).
 - `--url=`: URL from which `dashboard.json` is downloaded. The file ends up locally at `storage/app/seeds/dashboard.json` and is then seeded as usual. Recommended as a first step before using `--path` without your own value. Example: `--url=https://dashboard.example.org/dashboard.json`.
 - `--dry-run`: performs a dry run, shows a summary of the data to be seeded without saving it. Useful for testing before the actual seeding.
 
