@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+
+SPDX-License-Identifier: EUPL-1.2+
+-->
+
 <template>
   <!-- Demo City tenant override of TileCard.vue via the component-override
        registry. Composes the default TileCard via its named

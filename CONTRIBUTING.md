@@ -107,6 +107,25 @@ Contributions must meet the same merge requirements as any other change: all app
 required checks must pass, no open review threads, and Conventional Commits. Do not
 include secrets, customer data, or internal documents in any contribution.
 
+## Licence headers
+
+The project follows the [REUSE specification](https://reuse.software). Start
+every new source file (PHP, Blade, Vue, JS/TS, CSS, shell, YAML) with an SPDX
+header naming the copyright holder (you or your employer; maintainers use
+JANDA+ROSCHER GmbH & Co. KG), for example:
+
+```php
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+```
+
+`reuse annotate --copyright "<holder>" --license EUPL-1.2+ <file>`
+writes it in the right comment style. Files without comment syntax (JSON,
+images, Markdown) are covered by `REUSE.toml`; files copied or adapted from
+third-party packages (published configs, views, translations) get their own
+entry there with the upstream copyright and licence. CI runs `reuse lint` on every pull request.
+
 ## Developer Certificate of Origin
 
 This project requires the Developer Certificate of Origin (DCO 1.1) instead of a CLA.

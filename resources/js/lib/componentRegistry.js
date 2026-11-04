@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 import DefaultTileCard from '../components/TileCard.vue';
 
 // import.meta.glob is a Vite build-time glob: every overrides/*/TileCard.vue

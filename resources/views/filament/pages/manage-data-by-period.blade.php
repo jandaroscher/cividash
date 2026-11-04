@@ -1,3 +1,9 @@
+{{--
+SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+
+SPDX-License-Identifier: EUPL-1.2+
+--}}
+
 <x-filament-panels::page>
     {{-- Selectors live outside the Filament form to prevent updatedInteractsWithForms
          from firing fillFormFromDatabase() when tile metric inputs change.

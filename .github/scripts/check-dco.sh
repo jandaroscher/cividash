@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+#
+# SPDX-License-Identifier: EUPL-1.2+
+
 # Checks that every commit in the given range carries a Developer Certificate
 # of Origin sign-off by a person. Commits by bots are exempt; a sign-off by an
 # AI assistant or one of our agents does not count. Usage: check-dco.sh <rev-range>

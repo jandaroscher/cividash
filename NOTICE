@@ -50,6 +50,12 @@ dotLottie player, installed via npm and bundled into the frontend and admin buil
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 
+Files adapted from the Laravel skeleton and from published package files
+(configs, views and translations from Laravel, laravel-lang, Filament,
+Livewire, Spatie, filament-fabricator and Scribe) keep the MIT licence of
+their upstream; REUSE.toml lists each of them with its copyright holders.
+LICENSES/MIT.txt holds the licence text.
+
 Filament Peek assets, published into public/ by `composer install`
 (filament:upgrade) and not stored in this repository
   - pboivin/filament-peek
