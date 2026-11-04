@@ -116,24 +116,24 @@ class NavigationSeederTest extends TestCase
         $footer = FooterNavigation::getInstance();
         $navigationItems = $footer->getTranslation('footer_navigation_items', 'de', false) ?? [];
 
-        // Find regensburg.de link - check in translatable structure
-        $regensburgLink = collect($navigationItems)->first(function ($item) {
-            return isset($item['url']) && is_array($item['url']) && ($item['url']['de'] ?? '') === 'https://www.regensburg.de/';
+        // Find example.org link - check in translatable structure
+        $exampleLink = collect($navigationItems)->first(function ($item) {
+            return isset($item['url']) && is_array($item['url']) && ($item['url']['de'] ?? '') === 'https://www.example.org/';
         });
-        $this->assertNotNull($regensburgLink);
-        $this->assertEquals('manual', $regensburgLink['type']);
-        $this->assertIsArray($regensburgLink['label']);
-        $this->assertEquals('regensburg.de', $regensburgLink['label']['de'] ?? '');
-        $this->assertNull($regensburgLink['page_id'] ?? null);
+        $this->assertNotNull($exampleLink);
+        $this->assertEquals('manual', $exampleLink['type']);
+        $this->assertIsArray($exampleLink['label']);
+        $this->assertEquals('example.org', $exampleLink['label']['de'] ?? '');
+        $this->assertNull($exampleLink['page_id'] ?? null);
 
-        // Find mein.regensburg.de link
-        $meinRegensburgLink = collect($navigationItems)->first(function ($item) {
-            return isset($item['url']) && is_array($item['url']) && ($item['url']['de'] ?? '') === 'https://mein.regensburg.de/';
+        // Find mein.example.org link
+        $meinExampleLink = collect($navigationItems)->first(function ($item) {
+            return isset($item['url']) && is_array($item['url']) && ($item['url']['de'] ?? '') === 'https://mein.example.org/';
         });
-        $this->assertNotNull($meinRegensburgLink);
-        $this->assertEquals('manual', $meinRegensburgLink['type']);
-        $this->assertIsArray($meinRegensburgLink['label']);
-        $this->assertEquals('mein.regensburg.de', $meinRegensburgLink['label']['de'] ?? '');
+        $this->assertNotNull($meinExampleLink);
+        $this->assertEquals('manual', $meinExampleLink['type']);
+        $this->assertIsArray($meinExampleLink['label']);
+        $this->assertEquals('mein.example.org', $meinExampleLink['label']['de'] ?? '');
     }
 
     public function test_navigation_seeder_is_idempotent(): void

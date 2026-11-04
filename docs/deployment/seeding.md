@@ -44,7 +44,7 @@ php artisan db:seed --force
 php artisan pages:seed
 ```
 
-Seeds Fabricator pages and header/footer navigation from the reference website (Regensburg).
+Seeds Fabricator pages and header/footer navigation with neutral example content.
 
 Fabricator pages:
 - Home (`/`)
@@ -55,7 +55,7 @@ Fabricator pages:
 
 Navigation:
 - Header: Download, Kontakt
-- Footer: Impressum, Datenschutz, regensburg.de, mein.regensburg.de
+- Footer: Impressum, Datenschutz, example.org, mein.example.org
 
 Options:
 - `--dry-run`: performs a dry run without saving data, only shows a summary
@@ -81,7 +81,7 @@ The command calls the following seeders:
 php artisan dashboard:seed --path=/path/to/dashboard.json
 ```
 
-Seeds tiles, categories, metrics, SDG goals, and their relationships from a `dashboard.json` file (Regensburg format):
+Seeds tiles, categories, metrics, SDG goals, and their relationships from a `dashboard.json` file in the legacy dashboard JSON export format (see [Legacy dashboard JSON format](#legacy-dashboard-json-format)), parsed by `App\Services\LegacyDashboardJsonParser`:
 
 1. Handlungsfelder (categories): loads categories from `dashboard.json` and, if enabled, the associated media files.
 2. Handlungsdimensionen (dimensions): creates three static dimensions (Gerechtigkeit/Justice, Produktivität/Productivity, Grün/Green) and links them to the categories.
@@ -91,8 +91,8 @@ Seeds tiles, categories, metrics, SDG goals, and their relationships from a `das
 
 Options:
 
-- `--path=`: path to the `dashboard.json` file. Optional; the default path `storage/app/seeds/regensburg/dashboard.json` applies if omitted. This file is not part of the repository and only exists after it has been downloaded with `--url`. A relative path is also possible (e.g. `dashboard.json` at the project root).
-- `--url=`: URL from which `dashboard.json` is downloaded. The file ends up locally at `storage/app/seeds/regensburg/dashboard.json` and is then seeded as usual. Recommended as a first step before using `--path` without your own value. Example: `--url=https://zukunft.regensburg.de/dashboard.json`.
+- `--path=`: path to the `dashboard.json` file. Optional; the default path `storage/app/seeds/dashboard.json` applies if omitted. This file is not part of the repository and only exists after it has been downloaded with `--url`. Earlier versions used `storage/app/seeds/regensburg/dashboard.json`; move an existing file to the new path or pass `--path`, otherwise the nightly demo reset aborts before it deletes anything. A relative path is also possible (e.g. `dashboard.json` at the project root).
+- `--url=`: URL from which `dashboard.json` is downloaded. The file ends up locally at `storage/app/seeds/dashboard.json` and is then seeded as usual. Recommended as a first step before using `--path` without your own value. Example: `--url=https://dashboard.example.org/dashboard.json`.
 - `--dry-run`: performs a dry run, shows a summary of the data to be seeded without saving it. Useful for testing before the actual seeding.
 
 Examples:
@@ -107,9 +107,9 @@ php artisan dashboard:seed --path=dashboard.json
 php artisan dashboard:seed --path=/var/www/dashboard.json
 
 # Download from a URL and seed
-php artisan dashboard:seed --url=https://zukunft.regensburg.de/dashboard.json
+php artisan dashboard:seed --url=https://dashboard.example.org/dashboard.json
 
-# With the default path (storage/app/seeds/regensburg/dashboard.json)
+# With the default path (storage/app/seeds/dashboard.json)
 php artisan dashboard:seed
 
 # Dry run
@@ -119,9 +119,9 @@ php artisan dashboard:seed --path=dashboard.json --dry-run
 The seeding configuration lives in `config/seeding.php`:
 
 - `default_json_path`: default path to dashboard.json, overridable via the `.env` variable `SEED_DASHBOARD_JSON`
-- `dashboard_json_url`: URL for downloading dashboard.json for `dashboard:reset`, `.env` variable `SEED_DASHBOARD_JSON_URL` (no default; without it, `dashboard:reset` reseeds from the existing local file. Example: `https://zukunft.regensburg.de/dashboard.json`)
+- `dashboard_json_url`: URL for downloading dashboard.json for `dashboard:reset`, `.env` variable `SEED_DASHBOARD_JSON_URL` (no default; without it, `dashboard:reset` reseeds from the existing local file. Example: `https://dashboard.example.org/dashboard.json`)
 - `media_download_enabled`: toggles downloading media files, `.env` variable `SEED_MEDIA_DOWNLOAD` (default: `true`)
-- `media_base_url`: root URL of the source site for media downloads, `.env` variable `SEED_MEDIA_BASE_URL`. Files load from `<base>/files/`, static icons from `<base>/assets/`. No default: without it, seeding skips media downloads and logs one info message. Example: `https://zukunft.regensburg.de`
+- `media_base_url`: root URL of the source site for media downloads, `.env` variable `SEED_MEDIA_BASE_URL`. Files load from `<base>/files/`, static icons from `<base>/assets/`. No default: without it, seeding skips media downloads and logs one info message. Example: `https://dashboard.example.org`
 
 The command calls the following seeders in this order:
 1. `CategorySeeder::run()` (Handlungsfelder)
@@ -138,17 +138,17 @@ php artisan dashboard:reset --force
 ```
 
 Resets the demo tenants on demo instances:
-- Regensburg (`stadt-regensburg`): reset to the current state of the source site (delete data, then reseed).
+- Default (`default`): delete all content; only a minimal public root page is recreated.
+- Demo City (`demo-city`): reset to the current state of the source site (delete data, then reseed) and re-apply the `demo-city` theme.
   - With `SEED_DASHBOARD_JSON_URL` set, the reset downloads `dashboard.json` first. Without it, the reset reseeds from the local file and aborts before deleting anything if that file is missing.
   - With `SEED_MEDIA_BASE_URL` set, the reseed downloads icons and images. Without it, the reseed skips media.
-- Demo City (`demo-city`): reset to an empty state (delete data, empty sandbox for testers).
 
-The tenants' domains are preserved (only assigned if still empty). User assignments are not merely preserved: every existing user is (re-)attached to both `stadt-regensburg` and `demo-city` via `syncWithoutDetaching()`, without detaching anyone.
+The tenants' domains are preserved (only assigned if still empty). User assignments are not merely preserved: every existing user is (re-)attached to `demo-city` via `syncWithoutDetaching()`, without detaching anyone.
 
 Process:
 1. Download the current `dashboard.json` from the configured URL (`SEED_DASHBOARD_JSON_URL`).
-2. Reset Regensburg: delete all content of the tenant (in FK-safe order), then reseed with `dashboard:seed` + `pages:seed` + `tenancy:backfill`.
-3. Reset Demo City: delete all content of the tenant; only a minimal public root page is recreated.
+2. Reset Default: delete all content of the tenant; only a minimal public root page is recreated.
+3. Reset Demo City: delete all content of the tenant (in FK-safe order), then reseed with `dashboard:seed` + `pages:seed` + `tenancy:backfill`.
 
 Deletion order (respects foreign key constraints): MetricValue, Metric, TimePeriod, MetricDefinition, BackgroundPage, category_tile (pivot), Tile, Category, CategoryGroup, Navigation, FooterNavigation, Page.
 
@@ -180,7 +180,7 @@ php artisan db:seed --force
 php artisan pages:seed
 
 # 3. Dashboard data (dashboard.json is untracked, download it first)
-php artisan dashboard:seed --url=https://zukunft.regensburg.de/dashboard.json
+php artisan dashboard:seed --url=https://dashboard.example.org/dashboard.json
 ```
 
 ### On updates (when data already exists)
@@ -192,7 +192,7 @@ cd ~/html/cividash-backend
 php artisan pages:seed
 
 # 2. Dashboard data (overwrites/updates existing data; re-download since the file is untracked)
-php artisan dashboard:seed --url=https://zukunft.regensburg.de/dashboard.json
+php artisan dashboard:seed --url=https://dashboard.example.org/dashboard.json
 ```
 
 `db:seed` only applies to the first installation. `pages:seed` and `dashboard:seed` can be run multiple times, they update existing data.
@@ -212,7 +212,7 @@ This is normal on the first installation. Seed the database or create an admin (
 ### Problem: media files are not downloaded
 
 - Check the `.env` variable `SEED_MEDIA_DOWNLOAD=true`.
-- Check that the `.env` variable `SEED_MEDIA_BASE_URL` is set to the source site root (e.g. `https://zukunft.regensburg.de`). Without it, no media is downloaded.
+- Check that the `.env` variable `SEED_MEDIA_BASE_URL` is set to the source site root (e.g. `https://dashboard.example.org`). Without it, no media is downloaded.
 - Check the write permissions for `storage/app/seeds/`.
 - Check the network connection to the media base URL.
 
@@ -276,9 +276,35 @@ php artisan dashboard:reset
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SEED_DASHBOARD_JSON_URL` | (empty) | URL for the nightly download of `dashboard.json`, e.g. `https://zukunft.regensburg.de/dashboard.json` |
-| `SEED_MEDIA_BASE_URL` | (empty) | Source site root for media downloads, e.g. `https://zukunft.regensburg.de` |
-| `SEED_DASHBOARD_JSON` | `storage/app/seeds/regensburg/dashboard.json` | Local storage path |
+| `SEED_DASHBOARD_JSON_URL` | (empty) | URL for the nightly download of `dashboard.json`, e.g. `https://dashboard.example.org/dashboard.json` |
+| `SEED_MEDIA_BASE_URL` | (empty) | Source site root for media downloads, e.g. `https://dashboard.example.org` |
+| `SEED_DASHBOARD_JSON` | `storage/app/seeds/dashboard.json` | Local storage path |
+
+## Legacy dashboard JSON format
+
+`dashboard:seed` and `dashboard:reset` read one JSON object. The repository ships no data file; provide your own via `--path`, `--url` or `SEED_DASHBOARD_JSON_URL`. The top-level keys are configurable in `config/seeding.php` (`json_keys`); all are optional and default to an empty list:
+
+| Key | Content | Fields read per entry |
+|-----|---------|-----------------------|
+| `handlungsfelder` | Categories (Handlungsfelder), object or list | `id`, `title` |
+| `kacheln` | Tiles, object keyed by tile id or list | `id`, `title`, `title_en`, `descr`/`description`, `descr_en`, `sortby`, `upload_grafik`, `background_text(_en)`, `contribution_text(_en)`, `slider_title_N(_en)`, `slider_text_N(_en)`, `slider_image_N`, `slider_link_N`, `lnk_handlungsfelder` (category ids), `lnk_kennzahlen` (metric ids), `lnk_ziele_sdg` (SDG ids), `handlungsdimension` |
+| `Kennzahlen` | Metrics | `id`, `key`, `title`, `title_en`, `unit`, `upload` (string or `{systemurl}`), `indikatortyp` or `indicator_type` |
+| `daten` | Metric values, list of rows | `datetime` (year is extracted) plus one field per metric `key` holding that year's value |
+| `sdg` | SDG goals | `id`, `title` (the goal number 1-17) |
+
+Minimal example:
+
+```json
+{
+  "handlungsfelder": [{ "id": 1, "title": "Umwelt" }],
+  "kacheln": {
+    "10": { "id": 10, "title": "Luftqualität", "title_en": "Air quality", "lnk_handlungsfelder": [1], "lnk_kennzahlen": [100], "lnk_ziele_sdg": [3] }
+  },
+  "Kennzahlen": { "100": { "id": 100, "key": "no2", "title": "NO2-Jahresmittel", "unit": "µg/m³" } },
+  "daten": [{ "datetime": "2024-01-01", "no2": 21 }],
+  "sdg": { "3": { "id": 3, "title": "3" } }
+}
+```
 
 ## Further information
 

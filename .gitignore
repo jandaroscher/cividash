@@ -75,4 +75,4 @@ public/js/pboivin/
 .planning/
 
 # Fetched dashboard seed export (populated by `dashboard:seed --url`, not versioned)
-storage/app/seeds/regensburg/
+storage/app/seeds/

@@ -212,7 +212,7 @@ class Page extends FabricatorPage implements PageContract
      * Get the full frontend URL including the tenant's domain.
      *
      * If the page's tenant has a configured domain, returns an absolute URL
-     * (e.g., https://regensburg.open-source-dashboard.ddev.site/).
+     * (e.g., https://demo-city.open-source-dashboard.ddev.site/).
      * Otherwise, falls back to the relative path from getUrl().
      *
      * @param  array<string, mixed>  $args

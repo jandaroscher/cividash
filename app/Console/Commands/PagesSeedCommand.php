@@ -95,6 +95,6 @@ class PagesSeedCommand extends Command
         $this->line('');
         $this->line('Navigation items to be created:');
         $this->line('  Header: Download, Kontakt');
-        $this->line('  Footer: Impressum, Datenschutz, regensburg.de, mein.regensburg.de');
+        $this->line('  Footer: Impressum, Datenschutz, example.org, mein.example.org');
     }
 }
