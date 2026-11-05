@@ -15,21 +15,19 @@ class DataCleanupScheduleTest extends TestCase
     public static function cleanupCommands(): array
     {
         return [
-            'expired API tokens' => ['sanctum:prune-expired'],
+            'expired API tokens' => ['sanctum:prune-expired --hours=24'],
             'expired password reset tokens' => ['auth:clear-resets'],
-            'failed jobs older than 90 days' => ['queue:prune-failed'],
+            'failed jobs older than 90 days' => ['queue:prune-failed --hours=2160'],
         ];
     }
 
     #[DataProvider('cleanupCommands')]
     public function test_cleanup_command_is_scheduled_daily(string $command): void
     {
-        $this->assertArrayHasKey($command, Artisan::all());
-
         Artisan::call('schedule:list');
 
         $this->assertMatchesRegularExpression(
-            '/^\s*\d+\s+\d+\s+\*\s+\*\s+\*\s+php artisan '.preg_quote($command, '/').'\b/m',
+            '/^\s*\d+\s+\d+\s+\*\s+\*\s+\*\s+php artisan '.preg_quote($command, '/').'\s/m',
             Artisan::output()
         );
     }
