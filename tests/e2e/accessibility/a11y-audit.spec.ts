@@ -13,7 +13,6 @@ test.describe('Accessibility Audit', () => {
 
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa'])
-        .disableRules(['color-contrast']) // May fail with custom branding colors
         .analyze();
 
       const critical = results.violations.filter(v =>
@@ -29,7 +28,6 @@ test.describe('Accessibility Audit', () => {
 
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa'])
-        .disableRules(['color-contrast'])
         .analyze();
 
       const critical = results.violations.filter(v =>
