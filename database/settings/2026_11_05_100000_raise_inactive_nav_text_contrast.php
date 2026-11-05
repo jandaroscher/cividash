@@ -12,24 +12,23 @@ return new class extends SettingsMigration
     /**
      * Replaces the old default inactive navigation colour gray-400 (#9CA3AF, 2.5:1 on
      * white, below WCAG 2.1 AA) with gray-500 (#6B7280, 4.8:1) in the global and all
-     * tenant rows. Custom colours stay.
+     * tenant rows. Other colours stay. Values set in a theme's JSON are not touched.
+     * The payload is compared in PHP because its column type differs per database
+     * (json on PostgreSQL, text on SQLite).
      */
     public function up(): void
-    {
-        $this->replace('#9CA3AF', '#6B7280');
-    }
-
-    public function down(): void
-    {
-        $this->replace('#6B7280', '#9CA3AF');
-    }
-
-    private function replace(string $from, string $to): void
     {
         DB::table('settings')
             ->where('group', 'branding')
             ->where('name', 'nav_text_color_inactive')
-            ->whereRaw('UPPER(payload) = ?', [json_encode($from)])
-            ->update(['payload' => json_encode($to)]);
+            ->get(['id', 'payload'])
+            ->filter(fn ($row) => strtoupper((string) json_decode($row->payload)) === '#9CA3AF')
+            ->each(fn ($row) => DB::table('settings')->where('id', $row->id)->update(['payload' => json_encode('#6B7280')]));
     }
+
+    /**
+     * One-way: #6B7280 is also the new form default and a valid custom choice, so
+     * reverting it would lower contrast for rows this migration never touched.
+     */
+    public function down(): void {}
 };
