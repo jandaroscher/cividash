@@ -19,12 +19,10 @@ import { test, expect } from '@playwright/test';
  * - Test data seeded via: ddev php artisan e2e:seed-full --json
  */
 
-const BASE_URL = 'http://open-source-dashboard.ddev.site';
-
 test.describe('Dashboard Navigation', () => {
   test.describe('Home page', () => {
     test('home page loads and shows tiles grid', async ({ page }) => {
-      await page.goto(`${BASE_URL}/tiles`);
+      await page.goto('/tiles');
       await page.waitForLoadState('networkidle');
 
       // The tiles page should render the main content area
@@ -43,7 +41,7 @@ test.describe('Dashboard Navigation', () => {
 
   test.describe('Tile detail navigation', () => {
     test('clicking a tile navigates to detail page', async ({ page }) => {
-      await page.goto(`${BASE_URL}/tiles`);
+      await page.goto('/tiles');
       await page.waitForLoadState('networkidle');
 
       // Wait for tiles to appear
@@ -65,7 +63,7 @@ test.describe('Dashboard Navigation', () => {
     });
 
     test('back button returns to tile grid', async ({ page }) => {
-      await page.goto(`${BASE_URL}/tiles`);
+      await page.goto('/tiles');
       await page.waitForLoadState('networkidle');
 
       // Wait for tiles to appear
@@ -90,7 +88,7 @@ test.describe('Dashboard Navigation', () => {
 
   test.describe('Header navigation', () => {
     test('header navigation links are visible and clickable', async ({ page }) => {
-      await page.goto(`${BASE_URL}/`);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // Header should be visible
@@ -119,7 +117,7 @@ test.describe('Dashboard Navigation', () => {
 
   test.describe('Footer', () => {
     test('footer is visible with navigation items', async ({ page }) => {
-      await page.goto(`${BASE_URL}/`);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // Footer should be present

@@ -5,12 +5,10 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const BASE_URL = 'http://open-source-dashboard.ddev.site';
-
 test.describe('Accessibility Audit', () => {
   test.describe('Public pages', () => {
     test('home page has no critical a11y violations', async ({ page }) => {
-      await page.goto(BASE_URL);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       const results = await new AxeBuilder({ page })
@@ -26,7 +24,7 @@ test.describe('Accessibility Audit', () => {
     });
 
     test('tiles page has no critical a11y violations', async ({ page }) => {
-      await page.goto(`${BASE_URL}/tiles`);
+      await page.goto('/tiles');
       await page.waitForLoadState('networkidle');
 
       const results = await new AxeBuilder({ page })
@@ -44,7 +42,7 @@ test.describe('Accessibility Audit', () => {
 
   test.describe('Landmarks and structure', () => {
     test('page has proper landmark structure', async ({ page }) => {
-      await page.goto(BASE_URL);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // Check for main landmark
@@ -61,7 +59,7 @@ test.describe('Accessibility Audit', () => {
     });
 
     test('images have alt attributes', async ({ page }) => {
-      await page.goto(BASE_URL);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       const imagesWithoutAlt = await page.locator('img:not([alt])').count();
@@ -71,7 +69,7 @@ test.describe('Accessibility Audit', () => {
 
   test.describe('Keyboard navigation', () => {
     test('interactive elements are focusable via Tab', async ({ page }) => {
-      await page.goto(BASE_URL);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // Press Tab and check that focus moves to an interactive element
@@ -87,7 +85,7 @@ test.describe('Accessibility Audit', () => {
     });
 
     test('focus indicators are visible', async ({ page }) => {
-      await page.goto(BASE_URL);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // Tab to first interactive element
@@ -115,7 +113,7 @@ test.describe('Accessibility Audit', () => {
       'Login button fails WCAG colour contrast (known issue)'
     );
     test('admin login page has no critical a11y violations', async ({ page }) => {
-      await page.goto(`${BASE_URL}/admin/login`);
+      await page.goto('/admin/login');
       await page.waitForLoadState('networkidle');
 
       const results = await new AxeBuilder({ page })
