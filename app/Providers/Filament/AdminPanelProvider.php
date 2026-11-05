@@ -143,7 +143,7 @@ class AdminPanelProvider extends PanelProvider
             // Vite from npm, see resources/js/admin/dotlottie.js.
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
-                fn () => app(Vite::class)(['resources/js/admin/dotlottie.js', 'resources/css/admin-fonts.css'])
+                fn () => app(Vite::class)(['resources/js/admin/dotlottie.js', 'resources/css/admin-fonts.css', 'resources/css/admin-contrast.css'])
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
@@ -162,7 +162,12 @@ class AdminPanelProvider extends PanelProvider
                     ),
             ])
             ->colors([
-                'primary' => Color::Amber,
+                // WCAG 2.1 AA: Filament's Amber and Green put white button text and
+                // light-mode links on shade 600 at 3.2:1 and 3.3:1. With amber-700 and
+                // green-700 as shade 500, shade 600 reaches 5.9:1 and shade 500
+                // (dark-mode buttons) 5.0:1.
+                'primary' => Color::hex('#b45309'),
+                'success' => Color::hex('#15803d'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
