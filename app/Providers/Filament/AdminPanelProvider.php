@@ -16,6 +16,7 @@ use App\Http\Middleware\LocaleDetector;
 use App\Http\Middleware\SetFilamentDefaultTenant;
 use App\Models\Tenant;
 use Filament\Facades\Filament;
+use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -134,12 +135,15 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.system')),
             ])
             ->sidebarCollapsibleOnDesktop()
+            // Inter is self-hosted (resources/css/admin-fonts.css, loaded below)
+            // instead of Filament's Bunny Fonts CDN default (DSB requirement).
+            ->font('Inter', provider: LocalFontProvider::class)
             ->login(Login::class)
             // Registers <dotlottie-wc> with the self-hosted WASM renderer; built by
             // Vite from npm, see resources/js/admin/dotlottie.js.
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
-                fn () => app(Vite::class)('resources/js/admin/dotlottie.js')
+                fn () => app(Vite::class)(['resources/js/admin/dotlottie.js', 'resources/css/admin-fonts.css'])
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,

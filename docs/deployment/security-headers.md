@@ -46,7 +46,7 @@ the CSP `frame-ancestors` directive instead.
 Starting policy for all paths except the tile embed routes:
 
 ```text
-default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
 ```
 
 For the tile embed route (`/embed/tiles/{slug}` and `/en/embed/tiles/{slug}`), use the same
@@ -63,8 +63,6 @@ Why the relaxations are needed:
   expressions at runtime. It also allows the self-hosted WebAssembly module of the Lottie
   player used for animated tiles; if you drop `'unsafe-eval'`, keep `'wasm-unsafe-eval'`.
 - `'unsafe-inline'` in `style-src`: the frontend and the admin panel set inline styles.
-- `https://fonts.bunny.net` in `style-src` and `font-src`: the admin panel loads its font from
-  there. The public frontend serves all fonts locally.
 - `data:` in `img-src`: the admin panel uses inline SVG icons as data URLs.
 
 Extend the policy for your deployment:
@@ -91,7 +89,7 @@ nginx, in the `server` block of the TLS-terminating proxy in front of CiviDash:
 add_header Strict-Transport-Security "max-age=31536000" always;
 add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()" always;
 
-set $cividash_csp "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'";
+set $cividash_csp "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'";
 set $cividash_frame_ancestors "'self'";
 # Same matcher as docker/production/nginx/nginx.conf: one slug segment, no encoded dots or slashes.
 if ($request_uri ~* "^/(en/)?embed/tiles/(?![^?]*%2[ef])(?!\.\.?(\?|$))[^/?]+(\?|$)") {
@@ -111,7 +109,7 @@ Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), 
 Header always set X-Content-Type-Options "nosniff"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
-Define CIVIDASH_CSP "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'"
+Define CIVIDASH_CSP "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'"
 <If "%{REQUEST_URI} =~ m#^/(en/)?embed/tiles/[^/]+$#">
     Header always set Content-Security-Policy-Report-Only "${CIVIDASH_CSP}; frame-ancestors *"
 </If>
