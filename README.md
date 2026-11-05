@@ -111,7 +111,8 @@ database (`tests/Feature/Privacy/AnonymousVisitorSessionTest.php`). Only the adm
 uses a session cookie. The frontend uses `localStorage` for functional state (language,
 help hints), so no consent banner is required. The `cividash-web` access log records time,
 method, path without query string, status, size and duration, but no IP address, user
-agent or referer. Adding tracking is an operator decision and
+agent or referer, and `cividash-fpm` writes no access log. Error logs of nginx still
+contain the client address of the failed request. Adding tracking is an operator decision and
 requires a code change; it cannot be switched on by configuration.
 
 ## Security
