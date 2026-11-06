@@ -19,12 +19,10 @@ import { test, expect } from '@playwright/test';
  * - Test data seeded via: ddev php artisan e2e:seed-full --json
  */
 
-const BASE_URL = 'http://open-source-dashboard.ddev.site';
-
 test.describe('Filter and Search', () => {
   test.describe('Filter component', () => {
     test('filter component is visible on tiles page', async ({ page }) => {
-      await page.goto(`${BASE_URL}/tiles`);
+      await page.goto('/tiles');
       await page.waitForLoadState('networkidle');
 
       // Wait for tiles to load first
@@ -45,7 +43,7 @@ test.describe('Filter and Search', () => {
     });
 
     test('clicking a category filter button updates the displayed tiles', async ({ page }) => {
-      await page.goto(`${BASE_URL}/tiles`);
+      await page.goto('/tiles');
       await page.waitForLoadState('networkidle');
 
       // Wait for tiles to load
@@ -73,7 +71,7 @@ test.describe('Filter and Search', () => {
         const tilesStillVisible = await page.locator('.shadow-card').count();
 
         // Verify filter interaction had an effect: either tiles changed or URL updated
-        const urlChanged = currentUrl !== `${BASE_URL}/tiles`;
+        const urlChanged = !currentUrl.endsWith('/tiles');
         const tilesChanged = tilesStillVisible !== initialCount;
         expect(urlChanged || tilesChanged).toBeTruthy();
       }
@@ -82,7 +80,7 @@ test.describe('Filter and Search', () => {
 
   test.describe('Search functionality', () => {
     test('search input accepts text and filters tiles by title', async ({ page }) => {
-      await page.goto(`${BASE_URL}/tiles`);
+      await page.goto('/tiles');
       await page.waitForLoadState('networkidle');
 
       // Wait for tiles to load
@@ -105,7 +103,7 @@ test.describe('Filter and Search', () => {
     });
 
     test('clearing search shows all tiles again', async ({ page }) => {
-      await page.goto(`${BASE_URL}/tiles`);
+      await page.goto('/tiles');
       await page.waitForLoadState('networkidle');
 
       // Wait for tiles to load
@@ -129,7 +127,7 @@ test.describe('Filter and Search', () => {
     });
 
     test('filter state persists in URL query parameters', async ({ page }) => {
-      await page.goto(`${BASE_URL}/tiles`);
+      await page.goto('/tiles');
       await page.waitForLoadState('networkidle');
 
       // Wait for tiles to load

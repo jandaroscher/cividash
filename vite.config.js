@@ -25,6 +25,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/admin/dotlottie.js',
                 'resources/css/admin-fonts.css',
+                'resources/css/admin-contrast.css',
             ],
             refresh: true,
         }),

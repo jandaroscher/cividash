@@ -70,7 +70,7 @@ SPDX-License-Identifier: EUPL-1.2+
                                 <div class="text-xs text-gray-500 dark:text-gray-400">{{ __('filament.pages.manage_integrations.created') }}</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-lg font-semibold text-primary-600">{{ $syncStatus->lastResult->updated }}</div>
+                                <div class="text-lg font-semibold text-primary-600 dark:text-primary-400">{{ $syncStatus->lastResult->updated }}</div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400">{{ __('filament.pages.manage_integrations.updated') }}</div>
                             </div>
                             <div class="text-center">

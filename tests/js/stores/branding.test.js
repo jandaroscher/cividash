@@ -58,7 +58,7 @@ describe('brandingStore', () => {
             expect(store.dividerColor).toBeNull();
             expect(store.shadowColor).toBe('#000000');
             expect(store.navTextColor).toBe('#374151');
-            expect(store.navTextColorInactive).toBe('#9CA3AF');
+            expect(store.navTextColorInactive).toBe('#6B7280');
             expect(store.navHoverColor).toBe('#e30613');
         });
     });
