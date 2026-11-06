@@ -162,7 +162,7 @@ class AdminPanelProvider extends PanelProvider
                     ),
             ])
             ->colors([
-                // WCAG 2.1 AA, brand tones from the logo (OSND-356): #C83D10 carries white
+                // WCAG 2.1 AA, brand tones from the logo: #C83D10 carries white
                 // button text (shade 600 light, 500 dark) and light-mode links at 5.1:1;
                 // dark-mode links use shade 400 #EC640F at 5.4:1 on the dark panel.
                 // Green-700 as shade 500 puts the light-mode success action at 5.9:1.
