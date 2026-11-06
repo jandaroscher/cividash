@@ -220,6 +220,8 @@ class CategoryResource extends Resource
                     ->disk('public')
                     ->square()
                     ->size(40)
+                    // An icon-only cell would be a record link without a name.
+                    ->disabledClick()
                     ->getStateUsing(function (Category $record, $livewire) {
                         $icon = $record->getRawOriginal('icon');
                         if (! $icon) {

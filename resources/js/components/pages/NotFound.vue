@@ -5,8 +5,7 @@ SPDX-License-Identifier: EUPL-1.2+
 -->
 
 <template>
-  <main
-    role="main"
+  <section
     aria-labelledby="not-found-title"
     class="py-12 md:py-16"
   >
@@ -30,7 +29,7 @@ SPDX-License-Identifier: EUPL-1.2+
         {{ messages.homeLink }}
       </RouterLink>
     </div>
-  </main>
+  </section>
 </template>
 
 <script setup>

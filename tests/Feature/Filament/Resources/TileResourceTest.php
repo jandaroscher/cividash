@@ -61,6 +61,18 @@ class TileResourceTest extends TestCase
             ->assertCanSeeTableRecords([$tile]);
     }
 
+    public function test_list_page_toggles_have_a_name_and_take_keyboard_focus(): void
+    {
+        Tile::factory()->forTenant($this->tenant)->create();
+
+        $html = Livewire::test(ListTiles::class)->html();
+
+        $this->assertMatchesRegularExpression(
+            '/role="switch"\s+aria-checked="false"[^>]*aria-label="'.preg_quote(__('filament.resources.tile.is_public'), '/').'"[^>]*tabindex="0"/s',
+            $html,
+        );
+    }
+
     public function test_list_page_search_works(): void
     {
         $tile = Tile::factory()->forTenant($this->tenant)->create([
