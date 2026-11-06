@@ -33,7 +33,9 @@
             {{-- Not in Filament 3.3: the switch has no accessible name and cannot be
                  reached or toggled with the keyboard. --}}
             aria-label="{{ $getLabel() }}"
-            @if (! $isDisabled)
+            @if ($isDisabled)
+                aria-disabled="true"
+            @else
                 tabindex="0"
                 x-on:keydown.enter.prevent="$el.click()"
                 x-on:keydown.space.prevent="$el.click()"
@@ -122,7 +124,7 @@
                     }}'
             "
             @class([
-                'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent outline-none transition-colors duration-200 ease-in-out',
+                'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent outline-none transition-colors duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-1 dark:focus-visible:ring-primary-500 dark:focus-visible:ring-offset-gray-900',
                 'pointer-events-none opacity-70' => $isDisabled,
             ])
         >

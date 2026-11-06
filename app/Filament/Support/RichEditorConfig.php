@@ -38,7 +38,7 @@ class RichEditorConfig
     {
         return RichEditor::make($name)
             ->toolbarButtons(self::STANDARD_TOOLBAR)
-            // Trix sets an empty aria-label when no <label for> points at the editor.
+            // Trix only names the editor from a matching <label>; there is none here.
             ->extraInputAttributes(fn (RichEditor $component): array => [
                 'aria-label' => $component->getLabel(),
             ]);
