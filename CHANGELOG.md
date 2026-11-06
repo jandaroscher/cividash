@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1](https://github.com/jandaroscher/cividash/compare/v1.1.0...v1.1.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* **admin:** serve the Inter font locally instead of from Bunny Fonts ([#70](https://github.com/jandaroscher/cividash/issues/70)) ([d3cfe83](https://github.com/jandaroscher/cividash/commit/d3cfe83763b54e28e304ab4395c2b09cffb83712))
+* **ci:** keep the tag checkout full in the release images workflow ([#65](https://github.com/jandaroscher/cividash/issues/65)) ([c28e315](https://github.com/jandaroscher/cividash/commit/c28e315ecd0a587d52fe59beb5658f1aba217539))
+* **deps:** resolve Composer dependencies for PHP 8.2 ([#67](https://github.com/jandaroscher/cividash/issues/67)) ([0b7e42e](https://github.com/jandaroscher/cividash/commit/0b7e42e386091cd113af69bdab452a2c78d76d80))
+* **deps:** update Symfony components for the November security release ([#71](https://github.com/jandaroscher/cividash/issues/71)) ([5b5a1e1](https://github.com/jandaroscher/cividash/commit/5b5a1e1befb3a9809ce04febe0fd103f7fbebf70))
+* **privacy:** no session or personal data for anonymous visitors ([#72](https://github.com/jandaroscher/cividash/issues/72)) ([05e87e0](https://github.com/jandaroscher/cividash/commit/05e87e00770849cefac3266d5e13bf35d334292f))
+
 ## [1.1.0](https://github.com/jandaroscher/cividash/compare/v1.0.1...v1.1.0) (2026-11-04)
 
 
