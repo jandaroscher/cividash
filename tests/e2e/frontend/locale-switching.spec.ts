@@ -21,12 +21,10 @@ import { test, expect } from '@playwright/test';
  * - English translation must be enabled for the tenant
  */
 
-const BASE_URL = 'http://open-source-dashboard.ddev.site';
-
 test.describe('Locale Switching', () => {
   test.describe('Default locale', () => {
     test('default page loads in German (DE)', async ({ page }) => {
-      await page.goto(`${BASE_URL}/`);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // The URL should not contain /en prefix
@@ -40,7 +38,7 @@ test.describe('Locale Switching', () => {
 
   test.describe('Language switcher', () => {
     test('language switcher is visible in header', async ({ page }) => {
-      await page.goto(`${BASE_URL}/`);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // The desktop language switcher contains DE / EN buttons
@@ -63,7 +61,7 @@ test.describe('Locale Switching', () => {
     });
 
     test('switching to EN changes URL to /en/...', async ({ page }) => {
-      await page.goto(`${BASE_URL}/`);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       const languageSwitcher = page.locator('.language-switcher-desktop');
@@ -85,7 +83,7 @@ test.describe('Locale Switching', () => {
 
     test('content changes to English after switching locale', async ({ page }) => {
       // Navigate directly to English home page
-      await page.goto(`${BASE_URL}/en`);
+      await page.goto('/en');
       await page.waitForLoadState('networkidle');
 
       // Check if we were redirected back to DE (English might be disabled)
@@ -104,7 +102,7 @@ test.describe('Locale Switching', () => {
     });
 
     test('switching back to DE removes /en/ prefix', async ({ page }) => {
-      await page.goto(`${BASE_URL}/en`);
+      await page.goto('/en');
       await page.waitForLoadState('networkidle');
 
       if (!page.url().includes('/en')) {
@@ -133,14 +131,14 @@ test.describe('Locale Switching', () => {
   test.describe('API locale parameter', () => {
     test('API calls use correct ?locale= parameter', async ({ request }) => {
       // Test German locale
-      const deResponse = await request.get(`${BASE_URL}/api/v1/tiles?locale=de`);
+      const deResponse = await request.get('/api/v1/tiles?locale=de');
       expect(deResponse.ok()).toBeTruthy();
 
       const deData = await deResponse.json();
       expect(deData.data).toBeDefined();
 
       // Test English locale
-      const enResponse = await request.get(`${BASE_URL}/api/v1/tiles?locale=en`);
+      const enResponse = await request.get('/api/v1/tiles?locale=en');
       expect(enResponse.ok()).toBeTruthy();
 
       const enData = await enResponse.json();

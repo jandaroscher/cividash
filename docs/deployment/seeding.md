@@ -239,6 +239,18 @@ if (config('dashboard.demo_reset')) {
 }
 ```
 
+### Data cleanup jobs
+
+Independent of the demo flag, the scheduler deletes data that is no longer needed, every night in every environment:
+
+| Time | Command | Deletes |
+|---|---|---|
+| 03:30 | `sanctum:prune-expired --hours=24` | API tokens that expired more than 24 hours ago |
+| 03:35 | `auth:clear-resets` | expired password reset tokens |
+| 03:40 | `queue:prune-failed --hours=2160` | failed queue jobs older than 90 days |
+
+These jobs only run where `schedule:run` is triggered (cron below, or a scheduler container or CronJob).
+
 ### Setting up cron (one-off, on the production server)
 
 For the Laravel scheduler to run at all, the server needs a single system cron job:

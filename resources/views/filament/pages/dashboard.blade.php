@@ -31,7 +31,7 @@ SPDX-License-Identifier: EUPL-1.2+
                     <li>
                         <a
                             href="{{ $safeOpenSourceDocsUrl }}"
-                            class="text-primary-600 underline"
+                            class="text-primary-600 underline dark:text-primary-400"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
@@ -44,7 +44,7 @@ SPDX-License-Identifier: EUPL-1.2+
                     <li>
                         <a
                             href="{{ $safeUserManualUrl }}"
-                            class="text-primary-600 underline"
+                            class="text-primary-600 underline dark:text-primary-400"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
@@ -84,7 +84,7 @@ SPDX-License-Identifier: EUPL-1.2+
 
                     @if($safeContactEmail)
                         <li>
-                            <a href="mailto:{{ $safeContactEmail }}" class="text-primary-600 underline">
+                            <a href="mailto:{{ $safeContactEmail }}" class="text-primary-600 underline dark:text-primary-400">
                                 {{ $safeContactEmail }}
                             </a>
                         </li>
@@ -94,7 +94,7 @@ SPDX-License-Identifier: EUPL-1.2+
                         <li>
                             <a
                                 href="{{ $safeContactUrl }}"
-                                class="text-primary-600 underline"
+                                class="text-primary-600 underline dark:text-primary-400"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
