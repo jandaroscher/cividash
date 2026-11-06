@@ -5,7 +5,7 @@
  */
 
 /* filament-language-switch sets text-primary-600 without a dark variant; on the
-   dark panel background that is 3.0:1. primary-400 gives 6.0:1 (WCAG 2.1 AA). */
+   dark panel background that is too low. primary-400 (#EC640F) gives 5.4:1 (WCAG 2.1 AA). */
 .dark .language-switch-trigger {
     color: rgb(var(--primary-400));
 }

@@ -162,11 +162,14 @@ class AdminPanelProvider extends PanelProvider
                     ),
             ])
             ->colors([
-                // WCAG 2.1 AA: Filament's Amber and Green put white button text and
-                // light-mode links on shade 600 at 3.2:1 and 3.3:1. With amber-700 and
-                // green-700 as shade 500, shade 600 reaches 5.9:1 and shade 500
-                // (dark-mode buttons) 5.0:1.
-                'primary' => Color::hex('#b45309'),
+                // WCAG 2.1 AA, brand tones from the logo (OSND-356): #C83D10 carries white
+                // button text (shade 600 light, 500 dark) and light-mode links at 5.1:1;
+                // dark-mode links use shade 400 #EC640F at 5.4:1 on the dark panel.
+                // Green-700 as shade 500 puts the light-mode success action at 5.9:1.
+                'primary' => array_replace(Color::hex('#C83D10'), [
+                    400 => '236, 100, 15',
+                    600 => '200, 61, 16',
+                ]),
                 'success' => Color::hex('#15803d'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
