@@ -1,0 +1,12 @@
+/*
+ * SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+ *
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+/* Inter for the Filament admin panel, self-hosted instead of Filament's
+   fonts.bunny.net default (no third-party hosts at runtime). */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';

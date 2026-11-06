@@ -108,7 +108,7 @@ class TenantSeeder extends Seeder
             'divider_color' => '#DCE3E9',
             'shadow_color' => '#F5F7FA',
             'nav_text_color' => '#1A1A1A',
-            'nav_text_color_inactive' => '#9CA3AF',
+            'nav_text_color_inactive' => '#6B7280',
             'nav_hover_color' => '#1465A4',
             // Angular demo form language: square corners, no shadow.
             'card_radius' => '0',

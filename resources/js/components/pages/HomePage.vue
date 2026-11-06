@@ -5,7 +5,7 @@ SPDX-License-Identifier: EUPL-1.2+
 -->
 
 <template>
-  <main class="home-page">
+  <div class="home-page">
     <PageView
       v-if="pageData"
       :page-data="pageData"
@@ -31,7 +31,7 @@ SPDX-License-Identifier: EUPL-1.2+
         </p>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup>

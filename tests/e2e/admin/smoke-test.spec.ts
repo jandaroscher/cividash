@@ -39,8 +39,6 @@ let fixtures: {
   };
 };
 
-const BASE_URL = 'http://open-source-dashboard.ddev.site';
-
 test.describe('Admin Panel Smoke Tests', () => {
   test.beforeAll(async () => {
     try {
@@ -64,7 +62,7 @@ test.describe('Admin Panel Smoke Tests', () => {
 
   test.describe('Login page', () => {
     test('admin login page renders', async ({ page }) => {
-      await page.goto(`${BASE_URL}/admin/login`);
+      await page.goto('/admin/login');
 
       // Filament login page should have email and password fields
       await expect(page.locator('input[type="email"], input[name="email"]')).toBeVisible();
@@ -77,7 +75,7 @@ test.describe('Admin Panel Smoke Tests', () => {
 
   test.describe('Login and dashboard', () => {
     test('login with valid credentials shows dashboard', async ({ page }) => {
-      await page.goto(`${BASE_URL}/admin/login`);
+      await page.goto('/admin/login');
 
       // Fill in credentials
       await page.locator('input[type="email"], input[name="email"]').fill(fixtures.user.email);
@@ -102,7 +100,7 @@ test.describe('Admin Panel Smoke Tests', () => {
   test.describe('Navigation', () => {
     test('dashboard has navigation with expected items', async ({ page }) => {
       // Login first
-      await page.goto(`${BASE_URL}/admin/login`);
+      await page.goto('/admin/login');
       await page.locator('input[type="email"], input[name="email"]').fill(fixtures.user.email);
       await page.locator('input[type="password"], input[name="password"]').fill(fixtures.user.password);
       await page.locator('button[type="submit"]').click();
@@ -128,7 +126,7 @@ test.describe('Admin Panel Smoke Tests', () => {
   test.describe('Tiles section', () => {
     test('tiles resource page is accessible after login', async ({ page }) => {
       // Login
-      await page.goto(`${BASE_URL}/admin/login`);
+      await page.goto('/admin/login');
       await page.locator('input[type="email"], input[name="email"]').fill(fixtures.user.email);
       await page.locator('input[type="password"], input[name="password"]').fill(fixtures.user.password);
       await page.locator('button[type="submit"]').click();
@@ -150,7 +148,7 @@ test.describe('Admin Panel Smoke Tests', () => {
       const tenantSegment = adminMatch[1];
 
       // Navigate to tiles resource
-      await page.goto(`${BASE_URL}/admin/${tenantSegment}/tiles`);
+      await page.goto(`/admin/${tenantSegment}/tiles`);
       await page.waitForLoadState('networkidle');
 
       // Should be on the tiles page (not redirected to login)
