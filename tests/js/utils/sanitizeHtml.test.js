@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 // @vitest-environment jsdom
 // DOMPurify >= 3.4.6 (cross-realm instanceof hardening) strips every node under
 // happy-dom; jsdom is realm-correct, so this file runs there.

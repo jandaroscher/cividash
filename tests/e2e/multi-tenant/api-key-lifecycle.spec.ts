@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 import { test, expect } from '@playwright/test';
 import { execSync } from 'child_process';
 
@@ -32,8 +36,6 @@ let fixtures: {
   };
 };
 
-const BASE_URL = 'http://open-source-dashboard.ddev.site';
-
 test.describe('API Key Lifecycle', () => {
   test.beforeAll(async () => {
     try {
@@ -57,7 +59,7 @@ test.describe('API Key Lifecycle', () => {
 
   test.describe('Valid token access', () => {
     test('lifecycle token can access /api/v1/tiles', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/v1/tiles`, {
+      const response = await request.get('/api/v1/tiles', {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.lifecycle}`,
           Accept: 'application/json',
@@ -71,7 +73,7 @@ test.describe('API Key Lifecycle', () => {
     });
 
     test('lifecycle token can access /api/v1/config/tenant', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/v1/config/tenant`, {
+      const response = await request.get('/api/v1/config/tenant', {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.lifecycle}`,
           Accept: 'application/json',
@@ -89,7 +91,7 @@ test.describe('API Key Lifecycle', () => {
   test.describe('Token revocation', () => {
     test('revoked token returns 401', async ({ request }) => {
       // Step 1: Verify the lifecycle token works before revocation
-      const beforeResponse = await request.get(`${BASE_URL}/api/v1/tiles`, {
+      const beforeResponse = await request.get('/api/v1/tiles', {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.lifecycle}`,
           Accept: 'application/json',
@@ -108,7 +110,7 @@ test.describe('API Key Lifecycle', () => {
       );
 
       // Step 3: Verify the revoked token returns 401
-      const afterResponse = await request.get(`${BASE_URL}/api/v1/tiles`, {
+      const afterResponse = await request.get('/api/v1/tiles', {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.lifecycle}`,
           Accept: 'application/json',
@@ -118,7 +120,7 @@ test.describe('API Key Lifecycle', () => {
       // The token should no longer be valid
       // Public routes with resolve.tenant may still work (falling back to default tenant),
       // but the token-based resolution should fail. Let's check /api/v1/user which requires auth.
-      const userResponse = await request.get(`${BASE_URL}/api/v1/user`, {
+      const userResponse = await request.get('/api/v1/user', {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.lifecycle}`,
           Accept: 'application/json',
@@ -131,7 +133,7 @@ test.describe('API Key Lifecycle', () => {
 
   test.describe('Invalid token handling', () => {
     test('completely invalid token returns 401 on protected route', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/v1/user`, {
+      const response = await request.get('/api/v1/user', {
         headers: {
           Authorization: 'Bearer invalid-token-that-does-not-exist',
           Accept: 'application/json',
@@ -142,7 +144,7 @@ test.describe('API Key Lifecycle', () => {
     });
 
     test('empty Authorization header returns 401 on protected route', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/v1/user`, {
+      const response = await request.get('/api/v1/user', {
         headers: {
           Authorization: '',
           Accept: 'application/json',
@@ -153,7 +155,7 @@ test.describe('API Key Lifecycle', () => {
     });
 
     test('missing Authorization header returns 401 on protected route', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/v1/user`, {
+      const response = await request.get('/api/v1/user', {
         headers: {
           Accept: 'application/json',
         },

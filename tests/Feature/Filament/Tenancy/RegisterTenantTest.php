@@ -1,8 +1,13 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Tests\Feature\Filament\Tenancy;
 
 use App\Filament\Pages\Tenancy\RegisterTenant;
+use App\Models\Page;
 use App\Models\Tenant;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -74,6 +79,21 @@ class RegisterTenantTest extends TestCase
         $this->assertTrue(
             $this->user->tenants()->where('tenants.id', $newTenant->id)->exists()
         );
+    }
+
+    public function test_registered_tenant_has_a_public_root_page(): void
+    {
+        Livewire::test(RegisterTenant::class)
+            ->fillForm(['name' => 'New Organization', 'slug' => 'new-organization'])
+            ->call('register')
+            ->assertHasNoFormErrors();
+
+        $newTenant = Tenant::where('slug', 'new-organization')->first();
+        $this->assertTrue(Page::withoutGlobalScope('tenant')
+            ->where('tenant_id', $newTenant->id)
+            ->where('layout', 'landingpage')
+            ->where('is_public', true)
+            ->exists());
     }
 
     public function test_slug_uniqueness_enforced(): void

@@ -1,4 +1,9 @@
 #!/bin/sh
+
+# SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+#
+# SPDX-License-Identifier: EUPL-1.2+
+
 # Fill the nginx `resolver` directive and the FPM upstream at container start.
 #
 # The PHP location proxies to a variable upstream so nginx re-resolves the FPM

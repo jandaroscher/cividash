@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace App\Console\Commands;
 
 use App\Models\BackgroundPage;
@@ -16,7 +20,7 @@ use App\Models\Theme;
 use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Models\User;
-use App\Services\DashboardJsonParser;
+use App\Services\LegacyDashboardJsonParser;
 use App\Settings\BrandingSettings;
 use App\Settings\ContentSettings;
 use App\Settings\DashboardSettings;
@@ -35,7 +39,7 @@ class DashboardResetCommand extends Command
     protected $signature = 'dashboard:reset
                             {--force : Skip confirmation (for cron)}';
 
-    protected $description = 'Reset demo tenants: Default cleaned, Regensburg re-seeded, Demo City emptied.';
+    protected $description = 'Reset demo tenants: Default cleaned, Demo City re-seeded.';
 
     public function handle(): int
     {
@@ -48,7 +52,6 @@ class DashboardResetCommand extends Command
         try {
             $this->fetchDashboardJson();
             $this->resetDefault();
-            $this->resetRegensburg();
             $this->resetDemoCity();
             $this->ensureAdminExists();
 
@@ -71,7 +74,7 @@ class DashboardResetCommand extends Command
         if (! $url) {
             $this->info('No dashboard_json_url configured, using existing local file.');
             // Fail before any tenant data is deleted if the reseed could not read the file.
-            (new DashboardJsonParser)->parse(config('seeding.default_json_path'));
+            (new LegacyDashboardJsonParser)->parse(config('seeding.default_json_path'));
 
             return;
         }
@@ -122,40 +125,6 @@ class DashboardResetCommand extends Command
         return $tenant;
     }
 
-    protected function resetRegensburg(): void
-    {
-        $tenant = $this->ensureTenantExists('stadt-regensburg', 'Stadt Regensburg');
-
-        $this->info("Resetting Regensburg (tenant #{$tenant->id})...");
-
-        DB::transaction(function () use ($tenant) {
-            $this->deleteTenantContent($tenant);
-        });
-
-        $this->info('Re-seeding Regensburg...');
-
-        Filament::setTenant($tenant, isQuiet: true);
-        try {
-            Artisan::call('dashboard:seed', [], $this->output);
-            Artisan::call('pages:seed', [], $this->output);
-            Artisan::call('tenancy:backfill', ['--default-tenant' => 'stadt-regensburg'], $this->output);
-
-            $branding = app(BrandingSettings::class);
-            $branding->primary_color = '#e30613';
-            $branding->secondary_color = '#e30613';
-            $branding->nav_hover_color = '#e30613';
-            $branding->typography_font_weights = [500, 600, 700];
-            $branding->save();
-            app()->forgetInstance(BrandingSettings::class);
-            $this->info('Regensburg branding colors set.');
-        } finally {
-            Filament::setTenant(null, isQuiet: true);
-        }
-
-        $tileCount = Tile::withoutGlobalScope('tenant')->where('tenant_id', $tenant->id)->count();
-        $this->info("Regensburg reset complete: {$tileCount} tiles seeded.");
-    }
-
     protected function resetDemoCity(): void
     {
         $tenant = $this->ensureTenantExists('demo-city', 'Demo City');
@@ -166,7 +135,16 @@ class DashboardResetCommand extends Command
             $this->deleteTenantContent($tenant);
         });
 
-        $this->seedMinimalRootPage($tenant);
+        $this->info('Re-seeding Demo City...');
+
+        Filament::setTenant($tenant, isQuiet: true);
+        try {
+            Artisan::call('dashboard:seed', [], $this->output);
+            Artisan::call('pages:seed', [], $this->output);
+            Artisan::call('tenancy:backfill', ['--default-tenant' => 'demo-city'], $this->output);
+        } finally {
+            Filament::setTenant(null, isQuiet: true);
+        }
 
         $theme = Theme::updateOrCreate(
             ['slug' => 'demo-city'],
@@ -174,7 +152,8 @@ class DashboardResetCommand extends Command
         );
         $tenant->update(['theme_id' => $theme->id]);
 
-        $this->info('Demo City reset to empty sandbox.');
+        $tileCount = Tile::withoutGlobalScope('tenant')->where('tenant_id', $tenant->id)->count();
+        $this->info("Demo City reset complete: {$tileCount} tiles seeded.");
     }
 
     protected function resetDefault(): void
@@ -198,25 +177,9 @@ class DashboardResetCommand extends Command
 
     protected function seedMinimalRootPage(Tenant $tenant): void
     {
-        $exists = Page::withoutGlobalScope('tenant')
-            ->where('tenant_id', $tenant->id)
-            ->where('layout', 'landingpage')
-            ->exists();
-
-        if ($exists) {
-            return;
+        if (Page::ensureMinimalRootPage($tenant)) {
+            $this->info("Seeded root page for tenant '{$tenant->slug}'.");
         }
-
-        Page::create([
-            'title' => ['de' => 'Dashboard', 'en' => 'Dashboard'],
-            'slug' => ['de' => '/', 'en' => '/'],
-            'blocks' => ['de' => [], 'en' => []],
-            'layout' => 'landingpage',
-            'is_public' => true,
-            'tenant_id' => $tenant->id,
-        ]);
-
-        $this->info("Seeded root page for tenant '{$tenant->slug}'.");
     }
 
     protected function ensureAdminExists(): void

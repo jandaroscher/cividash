@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -142,7 +146,7 @@ class ConfigController extends Controller
      *
      * @unauthenticated
      *
-     * @response 200 scenario="General config" {"data": {"site_name": "Zukunftsbarometer Regensburg", "favicon_url": "https://example.com/storage/branding/favicon.png"}}
+     * @response 200 scenario="General config" {"data": {"site_name": "Demo City Dashboard", "favicon_url": "https://example.com/storage/branding/favicon.png"}}
      *
      * @return JsonResource The general configuration containing `site_name` (string) and `favicon_url` (string|null).
      */
@@ -231,7 +235,7 @@ class ConfigController extends Controller
      *
      * @queryParam locale string Locale for translations (de or en). Example: de
      *
-     * @response 200 scenario="Footer config" {"data": {"footer_navigation_items": [{"type": "page", "page_id": 2, "label": "Impressum"}], "social_links": [{"platform": "twitter", "url": "https://twitter.com/example"}], "layout_type": "columns", "columns": 3, "social_links_enabled": true, "copyright_text": "© 2025 Stadt Regensburg"}}
+     * @response 200 scenario="Footer config" {"data": {"footer_navigation_items": [{"type": "page", "page_id": 2, "label": "Impressum"}], "social_links": [{"platform": "twitter", "url": "https://twitter.com/example"}], "layout_type": "columns", "columns": 3, "social_links_enabled": true, "copyright_text": "© 2025 Demo City"}}
      *
      * @return JsonResource JSON resource containing the footer configuration.
      */
@@ -610,11 +614,11 @@ class ConfigController extends Controller
      *
      * @authenticated
      *
-     * @bodyParam site_name string Site name. Example: Zukunftsbarometer Regensburg
+     * @bodyParam site_name string Site name. Example: Demo City Dashboard
      * @bodyParam site_active boolean Whether the site is active. Example: true
      * @bodyParam favicon string Favicon file path. Example: branding/favicon.png
      *
-     * @response 200 scenario="General settings updated" {"data": {"site_name": "Zukunftsbarometer Regensburg", "site_active": true, "favicon_url": "https://example.com/storage/branding/favicon.png"}}
+     * @response 200 scenario="General settings updated" {"data": {"site_name": "Demo City Dashboard", "site_active": true, "favicon_url": "https://example.com/storage/branding/favicon.png"}}
      */
     public function updateGeneral(UpdateGeneralRequest $request): JsonResource
     {

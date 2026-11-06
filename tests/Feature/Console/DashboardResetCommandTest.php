@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Tests\Feature\Console;
 
 use App\Models\Tenant;
@@ -35,7 +39,7 @@ class DashboardResetCommandTest extends TestCase
             'seeding.default_json_path' => $jsonPath,
         ]);
 
-        $tenant = Tenant::factory()->create(['slug' => 'stadt-regensburg']);
+        $tenant = Tenant::factory()->create(['slug' => 'demo-city']);
         $tile = Tile::factory()->create(['tenant_id' => $tenant->id]);
 
         $this->artisan('dashboard:reset', ['--force' => true])->assertFailed();

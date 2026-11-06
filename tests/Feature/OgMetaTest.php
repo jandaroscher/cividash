@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Tests\Feature;
 
 use App\Models\Page;
@@ -10,13 +14,6 @@ use Tests\TestCase;
 class OgMetaTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->withoutVite();
-    }
 
     public function test_home_page_contains_og_tags(): void
     {

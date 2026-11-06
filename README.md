@@ -54,7 +54,7 @@ ddev exec npm install                   # Install Node dependencies
 ddev exec php artisan migrate           # Run migrations
 ddev exec php artisan tenancy:backfill  # Setup multi-tenancy (creates default tenant)
 ddev exec php artisan db:seed           # Seed demo data (tenants, roles)
-ddev exec npm run build                 # Build frontend assets (public routes need the Vite manifest)
+ddev exec npm run build                 # Build frontend assets (public routes and /admin need the Vite manifest)
 ```
 
 DDEV cannot change the database engine of an existing project. On a database type
@@ -105,9 +105,14 @@ there are not merged back.
 CiviDash ships with **no tracking out of the box**: no web analytics, no tag manager,
 no social media plugins, no video embeds and no fonts or avatars loaded from third-party
 servers (the bundled fonts are served locally; `tests/Feature/Privacy/NoThirdPartyHostsTest.php`
-guards this). The public frontend sets only the two technically necessary cookies
-(`laravel_session`, `XSRF-TOKEN`) and uses `localStorage` for functional state (language,
-help hints), so no consent banner is required. Adding tracking is an operator decision and
+guards this). The public frontend and tile embeds set no cookies and start no server-side
+session, so nothing about anonymous visitors (IP address, user agent) is stored in the
+database (`tests/Feature/Privacy/AnonymousVisitorSessionTest.php`). Only the admin panel
+uses a session cookie. The frontend uses `localStorage` for functional state (language,
+help hints), so no consent banner is required. The `cividash-web` access log records time,
+method, path without query string, status, size and duration, but no IP address, user
+agent or referer, and `cividash-fpm` writes no access log. Error logs of nginx still
+contain the client address of the failed request. Adding tracking is an operator decision and
 requires a code change; it cannot be switched on by configuration.
 
 ## Security
@@ -116,4 +121,4 @@ See [SECURITY.md](SECURITY.md) for how to report vulnerabilities.
 
 ## License
 
-Licensed under the EUPL-1.2 or (at your option) any later version (SPDX: `EUPL-1.2+`). See [LICENSE](LICENSE) for the full text and [NOTICE](NOTICE) for bundled third-party components. The runtime dependencies with their licences are listed in [SBOM.cdx.json](SBOM.cdx.json) (CycloneDX) and [SBOM.csv](SBOM.csv).
+Licensed under the EUPL-1.2 or (at your option) any later version (SPDX: `EUPL-1.2+`). See [LICENSE](LICENSE) for the full text and [NOTICE](NOTICE) for bundled third-party components. From v1.1.0 on, every [release](https://github.com/jandaroscher/cividash/releases) carries SPDX SBOMs: one for the locked production dependencies from Composer and npm including all transitive packages (development tooling is left out), and one for each container image.

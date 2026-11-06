@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 return [
     'brand_name' => 'CiviDash',
     'navigation' => [
@@ -336,6 +340,10 @@ return [
             'column_abilities' => 'Berechtigungen',
             'column_active' => 'Aktiv',
             'column_created' => 'Erstellt',
+            'column_expires' => 'Läuft ab',
+            'expires_at' => 'Ablaufdatum',
+            'expires_at_helper' => 'Danach funktioniert der Schlüssel nicht mehr. Leer lassen übernimmt die Standard-Laufzeit.',
+            'expires_at_edit_helper' => 'Leer lassen: Der Schlüssel läuft nicht ab.',
             'column_last_used' => 'Zuletzt verwendet',
             'column_updated' => 'Aktualisiert am',
             'filter_abilities' => 'Berechtigungen',
@@ -831,4 +839,5 @@ return [
         'account_inactive' => 'Ihr Konto ist deaktiviert. Bitte kontaktieren Sie den Administrator.',
     ],
     'date_time_format' => 'd.m.y H:i',
+    'date_format' => 'd.m.y',
 ];

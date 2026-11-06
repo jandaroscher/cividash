@@ -1,3 +1,10 @@
+{{--
+SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+
+SPDX-License-Identifier: EUPL-1.2+
+--}}
+
+@if (app(\App\Services\Integration\KeycloakSsoService::class)->passwordLoginAllowed())
 <div class="relative flex items-center justify-center my-4">
     <div class="absolute inset-0 flex items-center">
         <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
@@ -6,6 +13,7 @@
         {{ __('filament.sso.divider') }}
     </div>
 </div>
+@endif
 
 <a
     href="{{ route('auth.keycloak.redirect') }}"

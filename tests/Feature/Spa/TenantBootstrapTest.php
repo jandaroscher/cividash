@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Tests\Feature\Spa;
 
 use App\Http\Controllers\SpaController;
@@ -12,15 +16,6 @@ use Tests\TestCase;
 class TenantBootstrapTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Renders the real app.blade.php shell; the built manifest isn't present
-        // in every CI leg (e.g. the PostgreSQL job never runs `npm run build`).
-        $this->withoutVite();
-    }
 
     public function test_spa_shell_bootstraps_resolved_tenant_slug(): void
     {

@@ -1,0 +1,102 @@
+version = 1
+SPDX-PackageName = "CiviDash"
+SPDX-PackageDownloadLocation = "https://github.com/jandaroscher/cividash"
+
+# Files that carry no SPDX header of their own (JSON, images, Markdown,
+# lockfiles, config without comment syntax). Files with a header keep it.
+[[annotations]]
+path = "**"
+precedence = "closest"
+SPDX-FileCopyrightText = "2025-2026 JANDA+ROSCHER GmbH & Co. KG"
+SPDX-License-Identifier = "EUPL-1.2+"
+
+# Translations published from the Filament packages (php artisan vendor:publish).
+[[annotations]]
+path = [
+  "resources/lang/vendor/filament-panels/**",
+  "resources/lang/vendor/filament-spatie-laravel-translatable-plugin-translations/**",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Dan Harrin"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "resources/lang/vendor/filament-fabricator/**"
+precedence = "override"
+SPDX-FileCopyrightText = ["Ziyaan Hassan", "2025-2026 JANDA+ROSCHER GmbH & Co. KG"]
+SPDX-License-Identifier = "MIT"
+
+# Laravel application skeleton and framework config/translation files, adapted.
+[[annotations]]
+path = [
+  "artisan",
+  "bootstrap/app.php",
+  "public/index.php",
+  "public/.htaccess",
+  "config/app.php",
+  "config/auth.php",
+  "config/cache.php",
+  "config/cors.php",
+  "config/database.php",
+  "config/filesystems.php",
+  "config/fortify.php",
+  "config/logging.php",
+  "config/mail.php",
+  "config/queue.php",
+  "config/sanctum.php",
+  "config/services.php",
+  "config/session.php",
+  "resources/lang/en/auth.php",
+]
+precedence = "override"
+SPDX-FileCopyrightText = ["Taylor Otwell", "2025-2026 JANDA+ROSCHER GmbH & Co. KG"]
+SPDX-License-Identifier = "MIT"
+
+# German framework translations from laravel-lang/lang, adapted.
+[[annotations]]
+path = ["resources/lang/de/auth.php", "resources/lang/de/validation.php"]
+precedence = "override"
+SPDX-FileCopyrightText = ["Laravel Lang Team", "2025-2026 JANDA+ROSCHER GmbH & Co. KG"]
+SPDX-License-Identifier = "MIT"
+
+# Filament view overrides and panel translations, adapted.
+[[annotations]]
+path = [
+  "config/filament.php",
+  "resources/views/vendor/filament-panels/**",
+  "resources/views/vendor/filament/**",
+  "resources/lang/*/global-search.php",
+  "resources/lang/*/layout.php",
+  "resources/lang/*/unsaved-changes-alert.php",
+  "resources/lang/*/pages/**",
+  "resources/lang/*/resources/**",
+  "resources/lang/*/widgets/**",
+]
+precedence = "override"
+SPDX-FileCopyrightText = ["Dan Harrin", "2025-2026 JANDA+ROSCHER GmbH & Co. KG"]
+SPDX-License-Identifier = "MIT"
+
+# Package config files published from their packages, adapted.
+[[annotations]]
+path = "config/livewire.php"
+precedence = "override"
+SPDX-FileCopyrightText = ["Caleb Porzio", "2025-2026 JANDA+ROSCHER GmbH & Co. KG"]
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["config/permission.php", "config/settings.php"]
+precedence = "override"
+SPDX-FileCopyrightText = ["Spatie bvba", "2025-2026 JANDA+ROSCHER GmbH & Co. KG"]
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "config/filament-fabricator.php"
+precedence = "override"
+SPDX-FileCopyrightText = ["Ziyaan Hassan", "2025-2026 JANDA+ROSCHER GmbH & Co. KG"]
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "config/scribe.php"
+precedence = "override"
+SPDX-FileCopyrightText = ["Shalvah", "2025-2026 JANDA+ROSCHER GmbH & Co. KG"]
+SPDX-License-Identifier = "MIT"

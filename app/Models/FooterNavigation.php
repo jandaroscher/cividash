@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace App\Models;
 
 use App\Exceptions\InvalidTenantContextException;
@@ -224,7 +228,7 @@ class FooterNavigation extends Model
                         ],
                         'layout_type' => 'multi-column',
                         'columns' => 4,
-                        'social_links_enabled' => true,
+                        'social_links_enabled' => false,
                         'copyright_text' => [
                             'de' => '',
                             'en' => '',
@@ -252,7 +256,7 @@ class FooterNavigation extends Model
                 ],
                 'layout_type' => 'multi-column',
                 'columns' => 4,
-                'social_links_enabled' => true,
+                'social_links_enabled' => false,
                 'copyright_text' => [
                     'de' => '',
                     'en' => '',

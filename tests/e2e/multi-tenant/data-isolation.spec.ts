@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 import { test, expect } from '@playwright/test';
 import { execSync } from 'child_process';
 
@@ -31,8 +35,6 @@ let fixtures: {
   };
 };
 
-const BASE_URL = 'http://open-source-dashboard.ddev.site';
-
 test.describe('Multi-Tenant Data Isolation', () => {
   test.beforeAll(async () => {
     try {
@@ -56,7 +58,7 @@ test.describe('Multi-Tenant Data Isolation', () => {
 
   test.describe('Token A sees only Tenant A data', () => {
     test('GET /api/v1/tiles with Token A returns only Tenant A tiles', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/v1/tiles?locale=de`, {
+      const response = await request.get('/api/v1/tiles?locale=de', {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.tenantA}`,
           Accept: 'application/json',
@@ -77,7 +79,7 @@ test.describe('Multi-Tenant Data Isolation', () => {
     });
 
     test('GET /api/v1/config/tenant with Token A resolves to Tenant A', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/v1/config/tenant`, {
+      const response = await request.get('/api/v1/config/tenant', {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.tenantA}`,
           Accept: 'application/json',
@@ -94,7 +96,7 @@ test.describe('Multi-Tenant Data Isolation', () => {
 
   test.describe('Token B sees only Tenant B data', () => {
     test('GET /api/v1/tiles with Token B returns only Tenant B tiles', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/v1/tiles?locale=de`, {
+      const response = await request.get('/api/v1/tiles?locale=de', {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.tenantB}`,
           Accept: 'application/json',
@@ -115,7 +117,7 @@ test.describe('Multi-Tenant Data Isolation', () => {
     });
 
     test('GET /api/v1/config/tenant with Token B resolves to Tenant B', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/v1/config/tenant`, {
+      const response = await request.get('/api/v1/config/tenant', {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.tenantB}`,
           Accept: 'application/json',
@@ -132,7 +134,7 @@ test.describe('Multi-Tenant Data Isolation', () => {
 
   test.describe('Cross-tenant data is not visible', () => {
     test('Token A does not see any Tenant B tiles', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/v1/tiles?locale=de`, {
+      const response = await request.get('/api/v1/tiles?locale=de', {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.tenantA}`,
           Accept: 'application/json',
@@ -149,7 +151,7 @@ test.describe('Multi-Tenant Data Isolation', () => {
     });
 
     test('Token B does not see any Tenant A tiles', async ({ request }) => {
-      const response = await request.get(`${BASE_URL}/api/v1/tiles?locale=de`, {
+      const response = await request.get('/api/v1/tiles?locale=de', {
         headers: {
           Authorization: `Bearer ${fixtures.tokens.tenantB}`,
           Accept: 'application/json',
@@ -167,13 +169,13 @@ test.describe('Multi-Tenant Data Isolation', () => {
 
     test('Tenant A and Tenant B return different tile counts or content', async ({ request }) => {
       const [responseA, responseB] = await Promise.all([
-        request.get(`${BASE_URL}/api/v1/tiles?locale=de`, {
+        request.get('/api/v1/tiles?locale=de', {
           headers: {
             Authorization: `Bearer ${fixtures.tokens.tenantA}`,
             Accept: 'application/json',
           },
         }),
-        request.get(`${BASE_URL}/api/v1/tiles?locale=de`, {
+        request.get('/api/v1/tiles?locale=de', {
           headers: {
             Authorization: `Bearer ${fixtures.tokens.tenantB}`,
             Accept: 'application/json',

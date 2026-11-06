@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Tests\Feature\Integration;
 
 use App\Models\User;
@@ -73,6 +77,30 @@ class KeycloakSsoControllerTest extends TestCase
 
         $response->assertRedirect('/admin');
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_callback_does_not_set_a_remember_me_cookie(): void
+    {
+        // A long-lived recaller cookie would keep the session alive after the
+        // account is locked in Keycloak; the next login must go through Keycloak.
+        config(['integrations.keycloak_sso.enabled' => true]);
+
+        User::factory()->create([
+            'email' => 'sso@example.com',
+            'keycloak_id' => 'kc-existing',
+        ]);
+
+        $this->mockSocialiteCallback([
+            'id' => 'kc-existing',
+            'email' => 'sso@example.com',
+            'first_name' => 'SSO',
+            'last_name' => 'User',
+        ]);
+
+        $response = $this->get(route('auth.keycloak.callback'));
+
+        $response->assertRedirect('/admin');
+        $response->assertCookieMissing(auth()->guard('web')->getRecallerName());
     }
 
     public function test_callback_creates_new_user_on_first_sso_login(): void

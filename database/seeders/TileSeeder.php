@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Database\Seeders;
 
 use App\Models\Tile;
@@ -13,7 +17,7 @@ use Illuminate\Support\Str;
 /**
  * Seeder for Tiles from dashboard.json.
  *
- * Seeds tiles (kacheln) from the Regensburg dashboard.json file.
+ * Seeds tiles (kacheln) from a legacy dashboard.json export.
  * Supports idempotent upserts, background block transformation, and category relationships.
  */
 class TileSeeder extends Seeder

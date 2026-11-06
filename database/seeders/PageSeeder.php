@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Database\Seeders;
 
 use App\Models\Page;
@@ -10,7 +14,7 @@ use Illuminate\Database\Seeder;
  * Seeder for Fabricator Pages from reference site.
  *
  * Seeds public pages (Home, Kontakt, Download, Datenschutz, Impressum)
- * based on the stadt-regensburg-dashboard reference site.
+ * with neutral example content for the demo tenant.
  * Supports idempotent upserts and bilingual content (DE/EN).
  */
 class PageSeeder extends Seeder
@@ -146,8 +150,8 @@ class PageSeeder extends Seeder
             // Home Page
             [
                 'title' => [
-                    'de' => 'Zukunftsbarometer Regensburg',
-                    'en' => 'Future Barometer Regensburg',
+                    'de' => 'Zukunftsbarometer Demo City',
+                    'en' => 'Future Barometer Demo City',
                 ],
                 'slug' => [
                     'de' => '/',
@@ -158,9 +162,9 @@ class PageSeeder extends Seeder
                     [
                         'type' => 'intro-text',
                         'data' => [
-                            'heading' => 'Zukunftsbarometer Regensburg',
+                            'heading' => 'Zukunftsbarometer Demo City',
                             'subheading' => 'Gemeinsam. Zukunft. Gestalten.',
-                            'text' => '<p>Gemeinsam mit Ihnen wollen wir die UNESCO Welterbe-Stadt Regensburg fit für die Zukunft machen. Unsere Stadt soll noch grüner, gerechter und produktiver und damit lebenswerter für alle werden.</p><p>Der Weg zu einer „enkelgerechten" Stadt ist im Regensburg-Plan 2040 beschrieben und wurde im Einklang mit den 17 Nachhaltigkeitszielen (Sustainable Development Goals) mit den Bürgerinnen und Bürgern Regensburgs entwickelt. Nun gilt es, den Plan gemeinsam mit Leben zu füllen.</p><p>Nachhaltige Entwicklung ist ein fortlaufender Prozess. Das Zukunftsbarometer wird uns bei diesem Prozess begleiten und unsere Stärken und Schwächen sichtbar machen. Dadurch liefert es eine fundierte Basis für richtungsweisende Entscheidungen auf dem Weg hin zu einer nachhaltigeren Zukunft.</p>',
+                            'text' => '<p>Gemeinsam mit Ihnen wollen wir unsere Stadt fit für die Zukunft machen. Sie soll grüner, gerechter und produktiver und damit lebenswerter für alle werden.</p><p>Der Weg dorthin orientiert sich an den 17 Nachhaltigkeitszielen (Sustainable Development Goals) und wird gemeinsam mit den Bürgerinnen und Bürgern gestaltet.</p><p>Nachhaltige Entwicklung ist ein fortlaufender Prozess. Das Zukunftsbarometer begleitet diesen Prozess und macht Stärken und Schwächen sichtbar. Dadurch liefert es eine fundierte Basis für Entscheidungen auf dem Weg zu einer nachhaltigeren Zukunft.</p>',
                         ],
                     ],
                     [
@@ -176,9 +180,9 @@ class PageSeeder extends Seeder
                     [
                         'type' => 'intro-text',
                         'data' => [
-                            'heading' => 'Future Barometer Regensburg',
+                            'heading' => 'Future Barometer Demo City',
                             'subheading' => 'Together. Future. Shape.',
-                            'text' => '<p>Together with you, we want to make the UNESCO World Heritage City of Regensburg fit for the future. Our city should become even greener, fairer, and more productive, and thus more livable for everyone.</p><p>The path to a "grandchild-friendly" city is described in the Regensburg Plan 2040 and was developed in harmony with the 17 Sustainable Development Goals (SDGs) together with the citizens of Regensburg. Now it is time to fill the plan with life together.</p><p>Sustainable development is an ongoing process. The Future Barometer will accompany us in this process and make our strengths and weaknesses visible. This provides a solid basis for directional decisions on the path to a more sustainable future.</p>',
+                            'text' => '<p>Together with you, we want to make our city fit for the future. It should become greener, fairer, and more productive, and thus more livable for everyone.</p><p>The path there follows the 17 Sustainable Development Goals (SDGs) and is shaped together with the citizens.</p><p>Sustainable development is an ongoing process. The Future Barometer accompanies this process and makes strengths and weaknesses visible. This provides a solid basis for decisions on the path to a more sustainable future.</p>',
                         ],
                     ],
                     [
@@ -191,8 +195,8 @@ class PageSeeder extends Seeder
                     ],
                 ],
                 'meta_description' => [
-                    'de' => 'Das Nachhaltigkeitsmonitoring für die UNESCO Welterbe-Stadt Regensburg.',
-                    'en' => 'Sustainability monitoring for the UNESCO World Heritage City of Regensburg',
+                    'de' => 'Das Nachhaltigkeitsmonitoring für die Demo City.',
+                    'en' => 'Sustainability monitoring for Demo City.',
                 ],
             ],
             // Kontakt/Contact Page
@@ -237,8 +241,8 @@ class PageSeeder extends Seeder
                     ],
                 ],
                 'meta_description' => [
-                    'de' => 'Kontaktdaten und Ansprechpartner des Zukunftsbarometers Regensburg.',
-                    'en' => 'Contact details and key contacts for Zukunftsbarometer Regensburg.',
+                    'de' => 'Kontaktdaten und Ansprechpartner des Zukunftsbarometers Demo City.',
+                    'en' => 'Contact details and key contacts for Zukunftsbarometer Demo City.',
                 ],
             ],
             // Download Page
@@ -263,7 +267,7 @@ class PageSeeder extends Seeder
                         'type' => 'intro-text',
                         'data' => [
                             'heading' => 'Nachhaltigkeitsbericht 2024 - Voluntary Local Review',
-                            'text' => '<p>Regensburg gehört zu den ersten Kommunen in Deutschland, die einen Voluntary Local Review (VLR) veröffentlicht haben. Der Nachhaltigkeitsbericht dokumentiert umfassend, wie die Stadt die 17 Ziele für nachhaltige Entwicklung (SDGs) lokal umsetzt, und dient zugleich der Berichterstattung an die Vereinten Nationen.</p><p>In Übereinstimmung mit dem Regensburg-Plan 2040 zeigt der über 130 Seiten starke Bericht, welche Fortschritte die Stadt bei den wichtigsten kommunalpolitischen Zielen erreicht hat. Neben Hintergrundinformationen zu den SDGs stellt der VLR eine Vielzahl kommunaler Projekte und Maßnahmen vor. Rund 120 Indikatoren und mehr als 70 Diagramme veranschaulichen zentrale Entwicklungstrends und ermöglichen fundierte Zeitvergleiche.</p>',
+                            'text' => '<p>Der Nachhaltigkeitsbericht dokumentiert, wie die Stadt die 17 Ziele für nachhaltige Entwicklung (SDGs) lokal umsetzt, und dient zugleich der Berichterstattung an die Vereinten Nationen.</p><p>Neben Hintergrundinformationen zu den SDGs stellt der Bericht kommunale Projekte und Maßnahmen vor. Indikatoren und Diagramme veranschaulichen zentrale Entwicklungstrends und ermöglichen Zeitvergleiche.</p>',
                         ],
                     ],
                     [
@@ -285,7 +289,7 @@ class PageSeeder extends Seeder
                         'type' => 'intro-text',
                         'data' => [
                             'heading' => 'Sustainability Report 2024 - Voluntary Local Review',
-                            'text' => '<p>Regensburg is one of the first municipalities in Germany to have published a Voluntary Local Review (VLR). The sustainability report comprehensively documents how the city implements the 17 Sustainable Development Goals (SDGs) locally and also serves as reporting to the United Nations.</p><p>In accordance with the Regensburg Plan 2040, the report of over 130 pages shows what progress the city has made on the most important municipal policy goals. In addition to background information on the SDGs, the VLR presents a variety of municipal projects and measures. Around 120 indicators and more than 70 diagrams illustrate key development trends and enable sound time comparisons.</p>',
+                            'text' => '<p>The sustainability report documents how the city implements the 17 Sustainable Development Goals (SDGs) locally and also serves as reporting to the United Nations.</p><p>In addition to background information on the SDGs, the report presents municipal projects and measures. Indicators and diagrams illustrate key development trends and enable time comparisons.</p>',
                         ],
                     ],
                     [
@@ -297,8 +301,8 @@ class PageSeeder extends Seeder
                     ],
                 ],
                 'meta_description' => [
-                    'de' => 'Laden Sie Daten, Berichte und Materialien vom Zukunftsbarometer Regensburg herunter.',
-                    'en' => 'Download data, reports, and materials from Zukunftsbarometer Regensburg.',
+                    'de' => 'Laden Sie Daten, Berichte und Materialien vom Zukunftsbarometer Demo City herunter.',
+                    'en' => 'Download data, reports, and materials from Zukunftsbarometer Demo City.',
                 ],
             ],
             // Datenschutz/Privacy Page
@@ -315,8 +319,8 @@ class PageSeeder extends Seeder
                 'blocks' => $this->getPrivacyBlocks(),
                 'blocks_en' => $this->getPrivacyBlocksEn(),
                 'meta_description' => [
-                    'de' => 'Informationen zum Datenschutz beim Zukunftsbarometer Regensburg.',
-                    'en' => 'Privacy policy information for Zukunftsbarometer Regensburg.',
+                    'de' => 'Informationen zum Datenschutz beim Zukunftsbarometer Demo City.',
+                    'en' => 'Privacy policy information for Zukunftsbarometer Demo City.',
                 ],
             ],
             // Impressum/Imprint Page
@@ -333,8 +337,8 @@ class PageSeeder extends Seeder
                 'blocks' => $this->getImprintBlocks(),
                 'blocks_en' => $this->getImprintBlocksEn(),
                 'meta_description' => [
-                    'de' => 'Rechtliche Angaben und Impressum des Zukunftsbarometers Regensburg.',
-                    'en' => 'Legal notice and imprint of Zukunftsbarometer Regensburg.',
+                    'de' => 'Rechtliche Angaben und Impressum des Zukunftsbarometers Demo City.',
+                    'en' => 'Legal notice and imprint of Zukunftsbarometer Demo City.',
                 ],
             ],
         ];

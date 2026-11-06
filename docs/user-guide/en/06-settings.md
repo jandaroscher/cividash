@@ -69,6 +69,8 @@ Also on the **Site Settings** page, in the **Footer** section, organized into th
 | **Profile URL** | Target link for the icon. |
 | **Tooltip text** | Optional text shown when hovering over the icon. |
 
+A new dashboard starts without social media links and with the toggle off. After adding links, switch on **Show Social Media Links** so they appear in the footer.
+
 **Sponsors** — List for sponsor logos, to which any number of entries can be added: **sponsor image** (upload, required), **sponsor URL** (optional), and **sponsor name** (optional, serves as an alt-text substitute in the list).
 
 > **Note:** A copyright text field exists in the data model but does not appear in the current form UI — the copyright text cannot currently be edited through this form. This differs from the structure proposal ("Footer (Links, Social Media, **Copyright**, Layout)").
@@ -226,7 +228,7 @@ In addition to the installation-wide Site Settings page, **every** dashboard (te
 
 | Field | Description |
 |------|-------------|
-| **Dashboard name** | Name of this individual dashboard (e.g. "City of Regensburg"). Appears in the dashboard selection menu (see [Chapter 1.1, Login and Interface](01-getting-started.md)). |
+| **Dashboard name** | Name of this individual dashboard (e.g. "Demo City"). Appears in the dashboard selection menu (see [Chapter 1.1, Login and Interface](01-getting-started.md)). |
 | **Additional info** | Optional extra information (e.g. client, company), also shown in the dashboard selection menu. |
 | **Slug** | Read-only. Uniquely identifies the dashboard, e.g. for domain mapping. The default dashboard uses the slug `default`. |
 
@@ -256,19 +258,20 @@ The **API Keys** page manages access tokens for this tenant's dashboard API.
 
 #### 6.1.5.1 API Keys Overview
 
-The table shows, per token: name, owner, abilities (badge), active status, created and last-used date, and (hideable) the last updated date. Filterable by ability and active status, searchable via the search field.
+The table shows, per token: name, owner, abilities (badge), active status, created date, expiry date (expired ones in red), last-used date, and (hideable) the last updated date. Filterable by ability and active status, searchable via the search field.
 
 <!-- Screenshot: API Keys — table overview with one example token -->
 ![API Keys: overview](../assets/screenshots/en/06-api-keys-overview.png)
 
 #### 6.1.5.2 Create a New Key
 
-**Create Token** opens a dialog with two fields:
+**Create Token** opens a dialog with three fields:
 
 | Field | Description |
 |------|-------------|
 | **Token name** | Descriptive name for later identification (e.g. "Production API"). |
 | **Abilities** | **Read Only** (read-only access to public API endpoints) or **Read and Write** (full CRUD access to admin endpoints). |
+| **Expiry date** | The key stops working after this date. Pre-filled with the default lifetime (365 days, configurable via `API_TOKEN_LIFETIME_DAYS`). |
 
 <!-- Screenshot: API Keys — "Create API Token" dialog with token name and abilities -->
 ![API Keys: create token](../assets/screenshots/en/06-api-key-create.png)
@@ -277,7 +280,7 @@ The table shows, per token: name, owner, abilities (badge), active status, creat
 
 #### 6.1.5.3 Edit a Key
 
-**Edit** lets you change the name, abilities, and active status of an existing token (the token value itself is unchanged and is not shown again).
+**Edit** lets you change the name, abilities, expiry date (empty = never expires), and active status of an existing token (the token value itself is unchanged and is not shown again).
 
 <!-- Screenshot: Edit an API key -->
 ![Edit an API key](../assets/screenshots/en/06-api-key-edit.png)

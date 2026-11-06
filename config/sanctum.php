@@ -54,6 +54,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Default Lifetime Of API Keys
+    |--------------------------------------------------------------------------
+    |
+    | Number of days after which API keys created in the admin panel expire,
+    | unless an admin picks another date. Unlike "expiration" above it only
+    | applies to new keys, so existing integrations keep working. Set to 0
+    | to create keys without an expiry date.
+    |
+    */
+
+    'token_lifetime_days' => (int) env('API_TOKEN_LIFETIME_DAYS', 365),
+
+    /*
+    |--------------------------------------------------------------------------
     | Token Prefix
     |--------------------------------------------------------------------------
     |

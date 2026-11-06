@@ -1,3 +1,9 @@
+{{--
+SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+
+SPDX-License-Identifier: EUPL-1.2+
+--}}
+
 <x-filament-panels::page>
     @php
         $isSafeHttpUrl = function (?string $url): ?string {
@@ -25,7 +31,7 @@
                     <li>
                         <a
                             href="{{ $safeOpenSourceDocsUrl }}"
-                            class="text-primary-600 underline"
+                            class="text-primary-600 underline dark:text-primary-400"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
@@ -38,7 +44,7 @@
                     <li>
                         <a
                             href="{{ $safeUserManualUrl }}"
-                            class="text-primary-600 underline"
+                            class="text-primary-600 underline dark:text-primary-400"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
@@ -78,7 +84,7 @@
 
                     @if($safeContactEmail)
                         <li>
-                            <a href="mailto:{{ $safeContactEmail }}" class="text-primary-600 underline">
+                            <a href="mailto:{{ $safeContactEmail }}" class="text-primary-600 underline dark:text-primary-400">
                                 {{ $safeContactEmail }}
                             </a>
                         </li>
@@ -88,7 +94,7 @@
                         <li>
                             <a
                                 href="{{ $safeContactUrl }}"
-                                class="text-primary-600 underline"
+                                class="text-primary-600 underline dark:text-primary-400"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >

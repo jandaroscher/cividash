@@ -69,6 +69,8 @@ Ebenfalls auf der Seite **Seiteneinstellungen**, im Abschnitt **Footer**, geglie
 | **Profil-URL** | Ziel-Link des Icons. |
 | **Tooltip-Text** | Optionaler Text, der beim Überfahren des Icons angezeigt wird. |
 
+Ein neues Dashboard startet ohne Social-Media-Links und mit ausgeschaltetem Schalter. Nach dem Anlegen der Links **Social Media Links anzeigen** einschalten, damit sie im Footer erscheinen.
+
 **Förderer** — Liste für Sponsoren-Logos, zu der sich beliebig viele Einträge hinzufügen lassen: **Sponsor-Bild** (Upload, Pflichtfeld), **Sponsor-URL** (optional) und **Sponsor-Name** (optional, dient als Alt-Text-Ersatz in der Liste).
 
 > **Hinweis:** Ein Feld für den Copyright-Text ist im Datenmodell vorhanden, taucht in der aktuellen Formularoberfläche jedoch nicht auf — der Copyright-Text lässt sich über dieses Formular derzeit nicht bearbeiten. Das weicht vom Struktur-Entwurf ab („Footer (Links, Social Media, **Copyright**, Layout)").
@@ -226,7 +228,7 @@ Zusätzlich zur installationsweiten Seiteneinstellungen-Seite besitzt **jedes** 
 
 | Feld | Beschreibung |
 |------|-------------|
-| **Dashboard-Name** | Name dieses einzelnen Dashboards (z. B. „Stadt Regensburg"). Erscheint im Dashboard-Auswahl-Menü (siehe [Kapitel 1.1, Anmeldung und Oberfläche](01-erste-schritte.md)). |
+| **Dashboard-Name** | Name dieses einzelnen Dashboards (z. B. „Demo City"). Erscheint im Dashboard-Auswahl-Menü (siehe [Kapitel 1.1, Anmeldung und Oberfläche](01-erste-schritte.md)). |
 | **Zusatzinfo** | Optionale Zusatzinformation (z. B. Kunde, Firma), ebenfalls im Dashboard-Auswahl-Menü sichtbar. |
 | **Slug** | Schreibgeschützt. Identifiziert das Dashboard eindeutig, u. a. für Domain-Zuordnung. Das Standard-Dashboard trägt den Slug `default`. |
 
@@ -256,19 +258,20 @@ Die Seite **API Keys** verwaltet Zugriffstoken für die Dashboard-API dieses Ten
 
 #### 6.1.5.1 API-Schlüssel Übersicht
 
-Die Tabelle zeigt pro Token: Name, Besitzer, Berechtigungen (Badge), Aktiv-Status, Erstellungs- und letztes Nutzungsdatum sowie (ausblendbar) das letzte Aktualisierungsdatum. Filterbar nach Berechtigung und Aktiv-Status, durchsuchbar über das Suchfeld.
+Die Tabelle zeigt pro Token: Name, Besitzer, Berechtigungen (Badge), Aktiv-Status, Erstellungsdatum, Ablaufdatum (abgelaufene rot), letztes Nutzungsdatum sowie (ausblendbar) das letzte Aktualisierungsdatum. Filterbar nach Berechtigung und Aktiv-Status, durchsuchbar über das Suchfeld.
 
 <!-- Screenshot: API Keys — Tabellenübersicht mit einem Beispiel-Token -->
 ![API Keys: Übersicht](../assets/screenshots/de/06-api-keys-uebersicht.png)
 
 #### 6.1.5.2 Neuen Key erstellen
 
-Über **Token erstellen** öffnet sich ein Dialog mit zwei Feldern:
+Über **Token erstellen** öffnet sich ein Dialog mit drei Feldern:
 
 | Feld | Beschreibung |
 |------|-------------|
 | **Token-Name** | Beschreibender Name zur späteren Identifikation (z. B. „Produktions-API"). |
 | **Berechtigungen** | **Nur Lesen** (Lesezugriff auf öffentliche API-Endpunkte) oder **Lesen und Schreiben** (vollständiger CRUD-Zugriff auf Admin-Endpunkte). |
+| **Ablaufdatum** | Danach funktioniert der Schlüssel nicht mehr. Vorbelegt mit der Standard-Laufzeit (365 Tage, einstellbar über `API_TOKEN_LIFETIME_DAYS`). |
 
 <!-- Screenshot: API Keys — Dialog "API Token erstellen" mit Token-Name und Berechtigungen -->
 ![API Keys: Token erstellen](../assets/screenshots/de/06-api-key-erstellen.png)
@@ -277,7 +280,7 @@ Die Tabelle zeigt pro Token: Name, Besitzer, Berechtigungen (Badge), Aktiv-Statu
 
 #### 6.1.5.3 Key bearbeiten
 
-Über **Bearbeiten** lassen sich Name, Berechtigungen und Aktiv-Status eines bestehenden Tokens ändern (der Token-Wert selbst bleibt unverändert und wird nicht erneut angezeigt).
+Über **Bearbeiten** lassen sich Name, Berechtigungen, Ablaufdatum (leer = läuft nicht ab) und Aktiv-Status eines bestehenden Tokens ändern (der Token-Wert selbst bleibt unverändert und wird nicht erneut angezeigt).
 
 <!-- Screenshot: API-Schlüssel bearbeiten -->
 ![API-Schlüssel bearbeiten](../assets/screenshots/de/06-api-key-bearbeiten.png)

@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Tests\Feature;
 
 use App\Models\FooterNavigation;
@@ -58,7 +62,7 @@ class FooterNavigationSingletonTest extends TestCase
         $this->assertEquals($this->tenant->id, $instance->tenant_id);
         $this->assertEquals('multi-column', $instance->layout_type);
         $this->assertEquals(4, $instance->columns);
-        $this->assertTrue($instance->social_links_enabled);
+        $this->assertFalse($instance->social_links_enabled);
     }
 
     public function test_get_or_create_instance_returns_existing(): void
@@ -134,14 +138,14 @@ class FooterNavigationSingletonTest extends TestCase
             'tenant_id' => $this->tenant->id,
             'footer_navigation_items' => ['de' => [], 'en' => []],
             'social_links' => ['de' => [], 'en' => []],
-            'copyright_text' => ['de' => '2025 Stadt Regensburg', 'en' => '2025 City of Regensburg'],
+            'copyright_text' => ['de' => '2025 Demo-Stadt', 'en' => '2025 Demo City'],
         ]);
 
         $deCopyright = $footer->getTranslatedCopyrightText('de');
         $enCopyright = $footer->getTranslatedCopyrightText('en');
 
-        $this->assertEquals('2025 Stadt Regensburg', $deCopyright);
-        $this->assertEquals('2025 City of Regensburg', $enCopyright);
+        $this->assertEquals('2025 Demo-Stadt', $deCopyright);
+        $this->assertEquals('2025 Demo City', $enCopyright);
     }
 
     public function test_translated_copyright_text_falls_back_to_de(): void
@@ -150,12 +154,12 @@ class FooterNavigationSingletonTest extends TestCase
             'tenant_id' => $this->tenant->id,
             'footer_navigation_items' => ['de' => [], 'en' => []],
             'social_links' => ['de' => [], 'en' => []],
-            'copyright_text' => ['de' => '2025 Stadt Regensburg', 'en' => ''],
+            'copyright_text' => ['de' => '2025 Demo-Stadt', 'en' => ''],
         ]);
 
         $enCopyright = $footer->getTranslatedCopyrightText('en');
 
-        $this->assertEquals('2025 Stadt Regensburg', $enCopyright);
+        $this->assertEquals('2025 Demo-Stadt', $enCopyright);
     }
 
     public function test_translated_footer_items_translates_labels(): void

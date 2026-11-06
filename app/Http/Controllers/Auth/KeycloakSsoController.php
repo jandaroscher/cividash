@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -77,7 +81,11 @@ class KeycloakSsoController extends Controller
         $tokenData = $socialiteUser->user ?? [];
         $this->ssoService->syncRolesFromToken($user, $tokenData);
 
-        Auth::login($user, remember: true);
+        // No remember-me cookie: a lock in Keycloak must take effect once the
+        // session expires instead of being bypassed by a long-lived recaller.
+        // Recallers issued before this change stay valid until the user's
+        // remember_token rotates (logout) or is reset.
+        Auth::login($user);
         session()->regenerate();
 
         return redirect()->to('/admin');

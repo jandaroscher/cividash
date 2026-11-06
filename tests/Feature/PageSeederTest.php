@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Tests\Feature;
 
 use App\Models\Page;
@@ -53,8 +57,8 @@ class PageSeederTest extends TestCase
         $homePage = Page::find($pageIdMap['/']);
         $this->assertNotNull($homePage);
         $this->assertEquals('landingpage', $homePage->layout);
-        $this->assertEquals('Zukunftsbarometer Regensburg', $homePage->getTranslation('title', 'de'));
-        $this->assertEquals('Future Barometer Regensburg', $homePage->getTranslation('title', 'en'));
+        $this->assertEquals('Zukunftsbarometer Demo City', $homePage->getTranslation('title', 'de'));
+        $this->assertEquals('Future Barometer Demo City', $homePage->getTranslation('title', 'en'));
         $this->assertEquals('/', $homePage->getTranslation('slug', 'de'));
         $this->assertEquals('/', $homePage->getTranslation('slug', 'en'));
     }

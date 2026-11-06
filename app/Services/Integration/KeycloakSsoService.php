@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace App\Services\Integration;
 
 use App\Models\Tenant;
@@ -22,6 +26,15 @@ class KeycloakSsoService
     public function isEnabled(): bool
     {
         return (bool) config('integrations.keycloak_sso.enabled', false);
+    }
+
+    /**
+     * Whether the local email/password login is offered. It can only be turned
+     * off while SSO is enabled, so a deployment never locks everyone out.
+     */
+    public function passwordLoginAllowed(): bool
+    {
+        return ! $this->isEnabled() || (bool) config('integrations.keycloak_sso.password_login', true);
     }
 
     /**

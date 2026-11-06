@@ -9,7 +9,7 @@ CiviDash runs all dashboards in a single database. A dashboard in the product is
   - `EditTenantProfile`: edits name, domain, and frontend URL of the active tenant. The slug is read-only.
 - **Scoping**: tenant-bound models use the `App\Models\Concerns\BelongsToTenant` trait (sets `tenant_id` on create and scopes queries when Filament provides a tenant).
 - **Backfill**: the artisan command `ddev exec php artisan tenancy:backfill` creates the default tenant (slug `default`) and assigns all existing data as well as users (incl. default_tenant) to it.
-- **Seeder**: `TenantSeeder` creates the demo tenant "Stadt Regensburg", links the first user, and calls the backfill.
+- **Seeder**: `TenantSeeder` creates the demo tenant "Demo City", links the first user, and calls the backfill.
 - **Tests**: feature tests under `tests/Feature/Tenancy` (schema/backfill/seeder/scoping) and unit tests `tests/Unit/UserTenancyTest` for user contracts.
 
 ### Usage
@@ -45,8 +45,8 @@ Tenants can be linked to a domain:
 
 ```php
 $tenant->update([
-    'domain' => 'regensburg.example.org',
-    'frontend_base_url' => 'https://regensburg.example.org'
+    'domain' => 'demo-city.example.org',
+    'frontend_base_url' => 'https://demo-city.example.org'
 ]);
 ```
 

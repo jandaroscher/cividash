@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useBrandingStore } from '@/stores/branding';
@@ -54,7 +58,7 @@ describe('brandingStore', () => {
             expect(store.dividerColor).toBeNull();
             expect(store.shadowColor).toBe('#000000');
             expect(store.navTextColor).toBe('#374151');
-            expect(store.navTextColorInactive).toBe('#9CA3AF');
+            expect(store.navTextColorInactive).toBe('#6B7280');
             expect(store.navHoverColor).toBe('#e30613');
         });
     });
