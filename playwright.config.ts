@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 import { defineConfig } from '@playwright/test';
 
 /**
@@ -12,12 +16,11 @@ import { defineConfig } from '@playwright/test';
  * - Test data must be seeded: `ddev php artisan e2e:seed-full --clean --json`
  * - ddev hostnames configured: a.open-source-dashboard.ddev.site, b.open-source-dashboard.ddev.site
  *
- * CI (see .github/workflows/e2e.yml):
- * - Specs shell out to seed fixtures via `${E2E_ARTISAN_CMD} e2e:seed-full --json` etc.
- *   E2E_ARTISAN_CMD defaults to `ddev php artisan`; CI sets it to `php artisan` and runs
- *   `php artisan serve` directly instead of ddev.
- * - The ddev hostnames the specs hardcode (open-source-dashboard.ddev.site, a./b. subdomains)
- *   are aliased to 127.0.0.1 via /etc/hosts on the runner, so the specs need no base-URL changes.
+ * Set PLAYWRIGHT_BASE_URL to run against another server, e.g. `php artisan serve`.
+ * Specs seed fixtures via `${E2E_ARTISAN_CMD} e2e:seed-full --json` etc.;
+ * E2E_ARTISAN_CMD defaults to `ddev exec php artisan`. tenant-resolution.spec.ts and
+ * export.spec.ts need the ddev tenant subdomains and keep their own hostnames.
+ * See docs/testing/README.md.
  */
 export default defineConfig({
   testDir: './tests/e2e',
@@ -48,8 +51,8 @@ export default defineConfig({
   
   // Use projects to organize different test scenarios
   use: {
-    // Base URL for the default ddev site (HTTP to avoid SSL issues)
-    baseURL: 'http://open-source-dashboard.ddev.site',
+    // Default ddev site over HTTP to avoid SSL issues
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://open-source-dashboard.ddev.site',
     
     // Ignore HTTPS errors (in case any test uses https)
     ignoreHTTPSErrors: true,

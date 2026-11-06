@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace App\Filament\Pages;
 
 use App\Models\CategoryGroup;
@@ -200,7 +204,7 @@ class ManageBranding extends SettingsPage
 
                                         ColorPicker::make('nav_text_color_inactive')
                                             ->label(__('filament.pages.manage_branding.nav_text_color_inactive'))
-                                            ->default('#9CA3AF')
+                                            ->default('#6B7280')
                                             ->helperText(__('filament.pages.manage_branding.nav_text_color_inactive_helper'))
                                             ->nullable(),
 

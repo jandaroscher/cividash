@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace App\Console\Commands;
 
 use Database\Seeders\NavigationSeeder;
@@ -95,6 +99,6 @@ class PagesSeedCommand extends Command
         $this->line('');
         $this->line('Navigation items to be created:');
         $this->line('  Header: Download, Kontakt');
-        $this->line('  Footer: Impressum, Datenschutz, regensburg.de, mein.regensburg.de');
+        $this->line('  Footer: Impressum, Datenschutz, example.org, mein.example.org');
     }
 }

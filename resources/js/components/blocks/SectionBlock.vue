@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+
+SPDX-License-Identifier: EUPL-1.2+
+-->
+
 <template>
   <section 
     class="py-12 md:py-16"

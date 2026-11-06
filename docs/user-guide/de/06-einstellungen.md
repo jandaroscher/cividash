@@ -69,6 +69,8 @@ Ebenfalls auf der Seite **Seiteneinstellungen**, im Abschnitt **Footer**, geglie
 | **Profil-URL** | Ziel-Link des Icons. |
 | **Tooltip-Text** | Optionaler Text, der beim Überfahren des Icons angezeigt wird. |
 
+Ein neues Dashboard startet ohne Social-Media-Links und mit ausgeschaltetem Schalter. Nach dem Anlegen der Links **Social Media Links anzeigen** einschalten, damit sie im Footer erscheinen.
+
 **Förderer** — Liste für Sponsoren-Logos, zu der sich beliebig viele Einträge hinzufügen lassen: **Sponsor-Bild** (Upload, Pflichtfeld), **Sponsor-URL** (optional) und **Sponsor-Name** (optional, dient als Alt-Text-Ersatz in der Liste).
 
 > **Hinweis:** Ein Feld für den Copyright-Text ist im Datenmodell vorhanden, taucht in der aktuellen Formularoberfläche jedoch nicht auf — der Copyright-Text lässt sich über dieses Formular derzeit nicht bearbeiten. Das weicht vom Struktur-Entwurf ab („Footer (Links, Social Media, **Copyright**, Layout)").
@@ -226,7 +228,7 @@ Zusätzlich zur installationsweiten Seiteneinstellungen-Seite besitzt **jedes** 
 
 | Feld | Beschreibung |
 |------|-------------|
-| **Dashboard-Name** | Name dieses einzelnen Dashboards (z. B. „Stadt Regensburg"). Erscheint im Dashboard-Auswahl-Menü (siehe [Kapitel 1.1, Anmeldung und Oberfläche](01-erste-schritte.md)). |
+| **Dashboard-Name** | Name dieses einzelnen Dashboards (z. B. „Demo City"). Erscheint im Dashboard-Auswahl-Menü (siehe [Kapitel 1.1, Anmeldung und Oberfläche](01-erste-schritte.md)). |
 | **Zusatzinfo** | Optionale Zusatzinformation (z. B. Kunde, Firma), ebenfalls im Dashboard-Auswahl-Menü sichtbar. |
 | **Slug** | Schreibgeschützt. Identifiziert das Dashboard eindeutig, u. a. für Domain-Zuordnung. Das Standard-Dashboard trägt den Slug `default`. |
 

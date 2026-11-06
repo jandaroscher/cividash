@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Tests;
 
 use App\Models\Tenant;
@@ -19,6 +23,9 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Panel and SPA layouts load Vite entries; CI runs PHP tests without a frontend build.
+        $this->withoutVite();
 
         // Only run when a DB is available (when RefreshDatabase is used)
         if ($this->usesDatabase()) {

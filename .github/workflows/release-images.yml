@@ -1,7 +1,12 @@
+# SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+#
+# SPDX-License-Identifier: EUPL-1.2+
+
 name: Release images
 
 # Publishes the production images (cividash-app, cividash-web) to GHCR for a
-# release tag. release-please calls this after it creates a release; run it
+# release tag and attaches SPDX SBOMs (source lockfiles and both images) to the
+# GitHub release. release-please calls this after it creates a release; run it
 # manually to (re)publish an existing tag.
 
 on:
@@ -19,15 +24,38 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write  # upload the SBOMs as release assets
   packages: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # The arm64 runtime stage compiles the PHP extensions under QEMU.
+    timeout-minutes: 90
+    # Two runs for the same tag would push and scan the same mutable image tags.
+    concurrency:
+      group: release-images-${{ inputs.tag }}
+      cancel-in-progress: false
     env:
       REGISTRY: ghcr.io/jandaroscher
     steps:
+      # The Syft config comes from the workflow revision, so republishing an
+      # older tag that predates it still produces the source SBOM. It is checked
+      # out into its own directory: a sparse checkout in the workspace root would
+      # stay sparse for the tag checkout below.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: workflow-src
+          persist-credentials: false
+          sparse-checkout: .github/syft-source.yaml
+          sparse-checkout-cone-mode: false
+
+      - name: Keep the Syft config outside the workspace
+        run: |
+          cp workflow-src/.github/syft-source.yaml "$RUNNER_TEMP/syft-source.yaml"
+          rm -rf workflow-src
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           ref: ${{ inputs.tag }}
@@ -43,11 +71,14 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "minor=${VERSION%.*}" >> "$GITHUB_OUTPUT"
 
-      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f  # v4.6.0
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6  # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      # arm64 for clusters on ARM nodes (e.g. Apple Silicon k3d); built under QEMU.
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1  # v4.4.0
 
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069  # v4.4.1
 
@@ -56,7 +87,7 @@ jobs:
         with:
           context: .
           file: docker/production/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.REGISTRY }}/cividash-app:${{ steps.v.outputs.version }}
@@ -68,7 +99,7 @@ jobs:
         with:
           context: .
           file: docker/production/nginx/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           # cividash-web copies public/ from the app image of the same version.
           build-args: |
@@ -77,3 +108,49 @@ jobs:
             ${{ env.REGISTRY }}/cividash-web:${{ steps.v.outputs.version }}
             ${{ env.REGISTRY }}/cividash-web:${{ steps.v.outputs.minor }}
             ${{ env.REGISTRY }}/cividash-web:latest
+
+      # SBOMs: the source scan covers composer.lock and package-lock.json with
+      # all transitive packages, the image scans cover what actually ships
+      # (the linux/amd64 variant; arm64 differs only in its Alpine binaries).
+      - name: SBOM for the source lockfiles
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c  # v0.24.3
+        with:
+          path: .
+          config: ${{ runner.temp }}/syft-source.yaml
+          format: spdx-json
+          output-file: cividash-${{ steps.v.outputs.version }}-source.spdx.json
+          upload-artifact: false
+          dependency-snapshot: false
+
+      - name: SBOM for cividash-app
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c  # v0.24.3
+        with:
+          image: ${{ env.REGISTRY }}/cividash-app:${{ steps.v.outputs.version }}
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          format: spdx-json
+          output-file: cividash-app-${{ steps.v.outputs.version }}.spdx.json
+          upload-artifact: false
+          dependency-snapshot: false
+
+      - name: SBOM for cividash-web
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c  # v0.24.3
+        with:
+          image: ${{ env.REGISTRY }}/cividash-web:${{ steps.v.outputs.version }}
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          format: spdx-json
+          output-file: cividash-web-${{ steps.v.outputs.version }}.spdx.json
+          upload-artifact: false
+          dependency-snapshot: false
+
+      - name: Attach SBOMs to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+            "cividash-$VERSION-source.spdx.json" \
+            "cividash-app-$VERSION.spdx.json" \
+            "cividash-web-$VERSION.spdx.json"

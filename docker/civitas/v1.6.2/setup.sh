@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+#
+# SPDX-License-Identifier: EUPL-1.2+
+
 #
 # Bring up the local Stellio NGSI-LD broker (CORE V1.6.2-aligned) and seed it
 # with the 3 NachhaltigkeitsIndikator entities for Pull-pipeline validation.

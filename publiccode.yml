@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+#
+# SPDX-License-Identifier: EUPL-1.2+
+
 # This repository adheres to publiccode.yml standard by including this
 # metadata file that makes public software easily discoverable.
 # More info at https://yml.publiccode.tools/
@@ -9,8 +13,8 @@ applicationSuite: CiviDash
 url: "https://github.com/jandaroscher/cividash"
 softwareType: standalone/web
 
-softwareVersion: 1.0.0 # x-release-please-version
-releaseDate: "2026-09-23" # 1.0.0 release date
+softwareVersion: 1.1.1 # x-release-please-version
+releaseDate: "2026-10-21" # 1.0.1 release date
 
 platforms:
   - web

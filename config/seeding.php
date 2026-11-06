@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -10,7 +14,7 @@ return [
     |
     */
 
-    'default_json_path' => env('SEED_DASHBOARD_JSON', storage_path('app/seeds/regensburg/dashboard.json')),
+    'default_json_path' => env('SEED_DASHBOARD_JSON', storage_path('app/seeds/dashboard.json')),
 
     'dashboard_json_url' => env('SEED_DASHBOARD_JSON_URL'),
 

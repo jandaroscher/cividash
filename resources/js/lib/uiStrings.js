@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 // Small translation map for static UI strings that don't come from the API/CMS.
 const strings = {
     home: { de: 'Startseite', en: 'Home' },

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 import { defineStore } from 'pinia';
 import { getApiBaseUrl } from '../utils/api';
 import { logError } from '../lib/log.js';
@@ -51,7 +55,7 @@ export const useBrandingStore = defineStore('branding', {
         dividerColor: null,
         shadowColor: '#000000',
         navTextColor: '#374151',
-        navTextColorInactive: '#9CA3AF',
+        navTextColorInactive: '#6B7280',
         navHoverColor: '#e30613',
         tileColorSourceGroupKey: null,
         tileBackgroundCategoryGroupKey: null,
@@ -254,7 +258,7 @@ export const useBrandingStore = defineStore('branding', {
                 
                 // Set navigation colors as CSS variables
                 document.documentElement.style.setProperty('--nav-text-color', this.navTextColor || '#374151');
-                document.documentElement.style.setProperty('--nav-text-color-inactive', this.navTextColorInactive || '#9CA3AF');
+                document.documentElement.style.setProperty('--nav-text-color-inactive', this.navTextColorInactive || '#6B7280');
                 document.documentElement.style.setProperty('--nav-hover-color', this.navHoverColor || effectiveAccentColor);
 
                 // Set structural card tokens as CSS variables (only when configured -

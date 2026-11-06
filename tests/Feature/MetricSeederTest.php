@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Tests\Feature;
 
 use App\Models\MetricDefinition;
@@ -8,7 +12,7 @@ use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Models\User;
-use App\Services\DashboardJsonParser;
+use App\Services\LegacyDashboardJsonParser;
 use App\Services\MediaDownloadService;
 use App\Services\ParsedMetric;
 use Database\Seeders\MetricSeeder;
@@ -42,8 +46,8 @@ class MetricSeederTest extends TestCase
             ->andReturnUsing(fn (string $url, string $type) => "seeds/{$type}/".basename($url));
 
         $this->seeder = new MetricSeeder;
-        // Ensure ParsedMetric class is loaded by referencing DashboardJsonParser
-        class_exists(DashboardJsonParser::class);
+        // Ensure ParsedMetric class is loaded by referencing LegacyDashboardJsonParser
+        class_exists(LegacyDashboardJsonParser::class);
     }
 
     public function test_seeder_creates_time_periods_and_metrics(): void

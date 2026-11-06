@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Database\Seeders;
 
 use App\Models\Tenant;
@@ -45,17 +49,6 @@ class TenantSeeder extends Seeder
             $defaultTenant->update(['domain' => $baseDomain]);
         }
 
-        // Stadt Regensburg
-        $regensburg = Tenant::firstOrCreate(
-            ['slug' => 'stadt-regensburg'],
-            ['name' => 'Stadt Regensburg']
-        );
-        $regensburg->update(['domain' => "regensburg.{$baseDomain}"]);
-        $regensburg->users()->syncWithoutDetaching($demoUser->id);
-        if ($testUser) {
-            $regensburg->users()->syncWithoutDetaching($testUser->id);
-        }
-
         // Demo City
         $demoCity = Tenant::firstOrCreate(
             ['slug' => 'demo-city'],
@@ -75,8 +68,8 @@ class TenantSeeder extends Seeder
             $demoCity->update(['theme_id' => $demoCityTheme->id]);
         }
 
-        // Always set demo user's default tenant to Regensburg
-        $demoUser->forceFill(['default_tenant_id' => $regensburg->id])->save();
+        // Always set demo user's default tenant to Demo City
+        $demoUser->forceFill(['default_tenant_id' => $demoCity->id])->save();
 
         Artisan::call('tenancy:backfill');
     }
@@ -84,7 +77,7 @@ class TenantSeeder extends Seeder
     /**
      * Demo City theme palette: a blue demo palette, every color token
      * BrandingSettings defines set to a value consistent with it so no field
-     * silently falls back to the Regensburg-red global default. Angular form
+     * silently falls back to the red global default. Angular form
      * language: square cards, no shadow.
      *
      * @return array<string, mixed>
@@ -115,7 +108,7 @@ class TenantSeeder extends Seeder
             'divider_color' => '#DCE3E9',
             'shadow_color' => '#F5F7FA',
             'nav_text_color' => '#1A1A1A',
-            'nav_text_color_inactive' => '#9CA3AF',
+            'nav_text_color_inactive' => '#6B7280',
             'nav_hover_color' => '#1465A4',
             // Angular demo form language: square corners, no shadow.
             'card_radius' => '0',

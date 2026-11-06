@@ -1,3 +1,9 @@
+{{--
+SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+
+SPDX-License-Identifier: EUPL-1.2+
+--}}
+
 @php
     use Illuminate\Support\Facades\Storage;
 
@@ -9,7 +15,7 @@
 @if($state)
     @if($isLottie)
         {{-- Placeholder, upgraded to a real <dotlottie-wc> element by
-             public/js/vendor/dotlottie-wc-init.js once the self-hosted WASM
+             resources/js/admin/dotlottie.js once the self-hosted WASM
              URL is configured (must not render the tag directly here, see
              that file's header comment). --}}
         <div

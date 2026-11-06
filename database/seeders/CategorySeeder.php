@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Database\Seeders;
 
 use App\Models\Category;
@@ -385,7 +389,6 @@ class CategorySeeder extends Seeder
         }
 
         return Tenant::where('slug', 'default')->value('id')
-            ?? Tenant::where('slug', 'stadt-regensburg')->value('id')
             ?? Tenant::first()?->id;
     }
 

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 /**
  * Slug for tile URLs (export, embed) in the given locale. Falls back to the
  * tile ID, which those endpoints accept as well.

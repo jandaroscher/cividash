@@ -1,9 +1,21 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 use App\Http\Controllers\Auth\KeycloakSsoController;
 use App\Http\Controllers\Auth\PasswordResetRedirectController;
 use App\Http\Controllers\SpaController;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
+
+// Public pages and tile embeds are read-only and need no session. Skipping it means
+// anonymous visitors get no cookie and no sessions row (which stores IP and user agent).
+$sessionless = [StartSession::class, ShareErrorsFromSession::class, ValidateCsrfToken::class, AddQueuedCookiesToResponse::class];
 
 // Keycloak SSO routes (before SPA catch-all)
 Route::get('admin/auth/keycloak/redirect', [KeycloakSsoController::class, 'redirect'])
@@ -23,7 +35,7 @@ Route::get('/.well-known/security.txt', fn () => response(
     file_get_contents(public_path('.well-known/security.txt')),
     200,
     ['Content-Type' => 'text/plain']
-))->name('security.txt');
+))->withoutMiddleware($sessionless)->name('security.txt');
 
 // Vue SPA catch-all route
 // Excludes API routes, admin routes, and other system routes
@@ -32,4 +44,5 @@ Route::get('/.well-known/security.txt', fn () => response(
 Route::get('/{any?}', [SpaController::class, 'index'])
     ->where('any', '^(?!api|admin|filament|telescope|horizon|storage|share|embeds|_dusk|tinker).*$')
     ->middleware(['resolve.tenant'])
+    ->withoutMiddleware($sessionless)
     ->name('spa');

@@ -1,6 +1,12 @@
+<!--
+SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+
+SPDX-License-Identifier: EUPL-1.2+
+-->
+
 <template>
   <div class="app-wrapper">
-    <main class="overflow-x-hidden pt-7 md:pt-12">
+    <div class="overflow-x-hidden pt-7 md:pt-12">
       <Filter
         v-if="!tilesStore.loading && !tilesStore.error && (showSearch || showFilter)"
         :show-search="showSearch"
@@ -25,7 +31,7 @@
         {{ effectiveLocale === 'en' ? 'Error loading tiles:' : 'Fehler beim Laden der Tiles:' }} {{ tilesStore.error.message }}
       </div>
       <Cards v-else />
-    </main>
+    </div>
     <Overlay />
   </div>
 </template>

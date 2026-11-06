@@ -1,19 +1,24 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace App\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Parser for dashboard.json file structure.
+ * Parser for the legacy dashboard JSON export format
+ * (keys kacheln, handlungsfelder, lnk_handlungsfelder, Kennzahlen, daten, sdg).
  *
- * Parses the Regensburg dashboard.json and extracts:
+ * Extracts:
  * - Categories (handlungsfelder)
  * - Tiles (kacheln)
  * - Relationships (lnk_handlungsfelder)
  */
-class DashboardJsonParser
+class LegacyDashboardJsonParser
 {
     /**
      * Parse the dashboard.json file and return structured data.

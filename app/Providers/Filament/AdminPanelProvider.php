@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace App\Providers\Filament;
 
 use App\Filament\AvatarProviders\LocalAvatarProvider;
@@ -12,6 +16,7 @@ use App\Http\Middleware\LocaleDetector;
 use App\Http\Middleware\SetFilamentDefaultTenant;
 use App\Models\Tenant;
 use Filament\Facades\Filament;
+use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -23,7 +28,6 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\SpatieLaravelTranslatablePlugin;
 use Filament\Support\Assets\Css;
-use Filament\Support\Assets\Js;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
@@ -33,6 +37,7 @@ use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Vite;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
@@ -48,10 +53,6 @@ class AdminPanelProvider extends PanelProvider
     public function boot(): void
     {
         FilamentAsset::register([
-            // Registers <dotlottie-wc> and points it at the self-hosted WASM
-            // renderer (public/js/vendor/dotlottie-player.wasm), see
-            // public/js/vendor/dotlottie-wc.LICENSE.txt for update instructions.
-            Js::make('dotlottie-wc', asset('js/vendor/dotlottie-wc-init.js'))->module(),
             Css::make('admin-overrides', asset('css/filament/admin-overrides.css')),
         ]);
 
@@ -134,7 +135,16 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.system')),
             ])
             ->sidebarCollapsibleOnDesktop()
+            // Inter is self-hosted (resources/css/admin-fonts.css, loaded below)
+            // instead of Filament's Bunny Fonts CDN default (DSB requirement).
+            ->font('Inter', provider: LocalFontProvider::class)
             ->login(Login::class)
+            // Registers <dotlottie-wc> with the self-hosted WASM renderer; built by
+            // Vite from npm, see resources/js/admin/dotlottie.js.
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn () => app(Vite::class)(['resources/js/admin/dotlottie.js', 'resources/css/admin-fonts.css', 'resources/css/admin-contrast.css'])
+            )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
                 fn () => config('integrations.keycloak_sso.enabled')
@@ -152,7 +162,15 @@ class AdminPanelProvider extends PanelProvider
                     ),
             ])
             ->colors([
-                'primary' => Color::Amber,
+                // WCAG 2.1 AA, brand tones from the logo: #C83D10 carries white
+                // button text (shade 600 light, 500 dark) and light-mode links at 5.1:1;
+                // dark-mode links use shade 400 #EC640F at 5.4:1 on the dark panel.
+                // Green-700 as shade 500 puts the light-mode success action at 5.9:1.
+                'primary' => array_replace(Color::hex('#C83D10'), [
+                    400 => '236, 100, 15',
+                    600 => '200, 61, 16',
+                ]),
+                'success' => Color::hex('#15803d'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

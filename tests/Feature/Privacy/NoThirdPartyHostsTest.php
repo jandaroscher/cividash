@@ -1,19 +1,27 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace Tests\Feature\Privacy;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\Finder\Finder;
 use Tests\TestCase;
 
 /**
  * Guards against reintroducing calls to third-party hosts from the frontend
- * (DSB requirement): Google Fonts and ui-avatars.com.
+ * (DSB requirement): Google Fonts, Bunny Fonts and ui-avatars.com.
  */
 class NoThirdPartyHostsTest extends TestCase
 {
+    use RefreshDatabase;
+
     private const FORBIDDEN_HOSTS = [
         'fonts.googleapis.com',
         'fonts.gstatic.com',
+        'fonts.bunny.net',
         'ui-avatars.com',
     ];
 
@@ -47,5 +55,16 @@ class NoThirdPartyHostsTest extends TestCase
         }
 
         $this->assertEmpty($offenders, "Found references to forbidden third-party hosts:\n".implode("\n", $offenders));
+    }
+
+    public function test_admin_login_page_does_not_reference_forbidden_hosts(): void
+    {
+        // Filament's panel font defaults to fonts.bunny.net; vendor code is not
+        // covered by the source scan above, so check the rendered page.
+        $html = $this->get('/admin/login')->assertOk()->getContent();
+
+        foreach (self::FORBIDDEN_HOSTS as $host) {
+            $this->assertStringNotContainsString($host, $html);
+        }
     }
 }

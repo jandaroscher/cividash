@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 import { test, expect } from '@playwright/test';
 
 /**
@@ -14,12 +18,10 @@ import { test, expect } from '@playwright/test';
  * - Test data seeded via: ddev php artisan e2e:seed-full --json
  */
 
-const BASE_URL = 'http://open-source-dashboard.ddev.site';
-
 test.describe('Branding', () => {
   test.describe('CSS custom properties', () => {
     test('CSS custom properties are set on document root', async ({ page }) => {
-      await page.goto(`${BASE_URL}/`);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // Check that CSS custom properties are set on :root or body
@@ -43,7 +45,7 @@ test.describe('Branding', () => {
   test.describe('Header branding', () => {
     test('header background color matches branding config', async ({ page, request }) => {
       // Fetch branding config from API
-      const response = await request.get(`${BASE_URL}/api/v1/config/branding`);
+      const response = await request.get('/api/v1/config/branding');
 
       if (!response.ok()) {
         test.skip(true, 'Branding API not available');
@@ -53,7 +55,7 @@ test.describe('Branding', () => {
       const json = await response.json();
       const branding = json.data || json;
 
-      await page.goto(`${BASE_URL}/`);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // Get the header element's computed background color
@@ -77,7 +79,7 @@ test.describe('Branding', () => {
   test.describe('Footer branding', () => {
     test('footer background color matches branding config', async ({ page, request }) => {
       // Fetch branding config from API
-      const response = await request.get(`${BASE_URL}/api/v1/config/branding`);
+      const response = await request.get('/api/v1/config/branding');
 
       if (!response.ok()) {
         test.skip(true, 'Branding API not available');
@@ -87,7 +89,7 @@ test.describe('Branding', () => {
       const json = await response.json();
       const branding = json.data || json;
 
-      await page.goto(`${BASE_URL}/`);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // Get the footer's gray bottom area background color
@@ -111,7 +113,7 @@ test.describe('Branding', () => {
 
   test.describe('Typography', () => {
     test('font family is applied from branding', async ({ page }) => {
-      await page.goto(`${BASE_URL}/`);
+      await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // Check that a font family is applied to the body

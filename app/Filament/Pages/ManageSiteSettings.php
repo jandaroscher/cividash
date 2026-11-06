@@ -1,5 +1,9 @@
 <?php
 
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
 namespace App\Filament\Pages;
 
 use App\Filament\Concerns\HasBlockActiveToggleAction;
@@ -229,7 +233,7 @@ class ManageSiteSettings extends Page implements HasForms
                             ->schema([
                                 Toggle::make('social_links_enabled')
                                     ->label(__('filament.pages.manage_footer.social_links_enabled'))
-                                    ->default(true),
+                                    ->default(false),
 
                                 Repeater::make('social_links')
                                     ->label(__('filament.pages.manage_footer.social_media_links'))
@@ -399,7 +403,7 @@ class ManageSiteSettings extends Page implements HasForms
             'social_links' => $data['social_links'] ?? [],
             'layout_type' => 'multi-column',
             'columns' => $data['columns'] ?? 4,
-            'social_links_enabled' => $data['social_links_enabled'] ?? true,
+            'social_links_enabled' => $data['social_links_enabled'] ?? false,
             'sponsors' => $data['sponsors'] ?? [],
         ]);
         $this->footerRecord->save();
