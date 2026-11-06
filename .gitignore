@@ -62,8 +62,8 @@ test-results/
 resources/views/scribe/
 public/vendor/scribe/
 public/docs/
-public/css/filament/*
-!public/css/filament/admin-overrides.css
+public/css/filament/
+public/css/app/
 public/js/filament/
 public/css/pboivin/
 public/js/pboivin/
