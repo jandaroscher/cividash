@@ -72,7 +72,7 @@ die Datei für jeden Testlauf und füllen Sie die Felder aus.
 | Nr. | Prüfschritt | Erwartetes Ergebnis | Ergebnis | Klasse | Bemerkung |
 | --- | --- | --- | --- | --- | --- |
 | 4.1 | Dashboard über die eigene Domain aufrufen | Richtiges Dashboard erscheint | | | |
-| 4.2 | Redakteur eines Dashboards öffnet ein fremdes Dashboard | Zugriff wird verweigert | | | |
+| 4.2 | Redakteur eines Dashboards öffnet den Admin-Bereich eines fremden Dashboards | Zugriff wird verweigert | | | |
 | 4.3 | Daten eines Dashboards in einem anderen suchen | Keine fremden Daten sichtbar | | | |
 
 ## 5. Betrieb und Datenschutz

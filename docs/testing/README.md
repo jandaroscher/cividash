@@ -72,10 +72,10 @@ Use `php artisan serve` and a SQLite file:
 
 ```bash
 export DB_CONNECTION=sqlite DB_DATABASE="$PWD/database/e2e.sqlite"
-touch "$DB_DATABASE"
+rm -f "$DB_DATABASE" && touch "$DB_DATABASE"
 php artisan migrate --seed
 npm run build
-php artisan serve --port=8000 &
+php artisan serve --port=8000 --no-reload &
 
 export PLAYWRIGHT_BASE_URL=http://127.0.0.1:8000 E2E_ARTISAN_CMD="php artisan"
 npx playwright test --project=accessibility

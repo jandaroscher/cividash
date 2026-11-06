@@ -9,3 +9,10 @@
 .dark .language-switch-trigger {
     color: rgb(var(--primary-400));
 }
+
+/* Filled primary buttons hover to shade 500 (light) and 400 (dark). Shade 500
+   equals 600, so light mode would show no hover change, and shade 400 has
+   3.3:1 with white text. Shade 700 gives 7.8:1 in both colour schemes. */
+.fi-btn.fi-color-primary:not(.fi-btn-outlined):hover {
+    background-color: rgb(var(--primary-700));
+}
