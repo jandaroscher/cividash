@@ -5,6 +5,25 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2](https://github.com/jandaroscher/cividash/compare/v1.1.1...v1.1.2) (2026-11-09)
+
+
+### Features
+
+* **blocks:** add title, alt text and copyright to every content image ([#46](https://github.com/jandaroscher/cividash/issues/46)) ([dc70b71](https://github.com/jandaroscher/cividash/commit/dc70b710094ec63e5ebe269f4bc278a8fc842990))
+
+
+### Bug Fixes
+
+* **admin:** accessible table toggles and https asset URLs behind proxies ([#75](https://github.com/jandaroscher/cividash/issues/75)) ([c96380d](https://github.com/jandaroscher/cividash/commit/c96380d174811ed63c24093460ed4cb189dc0eca))
+* **seeders:** cite TDDDG, DDG and MStV in sample legal pages ([#40](https://github.com/jandaroscher/cividash/issues/40)) ([35751e9](https://github.com/jandaroscher/cividash/commit/35751e9734b382ab82c5784218709a2145da3fb5))
+
+
+### Documentation
+
+* add operator and developer guides and architecture overview ([#79](https://github.com/jandaroscher/cividash/issues/79)) ([96f8e8d](https://github.com/jandaroscher/cividash/commit/96f8e8df8dc83ffd8de456dbfd75cfcc5e1921b4))
+* **user-guide:** retake screenshots and document image metadata ([#78](https://github.com/jandaroscher/cividash/issues/78)) ([5bf01c9](https://github.com/jandaroscher/cividash/commit/5bf01c910bbba61c643d20f4bf6c95dd55c9a557))
+
 ## [1.1.1](https://github.com/jandaroscher/cividash/compare/v1.1.0...v1.1.1) (2026-11-06)
 
 
