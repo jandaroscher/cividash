@@ -10,7 +10,8 @@ documents.
   (`resources/views/app.blade.php`) with server-rendered meta tags; Vue Router renders all
   pages in the browser from API data.
 - **Public API (`/api/v1/...`):** read-only JSON for tiles, pages, configuration, filters
-  and exports. The generated reference is served at `/docs`.
+  and exports. The generated reference is served at `/docs` once built with
+  `php artisan scribe:generate`; the release images do not include it.
 - **Admin panel (Filament, `/admin`):** editorial back office with the page builder,
   tiles, categories, media, users and roles. It is the only part that uses a session
   cookie.
@@ -49,8 +50,8 @@ Details: [multi-tenancy.md](architecture/multi-tenancy.md) and
 ## Data import
 
 Editors import tiles, categories, metrics and yearly values as JSON bundles, either in
-the admin panel or through `POST /api/v1/admin/import`. An import runs as a dry run first
-and is committed in one transaction. The bundle format equals the export format.
+the admin panel or through `POST /api/v1/admin/import`. An import can be previewed as a dry
+run, which is rolled back; a commit runs in one transaction. The bundle format equals the export format.
 
 Details: [upload bundles and schemas](upload/README.md) and the
 [data import user guide](user-guide/datenimport.en.md).
@@ -60,7 +61,7 @@ Details: [upload bundles and schemas](upload/README.md) and the
 In production CiviDash runs as an add-on of a CIVITAS/CORE platform: CORE's Keycloak
 provides admin login (optional, `KEYCLOAK_*`) and machine tokens, and the scheduled
 `integration:sync-civitas` command pulls indicator data from the CORE context broker
-(Stellio, NGSI-LD) into tiles and metrics (`CIVITAS_*`).
+(Stellio via NGSI-LD by default, or a SensorThings server with `CIVITAS_DRIVER=sensorthings`) into tiles and metrics (`CIVITAS_*`).
 
 - [civitas-core/architecture.md](architecture/civitas-core/architecture.md): operating
   context, roles and access paths

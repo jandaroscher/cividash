@@ -26,7 +26,8 @@ read [deployment/security-headers.md](deployment/security-headers.md); for times
 
 - Create the first admin with `php artisan cividash:create-admin`
   ([standalone guide, step 8](deployment/installation-standalone.md#2-step-by-step-installation)).
-  On CORE, admins can sign in through Keycloak; see the add-on's `docs/authentication.md`.
+  On CORE, admins can sign in through Keycloak when `KEYCLOAK_SSO_ENABLED` is set; the first
+  admin's role is granted in Keycloak by hand, see the add-on's `docs/authentication.md`.
 - Seed pages, navigation or dashboard content: [deployment/seeding.md](deployment/seeding.md).
 - Import indicator data as JSON bundles: [user-guide/datenimport.en.md](user-guide/datenimport.en.md),
   formats in [upload/README.md](upload/README.md).

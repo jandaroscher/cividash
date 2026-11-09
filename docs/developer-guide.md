@@ -42,8 +42,8 @@ npx vitest run                     # frontend suite
 - [api/tenant-resolution.md](api/tenant-resolution.md): how public requests find their
   tenant.
 - [api/admin-api.md](api/admin-api.md): token-based admin endpoints. After changing
-  endpoints or their annotations, regenerate the reference with `php artisan scribe:generate`;
-  CI does not do this.
+  endpoints or their annotations, regenerate the reference with `php artisan scribe:generate`.
+  CI runs it only as a check; the output under `public/docs/` is not committed or shipped.
 - [upload/README.md](upload/README.md): JSON schemas and examples for import bundles.
 
 ## Commits, pull requests and DCO
@@ -65,7 +65,7 @@ Details are in [CONTRIBUTING.md](../CONTRIBUTING.md). In short:
 
 | Area | Read when |
 |------|-----------|
-| [architecture/](architecture.md) | you change how components fit together, tenancy or the CORE sync |
+| [Architecture overview](architecture.md) | you change how components fit together, tenancy or the CORE sync |
 | [deployment/](deployment/README.md) | you touch Docker images, the entrypoint, seeding or scheduling |
 | [api/](api/admin-api.md) | you add or change endpoints |
 | [upload/](upload/README.md) | you change the import format |

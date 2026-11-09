@@ -91,9 +91,10 @@ maintained outside this repository.
 |---------|-----------|------|---------------|
 | `cividash-web` | nginx (rootless) from the `cividash-web` image, serves `public/` and passes PHP to `cividash-fpm` | 8080 in the container; the add-on's Kubernetes Service maps 80 to 8080 | `docker/production/nginx/nginx.conf` |
 | `cividash-fpm` | PHP-FPM from the `cividash-app` image (Laravel, Filament, API) | 9000 (FastCGI) | `docker/production/php/www.conf` |
-| `cividash-queue` | `php artisan queue:work`, same app image | none | `QUEUE_CONNECTION` (default `database`) |
-| `cividash-scheduler` | `php artisan schedule:run` every 60 seconds, same app image | none | `routes/console.php` |
+| `cividash-queue` (add-on) | `php artisan queue:work`, same app image | none | `QUEUE_CONNECTION` (default `database`) |
+| `cividash-scheduler` (add-on) | `php artisan schedule:run` every 60 seconds, same app image | none | `routes/console.php` |
 | `cividash-migrate` | one-shot `php artisan migrate --force` before each rollout | none | `DB_*` |
+| `cividash-seed` (add-on) | one-shot seed job after install | none | add-on `docs/seed.md` |
 | PostgreSQL 16 | application database (all tenants in one database; sessions, cache and queue tables) | 5432 | `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` |
 | S3-compatible storage | public media (uploads) when `PUBLIC_DISK_DRIVER=s3`; otherwise a shared volume on `storage/app/public` | as in `AWS_ENDPOINT` | `PUBLIC_DISK_DRIVER`, `AWS_*`, `PUBLIC_S3_BUCKET`, `FILESYSTEM_PUBLIC_URL` |
 | Keycloak (optional) | OpenID Connect login for the admin panel | as in `KEYCLOAK_BASE_URL` | `KEYCLOAK_*` |
@@ -106,9 +107,10 @@ The Docker Compose smoke stack (`docker/production/docker-compose.smoke.yml`) pu
 
 All settings come from environment variables, read through `config/*.php`. The entrypoint
 of the app image runs `config:cache` at container start, so a changed variable needs a
-restart. [.env.production.example](.env.production.example) lists every production
-variable with secret/non-secret markers; the full table is in
-[installation-standalone.md](docs/deployment/installation-standalone.md#5-environment-variables).
+restart. [.env.production.example](.env.production.example) lists the production
+variables with secret/non-secret markers, and
+[installation-standalone.md](docs/deployment/installation-standalone.md#5-environment-variables)
+explains more of them.
 Defaults below are the code defaults from `config/`.
 
 | Group | Key | Default | Purpose |
