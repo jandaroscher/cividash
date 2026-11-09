@@ -71,7 +71,7 @@ Folgende Blocktypen stehen zur Verfügung: **Downloads**, **FAQ**, **Intro-Text*
 
 > **Hinweis:** Der **Kacheln**-Block (Kachel-Raster, siehe [Kapitel 2.4.5, Kacheln](02-seiten-verwalten.md)) steht auf der Hintergrundseite einer Kachel **nicht** zur Verfügung — eine Kachel kann keine weiteren Kacheln einbetten.
 
-Jeder Block hat zusätzlich ein Feld **Jump Mark Label**: Nur wenn ausgefüllt, erscheint der Block als Sprungmarke in der Navigation der Hintergrundseite.
+Jeder Block hat zusätzlich ein Feld **Sprungmarken-Label**: Nur wenn ausgefüllt, erscheint der Block als Sprungmarke in der Navigation der Hintergrundseite.
 
 Jeder Blocktyp bringt dieselben Felder und dieselbe Wirkung mit wie auf einer Seite (siehe [Kapitel 2.4, Inhaltsblöcke verwenden](02-seiten-verwalten.md)) — je nach Typ etwa Überschrift, formatierbarer Text, Bilder oder Datei-Einträge. Jedes Bild in den Blöcken **Intro-Text**, **Text & Bild** und **Slider** hat auch hier die Felder **Bildtitel**, **Alt-Text** und **Copyright** (siehe [Kapitel 5.3, Alt-Texte und Barrierefreiheit](05-bilder-und-dateien.md#53-alt-texte-und-barrierefreiheit)). Nach dem Hinzufügen die Felder des jeweiligen Blocks ausfüllen:
 
