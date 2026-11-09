@@ -61,6 +61,7 @@ class FieldWhitelistTest extends TestCase
             'tile.title',
             'tile.description',
             'tile.hint',
+            'tile.time_granularity',
             'category.labels',
             'category.groups',
             'metric.key',

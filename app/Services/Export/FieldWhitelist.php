@@ -22,6 +22,8 @@ class FieldWhitelist
 
     public const CATEGORY_GROUPS = 'category.groups';
 
+    public const TILE_TIME_GRANULARITY = 'tile.time_granularity';
+
     public const METRIC_KEY = 'metric.key';
 
     public const METRIC_LABEL = 'metric.label';
@@ -60,6 +62,7 @@ class FieldWhitelist
             self::TILE_TITLE,
             self::TILE_DESCRIPTION,
             self::TILE_HINT,
+            self::TILE_TIME_GRANULARITY,
             self::CATEGORY_LABELS,
             self::CATEGORY_GROUPS,
             self::METRIC_KEY,

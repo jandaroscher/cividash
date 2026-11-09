@@ -27,6 +27,11 @@
     "tile.hint": {
       "$ref": "#/definitions/translatable_rich_text"
     },
+    "tile.time_granularity": {
+      "type": ["string", "null"],
+      "enum": ["year", "quarter", "month", "week", "day", null],
+      "description": "Granularity of the tile's periods. Set when the tile is created (default `year`); must match an existing tile's granularity. Every value.granularity of the tile must equal it."
+    },
     "tile.position": {
       "type": ["integer", "null"],
       "minimum": 0
@@ -98,12 +103,12 @@
     "value.period_key": {
       "type": ["string", "null"],
       "pattern": "^\\d{4}(-(Q[1-4]|W\\d{2}|\\d{2}(-\\d{2})?))?$",
-      "description": "Period of the value in ISO form, as written by the export: `2023`, `2023-Q1`, `2023-05`, `2023-W05` or `2023-05-15`. Takes precedence over value.year. Must match value.granularity."
+      "description": "Period of the value in ISO form, as written by the export: `2023`, `2023-Q1`, `2023-05`, `2023-W05` or `2023-05-15`. Takes precedence over value.year; if both are set, value.year must be its leading year. Must match value.granularity."
     },
     "value.granularity": {
       "type": ["string", "null"],
       "enum": ["year", "quarter", "month", "week", "day", null],
-      "description": "Granularity of value.period_key. Defaults to `year`."
+      "description": "Granularity of value.period_key. Defaults to `year`. Requires value.period_key, and must equal the tile's time_granularity."
     },
     "value.value": {
       "type": ["number", "null"]
@@ -133,22 +138,15 @@
   ],
   "definitions": {
     "translatable_string": {
-      "oneOf": [
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "minProperties": 1,
-          "properties": {
-            "de": { "type": ["string", "null"], "maxLength": 255 },
-            "en": { "type": ["string", "null"], "maxLength": 255 }
-          }
-        },
-        {
-          "type": "string",
-          "maxLength": 255,
-          "description": "Plain text as written by the export. Stored as the translation for bundle.locale (default `de`)."
-        }
-      ]
+      "type": ["object", "string"],
+      "description": "A {de, en} object, or a plain string as written by the export, stored as the translation for bundle.locale (default `de`).",
+      "maxLength": 255,
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "de": { "type": ["string", "null"], "maxLength": 255 },
+        "en": { "type": ["string", "null"], "maxLength": 255 }
+      }
     },
     "translatable_rich_text": {
       "oneOf": [
@@ -164,7 +162,7 @@
         { "type": "null" },
         {
           "type": "string",
-          "description": "Plain text as written by the export. Stored as the translation for bundle.locale (default `de`)."
+          "description": "HTML as written by the JSON export, stored as given (like the admin editor and API) as the translation for bundle.locale (default `de`)."
         }
       ]
     }

@@ -18,6 +18,7 @@ use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class AdminImportApiTest extends TestCase
@@ -580,5 +581,60 @@ class AdminImportApiTest extends TestCase
         $response = $this->postRaw(['file' => $file, 'mode' => 'dry_run'], $token);
 
         $response->assertStatus(422)->assertJsonFragment(['code' => 'invalid_type']);
+    }
+
+    public function test_unknown_locale_in_translatable_object_reports_one_additional_property_error(): void
+    {
+        $response = $this->uploadBundle($this->token($this->tenant), [
+            'schema_version' => '1.0',
+            'data' => [['tile.slug' => 'mobilitaet', 'tile.title' => ['fr' => 'Mobilité']]],
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertSame(
+            [['path' => 'data[0].tile.title', 'code' => 'schema_additionalProp']],
+            collect($response->json('errors'))->map(fn ($e) => ['path' => $e['path'], 'code' => $e['code']])->all(),
+        );
+    }
+
+    public static function invalidPeriodRows(): array
+    {
+        $quarter = ['value.period_key' => '2024-Q1', 'value.granularity' => 'quarter'];
+
+        return [
+            'quarter value on a year tile' => [[], $quarter, 'data[0].value.granularity', 'granularity_mismatch'],
+            'year value on a quarter tile' => [['tile.time_granularity' => 'quarter'], ['value.year' => 2024], 'data[0].value.granularity', 'granularity_mismatch'],
+            'granularity without period_key' => [[], ['value.granularity' => 'year', 'value.year' => 2024], 'data[0].value.period_key', 'required'],
+            'year contradicting period_key' => [['tile.time_granularity' => 'quarter'], $quarter + ['value.year' => 2023], 'data[0].value.year', 'period_mismatch'],
+        ];
+    }
+
+    #[DataProvider('invalidPeriodRows')]
+    public function test_value_with_inconsistent_period_is_rejected(array $tile, array $period, string $path, string $code): void
+    {
+        $response = $this->uploadBundle($this->token($this->tenant), [
+            'schema_version' => '1.0',
+            'data' => [[
+                'tile.slug' => 'mobilitaet',
+                'tile.title' => ['de' => 'Mobilität'],
+                'metric.key' => 'bikes',
+                'metric.label' => ['de' => 'Fahrräder'],
+                'value.value' => 120,
+            ] + $tile + $period],
+        ], 'commit');
+
+        $response->assertStatus(422)->assertJsonFragment(['path' => $path, 'code' => $code]);
+        $this->assertSame(0, MetricValue::withoutGlobalScope('tenant')->where('tenant_id', $this->tenant->id)->count());
+    }
+
+    public function test_existing_tile_keeps_its_granularity(): void
+    {
+        $token = $this->token($this->tenant);
+        $row = ['tile.slug' => 'mobilitaet', 'tile.title' => ['de' => 'Mobilität']];
+        $this->uploadBundle($token, ['schema_version' => '1.0', 'data' => [$row]], 'commit')->assertOk();
+
+        $this->uploadBundle($token, ['schema_version' => '1.0', 'data' => [$row + ['tile.time_granularity' => 'quarter']]], 'commit')
+            ->assertStatus(422)
+            ->assertJsonFragment(['path' => 'data[0].tile.time_granularity', 'code' => 'granularity_mismatch']);
     }
 }

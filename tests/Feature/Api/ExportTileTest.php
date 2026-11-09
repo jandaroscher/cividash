@@ -113,6 +113,26 @@ class ExportTileTest extends TestCase
         $this->assertStringContainsString('CO₂-Emissionen', $body);
     }
 
+    public function test_json_export_keeps_rich_text_html_and_csv_export_flattens_it(): void
+    {
+        $json = json_decode($this->getJson('/api/v1/tiles/mobilitaet/export?format=json&locale=de')->streamedContent(), true);
+        $this->assertSame('<p>Verkehr und Infrastruktur</p>', $json['data'][0]['tile.description']);
+
+        $csv = $this->get('/api/v1/tiles/mobilitaet/export?format=csv&locale=de')->streamedContent();
+        $this->assertStringContainsString('Verkehr und Infrastruktur', $csv);
+        $this->assertStringNotContainsString('<p>', $csv);
+    }
+
+    public function test_missing_translation_in_requested_locale_is_exported_as_null(): void
+    {
+        $this->tile->metricDefinitions()->first()->forgetTranslation('label', 'en')->save();
+
+        $body = json_decode($this->getJson('/api/v1/tiles/mobilitaet/export?format=json&locale=en')->streamedContent(), true);
+
+        $this->assertSame('Mobility', $body['data'][0]['tile.title']);
+        $this->assertNull($body['data'][0]['metric.label']);
+    }
+
     public function test_unknown_slug_returns_404(): void
     {
         $this->getJson('/api/v1/tiles/does-not-exist/export')->assertNotFound();

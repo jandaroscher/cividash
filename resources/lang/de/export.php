@@ -11,6 +11,7 @@ return [
             'slug' => 'Kachel-Slug',
             'title' => 'Kachel',
             'description' => 'Beschreibung',
+            'time_granularity' => 'Zeitliche Auflösung',
             'hint' => 'Hinweis',
         ],
         'category' => [

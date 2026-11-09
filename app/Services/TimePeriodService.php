@@ -17,12 +17,11 @@ class TimePeriodService
      *
      * @param  string  $periodKey  The period key (may be in German input format or ISO format).
      * @param  Tile  $tile  The tile to associate with.
-     * @param  TimeGranularity|null  $granularity  Overrides the tile's granularity (e.g. a granularity given per row in an upload bundle).
      * @return TimePeriod The resolved or created TimePeriod.
      */
-    public function resolveOrCreate(string $periodKey, Tile $tile, ?TimeGranularity $granularity = null): TimePeriod
+    public function resolveOrCreate(string $periodKey, Tile $tile): TimePeriod
     {
-        $granularity ??= TimeGranularity::tryFrom($tile->time_granularity ?? 'year') ?? TimeGranularity::Year;
+        $granularity = TimeGranularity::tryFrom($tile->time_granularity ?? 'year') ?? TimeGranularity::Year;
 
         // Normalize input (German format → ISO) if needed
         $normalizedKey = $granularity->normalizeInput($periodKey) ?? $periodKey;

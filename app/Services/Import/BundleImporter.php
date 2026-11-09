@@ -415,11 +415,11 @@ class BundleImporter
         // Upsert time periods (one per unique period_key).
         $timePeriodsByKey = [];
         foreach ($entries as $entry) {
-            $period = $this->periodOf($entry['row'], $entry['idx']);
-            if ($period === null || isset($timePeriodsByKey[$period[1]])) {
+            $periodKey = $this->periodKeyOf($entry['row'], $entry['idx'], $tile);
+            if ($periodKey === null || isset($timePeriodsByKey[$periodKey])) {
                 continue;
             }
-            $timePeriodsByKey[$period[1]] = $this->upsertTimePeriod($tile, ...$period);
+            $timePeriodsByKey[$periodKey] = $this->upsertTimePeriod($tile, $periodKey);
         }
 
         // Upsert metric values.
@@ -555,8 +555,21 @@ class BundleImporter
             return null;
         }
 
+        // A tile has exactly one granularity, locked once it has values: set on create only.
+        $granularity = $row['tile.time_granularity'] ?? null;
+        if ($existing !== null && $granularity !== null && $granularity !== ($existing->time_granularity ?? 'year')) {
+            $this->errors[] = new ImportError(
+                path: "data[$idx].tile.time_granularity",
+                code: 'granularity_mismatch',
+                message: "tile.time_granularity '{$granularity}' differs from the existing tile's '".($existing->time_granularity ?? 'year')."'.",
+                row: $idx,
+            );
+
+            return null;
+        }
+
         if ($existing === null) {
-            $existing = Tile::make(array_merge(['is_public' => true], $attributes));
+            $existing = Tile::make(array_merge(['is_public' => true, 'time_granularity' => $granularity ?? 'year'], $attributes));
             $existing->tenant()->associate($this->tenant);
             $existing->save();
             $this->diff->record('tiles', 'create');
@@ -670,40 +683,55 @@ class BundleImporter
     }
 
     /**
-     * The (granularity, period_key) a row's value belongs to, or null if the
-     * row carries no period. `value.period_key` + `value.granularity` take
-     * precedence; the v1 `value.year` maps to a year-granularity period whose
-     * period_key is the 4-digit year.
-     *
-     * @return array{0: TimeGranularity, 1: string}|null
+     * The period_key a row's value belongs to, or null if the row carries no
+     * period or an invalid one (recorded as an error). `value.period_key` +
+     * `value.granularity` take precedence; the v1 `value.year` maps to the year
+     * period. The granularity must equal the tile's.
      */
-    private function periodOf(array $row, int $idx): ?array
+    private function periodKeyOf(array $row, int $idx, Tile $tile): ?string
     {
         $periodKey = $row['value.period_key'] ?? null;
+        $year = $row['value.year'] ?? null;
+        $error = fn (string $field, string $code, string $message) => $this->errors[] = new ImportError(
+            path: "data[$idx].value.$field", code: $code, message: $message, row: $idx,
+        );
+
         if ($periodKey === null) {
-            $year = $row['value.year'] ?? null;
+            if (isset($row['value.granularity'])) {
+                $error('period_key', 'required', 'value.period_key is required when value.granularity is set.');
 
-            return $year === null ? null : [TimeGranularity::Year, (string) (int) $year];
-        }
-
-        $granularity = TimeGranularity::tryFrom($row['value.granularity'] ?? 'year');
-        if ($granularity === null || ! $granularity->isValidPeriodKey((string) $periodKey)) {
-            $this->errors[] = new ImportError(
-                path: "data[$idx].value.period_key",
-                code: 'invalid_format',
-                message: "value.period_key '{$periodKey}' is not a valid period for granularity '".($row['value.granularity'] ?? 'year')."'.",
-                row: $idx,
-            );
+                return null;
+            }
+            if ($year === null) {
+                return null;
+            }
+            $periodKey = (string) (int) $year;
+        } elseif ($year !== null && ! str_starts_with((string) $periodKey, (string) (int) $year)) {
+            $error('year', 'period_mismatch', "value.year {$year} contradicts value.period_key '{$periodKey}'.");
 
             return null;
         }
 
-        return [$granularity, (string) $periodKey];
+        $granularity = TimeGranularity::tryFrom($row['value.granularity'] ?? 'year');
+        if ($granularity === null || ! $granularity->isValidPeriodKey((string) $periodKey)) {
+            $error('period_key', 'invalid_format', "value.period_key '{$periodKey}' is not a valid period for granularity '".($row['value.granularity'] ?? 'year')."'.");
+
+            return null;
+        }
+
+        $tileGranularity = $tile->time_granularity ?? 'year';
+        if ($granularity->value !== $tileGranularity) {
+            $error('granularity', 'granularity_mismatch', "value.granularity '{$granularity->value}' differs from the tile's time_granularity '{$tileGranularity}'.");
+
+            return null;
+        }
+
+        return (string) $periodKey;
     }
 
-    private function upsertTimePeriod(Tile $tile, TimeGranularity $granularity, string $periodKey): TimePeriod
+    private function upsertTimePeriod(Tile $tile, string $periodKey): TimePeriod
     {
-        $timePeriod = app(TimePeriodService::class)->resolveOrCreate($periodKey, $tile, $granularity);
+        $timePeriod = app(TimePeriodService::class)->resolveOrCreate($periodKey, $tile);
         $this->diff->record('time_periods', $timePeriod->wasRecentlyCreated ? 'create' : 'unchanged');
 
         return $timePeriod;
@@ -778,10 +806,7 @@ class BundleImporter
             if (! in_array($key, $translatable, true) || ! is_array($value)) {
                 continue;
             }
-            $current = $model->getAttribute($key);
-            if (is_array($current)) {
-                $attributes[$key] = array_merge($current, $value);
-            }
+            $attributes[$key] = array_merge($model->getTranslations($key), $value);
         }
 
         return $attributes;
@@ -797,12 +822,16 @@ class BundleImporter
     private function hasChanges(Model $model, array $attributes): bool
     {
         foreach ($attributes as $key => $new) {
-            $current = $model->getAttribute($key);
+            // getAttribute() returns one locale's string for a translatable field.
+            $current = in_array($key, $model->translatable ?? [], true)
+                ? $model->getTranslations($key)
+                : $model->getAttribute($key);
             if (is_array($new) || is_array($current)) {
                 if ($this->normalizeArray($current) !== $this->normalizeArray($new)) {
                     return true;
                 }
-            } elseif ($current !== $new) {
+            } elseif (is_numeric($current) && is_numeric($new) ? (float) $current !== (float) $new : $current !== $new) {
+                // Decimal casts come back as strings ("100.00").
                 return true;
             }
         }

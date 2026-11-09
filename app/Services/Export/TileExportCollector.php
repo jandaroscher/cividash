@@ -65,7 +65,7 @@ class TileExportCollector
             $metricDefinitions = $tile->metricDefinitions;
 
             if ($metricDefinitions->isEmpty()) {
-                yield $this->projectRow($tile, null, null, $query->locale);
+                yield $this->projectRow($tile, null, null, $query);
 
                 continue;
             }
@@ -77,7 +77,7 @@ class TileExportCollector
                 $values = $this->filterValuesByYear($md->metricValues, $query);
 
                 if ($values->isEmpty()) {
-                    yield $this->projectRow($tile, $md, null, $query->locale);
+                    yield $this->projectRow($tile, $md, null, $query);
                     $emittedForTile = true;
 
                     continue;
@@ -85,13 +85,13 @@ class TileExportCollector
 
                 foreach ($values as $mv) {
                     /** @var MetricValue $mv */
-                    yield $this->projectRow($tile, $md, $mv, $query->locale);
+                    yield $this->projectRow($tile, $md, $mv, $query);
                     $emittedForTile = true;
                 }
             }
 
             if (! $emittedForTile) {
-                yield $this->projectRow($tile, null, null, $query->locale);
+                yield $this->projectRow($tile, null, null, $query);
             }
         }
     }
@@ -103,14 +103,17 @@ class TileExportCollector
      *
      * @return array<string, mixed>
      */
-    private function projectRow(Tile $tile, ?MetricDefinition $md, ?MetricValue $mv, string $locale): array
+    private function projectRow(Tile $tile, ?MetricDefinition $md, ?MetricValue $mv, ExportQuery $query): array
     {
+        $locale = $query->locale;
+
         return [
             FieldWhitelist::TILE_ID => $tile->id,
             FieldWhitelist::TILE_SLUG => $this->translate($tile, 'slug', $locale),
             FieldWhitelist::TILE_TITLE => $this->translate($tile, 'title', $locale),
-            FieldWhitelist::TILE_DESCRIPTION => $this->plainText($this->translate($tile, 'description', $locale)),
-            FieldWhitelist::TILE_HINT => $this->plainText($this->translate($tile, 'hint', $locale)),
+            FieldWhitelist::TILE_DESCRIPTION => $this->richText($this->translate($tile, 'description', $locale), $query),
+            FieldWhitelist::TILE_HINT => $this->richText($this->translate($tile, 'hint', $locale), $query),
+            FieldWhitelist::TILE_TIME_GRANULARITY => $tile->time_granularity ?? 'year',
 
             FieldWhitelist::CATEGORY_LABELS => $this->categoryLabels($tile, $locale),
             FieldWhitelist::CATEGORY_GROUPS => $this->categoryGroupTitles($tile, $locale),
@@ -133,26 +136,22 @@ class TileExportCollector
     }
 
     /**
-     * Read a translatable attribute with locale → 'de' → 'en' fallback.
+     * Read a translatable attribute in the requested locale only. No fallback:
+     * a re-import stores the value as that locale's translation.
      */
     private function translate($model, string $attribute, string $locale): ?string
     {
         $value = $model->getTranslation($attribute, $locale, false);
-        if ($value !== null && $value !== '') {
-            return (string) $value;
-        }
 
-        foreach (['de', 'en'] as $fallback) {
-            if ($fallback === $locale) {
-                continue;
-            }
-            $value = $model->getTranslation($attribute, $fallback, false);
-            if ($value !== null && $value !== '') {
-                return (string) $value;
-            }
-        }
+        return $value !== null && $value !== '' ? (string) $value : null;
+    }
 
-        return null;
+    /**
+     * JSON keeps the stored HTML so a re-import does not lose markup; CSV is read by people.
+     */
+    private function richText(?string $html, ExportQuery $query): ?string
+    {
+        return $query->isCsv() ? $this->plainText($html) : $html;
     }
 
     private function plainText(?string $html): ?string

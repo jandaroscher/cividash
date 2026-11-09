@@ -269,7 +269,7 @@ let previouslyFocused = null;
 const fieldGroups = [
     {
         key: 'tile',
-        fields: ['tile.id', 'tile.slug', 'tile.title', 'tile.description', 'tile.hint'],
+        fields: ['tile.id', 'tile.slug', 'tile.title', 'tile.description', 'tile.hint', 'tile.time_granularity'],
     },
     {
         key: 'category',

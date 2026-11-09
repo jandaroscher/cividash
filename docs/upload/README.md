@@ -61,7 +61,9 @@ done
 A row's value belongs to a period:
 
 - `value.period_key` with `value.granularity`: the period in ISO form, for example `2024` (`year`), `2024-Q1` (`quarter`), `2024-05` (`month`), `2024-W05` (`week`) or `2024-05-15` (`day`).
-- `value.year`: the v1 field. It is used only when `value.period_key` is absent and maps to the year period `2024`. Year-only bundles import unchanged.
+- `value.year`: the v1 field. It is used only when `value.period_key` is absent and maps to the year period `2024`. Year-only bundles import unchanged. If both are set, `value.year` must be the leading year of `value.period_key`.
+
+A tile has one granularity, `tile.time_granularity` (default `year`). The import sets it when it creates the tile and rejects a different value for an existing tile. Every value of a tile must have the tile's granularity; the import rejects other rows with `granularity_mismatch`.
 
 ## Round-trip with the JSON export
 
@@ -69,4 +71,6 @@ The JSON export of tenant data conforms to this schema. An exported bundle can b
 
 - The export writes `metric.key`, which groups values into metric definitions on import.
 - The export writes `value.period_key` and `value.granularity` verbatim, plus `value.year` as the leading year of the period. Sub-year periods therefore survive the round-trip.
-- The export writes translatable fields (`tile.title`, `metric.label`, ...) as plain strings in the export `locale`. The import stores a plain string as the translation for the bundle `locale` (default `de`). Export with `locale=de` to create new tiles, because a new tile needs `tile.title.de`.
+- The export writes `tile.time_granularity`, so a quarterly tile is created as a quarterly tile.
+- The JSON export writes `tile.description` and `tile.hint` as the stored HTML. The CSV export writes them as plain text.
+- The export writes translatable fields (`tile.title`, `metric.label`, ...) as plain strings in the export `locale`, and `null` where that locale has no translation. The import stores a plain string as the translation for the bundle `locale` (default `de`). Export with `locale=de` to create new tiles, because a new tile needs `tile.title.de`.

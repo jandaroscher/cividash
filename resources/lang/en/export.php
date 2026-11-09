@@ -11,6 +11,7 @@ return [
             'slug' => 'Tile slug',
             'title' => 'Tile',
             'description' => 'Description',
+            'time_granularity' => 'Time granularity',
             'hint' => 'Hint',
         ],
         'category' => [

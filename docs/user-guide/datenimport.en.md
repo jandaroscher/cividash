@@ -33,7 +33,7 @@ A bundle has an envelope and a `data` array. Each row describes a tile with a me
 }
 ```
 
-Required fields per row: `tile.slug` as a URL-safe tile key (lowercase, hyphens), `tile.title.de` when creating a new tile, and `metric.key`, `metric.label.de` and a period, whenever a value is set. The period is either `value.year` or, for sub-year data, `value.period_key` with `value.granularity` (e.g. `2024-Q1` with `quarter`).
+Required fields per row: `tile.slug` as a URL-safe tile key (lowercase, hyphens), `tile.title.de` when creating a new tile, and `metric.key`, `metric.label.de` and a period, whenever a value is set. The period is either `value.year` or, for sub-year data, `value.period_key` with `value.granularity` (e.g. `2024-Q1` with `quarter`). The granularity must match the tile's `tile.time_granularity`.
 
 Optional structure data at the bundle level: `category_groups` for category groups (e.g. "Action fields") and `categories` for individual categories referencing a `group_key`.
 
