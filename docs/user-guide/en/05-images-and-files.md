@@ -41,6 +41,9 @@ Which file formats and size limits apply depends on the specific field:
 
 Every content image in the **Intro Text** (main and second image), **Text & Image** and **Slider** blocks has three companion fields. They sit in their own frame together with the upload field.
 
+<!-- Screenshot: Text & Image block with an uploaded image and filled image title, alt text and copyright fields -->
+![Image with image title, alt text and copyright](../assets/screenshots/en/05-block-image-alt-text.png)
+
 | Field | Purpose | Effect in the frontend |
 |-------|---------|------------------------|
 | **Image title** | Short title of the image | Shown as a tooltip on mouse hover |
@@ -52,17 +55,19 @@ Every content image in the **Intro Text** (main and second image), **Text & Imag
 - There is no need to type “©”, it is added automatically.
 - All three fields are separate per language, like the rest of the block content.
 
+**Effect on the frontend:** The copyright notice sits as a small overlay with a dark, semi-transparent background in the bottom right corner of the image. If the field is empty, no overlay is shown.
+
+<!-- Screenshot: Frontend, Text & Image block on a tile background page with the copyright notice in the bottom right corner of the image -->
+![Copyright notice in the frontend](../assets/screenshots/en/05-frontend-copyright.png)
+
 > **Note:** Logos, favicon, tile and category icons and social media icons are design elements and have no image metadata of their own.
 
 ## 5.4 Special Formats: Lottie Animations, SVG Icons
 
 The icon field of a tile (see [Chapter 3.2, Create a New Tile](03-managing-tiles.md)) accepts Lottie animations in addition to image formats: `.json` files in Bodymovin/Lottie format, and `.lottie` files (dotLottie container). After saving a tile with such a file, the form shows a **Lottie preview** with the animation playing:
 
-<!-- Screenshot removed (round 3): 05-icon-lottie-upload.png to be recreated -->
-
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: tile icon field with an uploaded Lottie file and the Lottie preview -->
+![Lottie preview in the icon field](../assets/screenshots/en/05-icon-lottie-upload.png)
 
 > **Note:** The Lottie preview does not update live during upload — it only appears after saving the tile and reloading the page. If no Lottie file is detected (file extension is neither `.json` nor `.lottie`), the form shows "No Lottie animation" instead.
 

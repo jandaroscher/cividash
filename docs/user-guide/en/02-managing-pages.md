@@ -68,7 +68,7 @@ An introductory text block with a **heading**, an optional **subheading**, forma
 
 ### 2.4.2 Text-Image Block (Text with Positioned Image)
 
-Combines a **heading**, formattable **text**, and an **image** (with image title, alt text and copyright) with a selectable **image position** (left/right).
+Combines a **heading**, formattable **text**, and an **image** (with image title, alt text and copyright, see [Chapter 5.3](05-images-and-files.md#53-alt-text-and-accessibility)) with a selectable **image position** (left/right).
 
 <!-- Screenshot: Text & Image block with heading, text, image upload, and image position selector -->
 ![Text & Image block](../assets/screenshots/en/02-block-text-image.png)

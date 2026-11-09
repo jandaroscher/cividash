@@ -303,9 +303,8 @@ For bulk import of tiles, categories, category groups, and metrics via JSON bund
 
 The **System** group bundles the installation-wide settings that apply regardless of the currently selected dashboard.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
+<!-- Screenshot: admin sidebar with the System group -->
+![Sidebar with the System group](../assets/screenshots/en/07-sidebar-admin.png)
 
 ### 6.2.1 User Management
 

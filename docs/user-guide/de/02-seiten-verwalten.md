@@ -68,7 +68,7 @@ Einleitender Textblock mit **Überschrift**, optionaler **Unterüberschrift**, f
 
 ### 2.4.2 Text-Bild-Block (Text mit positioniertem Bild)
 
-Kombiniert eine **Überschrift**, formatierbaren **Text** und ein **Bild** (mit Bildtitel, Alt-Text und Copyright) mit wählbarer **Bildposition** (Links/Rechts).
+Kombiniert eine **Überschrift**, formatierbaren **Text** und ein **Bild** (mit Bildtitel, Alt-Text und Copyright, siehe [Kapitel 5.3](05-bilder-und-dateien.md#53-alt-texte-und-barrierefreiheit)) mit wählbarer **Bildposition** (Links/Rechts).
 
 <!-- Screenshot: Text-Bild-Block mit Überschrift, Text, Bild-Upload und Bildposition-Auswahl -->
 ![Text-Bild-Block](../assets/screenshots/de/02-block-text-bild.png)

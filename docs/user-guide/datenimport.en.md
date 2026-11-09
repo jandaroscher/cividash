@@ -44,7 +44,7 @@ Two buttons sit at the top-right of the import page: _Download schema_ gives the
 | Mode | Behaviour |
 |---|---|
 | `upsert` (default) | Create new records, update existing ones. No deletions. |
-| `replace` | _(v1.1, not yet implemented; the server rejects with HTTP 422 `unsupported_mode`)_ Additionally delete records not present in the bundle. |
+| `replace` | _(not yet implemented; the server rejects with HTTP 422 `unsupported_mode`)_ Additionally delete records not present in the bundle. |
 
 ## Running an import
 
@@ -78,6 +78,6 @@ The tenant is always derived from the logged-in session (or the API token). A `t
 
 For automated pipelines, use the `POST /api/v1/admin/import` endpoint with bearer token authentication. Rate limit: 5 runs per minute per tenant. Documentation available at `/docs` (Scribe).
 
-## Limitations in v1.0
+## Limitations
 
-The import supports JSON only, CSV support arrives in v1.1. Assets such as images and favicon are still uploaded in the branding area. Content pages are not included, `docs/upload/README.md` describes the planned scope for pages in a later version.
+The import supports JSON only, no CSV. Assets such as images and favicon are still uploaded in the branding area. Content pages are not included, `docs/upload/README.md` describes the planned scope for pages in a later version.

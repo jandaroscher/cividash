@@ -73,7 +73,7 @@ The following block types are available: **Downloads**, **FAQ**, **Intro Text**,
 
 Every block additionally has a **Jump Mark Label** field: only when filled in does the block appear as a jump mark in the background page's navigation.
 
-Each block type brings the same fields and the same frontend effect as on a page (see [Chapter 2.4, Using Content Blocks](02-managing-pages.md)) — depending on the type, for example a heading, formattable text, images, or file entries. After adding a block, fill in its fields:
+Each block type brings the same fields and the same frontend effect as on a page (see [Chapter 2.4, Using Content Blocks](02-managing-pages.md)) — depending on the type, for example a heading, formattable text, images, or file entries. Every image in the **Intro Text**, **Text & Image** and **Slider** blocks has the **Image title**, **Alt text** and **Copyright** fields here as well (see [Chapter 5.3, Alt Text and Accessibility](05-images-and-files.md#53-alt-text-and-accessibility)). After adding a block, fill in its fields:
 
 <!-- Screenshot: Filled tile background page with one content block (heading, text, content) -->
 ![Filled tile background page](../assets/screenshots/en/03-tile-background-downloads.png)

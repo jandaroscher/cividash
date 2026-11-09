@@ -41,6 +41,9 @@ Welche Dateiformate und Größenbeschränkungen gelten, hängt vom jeweiligen Fe
 
 Jedes Inhaltsbild in den Blöcken **Intro-Text** (Haupt- und zweites Bild), **Text & Bild** und **Slider** hat drei Begleitfelder. Sie stehen zusammen mit dem Upload-Feld in einem eigenen Rahmen.
 
+<!-- Screenshot: Text-&-Bild-Block mit hochgeladenem Bild und ausgefüllten Feldern Bildtitel, Alt-Text und Copyright -->
+![Bild mit Bildtitel, Alt-Text und Copyright](../assets/screenshots/de/05-block-bild-alt-text.png)
+
 | Feld | Zweck | Wirkung im Frontend |
 |------|-------|---------------------|
 | **Bildtitel** | Kurzer Titel des Bildes | Erscheint als Tooltip beim Überfahren mit der Maus |
@@ -52,17 +55,19 @@ Jedes Inhaltsbild in den Blöcken **Intro-Text** (Haupt- und zweites Bild), **Te
 - Das Zeichen „©“ muss nicht eingegeben werden, es wird automatisch ergänzt.
 - Alle drei Felder sind pro Sprache getrennt, wie die übrigen Blockinhalte.
 
+**Wirkung im Frontend:** Der Copyright-Hinweis liegt als kleine Einblendung mit dunklem, halbtransparentem Hintergrund unten rechts auf dem Bild. Ist das Feld leer, erscheint keine Einblendung.
+
+<!-- Screenshot: Frontend, Text-&-Bild-Block auf der Hintergrundseite einer Kachel mit Copyright-Hinweis unten rechts auf dem Bild -->
+![Copyright-Hinweis im Frontend](../assets/screenshots/de/05-frontend-copyright.png)
+
 > **Hinweis:** Logos, Favicon, Kachel- und Kategorie-Icons sowie Social-Media-Icons sind Gestaltungselemente und haben keine eigenen Bild-Metadaten.
 
 ## 5.4 Sonderformate: Lottie-Animationen, SVG-Icons
 
 Das Icon-Feld einer Kachel (siehe [Kapitel 3.2, Neue Kachel anlegen](03-kacheln-verwalten.md)) akzeptiert neben Bildformaten auch Lottie-Animationen: `.json`-Dateien im Bodymovin/Lottie-Format sowie `.lottie`-Dateien (dotLottie-Container). Nach dem Speichern einer Kachel mit einer solchen Datei zeigt das Formular eine **Lottie-Vorschau** mit abspielender Animation:
 
-<!-- Screenshot entfernt (Runde 3): 05-icon-lottie-upload.png wird neu erstellt -->
-
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Icon-Feld einer Kachel mit hochgeladener Lottie-Datei und Lottie-Vorschau -->
+![Lottie-Vorschau im Icon-Feld](../assets/screenshots/de/05-icon-lottie-upload.png)
 
 > **Hinweis:** Die Lottie-Vorschau aktualisiert sich nicht live während des Hochladens — sie erscheint erst nach dem Speichern der Kachel und einem erneuten Laden der Seite. Wird keine Lottie-Datei erkannt (Dateiendung weder `.json` noch `.lottie`), zeigt das Formular stattdessen den Hinweis „Keine Lottie-Animation".
 
