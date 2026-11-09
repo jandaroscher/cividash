@@ -41,6 +41,9 @@ Welche Dateiformate und Größenbeschränkungen gelten, hängt vom jeweiligen Fe
 
 Jedes Inhaltsbild in den Blöcken **Intro-Text** (Haupt- und zweites Bild), **Text & Bild** und **Slider** hat drei Begleitfelder. Sie stehen zusammen mit dem Upload-Feld in einem eigenen Rahmen.
 
+<!-- Screenshot: Text-&-Bild-Block mit hochgeladenem Bild und ausgefüllten Feldern Bildtitel, Alt-Text und Copyright -->
+![Bild mit Bildtitel, Alt-Text und Copyright](../assets/screenshots/de/05-block-bild-alt-text.png)
+
 | Feld | Zweck | Wirkung im Frontend |
 |------|-------|---------------------|
 | **Bildtitel** | Kurzer Titel des Bildes | Erscheint als Tooltip beim Überfahren mit der Maus |
@@ -51,6 +54,11 @@ Jedes Inhaltsbild in den Blöcken **Intro-Text** (Haupt- und zweites Bild), **Te
 - Alt-Text leer lassen, wenn das Bild rein dekorativ ist. Screenreader überspringen es dann.
 - Das Zeichen „©“ muss nicht eingegeben werden, es wird automatisch ergänzt.
 - Alle drei Felder sind pro Sprache getrennt, wie die übrigen Blockinhalte.
+
+**Wirkung im Frontend:** Der Copyright-Hinweis liegt als kleine Einblendung mit dunklem, halbtransparentem Hintergrund unten rechts auf dem Bild. Ist das Feld leer, erscheint keine Einblendung.
+
+<!-- Screenshot: Frontend, Text-&-Bild-Block auf der Hintergrundseite einer Kachel mit Copyright-Hinweis unten rechts auf dem Bild -->
+![Copyright-Hinweis im Frontend](../assets/screenshots/de/05-frontend-copyright.png)
 
 > **Hinweis:** Logos, Favicon, Kachel- und Kategorie-Icons sowie Social-Media-Icons sind Gestaltungselemente und haben keine eigenen Bild-Metadaten.
 

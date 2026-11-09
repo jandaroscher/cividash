@@ -41,6 +41,9 @@ Which file formats and size limits apply depends on the specific field:
 
 Every content image in the **Intro Text** (main and second image), **Text & Image** and **Slider** blocks has three companion fields. They sit in their own frame together with the upload field.
 
+<!-- Screenshot: Text & Image block with an uploaded image and filled image title, alt text and copyright fields -->
+![Image with image title, alt text and copyright](../assets/screenshots/en/05-block-image-alt-text.png)
+
 | Field | Purpose | Effect in the frontend |
 |-------|---------|------------------------|
 | **Image title** | Short title of the image | Shown as a tooltip on mouse hover |
@@ -51,6 +54,11 @@ Every content image in the **Intro Text** (main and second image), **Text & Imag
 - Leave alt text empty if the image is purely decorative. Screen readers then skip it.
 - There is no need to type “©”, it is added automatically.
 - All three fields are separate per language, like the rest of the block content.
+
+**Effect on the frontend:** The copyright notice sits as a small overlay with a dark, semi-transparent background in the bottom right corner of the image. If the field is empty, no overlay is shown.
+
+<!-- Screenshot: Frontend, Text & Image block on a tile background page with the copyright notice in the bottom right corner of the image -->
+![Copyright notice in the frontend](../assets/screenshots/en/05-frontend-copyright.png)
 
 > **Note:** Logos, favicon, tile and category icons and social media icons are design elements and have no image metadata of their own.
 
