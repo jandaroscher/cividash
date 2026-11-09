@@ -22,11 +22,17 @@ class FieldWhitelist
 
     public const CATEGORY_GROUPS = 'category.groups';
 
+    public const METRIC_KEY = 'metric.key';
+
     public const METRIC_LABEL = 'metric.label';
 
     public const METRIC_UNIT = 'metric.unit';
 
     public const VALUE_YEAR = 'value.year';
+
+    public const VALUE_PERIOD_KEY = 'value.period_key';
+
+    public const VALUE_GRANULARITY = 'value.granularity';
 
     public const VALUE_VALUE = 'value.value';
 
@@ -56,9 +62,12 @@ class FieldWhitelist
             self::TILE_HINT,
             self::CATEGORY_LABELS,
             self::CATEGORY_GROUPS,
+            self::METRIC_KEY,
             self::METRIC_LABEL,
             self::METRIC_UNIT,
             self::VALUE_YEAR,
+            self::VALUE_PERIOD_KEY,
+            self::VALUE_GRANULARITY,
             self::VALUE_VALUE,
             self::METRIC_SOURCE,
             self::METRIC_SOURCE_URL,

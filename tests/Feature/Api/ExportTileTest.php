@@ -85,8 +85,10 @@ class ExportTileTest extends TestCase
         $this->assertSame('Mobilität', $body['data'][0]['tile.title']);
         $this->assertSame('CO₂-Emissionen', $body['data'][0]['metric.label']);
         $this->assertSame(2020, $body['data'][0]['value.year']);
+        $this->assertSame('2020', $body['data'][0]['value.period_key']);
+        $this->assertSame('year', $body['data'][0]['value.granularity']);
+        $this->assertSame('co2', $body['data'][0]['metric.key']);
         // Internal config fields are no longer part of the schema.
-        $this->assertArrayNotHasKey('metric.key', $body['data'][0]);
         $this->assertArrayNotHasKey('tile.position', $body['data'][0]);
         $this->assertArrayNotHasKey('value.sort_order', $body['data'][0]);
         $this->assertSame(100.5, $body['data'][0]['value.value']);

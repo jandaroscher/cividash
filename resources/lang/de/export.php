@@ -18,6 +18,7 @@ return [
             'groups' => 'Kategoriegruppen',
         ],
         'metric' => [
+            'key' => 'Metrik-Schlüssel',
             'label' => 'Metrik',
             'unit' => 'Einheit',
             'source' => 'Quelle',
@@ -27,6 +28,8 @@ return [
         ],
         'value' => [
             'year' => 'Jahr',
+            'period_key' => 'Zeitraum',
+            'granularity' => 'Granularität',
             'value' => 'Wert',
         ],
     ],

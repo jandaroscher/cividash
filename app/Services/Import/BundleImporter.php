@@ -6,6 +6,7 @@
 
 namespace App\Services\Import;
 
+use App\Enums\TimeGranularity;
 use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\MetricDefinition;
@@ -18,6 +19,7 @@ use App\Services\Import\Support\ImportError;
 use App\Services\Import\Support\ImportResult;
 use App\Services\Import\Support\ImportWarning;
 use App\Services\Integration\NgsiLdDataMapper;
+use App\Services\TimePeriodService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -56,6 +58,9 @@ class BundleImporter
     private array $tileCache = [];
 
     private AdminRuleExtractor $rules;
+
+    /** Locale that plain-string translatable values (as written by the JSON export) belong to. */
+    private string $locale = 'de';
 
     public function __construct(private readonly Tenant $tenant)
     {
@@ -114,6 +119,7 @@ class BundleImporter
         $this->errors = [];
         $this->warnings = [];
         $this->diff = new ImportDiff;
+        $this->locale = $bundle['locale'] ?? 'de';
 
         $started = microtime(true);
 
@@ -406,26 +412,14 @@ class BundleImporter
             $metricDefsByKey[$metricKey] = $this->upsertMetricDefinition($tile, (string) $metricKey, $entry['row'], $entry['idx']);
         }
 
-        // Upsert time periods (one per unique value.year).
-        //
-        // TileYear was replaced by TimePeriod (granularity + period_key).
-        // The bundle schema keeps `value.year` as the natural key (symmetric with
-        // the JSON export, whose `value.year` is derived from period_key); the
-        // importer maps it to a year-granularity TimePeriod whose period_key is the
-        // 4-digit year string — the same pattern as MetricSeeder and
-        // TileExportCollector::periodYear(). Granular (quarter/month/...) periods
-        // are a planned v1.1 schema extension and are out of scope here.
-        $timePeriodsByYear = [];
+        // Upsert time periods (one per unique period_key).
+        $timePeriodsByKey = [];
         foreach ($entries as $entry) {
-            $year = $entry['row']['value.year'] ?? null;
-            if ($year === null) {
+            $period = $this->periodOf($entry['row'], $entry['idx']);
+            if ($period === null || isset($timePeriodsByKey[$period[1]])) {
                 continue;
             }
-            $year = (int) $year;
-            if (isset($timePeriodsByYear[$year])) {
-                continue;
-            }
-            $timePeriodsByYear[$year] = $this->upsertTimePeriod($tile, $year);
+            $timePeriodsByKey[$period[1]] = $this->upsertTimePeriod($tile, ...$period);
         }
 
         // Upsert metric values.
@@ -434,14 +428,14 @@ class BundleImporter
             $idx = $entry['idx'];
 
             $metricKey = $row['metric.key'] ?? null;
-            $year = $row['value.year'] ?? null;
+            $periodKey = $row['value.period_key'] ?? $row['value.year'] ?? null;
 
-            if ($metricKey === null || $year === null) {
+            if ($metricKey === null || $periodKey === null) {
                 continue;
             }
 
             $md = $metricDefsByKey[$metricKey] ?? null;
-            $tp = $timePeriodsByYear[(int) $year] ?? null;
+            $tp = $timePeriodsByKey[(string) $periodKey] ?? null;
 
             if ($md === null || $tp === null) {
                 continue; // upsert above already recorded errors
@@ -526,7 +520,7 @@ class BundleImporter
             return null;
         }
 
-        $title = $row['tile.title'] ?? null;
+        $title = $this->translatable($row['tile.title'] ?? null);
         if ($existing === null) {
             if (! is_array($title) || empty($title['de'] ?? null)) {
                 $this->errors[] = new ImportError(
@@ -546,8 +540,8 @@ class BundleImporter
         // read undocumented input keys like `tile.slug_en` here.
         $attributes = array_filter([
             'title' => $title,
-            'description' => $row['tile.description'] ?? null,
-            'hint' => $row['tile.hint'] ?? null,
+            'description' => $this->translatable($row['tile.description'] ?? null),
+            'hint' => $this->translatable($row['tile.hint'] ?? null),
             'position' => $row['tile.position'] ?? null,
             'slug' => ['de' => $slug],
         ], fn ($v) => $v !== null);
@@ -623,7 +617,7 @@ class BundleImporter
             ->where('metric_key', $metricKey)
             ->first();
 
-        $label = $row['metric.label'] ?? null;
+        $label = $this->translatable($row['metric.label'] ?? null);
         if ($existing === null) {
             if (! is_array($label) || empty($label['de'] ?? null)) {
                 $this->errors[] = new ImportError(
@@ -639,7 +633,7 @@ class BundleImporter
 
         $attributes = array_filter([
             'label' => $label,
-            'unit' => $row['metric.unit'] ?? null,
+            'unit' => $this->translatable($row['metric.unit'] ?? null),
             'indicator_type' => $row['metric.indicator_type'] ?? null,
         ], fn ($v) => $v !== null);
 
@@ -676,39 +670,51 @@ class BundleImporter
     }
 
     /**
-     * Resolve or create the year-granularity TimePeriod for a tile.
+     * The (granularity, period_key) a row's value belongs to, or null if the
+     * row carries no period. `value.period_key` + `value.granularity` take
+     * precedence; the v1 `value.year` maps to a year-granularity period whose
+     * period_key is the 4-digit year.
      *
-     * The bundle's natural key for a value is the calendar year (`value.year`);
-     * it maps to a TimePeriod with granularity='year' and period_key set to the
-     * 4-digit year string — the canonical mapping used by MetricSeeder and
-     * TileExportCollector::periodYear(). Sub-year granularities are reserved for
-     * the planned v1.1 schema extension.
+     * @return array{0: TimeGranularity, 1: string}|null
      */
-    private function upsertTimePeriod(Tile $tile, int $year): TimePeriod
+    private function periodOf(array $row, int $idx): ?array
     {
-        $periodKey = (string) $year;
+        $periodKey = $row['value.period_key'] ?? null;
+        if ($periodKey === null) {
+            $year = $row['value.year'] ?? null;
 
-        $existing = TimePeriod::where('tenant_id', $this->tenant->id)
-            ->where('tile_id', $tile->id)
-            ->where('period_key', $periodKey)
-            ->first();
-
-        if ($existing === null) {
-            $existing = TimePeriod::make([
-                'tile_id' => $tile->id,
-                'granularity' => 'year',
-                'period_key' => $periodKey,
-                'label' => $periodKey,
-                'sort' => 0,
-            ]);
-            $existing->tenant()->associate($this->tenant);
-            $existing->save();
-            $this->diff->record('time_periods', 'create');
-        } else {
-            $this->diff->record('time_periods', 'unchanged');
+            return $year === null ? null : [TimeGranularity::Year, (string) (int) $year];
         }
 
-        return $existing;
+        $granularity = TimeGranularity::tryFrom($row['value.granularity'] ?? 'year');
+        if ($granularity === null || ! $granularity->isValidPeriodKey((string) $periodKey)) {
+            $this->errors[] = new ImportError(
+                path: "data[$idx].value.period_key",
+                code: 'invalid_format',
+                message: "value.period_key '{$periodKey}' is not a valid period for granularity '".($row['value.granularity'] ?? 'year')."'.",
+                row: $idx,
+            );
+
+            return null;
+        }
+
+        return [$granularity, (string) $periodKey];
+    }
+
+    private function upsertTimePeriod(Tile $tile, TimeGranularity $granularity, string $periodKey): TimePeriod
+    {
+        $timePeriod = app(TimePeriodService::class)->resolveOrCreate($periodKey, $tile, $granularity);
+        $this->diff->record('time_periods', $timePeriod->wasRecentlyCreated ? 'create' : 'unchanged');
+
+        return $timePeriod;
+    }
+
+    /**
+     * Plain strings (as written by the JSON/CSV export) belong to the bundle locale.
+     */
+    private function translatable(mixed $value): mixed
+    {
+        return is_string($value) ? [$this->locale => $value] : $value;
     }
 
     private function resolveGroup(string $key): ?CategoryGroup

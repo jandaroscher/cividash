@@ -33,7 +33,7 @@ Ein Bundle hat einen Envelope und eine `data`-Liste. Jede Zeile beschreibt eine 
 }
 ```
 
-Pflichtfelder pro Zeile: `tile.slug` als URL-sicherer Schlüssel der Kachel (Kleinbuchstaben, Bindestriche), `tile.title.de` beim Anlegen einer neuen Kachel, und `value.year` mit `metric.key` und `metric.label.de`, sobald ein Wert gesetzt wird.
+Pflichtfelder pro Zeile: `tile.slug` als URL-sicherer Schlüssel der Kachel (Kleinbuchstaben, Bindestriche), `tile.title.de` beim Anlegen einer neuen Kachel, und `metric.key`, `metric.label.de` sowie ein Zeitraum, sobald ein Wert gesetzt wird. Der Zeitraum ist entweder `value.year` oder, für unterjährige Daten, `value.period_key` mit `value.granularity` (z. B. `2024-Q1` mit `quarter`).
 
 Optionale Strukturdaten auf Bundle-Ebene: `category_groups` für Kategorie-Gruppen (z. B. „Handlungsfelder") und `categories` für einzelne Kategorien mit Referenz auf `group_key`.
 

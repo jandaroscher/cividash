@@ -115,10 +115,13 @@ class TileExportCollector
             FieldWhitelist::CATEGORY_LABELS => $this->categoryLabels($tile, $locale),
             FieldWhitelist::CATEGORY_GROUPS => $this->categoryGroupTitles($tile, $locale),
 
+            FieldWhitelist::METRIC_KEY => $md?->metric_key,
             FieldWhitelist::METRIC_LABEL => $md ? $this->translate($md, 'label', $locale) : null,
             FieldWhitelist::METRIC_UNIT => $md ? $this->translate($md, 'unit', $locale) : null,
 
             FieldWhitelist::VALUE_YEAR => $this->periodYear($mv),
+            FieldWhitelist::VALUE_PERIOD_KEY => $mv?->timePeriod?->period_key,
+            FieldWhitelist::VALUE_GRANULARITY => $mv?->timePeriod?->granularity?->value,
             FieldWhitelist::VALUE_VALUE => $mv !== null ? (float) $mv->value : null,
 
             // Reserved — see FieldWhitelist constants for rationale.
@@ -196,7 +199,8 @@ class TileExportCollector
      * TileYear was replaced by TimePeriod (granularity + period_key).
      * For every granularity the period_key is prefixed with the 4-digit year
      * (e.g. "2023", "2023-Q1", "2023-05"), so the leading digits give the year
-     * that the export's `value.year` field still expects.
+     * for the export's `value.year` field; `value.period_key` and
+     * `value.granularity` carry the period itself.
      */
     private function periodYear(?MetricValue $mv): ?int
     {

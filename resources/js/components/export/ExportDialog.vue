@@ -278,6 +278,7 @@ const fieldGroups = [
     {
         key: 'metric',
         fields: [
+            'metric.key',
             'metric.label',
             'metric.unit',
             'metric.source',
@@ -288,7 +289,7 @@ const fieldGroups = [
     },
     {
         key: 'value',
-        fields: ['value.year', 'value.value'],
+        fields: ['value.year', 'value.period_key', 'value.granularity', 'value.value'],
     },
 ];
 

@@ -56,6 +56,17 @@ done
 
 (Note: `invalid-unresolved-references.json` is _schema-valid_; the error only occurs during business validation, because the category reference is resolved at runtime.)
 
+## Periods
+
+A row's value belongs to a period:
+
+- `value.period_key` with `value.granularity`: the period in ISO form, for example `2024` (`year`), `2024-Q1` (`quarter`), `2024-05` (`month`), `2024-W05` (`week`) or `2024-05-15` (`day`).
+- `value.year`: the v1 field. It is used only when `value.period_key` is absent and maps to the year period `2024`. Year-only bundles import unchanged.
+
 ## Round-trip with the JSON export
 
 The JSON export of tenant data conforms to this schema. An exported bundle can be re-imported into another tenant unchanged as an upload.
+
+- The export writes `metric.key`, which groups values into metric definitions on import.
+- The export writes `value.period_key` and `value.granularity` verbatim, plus `value.year` as the leading year of the period. Sub-year periods therefore survive the round-trip.
+- The export writes translatable fields (`tile.title`, `metric.label`, ...) as plain strings in the export `locale`. The import stores a plain string as the translation for the bundle `locale` (default `de`). Export with `locale=de` to create new tiles, because a new tile needs `tile.title.de`.

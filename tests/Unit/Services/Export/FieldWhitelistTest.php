@@ -52,9 +52,9 @@ class FieldWhitelistTest extends TestCase
 
     public function test_all_returns_canonical_field_set_in_order(): void
     {
-        // 5 internal config/sort/linking fields were dropped from the
-        // exported schema (tile.position, category.keys, metric.key,
-        // metric.indicator_type, value.sort_order).
+        // Internal config/sort/linking fields are not exported (tile.position,
+        // category.keys, metric.indicator_type, value.sort_order); metric.key
+        // is, because the importer groups values by it.
         $this->assertSame([
             'tile.id',
             'tile.slug',
@@ -63,9 +63,12 @@ class FieldWhitelistTest extends TestCase
             'tile.hint',
             'category.labels',
             'category.groups',
+            'metric.key',
             'metric.label',
             'metric.unit',
             'value.year',
+            'value.period_key',
+            'value.granularity',
             'value.value',
             'metric.source',
             'metric.source_url',
@@ -78,7 +81,7 @@ class FieldWhitelistTest extends TestCase
     {
         $all = FieldWhitelist::all();
 
-        foreach (['tile.position', 'category.keys', 'metric.key', 'metric.indicator_type', 'value.sort_order'] as $dropped) {
+        foreach (['tile.position', 'category.keys', 'metric.indicator_type', 'value.sort_order'] as $dropped) {
             $this->assertNotContains($dropped, $all);
         }
     }
