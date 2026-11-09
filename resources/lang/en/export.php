@@ -11,6 +11,7 @@ return [
             'slug' => 'Tile slug',
             'title' => 'Tile',
             'description' => 'Description',
+            'time_granularity' => 'Time granularity',
             'hint' => 'Hint',
         ],
         'category' => [
@@ -18,6 +19,7 @@ return [
             'groups' => 'Category groups',
         ],
         'metric' => [
+            'key' => 'Metric key',
             'label' => 'Metric',
             'unit' => 'Unit',
             'source' => 'Source',
@@ -27,6 +29,8 @@ return [
         ],
         'value' => [
             'year' => 'Year',
+            'period_key' => 'Period',
+            'granularity' => 'Granularity',
             'value' => 'Value',
         ],
     ],

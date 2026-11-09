@@ -11,6 +11,7 @@ return [
             'slug' => 'Kachel-Slug',
             'title' => 'Kachel',
             'description' => 'Beschreibung',
+            'time_granularity' => 'Zeitliche Auflösung',
             'hint' => 'Hinweis',
         ],
         'category' => [
@@ -18,6 +19,7 @@ return [
             'groups' => 'Kategoriegruppen',
         ],
         'metric' => [
+            'key' => 'Metrik-Schlüssel',
             'label' => 'Metrik',
             'unit' => 'Einheit',
             'source' => 'Quelle',
@@ -27,6 +29,8 @@ return [
         ],
         'value' => [
             'year' => 'Jahr',
+            'period_key' => 'Zeitraum',
+            'granularity' => 'Granularität',
             'value' => 'Wert',
         ],
     ],

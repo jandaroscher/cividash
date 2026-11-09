@@ -85,8 +85,10 @@ class ExportTileTest extends TestCase
         $this->assertSame('Mobilität', $body['data'][0]['tile.title']);
         $this->assertSame('CO₂-Emissionen', $body['data'][0]['metric.label']);
         $this->assertSame(2020, $body['data'][0]['value.year']);
+        $this->assertSame('2020', $body['data'][0]['value.period_key']);
+        $this->assertSame('year', $body['data'][0]['value.granularity']);
+        $this->assertSame('co2', $body['data'][0]['metric.key']);
         // Internal config fields are no longer part of the schema.
-        $this->assertArrayNotHasKey('metric.key', $body['data'][0]);
         $this->assertArrayNotHasKey('tile.position', $body['data'][0]);
         $this->assertArrayNotHasKey('value.sort_order', $body['data'][0]);
         $this->assertSame(100.5, $body['data'][0]['value.value']);
@@ -109,6 +111,26 @@ class ExportTileTest extends TestCase
         $this->assertStringContainsString('Kachel-ID;Kachel-Slug;Kachel', $lines[0]);
         $this->assertStringContainsString('Mobilität', $body);
         $this->assertStringContainsString('CO₂-Emissionen', $body);
+    }
+
+    public function test_json_export_keeps_rich_text_html_and_csv_export_flattens_it(): void
+    {
+        $json = json_decode($this->getJson('/api/v1/tiles/mobilitaet/export?format=json&locale=de')->streamedContent(), true);
+        $this->assertSame('<p>Verkehr und Infrastruktur</p>', $json['data'][0]['tile.description']);
+
+        $csv = $this->get('/api/v1/tiles/mobilitaet/export?format=csv&locale=de')->streamedContent();
+        $this->assertStringContainsString('Verkehr und Infrastruktur', $csv);
+        $this->assertStringNotContainsString('<p>', $csv);
+    }
+
+    public function test_missing_translation_in_requested_locale_is_exported_as_null(): void
+    {
+        $this->tile->metricDefinitions()->first()->forgetTranslation('label', 'en')->save();
+
+        $body = json_decode($this->getJson('/api/v1/tiles/mobilitaet/export?format=json&locale=en')->streamedContent(), true);
+
+        $this->assertSame('Mobility', $body['data'][0]['tile.title']);
+        $this->assertNull($body['data'][0]['metric.label']);
     }
 
     public function test_unknown_slug_returns_404(): void

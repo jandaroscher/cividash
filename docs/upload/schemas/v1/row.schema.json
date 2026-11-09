@@ -27,6 +27,11 @@
     "tile.hint": {
       "$ref": "#/definitions/translatable_rich_text"
     },
+    "tile.time_granularity": {
+      "type": ["string", "null"],
+      "enum": ["year", "quarter", "month", "week", "day", null],
+      "description": "Granularity of the tile's periods. Set when the tile is created (default `year`); must match an existing tile's granularity. Every value.granularity of the tile must equal it."
+    },
     "tile.position": {
       "type": ["integer", "null"],
       "minimum": 0
@@ -53,7 +58,7 @@
     "metric.key": {
       "type": ["string", "null"],
       "maxLength": 255,
-      "description": "Required if any value.* fields are set. Unique per tile."
+      "description": "Required if value.value is set. Unique per tile; groups rows into one metric definition."
     },
     "metric.label": {
       "oneOf": [
@@ -93,7 +98,17 @@
       "type": ["integer", "null"],
       "minimum": 1900,
       "maximum": 2100,
-      "description": "Calendar year; the natural key of a value, symmetric with the JSON export. Required if value.value is set. v1 is year-only: it maps internally to a year-granularity TimePeriod (period_key = the 4-digit year). Sub-year granularities (quarter/month/week/day) are a planned v1.1 extension and are not accepted in v1."
+      "description": "Calendar year (v1 period). Maps to a year-granularity TimePeriod (period_key = the 4-digit year). Used only when value.period_key is absent; the export always writes it as the leading year of the period."
+    },
+    "value.period_key": {
+      "type": ["string", "null"],
+      "pattern": "^\\d{4}(-(Q[1-4]|W\\d{2}|\\d{2}(-\\d{2})?))?$",
+      "description": "Period of the value in ISO form, as written by the export: `2023`, `2023-Q1`, `2023-05`, `2023-W05` or `2023-05-15`. Takes precedence over value.year; if both are set, value.year must be its leading year. Must match value.granularity."
+    },
+    "value.granularity": {
+      "type": ["string", "null"],
+      "enum": ["year", "quarter", "month", "week", "day", null],
+      "description": "Granularity of value.period_key. Defaults to `year`. Requires value.period_key, and must equal the tile's time_granularity."
     },
     "value.value": {
       "type": ["number", "null"]
@@ -104,23 +119,28 @@
   },
   "allOf": [
     {
-      "description": "If value.value is provided, value.year and metric.key are required.",
+      "description": "If value.value is provided, metric.key and a period (value.period_key or value.year) are required.",
       "if": {
         "properties": { "value.value": { "type": "number" } },
         "required": ["value.value"]
       },
       "then": {
-        "required": ["value.year", "metric.key"],
+        "required": ["metric.key"],
         "properties": {
-          "value.year": { "type": "integer" },
           "metric.key": { "type": "string", "minLength": 1 }
-        }
+        },
+        "anyOf": [
+          { "required": ["value.year"], "properties": { "value.year": { "type": "integer" } } },
+          { "required": ["value.period_key"], "properties": { "value.period_key": { "type": "string" } } }
+        ]
       }
     }
   ],
   "definitions": {
     "translatable_string": {
-      "type": "object",
+      "type": ["object", "string"],
+      "description": "A {de, en} object, or a plain string as written by the export, stored as the translation for bundle.locale (default `de`).",
+      "maxLength": 255,
       "additionalProperties": false,
       "minProperties": 1,
       "properties": {
@@ -142,7 +162,7 @@
         { "type": "null" },
         {
           "type": "string",
-          "description": "Accepted as plain text (e.g. from CSV round-trip). Will be wrapped into {de: value} during import based on bundle.locale."
+          "description": "HTML as written by the JSON export, stored as given (like the admin editor and API) as the translation for bundle.locale (default `de`)."
         }
       ]
     }

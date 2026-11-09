@@ -27,7 +27,7 @@
     "locale": {
       "type": "string",
       "enum": ["de", "en"],
-      "description": "Informational only; translatable fields are provided as {de, en} objects in rows."
+      "description": "Locale of plain-string translatable fields in rows (as written by the export): such a string is stored as the translation for this locale. {de, en} objects are stored as given. Default `de`."
     },
     "mode": {
       "type": "string",
