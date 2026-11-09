@@ -496,6 +496,8 @@ class TileResource extends Resource
                 Tables\Columns\ViewColumn::make('icon')
                     ->label(__('filament.resources.tile.icon'))
                     ->view('filament.tables.columns.icon-column')
+                    // An icon-only cell would be a record link without a name.
+                    ->disabledClick()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('position')
                     ->label(__('filament.resources.tile.position'))

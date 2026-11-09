@@ -65,6 +65,7 @@ path = [
   "config/filament.php",
   "resources/views/vendor/filament-panels/**",
   "resources/views/vendor/filament/**",
+  "resources/views/vendor/filament-tables/**",
   "resources/lang/*/global-search.php",
   "resources/lang/*/layout.php",
   "resources/lang/*/unsaved-changes-alert.php",

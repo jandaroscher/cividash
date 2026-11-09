@@ -53,7 +53,9 @@ class AdminPanelProvider extends PanelProvider
     public function boot(): void
     {
         FilamentAsset::register([
-            Css::make('admin-overrides', asset('css/filament/admin-overrides.css')),
+            // A local file, published by filament:assets. Its URL is built per request,
+            // after TrustProxies, so it keeps https behind a TLS-terminating proxy.
+            Css::make('admin-overrides', resource_path('css/filament/admin-overrides.css')),
         ]);
 
         // Use outline icons consistently across all Filament components
@@ -123,10 +125,10 @@ class AdminPanelProvider extends PanelProvider
             // Avoid calling a third-party avatar service from the browser (DSB requirement)
             ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->brandName(fn (): string => __('filament.brand_name'))
-            ->brandLogo(asset('images/branding/cividash-logo.svg'))
-            ->darkModeBrandLogo(asset('images/branding/cividash-logo-dark.svg'))
+            ->brandLogo(fn (): string => asset('images/branding/cividash-logo.svg'))
+            ->darkModeBrandLogo(fn (): string => asset('images/branding/cividash-logo-dark.svg'))
             ->brandLogoHeight('2rem')
-            ->favicon(asset('images/branding/cividash-favicon.png'))
+            ->favicon(fn (): string => asset('images/branding/cividash-favicon.png'))
             ->navigationGroups([
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.content')),
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.data')),

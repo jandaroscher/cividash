@@ -90,10 +90,9 @@ describe('NotFound', () => {
         mockRoute.path = '/';
     });
 
-    it('has the main landmark with correct role', () => {
+    it('renders no own main landmark, App.vue provides it', () => {
         const wrapper = createWrapper();
-        const main = wrapper.find('main');
-        expect(main.exists()).toBe(true);
-        expect(main.attributes('role')).toBe('main');
+        expect(wrapper.find('main').exists()).toBe(false);
+        expect(wrapper.find('section').attributes('aria-labelledby')).toBe('not-found-title');
     });
 });
