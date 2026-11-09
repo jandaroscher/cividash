@@ -303,9 +303,8 @@ Für den Bulk-Import von Kacheln, Kategorien, Kategorie-Gruppen und Kennzahlen p
 
 Die Gruppe **System** bündelt die installationsweiten Einstellungen, die unabhängig vom gerade gewählten Dashboard gelten.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot wird noch ergänzt.**</span>
+<!-- Screenshot: Seitenleiste eines Admin-Accounts mit der Gruppe System -->
+![Seitenleiste mit der Gruppe System](../assets/screenshots/de/07-seitenleiste-admin.png)
 
 ### 6.2.1 Benutzerverwaltung
 

@@ -44,7 +44,7 @@ Auf der Import-Seite oben rechts liegen zwei Buttons zum Herunterladen: _Schema 
 | Modus | Verhalten |
 |---|---|
 | `upsert` (Standard) | Neue Datensätze werden angelegt, bestehende aktualisiert. Keine Löschungen. |
-| `replace` | _(v1.1, noch nicht implementiert; der Server lehnt mit HTTP 422 `unsupported_mode` ab)_ Zusätzlich werden Datensätze gelöscht, die nicht im Bundle stehen. |
+| `replace` | _(noch nicht implementiert; der Server lehnt mit HTTP 422 `unsupported_mode` ab)_ Zusätzlich werden Datensätze gelöscht, die nicht im Bundle stehen. |
 
 ## Import durchführen
 
@@ -78,6 +78,6 @@ Der Tenant wird immer aus der eingeloggten Session (oder dem API-Token) abgeleit
 
 Für automatisierte Pipelines gibt es den Endpoint `POST /api/v1/admin/import` mit Bearer-Token-Authentifizierung. Rate-Limit: 5 Läufe pro Minute und Tenant. Dokumentation unter `/docs` (Scribe).
 
-## Begrenzungen v1.0
+## Begrenzungen
 
-Der Import unterstützt nur JSON, CSV-Support folgt in v1.1. Assets wie Bilder und Favicon werden weiterhin im Branding-Bereich hochgeladen. Content-Pages sind nicht enthalten, `docs/upload/README.md` beschreibt den geplanten Scope für Pages in einer späteren Version.
+Der Import unterstützt nur JSON, kein CSV. Assets wie Bilder und Favicon werden weiterhin im Branding-Bereich hochgeladen. Content-Pages sind nicht enthalten, `docs/upload/README.md` beschreibt den geplanten Scope für Pages in einer späteren Version.

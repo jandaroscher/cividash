@@ -64,14 +64,11 @@ Every content image in the **Intro Text** (main and second image), **Text & Imag
 
 ## 5.4 Special Formats: Lottie Animations, SVG Icons
 
-The icon field of a tile (see [Chapter 3.2, Create a New Tile](03-managing-tiles.md)) accepts Lottie animations in addition to image formats: `.json` files in Bodymovin/Lottie format, and `.lottie` files (dotLottie container). After saving a tile with such a file, the form shows a **Lottie preview** with the animation playing:
+The icon field of a tile (see [Chapter 3.2, Create a New Tile](03-managing-tiles.md)) accepts Lottie animations in addition to image formats: `.json` files in Bodymovin/Lottie format, and `.lottie` files (dotLottie container). After uploading such a file, the form shows a **Lottie preview** with the animation playing:
 
-<!-- Screenshot removed (round 3): 05-icon-lottie-upload.png to be recreated -->
+<!-- Screenshot: tile icon field with an uploaded Lottie file and the Lottie preview -->
+![Lottie preview in the icon field](../assets/screenshots/en/05-icon-lottie-upload.png)
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Screenshot to be added.**</span>
-
-> **Note:** The Lottie preview does not update live during upload — it only appears after saving the tile and reloading the page. If no Lottie file is detected (file extension is neither `.json` nor `.lottie`), the form shows "No Lottie animation" instead.
+> **Note:** If no Lottie file is detected (file extension is neither `.json` nor `.lottie`), the form shows "No Lottie animation" instead.
 
 SVG icons can also be uploaded for categories (see [Chapter 4.2, Create and Edit Categories](04-categories.md)) — there, SVG is one of several allowed formats for the category icon, alongside PNG, JPEG, GIF, and WebP.
