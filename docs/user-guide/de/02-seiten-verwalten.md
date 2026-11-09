@@ -59,7 +59,7 @@ Folgende Blocktypen stehen zur Verfügung: **Kacheln**, **Downloads**, **FAQ**, 
 
 ### 2.4.1 Intro-Text (Überschrift, Text, Bild)
 
-Einleitender Textblock mit **Überschrift**, optionaler **Unterüberschrift**, formatierbarem **Text** (Fett, Kursiv, Listen, Links) sowie einem **Bild** und optional einem **zweiten Bild** — jeweils mit eigenem Alt-Text für die Barrierefreiheit.
+Einleitender Textblock mit **Überschrift**, optionaler **Unterüberschrift**, formatierbarem **Text** (Fett, Kursiv, Listen, Links) sowie einem **Bild** und optional einem **zweiten Bild** — jeweils mit eigenem Bildtitel, Alt-Text und Copyright (siehe [Kapitel 5.3, Alt-Texte und Barrierefreiheit](05-bilder-und-dateien.md#53-alt-texte-und-barrierefreiheit)).
 
 <!-- Screenshot: Intro-Text-Block vollständig ausgefüllt mit Überschrift, Text und Bildfeldern -->
 ![Intro-Text-Block](../assets/screenshots/de/02-block-intro-text.png)
@@ -68,7 +68,7 @@ Einleitender Textblock mit **Überschrift**, optionaler **Unterüberschrift**, f
 
 ### 2.4.2 Text-Bild-Block (Text mit positioniertem Bild)
 
-Kombiniert eine **Überschrift**, formatierbaren **Text** und ein **Bild** mit wählbarer **Bildposition** (Links/Rechts).
+Kombiniert eine **Überschrift**, formatierbaren **Text** und ein **Bild** (mit Bildtitel, Alt-Text und Copyright) mit wählbarer **Bildposition** (Links/Rechts).
 
 <!-- Screenshot: Text-Bild-Block mit Überschrift, Text, Bild-Upload und Bildposition-Auswahl -->
 ![Text-Bild-Block](../assets/screenshots/de/02-block-text-bild.png)
@@ -77,7 +77,7 @@ Kombiniert eine **Überschrift**, formatierbaren **Text** und ein **Bild** mit w
 
 ### 2.4.3 Slider (Bildkarussell mit Links)
 
-Ein Slider besteht aus einer optionalen **Überschrift** und beliebig vielen **Slider-Elementen**. Jedes Element hat **Titel**, **Beschreibung**, **Bild**, **Link URL** und **Link Text**.
+Ein Slider besteht aus einer optionalen **Überschrift** und beliebig vielen **Slider-Elementen**. Jedes Element hat **Titel**, **Beschreibung**, **Bild** (mit Bildtitel, Alt-Text und Copyright, siehe [Kapitel 5.3](05-bilder-und-dateien.md#53-alt-texte-und-barrierefreiheit)), **Link URL** und **Link Text**.
 
 <!-- Screenshot: Slider-Block mit einem ausgefüllten Slider-Element (Titel, Beschreibung, Link) -->
 ![Slider-Block](../assets/screenshots/de/02-block-slider.png)

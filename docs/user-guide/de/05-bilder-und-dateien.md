@@ -39,11 +39,20 @@ Welche Dateiformate und Größenbeschränkungen gelten, hängt vom jeweiligen Fe
 
 ## 5.3 Alt-Texte und Barrierefreiheit
 
-<!-- WIP: Dieser Abschnitt ist bewusst als Platzhalter angelegt. Die Dokumentation zu Alt-Texten und Barrierefreiheit wird überarbeitet und später ergänzt. -->
+Jedes Inhaltsbild in den Blöcken **Intro-Text** (Haupt- und zweites Bild), **Text & Bild** und **Slider** hat drei Begleitfelder. Sie stehen zusammen mit dem Upload-Feld in einem eigenen Rahmen.
 
-> ### <span style="color:#d32f2f">⚠️ WIP — Work in progress</span>
->
-> <span style="color:#d32f2f">**Dieser Abschnitt wird derzeit überarbeitet.**</span> Die Beschreibung von Alt-Texten und Barrierefreiheit ist noch nicht final und wird in einer späteren Version des Handbuchs ergänzt.
+| Feld | Zweck | Wirkung im Frontend |
+|------|-------|---------------------|
+| **Bildtitel** | Kurzer Titel des Bildes | Erscheint als Tooltip beim Überfahren mit der Maus |
+| **Alt-Text** | Beschreibung des Bildinhalts für Screenreader und Suchmaschinen | Nicht sichtbar, wird von Screenreadern vorgelesen |
+| **Copyright** | Urheber oder Rechteinhaber, z. B. „Max Muster / Musterstadt“ | Erscheint als kleiner Hinweis unten rechts auf dem Bild, mit vorangestelltem „©“ |
+
+- Alt-Text knapp halten und beschreiben, was auf dem Bild zu sehen ist, nicht „Bild von …“.
+- Alt-Text leer lassen, wenn das Bild rein dekorativ ist. Screenreader überspringen es dann.
+- Das Zeichen „©“ muss nicht eingegeben werden, es wird automatisch ergänzt.
+- Alle drei Felder sind pro Sprache getrennt, wie die übrigen Blockinhalte.
+
+> **Hinweis:** Logos, Favicon, Kachel- und Kategorie-Icons sowie Social-Media-Icons sind Gestaltungselemente und haben keine eigenen Bild-Metadaten.
 
 ## 5.4 Sonderformate: Lottie-Animationen, SVG-Icons
 

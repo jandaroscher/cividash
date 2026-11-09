@@ -22,13 +22,14 @@ SPDX-License-Identifier: EUPL-1.2+
           {{ block.props.subheading }}
         </h2>
                 
-        <img 
+        <BlockImage
           v-if="imageUrl"
-          :alt="block.props.image_alt || ''" 
-          class="lg:hidden mb-6 block" 
-          :src="imageUrl" 
-          loading="lazy"
-        >
+          class="lg:hidden mb-6 w-fit"
+          :src="imageUrl"
+          :alt="block.props.image_alt"
+          :title="block.props.image_title"
+          :copyright="block.props.image_copyright"
+        />
 
         <div
           v-if="block.props.text"
@@ -38,20 +39,22 @@ SPDX-License-Identifier: EUPL-1.2+
       </div>
             
       <div class="col-span-1">
-        <img 
+        <BlockImage
           v-if="imageUrl"
-          :alt="block.props.image_alt || ''" 
-          class="hidden lg:block mb-10" 
-          :src="imageUrl" 
-          loading="lazy"
-        >
-        <img 
+          class="hidden lg:block mb-10 w-fit"
+          :src="imageUrl"
+          :alt="block.props.image_alt"
+          :title="block.props.image_title"
+          :copyright="block.props.image_copyright"
+        />
+        <BlockImage
           v-if="imageSecondaryUrl"
-          :alt="block.props.image_secondary_alt || ''" 
-          class="hidden lg:block" 
-          :src="imageSecondaryUrl" 
-          loading="lazy"
-        >
+          class="hidden lg:block w-fit"
+          :src="imageSecondaryUrl"
+          :alt="block.props.image_secondary_alt"
+          :title="block.props.image_secondary_title"
+          :copyright="block.props.image_secondary_copyright"
+        />
       </div>
     </div>
   </div>
@@ -61,6 +64,7 @@ SPDX-License-Identifier: EUPL-1.2+
 import { computed, toRef } from 'vue';
 import { sanitizeHtml } from '../../utils/sanitizeHtml';
 import { useImageUrl } from '../../composables/useImageUrl';
+import BlockImage from '../BlockImage.vue';
 
 const props = defineProps({
     block: {

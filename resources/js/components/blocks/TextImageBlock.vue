@@ -18,12 +18,13 @@ SPDX-License-Identifier: EUPL-1.2+
           v-if="isImageLeft && imageUrl"
           class="order-1"
         >
-          <img
+          <BlockImage
             :src="imageUrl"
-            :alt="altText"
-            loading="lazy"
-            class="w-full h-auto"
-          >
+            :alt="block.props.image_alt"
+            :title="block.props.image_title"
+            :copyright="block.props.image_copyright"
+            img-class="w-full h-auto"
+          />
         </div>
         <div :class="['order-2', isImageLeft ? '' : 'md:order-1']">
           <div
@@ -36,12 +37,13 @@ SPDX-License-Identifier: EUPL-1.2+
           v-if="!isImageLeft && imageUrl"
           class="order-1 md:order-2"
         >
-          <img
+          <BlockImage
             :src="imageUrl"
-            :alt="altText"
-            loading="lazy"
-            class="w-full h-auto"
-          >
+            :alt="block.props.image_alt"
+            :title="block.props.image_title"
+            :copyright="block.props.image_copyright"
+            img-class="w-full h-auto"
+          />
         </div>
       </div>
     </div>
@@ -51,6 +53,7 @@ SPDX-License-Identifier: EUPL-1.2+
 <script setup>
 import { computed } from 'vue';
 import { sanitizeHtml } from '../../utils/sanitizeHtml';
+import BlockImage from '../BlockImage.vue';
 
 const props = defineProps({
     block: {
@@ -79,9 +82,5 @@ const isImageLeft = computed(() => {
 
 const sanitizedText = computed(() => {
     return props.block.props.text ? sanitizeHtml(props.block.props.text) : '';
-});
-
-const altText = computed(() => {
-    return props.block.props.image_alt || 'Image';
 });
 </script>
