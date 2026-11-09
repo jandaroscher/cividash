@@ -61,7 +61,7 @@ done
 A row's value belongs to a period:
 
 - `value.period_key` with `value.granularity`: the period in ISO form, for example `2024` (`year`), `2024-Q1` (`quarter`), `2024-05` (`month`), `2024-W05` (`week`) or `2024-05-15` (`day`).
-- `value.year`: the v1 field. It is used only when `value.period_key` is absent and maps to the year period `2024`. Year-only bundles import unchanged. If both are set, `value.year` must be the leading year of `value.period_key`.
+- `value.year`: the v1 field. It is used only when `value.period_key` is absent and maps to the year period `2024`. Year-only bundles import unchanged into yearly tiles; a row for a tile with another `time_granularity` (quarter, month, …) is rejected with `granularity_mismatch` instead of creating a year period on it. If both are set, `value.year` must be the leading year of `value.period_key`.
 
 A tile has one granularity, `tile.time_granularity` (default `year`). The import sets it when it creates the tile and rejects a different value for an existing tile. Every value of a tile must have the tile's granularity; the import rejects other rows with `granularity_mismatch`.
 
