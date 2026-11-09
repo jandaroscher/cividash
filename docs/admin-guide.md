@@ -24,7 +24,8 @@ read [deployment/security-headers.md](deployment/security-headers.md); for times
 
 ## Initial data
 
-- Create the first admin with `php artisan cividash:create-admin`
+- Seed the roles with `php artisan db:seed --class=RoleSeeder --force`, then create the first
+  admin with `php artisan cividash:create-admin admin@example.org`
   ([standalone guide, step 8](deployment/installation-standalone.md#2-step-by-step-installation)).
   On CORE, admins can sign in through Keycloak when `KEYCLOAK_SSO_ENABLED` is set; the first
   admin's role is granted in Keycloak by hand, see the add-on's `docs/authentication.md`.
@@ -77,8 +78,9 @@ Releases are tagged `vX.Y.Z` on GitHub ([CHANGELOG.md](../CHANGELOG.md)). Each r
 publishes `cividash-app` and `cividash-web` with the tags `X.Y.Z`, `X.Y` and `latest`.
 
 - Pin both images to the same full `X.Y.Z` tag; never run a moving tag in production. The
-  add-on pins the tag in its `vars/software_references.yml`, and an inventory can override
-  it per image.
+  add-on pins the tag in its `vars/software_references.yml`, and an inventory overrides
+  it per image through `inv_addons.cividash.images.{app,web}.tag` (an inventory value for
+  `software.addon_cividash.*` has no effect).
 - Migrations run before the new version starts: the `cividash-migrate` Helm hook on CORE,
   the one-shot migrate service with Compose, or `php artisan migrate --force` in the
   [standalone update procedure](deployment/installation-standalone.md#6-update-procedure).

@@ -94,7 +94,7 @@ maintained outside this repository.
 | `cividash-queue` (add-on) | `php artisan queue:work`, same app image | none | `QUEUE_CONNECTION` (default `database`) |
 | `cividash-scheduler` (add-on) | `php artisan schedule:run` every 60 seconds, same app image | none | `routes/console.php` |
 | `cividash-migrate` | one-shot `php artisan migrate --force` before each rollout | none | `DB_*` |
-| `cividash-seed` (add-on) | one-shot seed job after install | none | add-on `docs/seed.md` |
+| `cividash-seed` (add-on) | one-shot seed job after each install and upgrade (only fills what is missing) | none | add-on `docs/seed.md` |
 | PostgreSQL 16 | application database (all tenants in one database; sessions, cache and queue tables) | 5432 | `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` |
 | S3-compatible storage | public media (uploads) when `PUBLIC_DISK_DRIVER=s3`; otherwise a shared volume on `storage/app/public` | as in `AWS_ENDPOINT` | `PUBLIC_DISK_DRIVER`, `AWS_*`, `PUBLIC_S3_BUCKET`, `FILESYSTEM_PUBLIC_URL` |
 | Keycloak (optional) | OpenID Connect login for the admin panel | as in `KEYCLOAK_BASE_URL` | `KEYCLOAK_*` |
@@ -105,7 +105,8 @@ The Docker Compose smoke stack (`docker/production/docker-compose.smoke.yml`) pu
 
 ## Configuration
 
-All settings come from environment variables, read through `config/*.php`. The entrypoint
+All deployment settings come from environment variables, read through `config/*.php`;
+per-tenant panel settings such as branding are stored in the database. The entrypoint
 of the app image runs `config:cache` at container start, so a changed variable needs a
 restart. [.env.production.example](.env.production.example) lists the production
 variables with secret/non-secret markers, and
@@ -116,7 +117,7 @@ Defaults below are the code defaults from `config/`.
 | Group | Key | Default | Purpose |
 |-------|-----|---------|---------|
 | App | `APP_KEY` | none | Encryption key, secret. Keep it stable; changing it invalidates sessions and encrypted data |
-| App | `APP_ENV` / `APP_DEBUG` | `production` / `false` | Scheduled jobs only run with `APP_ENV=production` |
+| App | `APP_ENV` / `APP_DEBUG` | `production` / `false` | `integration:sync-civitas` and `dashboard:reset` only run on schedule with `APP_ENV=production` |
 | App | `APP_URL` | `http://localhost` | Public base URL; CORS origins are derived from its host |
 | App | `APP_LOCALE` / `APP_TIMEZONE` | `en` / `Europe/Berlin` | Default locale (`de` or `en`) and timezone |
 | Database | `DB_CONNECTION` | `sqlite` | Set to `pgsql`; PostgreSQL 16 is the only target tested in CI |
@@ -135,13 +136,13 @@ Defaults below are the code defaults from `config/`.
 | CORE sync | `CIVITAS_SYNC_SCHEDULE` | `daily` | `daily` (04:00) or `hourly` |
 | SSO | `KEYCLOAK_SSO_ENABLED` / `KEYCLOAK_SSO_PASSWORD_LOGIN` | `false` / `true` | Keycloak login for the admin panel; `false` disables password login while SSO is on |
 | SSO | `KEYCLOAK_BASE_URL` / `KEYCLOAK_REALM` / `KEYCLOAK_CLIENT_ID` / `KEYCLOAK_CLIENT_SECRET` | empty / `civitas` / empty / empty | OIDC client; the secret is secret |
-| Demo | `DASHBOARD_DEMO_RESET` | `false` | `true` wipes and reseeds demo tenants nightly. Never enable on real data |
+| Demo | `DASHBOARD_DEMO_RESET` | `false` | `true` deletes all content of the `default` tenant and reseeds Demo City nightly. Never enable on real data |
 
 ## Documentation
 
 - [Admin guide](docs/admin-guide.md) and [developer guide](docs/developer-guide.md)
 - [Architecture overview](docs/architecture.md)
-- [API documentation](docs/api) and the generated Scribe reference at `/docs`
+- [API documentation](docs/api) and the Scribe reference at `/docs`, once built with `php artisan scribe:generate` (not included in the release images)
 - [Deployment](docs/deployment)
 - [Testing](docs/testing)
 - [Data upload](docs/upload)

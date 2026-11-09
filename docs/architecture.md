@@ -59,7 +59,8 @@ Details: [upload bundles and schemas](upload/README.md) and the
 ## CIVITAS/CORE integration
 
 In production CiviDash runs as an add-on of a CIVITAS/CORE platform: CORE's Keycloak
-provides admin login (optional, `KEYCLOAK_*`) and machine tokens, and the scheduled
+provides admin login (optional, `KEYCLOAK_*`) and the client credentials CiviDash uses
+to call the broker (`CIVITAS_OAUTH_*`); API clients authenticate with Sanctum tokens. The scheduled
 `integration:sync-civitas` command pulls indicator data from the CORE context broker
 (Stellio via NGSI-LD by default, or a SensorThings server with `CIVITAS_DRIVER=sensorthings`) into tiles and metrics (`CIVITAS_*`).
 
