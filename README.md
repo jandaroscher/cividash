@@ -70,8 +70,8 @@ The production path is the **CIVITAS/CORE add-on**: the
 [cividash-addon](https://github.com/jandaroscher/cividash-addon) repository holds a Helm
 chart that the CORE platform deployment (Ansible) installs, together with the Keycloak
 client and the APISIX route. It runs the release images
-`ghcr.io/jandaroscher/cividash-app` and `ghcr.io/jandaroscher/cividash-web`, pinned to an
-immutable release tag. How CiviDash fits into CORE is described in
+`ghcr.io/jandaroscher/cividash-app` and `ghcr.io/jandaroscher/cividash-web`, pinned to a
+release tag `X.Y.Z` (pin the image digest if you need byte-identical images). How CiviDash fits into CORE is described in
 [docs/architecture/civitas-core/architecture.md](docs/architecture/civitas-core/architecture.md).
 
 Other setups:
@@ -94,7 +94,7 @@ maintained outside this repository.
 | `cividash-queue` (add-on) | `php artisan queue:work`, same app image | none | `QUEUE_CONNECTION` (default `database`) |
 | `cividash-scheduler` (add-on) | `php artisan schedule:run` every 60 seconds, same app image | none | `routes/console.php` |
 | `cividash-migrate` | one-shot `php artisan migrate --force` before each rollout | none | `DB_*` |
-| `cividash-seed` (add-on) | one-shot seed job after each install and upgrade (only fills what is missing) | none | add-on `docs/seed.md` |
+| `cividash-seed` (add-on) | one-shot seed job after each install and upgrade: creates the default tenant if missing, sets its domain and, if enabled, updates seeded pages | none | add-on `docs/seed.md` |
 | PostgreSQL 16 | application database (all tenants in one database; sessions, cache and queue tables) | 5432 | `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` |
 | S3-compatible storage | public media (uploads) when `PUBLIC_DISK_DRIVER=s3`; otherwise a shared volume on `storage/app/public` | as in `AWS_ENDPOINT` | `PUBLIC_DISK_DRIVER`, `AWS_*`, `PUBLIC_S3_BUCKET`, `FILESYSTEM_PUBLIC_URL` |
 | Keycloak (optional) | OpenID Connect login for the admin panel | as in `KEYCLOAK_BASE_URL` | `KEYCLOAK_*` |
@@ -126,7 +126,7 @@ Defaults below are the code defaults from `config/`.
 | State | `SESSION_SECURE_COOKIE` | unset | Set to `true` behind TLS |
 | Media | `PUBLIC_DISK_DRIVER` | `local` | `s3` stores public media in object storage |
 | Media | `FILESYSTEM_PUBLIC_URL` | `/storage` | Public base URL of media (the bucket URL with S3) |
-| Media | `AWS_ENDPOINT` / `PUBLIC_S3_BUCKET` / `AWS_USE_PATH_STYLE_ENDPOINT` | empty / `AWS_BUCKET` / `false` | S3-compatible endpoint, bucket, path-style URLs (`true` for MinIO/RustFS) |
+| Media | `AWS_ENDPOINT` / `PUBLIC_S3_BUCKET` / `AWS_USE_PATH_STYLE_ENDPOINT` | empty / `AWS_BUCKET` / `false` | S3-compatible endpoint, bucket, path-style URLs (`true` for MinIO/RustFS). The bucket falls back to `AWS_BUCKET` only if `PUBLIC_S3_BUCKET` is unset, not if it is empty as in `.env.production.example` |
 | Media | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | empty | S3 credentials, secret |
 | Proxy | `TRUSTED_PROXIES` | `*` | Proxies whose `X-Forwarded-*` headers are trusted |
 | Logging | `LOG_CHANNEL` / `LOG_LEVEL` | `stack` / `debug` | Use `stderr` and `warning` or `info` in containers |

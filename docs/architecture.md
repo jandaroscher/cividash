@@ -41,7 +41,8 @@ Details: [headless-architecture.md](architecture/headless-architecture.md).
 ## Multi-tenancy
 
 All dashboards (tenants) share one database. Tenant-bound models carry a `tenant_id` and
-are scoped automatically. The public API resolves the tenant from a bearer token, then from
+are scoped automatically in web and API requests. Console commands and scheduled jobs run
+without this scope and must filter by `tenant_id` themselves. The public API resolves the tenant from a bearer token, then from
 the request host (`tenants.domain`), then falls back to the `default` tenant.
 
 Details: [multi-tenancy.md](architecture/multi-tenancy.md) and
@@ -51,7 +52,7 @@ Details: [multi-tenancy.md](architecture/multi-tenancy.md) and
 
 Editors import tiles, categories, metrics and yearly values as JSON bundles, either in
 the admin panel or through `POST /api/v1/admin/import`. An import can be previewed as a dry
-run, which is rolled back; a commit runs in one transaction. The bundle format equals the export format.
+run, which is rolled back; a commit runs in one transaction.
 
 Details: [upload bundles and schemas](upload/README.md) and the
 [data import user guide](user-guide/datenimport.en.md).

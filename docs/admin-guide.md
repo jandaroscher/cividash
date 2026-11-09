@@ -24,8 +24,11 @@ read [deployment/security-headers.md](deployment/security-headers.md); for times
 
 ## Initial data
 
-- Seed the roles with `php artisan db:seed --class=RoleSeeder --force`, then create the first
-  admin with `php artisan cividash:create-admin admin@example.org`
+- Create the `default` tenant with `php artisan tenancy:backfill`, seed the roles with
+  `php artisan db:seed --class=RoleSeeder --force`, then create the first admin with
+  `php artisan cividash:create-admin admin@example.org`. `RoleSeeder` also makes the first
+  user of every tenant a global admin, so run it on a fresh installation only or check the
+  users first.
   ([standalone guide, step 8](deployment/installation-standalone.md#2-step-by-step-installation)).
   On CORE, admins can sign in through Keycloak when `KEYCLOAK_SSO_ENABLED` is set; the first
   admin's role is granted in Keycloak by hand, see the add-on's `docs/authentication.md`.
@@ -84,8 +87,9 @@ publishes `cividash-app` and `cividash-web` with the tags `X.Y.Z`, `X.Y` and `la
 - Migrations run before the new version starts: the `cividash-migrate` Helm hook on CORE,
   the one-shot migrate service with Compose, or `php artisan migrate --force` in the
   [standalone update procedure](deployment/installation-standalone.md#6-update-procedure).
-- After a configuration change, restart the app containers: the entrypoint caches the
-  configuration at start.
+- After a configuration change, recreate the app, queue and scheduler containers (with
+  Compose `docker compose up -d`; `restart` keeps the old environment): the entrypoint
+  caches the configuration at start.
 
 Watch the GitHub repository for releases and security fixes. Report vulnerabilities as
 described in [SECURITY.md](../SECURITY.md).
