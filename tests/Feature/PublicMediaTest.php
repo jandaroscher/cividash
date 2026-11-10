@@ -43,12 +43,22 @@ class PublicMediaTest extends TestCase
 
     public function test_s3_media_urls_point_to_the_object_key_without_a_filesystem_path(): void
     {
-        $previous = getenv('PUBLIC_DISK_DRIVER');
-        putenv('PUBLIC_DISK_DRIVER=s3');
+        $previous = [$_SERVER['PUBLIC_DISK_DRIVER'] ?? null, $_ENV['PUBLIC_DISK_DRIVER'] ?? null];
+        $_SERVER['PUBLIC_DISK_DRIVER'] = $_ENV['PUBLIC_DISK_DRIVER'] = 's3';
         try {
             $config = (require config_path('filesystems.php'))['disks']['public'];
         } finally {
-            putenv($previous === false ? 'PUBLIC_DISK_DRIVER' : "PUBLIC_DISK_DRIVER={$previous}");
+            [$server, $env] = $previous;
+            if ($server === null) {
+                unset($_SERVER['PUBLIC_DISK_DRIVER']);
+            } else {
+                $_SERVER['PUBLIC_DISK_DRIVER'] = $server;
+            }
+            if ($env === null) {
+                unset($_ENV['PUBLIC_DISK_DRIVER']);
+            } else {
+                $_ENV['PUBLIC_DISK_DRIVER'] = $env;
+            }
         }
 
         $disk = Storage::build(array_merge($config, [
@@ -61,8 +71,10 @@ class PublicMediaTest extends TestCase
 
     public function test_does_not_leave_the_public_disk(): void
     {
+        Storage::fake('local');
         Storage::disk('local')->put('secret.txt', 'secret');
 
-        $this->get('/storage/..%2F..%2Fapp%2Fprivate%2Fsecret.txt')->assertNotFound();
+        // The fake disks are sibling directories, so this would reach the private disk.
+        $this->get('/storage/..%2Flocal%2Fsecret.txt')->assertNotFound();
     }
 }

@@ -69,8 +69,8 @@ Extend the policy for your deployment:
 
 - Media on S3 (`PUBLIC_DISK_DRIVER=s3`) loaded straight from the bucket: add the bucket
   origin (the host of `FILESYSTEM_PUBLIC_URL`) to `img-src`, and to `media-src` if editors
-  upload video or audio. If `FILESYSTEM_PUBLIC_URL` points to the app's own `/storage`
-  path, the media is same-origin and needs no change.
+  upload video or audio. If `FILESYSTEM_PUBLIC_URL` is empty or `/storage`, media comes
+  from the app's own origin and needs no change.
 - Keycloak single sign-on: the login is a plain redirect and needs no CSP change. If your
   browser console reports a `form-action` violation on login, add the Keycloak origin to
   `form-action`.
