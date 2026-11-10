@@ -125,7 +125,7 @@ Defaults below are the code defaults from `config/`.
 | State | `SESSION_DRIVER` / `CACHE_STORE` / `QUEUE_CONNECTION` | `database` | Shared state in the database, no Redis needed |
 | State | `SESSION_SECURE_COOKIE` | unset | Set to `true` behind TLS |
 | Media | `PUBLIC_DISK_DRIVER` | `local` | `s3` stores public media in object storage |
-| Media | `FILESYSTEM_PUBLIC_URL` | `/storage` | Public base URL of media (the bucket URL with S3) |
+| Media | `FILESYSTEM_PUBLIC_URL` | `/storage` | Public base URL of media. With S3 either `https://<app host>/storage` (the bucket stays private, the app streams the files) or the bucket URL (needs anonymous read on the bucket) |
 | Media | `AWS_ENDPOINT` / `PUBLIC_S3_BUCKET` / `AWS_USE_PATH_STYLE_ENDPOINT` | empty / `AWS_BUCKET` / `false` | S3-compatible endpoint, bucket, path-style URLs (`true` for MinIO/RustFS). The bucket falls back to `AWS_BUCKET` only if `PUBLIC_S3_BUCKET` is unset, not if it is empty as in `.env.production.example` |
 | Media | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | empty | S3 credentials, secret |
 | Proxy | `TRUSTED_PROXIES` | `*` | Proxies whose `X-Forwarded-*` headers are trusted |
