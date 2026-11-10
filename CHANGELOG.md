@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3](https://github.com/jandaroscher/cividash/compare/v1.1.2...v1.1.3) (2026-11-10)
+
+
+### Bug Fixes
+
+* **export:** make the JSON export re-importable as an upload bundle ([#80](https://github.com/jandaroscher/cividash/issues/80)) ([f493707](https://github.com/jandaroscher/cividash/commit/f493707adf971696459d70ed83d036862778e2c9))
+* **media:** serve S3 media through the app so the bucket can stay private ([#82](https://github.com/jandaroscher/cividash/issues/82)) ([3dfe8f6](https://github.com/jandaroscher/cividash/commit/3dfe8f6e8e67e142c7786632d1e65881a52f9caa))
+
 ## [1.1.2](https://github.com/jandaroscher/cividash/compare/v1.1.1...v1.1.2) (2026-11-09)
 
 
