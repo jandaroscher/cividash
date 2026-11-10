@@ -7,6 +7,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Storage;
+use League\Flysystem\CorruptedPathDetected;
 use League\Flysystem\PathTraversalDetected;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -21,11 +22,14 @@ class PublicMediaController extends Controller
 {
     public function __invoke(string $path): StreamedResponse
     {
+        // Dotfiles (e.g. .gitignore on the local volume) are never media.
+        abort_if(preg_match('#(^|/)\.#', $path) === 1, 404);
+
         $disk = Storage::disk('public');
 
         try {
             abort_unless($disk->fileExists($path), 404);
-        } catch (PathTraversalDetected) {
+        } catch (PathTraversalDetected|CorruptedPathDetected) {
             abort(404);
         }
 

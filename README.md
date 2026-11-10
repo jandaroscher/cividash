@@ -142,7 +142,8 @@ Defaults below are the code defaults from `config/`.
 
 With `PUBLIC_DISK_DRIVER=s3` the app stores uploads at the root of `PUBLIC_S3_BUCKET` and
 answers `/storage/<path>` itself by reading the object with its own credentials. The
-bucket can stay private. `FILESYSTEM_PUBLIC_URL` decides where browsers load media from:
+bucket can stay private, but every object in it can be fetched by its key, so use a bucket
+for public media only (not the `AWS_BUCKET` of `FILESYSTEM_DISK=s3`). `FILESYSTEM_PUBLIC_URL` decides where browsers load media from:
 
 - empty or `/storage`: from the app, on whichever domain the dashboard is opened. Use this
   when tenants have their own domains. Share images (`og:image`) are then relative URLs.

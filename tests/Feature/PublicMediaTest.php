@@ -77,4 +77,12 @@ class PublicMediaTest extends TestCase
         // The fake disks are sibling directories, so this would reach the private disk.
         $this->get('/storage/..%2Flocal%2Fsecret.txt')->assertNotFound();
     }
+
+    public function test_does_not_serve_dotfiles_or_malformed_paths(): void
+    {
+        Storage::disk('public')->put('.env', 'hidden');
+
+        $this->get('/storage/.env')->assertNotFound();
+        $this->get('/storage/x.svg%0a')->assertNotFound();
+    }
 }
