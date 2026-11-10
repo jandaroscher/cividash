@@ -42,11 +42,11 @@ return [
 
         'public' => [
             // Switchable disk: local (default) for filesystem storage,
-            // s3 for object storage. Laravel ignores keys irrelevant to the
-            // active driver, so both key sets can coexist here safely.
+            // s3 for object storage. Both drivers read 'root': local as the
+            // directory, s3 as the key prefix. Object keys must not carry the
+            // container's filesystem path, so s3 stores at the bucket root.
             'driver' => env('PUBLIC_DISK_DRIVER', 'local'),
-            // Local driver keys.
-            'root' => storage_path('app/public'),
+            'root' => env('PUBLIC_DISK_DRIVER', 'local') === 's3' ? '' : storage_path('app/public'),
             'visibility' => 'public',
             // s3 driver keys (reuse the same AWS_* env as the dedicated 's3' disk).
             'key' => env('AWS_ACCESS_KEY_ID'),

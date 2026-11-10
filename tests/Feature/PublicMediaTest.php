@@ -41,6 +41,24 @@ class PublicMediaTest extends TestCase
         $this->get('/storage/page-blocks/missing.png')->assertNotFound();
     }
 
+    public function test_s3_media_urls_point_to_the_object_key_without_a_filesystem_path(): void
+    {
+        $previous = getenv('PUBLIC_DISK_DRIVER');
+        putenv('PUBLIC_DISK_DRIVER=s3');
+        try {
+            $config = (require config_path('filesystems.php'))['disks']['public'];
+        } finally {
+            putenv($previous === false ? 'PUBLIC_DISK_DRIVER' : "PUBLIC_DISK_DRIVER={$previous}");
+        }
+
+        $disk = Storage::build(array_merge($config, [
+            'key' => 'key', 'secret' => 'secret', 'region' => 'us-east-1', 'bucket' => 'media',
+            'url' => 'https://dashboard.example.org/storage',
+        ]));
+
+        $this->assertSame('https://dashboard.example.org/storage/tiles/icon.svg', $disk->url('tiles/icon.svg'));
+    }
+
     public function test_does_not_leave_the_public_disk(): void
     {
         Storage::disk('local')->put('secret.txt', 'secret');
