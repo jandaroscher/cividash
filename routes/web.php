@@ -6,6 +6,7 @@
 
 use App\Http\Controllers\Auth\KeycloakSsoController;
 use App\Http\Controllers\Auth\PasswordResetRedirectController;
+use App\Http\Controllers\PublicMediaController;
 use App\Http\Controllers\SpaController;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
@@ -36,6 +37,12 @@ Route::get('/.well-known/security.txt', fn () => response(
     200,
     ['Content-Type' => 'text/plain']
 ))->withoutMiddleware($sessionless)->name('security.txt');
+
+// Public media (uploads on the 'public' disk), whatever driver backs the disk.
+Route::get('/storage/{path}', PublicMediaController::class)
+    ->where('path', '.*')
+    ->withoutMiddleware($sessionless)
+    ->name('media.public');
 
 // Vue SPA catch-all route
 // Excludes API routes, admin routes, and other system routes

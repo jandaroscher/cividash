@@ -125,7 +125,7 @@ Defaults below are the code defaults from `config/`.
 | State | `SESSION_DRIVER` / `CACHE_STORE` / `QUEUE_CONNECTION` | `database` | Shared state in the database, no Redis needed |
 | State | `SESSION_SECURE_COOKIE` | unset | Set to `true` behind TLS |
 | Media | `PUBLIC_DISK_DRIVER` | `local` | `s3` stores public media in object storage |
-| Media | `FILESYSTEM_PUBLIC_URL` | `/storage` | Public base URL of media (the bucket URL with S3) |
+| Media | `FILESYSTEM_PUBLIC_URL` | `/storage` | Public base URL of media, see [Media on S3](#media-on-s3) |
 | Media | `AWS_ENDPOINT` / `PUBLIC_S3_BUCKET` / `AWS_USE_PATH_STYLE_ENDPOINT` | empty / `AWS_BUCKET` / `false` | S3-compatible endpoint, bucket, path-style URLs (`true` for MinIO/RustFS). The bucket falls back to `AWS_BUCKET` only if `PUBLIC_S3_BUCKET` is unset, not if it is empty as in `.env.production.example` |
 | Media | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | empty | S3 credentials, secret |
 | Proxy | `TRUSTED_PROXIES` | `*` | Proxies whose `X-Forwarded-*` headers are trusted |
@@ -137,6 +137,24 @@ Defaults below are the code defaults from `config/`.
 | SSO | `KEYCLOAK_SSO_ENABLED` / `KEYCLOAK_SSO_PASSWORD_LOGIN` | `false` / `true` | Keycloak login for the admin panel; `false` disables password login while SSO is on |
 | SSO | `KEYCLOAK_BASE_URL` / `KEYCLOAK_REALM` / `KEYCLOAK_CLIENT_ID` / `KEYCLOAK_CLIENT_SECRET` | empty / `civitas` / empty / empty | OIDC client; the secret is secret |
 | Demo | `DASHBOARD_DEMO_RESET` | `false` | `true` deletes all content of the `default` tenant and reseeds Demo City nightly. Never enable on real data |
+
+### Media on S3
+
+With `PUBLIC_DISK_DRIVER=s3` the app stores uploads at the root of `PUBLIC_S3_BUCKET` and
+answers `/storage/<path>` itself by reading the object with its own credentials. The
+bucket can stay private, but every object in it can be fetched by its key, so use a bucket
+for public media only (not the `AWS_BUCKET` of `FILESYSTEM_DISK=s3`). `FILESYSTEM_PUBLIC_URL` decides where browsers load media from:
+
+- empty or `/storage`: from the app, on whichever domain the dashboard is opened. Use this
+  when tenants have their own domains. Share images (`og:image`) are then relative URLs.
+- `https://<app host>/storage`: from the app on one fixed host, with absolute share images.
+- the bucket URL, e.g. `https://s3.example.org/cividash`: straight from the bucket. This
+  needs anonymous read (`s3:GetObject`) on the bucket and the bucket origin in the CSP.
+
+Up to 1.1.3 the s3 driver prefixed every object key with the container's storage path
+(`/var/www/html/storage/app/public/`). After upgrading, move existing objects to the
+bucket root (strip that prefix) or upload them again, and re-import theme bundles, which
+store absolute media URLs.
 
 ## Documentation
 
