@@ -151,7 +151,7 @@ for public media only (not the `AWS_BUCKET` of `FILESYSTEM_DISK=s3`). `FILESYSTE
 - the bucket URL, e.g. `https://s3.example.org/cividash`: straight from the bucket. This
   needs anonymous read (`s3:GetObject`) on the bucket and the bucket origin in the CSP.
 
-Up to 1.1.3 the s3 driver prefixed every object key with the container's storage path
+Up to 1.1.2 the s3 driver prefixed every object key with the container's storage path
 (`/var/www/html/storage/app/public/`). After upgrading, move existing objects to the
 bucket root (strip that prefix) or upload them again, and re-import theme bundles, which
 store absolute media URLs.
