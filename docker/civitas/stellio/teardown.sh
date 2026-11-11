@@ -10,7 +10,7 @@
 # volume.
 #
 # Usage:
-#   ./docker/civitas/v1.6.2/teardown.sh
+#   ./docker/civitas/stellio/teardown.sh
 #
 set -euo pipefail
 

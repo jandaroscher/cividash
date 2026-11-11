@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: EUPL-1.2+
 
-# Local Stellio NGSI-LD context broker — CORE V1.6.2-aligned dev stack.
+# Local Stellio NGSI-LD context broker — CORE 1.6.2 to 1.8.x aligned dev stack.
 #
 # Validates the dashboard's NGSI-LD Pull pipeline against a real, ETSI
 # NGSI-LD-compliant broker. Stellio is the same FIWARE Generic Enabler that
@@ -15,7 +15,7 @@
 #
 # Authentication is DISABLED (STELLIO_AUTHENTICATION_ENABLED=false) so the
 # broker is fully open — no JWT needed. This mirrors the official .env default
-# at the pinned 2.21.0 tag and lets our NgsiLdClient skip OAuth entirely.
+# at the pinned 2.23.0 tag and lets our NgsiLdClient skip OAuth entirely.
 #
 # All image tags / ports / credentials are driven by .env (see .env.example).
 
@@ -34,7 +34,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASS: ${POSTGRES_PASSWORD}
       POSTGRES_DBNAME: stellio_search,stellio_subscription
-      POSTGRES_MULTIPLE_EXTENSIONS: postgis,timescaledb,pgcrypto
+      POSTGRES_MULTIPLE_EXTENSIONS: postgis,timescaledb,pgcrypto,pg_stat_statements
+      SHARED_PRELOAD_LIBRARIES: pg_cron,timescaledb,pg_stat_statements
       ACCEPT_TIMESCALE_TUNING: "TRUE"
     volumes:
       # Kartoza/Debian image stores data at /var/lib/postgresql/16/main, NOT

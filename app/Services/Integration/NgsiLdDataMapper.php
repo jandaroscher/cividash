@@ -117,7 +117,7 @@ class NgsiLdDataMapper implements DataMapperInterface
      * NOTE: the time-series attribute is `dataPoints`, NOT `values`. Under the
      * NGSI-LD core context `values` expands to the reserved term hasValues, which
      * Stellio — and therefore production CORE — rejects with HTTP 400. See
-     * docker/civitas/v1.6.2/README.md.
+     * docker/civitas/stellio/README.md.
      */
     public function mapToMetricValues(array $entity): array
     {
