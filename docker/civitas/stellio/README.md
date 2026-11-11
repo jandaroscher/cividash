@@ -1,20 +1,20 @@
-# Local Stellio NGSI-LD broker (CORE V1.6.2-aligned)
+# Local Stellio NGSI-LD broker (aligned with CORE 1.6.2 to 1.8.x)
 
 A local-only NGSI-LD context broker for validating the dashboard's CIVITAS/CORE Pull pipeline end to end against a real, ETSI NGSI-LD-compliant broker, without needing access to the auth-gated CORE GitLab.
 
-We run Stellio 2.21.0 (the latest stable release, 2025-02-26). Stellio is the same FIWARE Generic Enabler that sits behind APISIX in CORE production, so a bare local Stellio exposes the exact NGSI-LD API our `NgsiLdClient` and `NgsiLdDataMapper` consume.
+We run Stellio 2.23.0, the version CIVITAS/CORE 1.6.2 to 1.8.x deploy. Stellio is the same FIWARE Generic Enabler that sits behind APISIX in CORE production, so a bare local Stellio exposes the exact NGSI-LD API our `NgsiLdClient` and `NgsiLdDataMapper` consume.
 
-> This stack is LOCAL ONLY. It is the only local CIVITAS/CORE environment: CiviDash targets CORE v1 (1.6.x), see [../README.md](../README.md).
+> This stack is LOCAL ONLY. It is the only local CIVITAS/CORE environment: CiviDash targets CORE v1 from 1.6.2 to 1.8.x, see [../README.md](../README.md).
 
 ## What's in the stack
 
 | Service | Image | Role |
 |---------|-------|------|
-| `api-gateway` | `stellio/stellio-api-gateway:2.21.0` | NGSI-LD entry point (`:8080` internal) |
-| `search-service` | `stellio/stellio-search-service:2.21.0` | NGSI-LD entity store (GET/POST `/entities`) |
-| `subscription-service` | `stellio/stellio-subscription-service:2.21.0` | Canonical set; not needed for Pull |
+| `api-gateway` | `stellio/stellio-api-gateway:2.23.0` | NGSI-LD entry point (`:8080` internal) |
+| `search-service` | `stellio/stellio-search-service:2.23.0` | NGSI-LD entity store (GET/POST `/entities`) |
+| `subscription-service` | `stellio/stellio-subscription-service:2.23.0` | Canonical set; not needed for Pull |
 | `postgres` | `stellio/stellio-timescale-postgis:16-2.17.2-3.5` | Entity store backend (PG16 + Timescale + PostGIS) |
-| `kafka` | `confluentinc/cp-kafka:7.6.0` | Event bus (KRaft mode, no Zookeeper) |
+| `kafka` | `confluentinc/cp-kafka:7.6.6` | Event bus (KRaft mode, no Zookeeper) |
 
 Authentication is disabled (`STELLIO_AUTHENTICATION_ENABLED=false`): the broker is fully open, so no JWT/OAuth is needed. Our `NgsiLdClient` simply skips token acquisition when `CIVITAS_OAUTH_*` is empty.
 
@@ -27,16 +27,16 @@ Authentication is disabled (`STELLIO_AUTHENTICATION_ENABLED=false`): the broker 
 
 ```bash
 # Bring up the broker and seed the 3 indicators (bounded, ~5 min max).
-./docker/civitas/v1.6.2/setup.sh
+./docker/civitas/stellio/setup.sh
 
 # Tear down and wipe data.
-./docker/civitas/v1.6.2/teardown.sh
+./docker/civitas/stellio/teardown.sh
 ```
 
 `setup.sh` auto-creates a local `.env` from `.env.example` on first run. To pin different image tags or change the host port, copy and edit it yourself:
 
 ```bash
-cp docker/civitas/v1.6.2/.env.example docker/civitas/v1.6.2/.env
+cp docker/civitas/stellio/.env.example docker/civitas/stellio/.env
 ```
 
 ## Ports and URLs

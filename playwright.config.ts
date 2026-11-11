@@ -103,6 +103,9 @@ export default defineConfig({
     {
       name: 'accessibility',
       testMatch: /a11y-audit\.spec\.ts/,
+    },    {
+      name: 'exports',
+      testMatch: /export\.spec\.ts/,
     },
   ],
 });

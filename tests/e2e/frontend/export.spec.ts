@@ -2,60 +2,46 @@
 //
 // SPDX-License-Identifier: EUPL-1.2+
 
-import { test, expect } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 
 /**
  * E2E tests for the JSON/CSV export feature.
  *
- * Covers all three frontend entry points:
- *  - Card grid: direct CSV icon on a tile card
- *  - Overlay: "Daten herunterladen" dialog for a single tile
- *  - Footer: global catalog export dialog
+ * Covers both frontend entry points:
+ *  - Tile detail: "Daten herunterladen" dialog for a single tile
+ *  - Home page: catalog export of the card grid
  *
  * Prerequisites:
- *  - ddev running with the demo-city tenant seeded (dashboard:reset)
- *    (Tenant resolution via the demo-city subdomain)
+ *  - the demo-city tenant seeded with tiles and pages. It is resolved by its
+ *    domain, the demo-city. subdomain of the PLAYWRIGHT_BASE_URL host. Without
+ *    DDEV, use a localhost base URL: demo-city.localhost resolves locally.
  */
 
-const BASE_URL = 'https://demo-city.open-source-dashboard.ddev.site';
+const test = base.extend({
+    baseURL: async ({ baseURL }, use) => {
+        const url = new URL(baseURL!);
+        url.hostname = `demo-city.${url.hostname}`;
+        await use(url.origin);
+    },
+});
 
 test.describe('Exports', () => {
-    test('tile card offers a direct CSV download', async ({ page }) => {
-        await page.goto(`${BASE_URL}/tiles`);
-        await page.waitForLoadState('networkidle');
+    test('tile detail opens the export dialog and downloads JSON', async ({ page }) => {
+        // Fetch in the browser: Node cannot resolve *.localhost tenant hosts.
+        await page.goto('/tiles');
+        const slug = await page.evaluate(async () => {
+            const response = await fetch('/api/v1/tiles', { headers: { Accept: 'application/json' } });
+            return (await response.json()).data[0].slug.de;
+        });
+        await page.goto(`/tiles/${slug}`);
 
-        const firstCard = page.locator('.shadow-card').first();
-        await expect(firstCard).toBeVisible({ timeout: 10000 });
-
-        const exportButton = firstCard.getByRole('button', { name: /Daten herunterladen|Download data/i }).first();
-        await expect(exportButton).toBeVisible();
-
-        const [download] = await Promise.all([
-            page.waitForEvent('download'),
-            exportButton.click(),
-        ]);
-
-        expect(download.suggestedFilename()).toMatch(/\.csv$/);
-    });
-
-    test('tile overlay opens the export dialog and downloads JSON', async ({ page }) => {
-        await page.goto(`${BASE_URL}/tiles`);
-        await page.waitForLoadState('networkidle');
-
-        const firstCard = page.locator('.shadow-card').first();
-        await expect(firstCard).toBeVisible({ timeout: 10000 });
-        // Info button opens the overlay
-        await firstCard.locator('button[aria-label="Info"]').click();
-
-        const dialogTrigger = page.getByRole('button', { name: /Daten herunterladen|Download data/ }).first();
-        await expect(dialogTrigger).toBeVisible();
-        await dialogTrigger.click();
+        await page.getByRole('button', { name: /^(Daten herunterladen|Download data)$/ }).click();
 
         const dialog = page.getByRole('dialog');
         await expect(dialog).toBeVisible();
-
-        // Select JSON (default) and download
-        await dialog.getByRole('radio', { name: 'JSON' }).check();
+        // The radio inputs are visually hidden; their labels take the click.
+        await dialog.getByText('JSON', { exact: true }).click();
+        await expect(dialog.getByRole('radio', { name: 'JSON' })).toBeChecked();
 
         const [download] = await Promise.all([
             page.waitForEvent('download'),
@@ -65,20 +51,15 @@ test.describe('Exports', () => {
         expect(download.suggestedFilename()).toMatch(/tile-.*\.json$/);
     });
 
-    test('footer exposes a global catalog export', async ({ page }) => {
-        await page.goto(`${BASE_URL}/tiles`);
-        await page.waitForLoadState('networkidle');
+    test('home page card grid offers a catalog export', async ({ page }) => {
+        await page.goto('/');
 
-        const catalogButton = page.getByRole('button', { name: /Alle Kacheln exportieren|Export all tiles/ });
-        await expect(catalogButton).toBeVisible();
-        await catalogButton.scrollIntoViewIfNeeded();
-        await catalogButton.click();
+        await page.getByRole('button', { name: /Alle Kacheln exportieren|Export all tiles/ }).click();
 
         const dialog = page.getByRole('dialog');
         await expect(dialog).toBeVisible();
-
-        // Switch to CSV to exercise the Excel path
-        await dialog.getByRole('radio', { name: /CSV/ }).check();
+        await dialog.getByText(/^CSV/).click();
+        await expect(dialog.getByRole('radio', { name: /CSV/ })).toBeChecked();
 
         const [download] = await Promise.all([
             page.waitForEvent('download'),

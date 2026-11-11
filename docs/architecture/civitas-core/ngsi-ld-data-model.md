@@ -67,7 +67,7 @@ The `period` string is an ISO-style period_key matching the entity's
 > The time-series attribute **must** be named `dataPoints`. Under the NGSI-LD core
 > context, the term `values` expands to the reserved term `hasValues`, which
 > Stellio — and therefore production CORE — **rejects with HTTP 400**. Using
-> `dataPoints` avoids that collision. (See `docker/civitas/v1.6.2/README.md`.)
+> `dataPoints` avoids that collision. (See `docker/civitas/stellio/README.md`.)
 
 ## `category` relationship
 
@@ -79,7 +79,7 @@ URN is preserved as the category's `external_id`.
 ## Complete example (verbatim)
 
 The following is the complete seed payload from
-`docker/civitas/v1.6.2/seed-ngsi-ld.json` — three `NachhaltigkeitsIndikator`
+`docker/civitas/stellio/seed-ngsi-ld.json` — three `NachhaltigkeitsIndikator`
 entities exactly as the `NgsiLdDataMapper` expects them:
 
 ```json

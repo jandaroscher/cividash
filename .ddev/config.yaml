@@ -11,6 +11,8 @@ xdebug_enabled: false
 additional_hostnames:
   - a.open-source-dashboard
   - b.open-source-dashboard
+  - www.a.open-source-dashboard
+  - unknown.open-source-dashboard
   - demo-city.open-source-dashboard
 additional_fqdns: []
 database:

@@ -13,9 +13,9 @@ import { execSync } from 'child_process';
  * - Domain normalization (www. stripping, lowercase)
  * - /api/v1/config/tenant endpoint returns correct resolved_by
  *
- * Prerequisites:
- * - ddev running with additional hostnames configured
- * - Test data seeded via: npm run test:e2e:seed
+ * Requests go to PLAYWRIGHT_BASE_URL and carry the tenant domain in the Host
+ * header, so no DNS entries for the test domains are needed.
+ * The seed command assigns these domains to the test tenants.
  */
 
 // Test fixture data - populated by beforeAll hook
@@ -31,15 +31,16 @@ let fixtures: {
   };
 };
 
-// Base URLs for different tenant domains
-// Note: Using HTTP to avoid SSL certificate issues with ddev's self-signed certs
-// ddev additional_hostnames: a.open-source-dashboard -> a.open-source-dashboard.ddev.site
-const BASE_URLS = {
-  default: 'http://open-source-dashboard.ddev.site',
-  tenantA: 'http://a.open-source-dashboard.ddev.site',
-  tenantB: 'http://b.open-source-dashboard.ddev.site',
-  wwwTenantA: 'http://www.a.open-source-dashboard.ddev.site',
+// Tenant domains assigned by e2e:seed-tenant-resolution
+const HOSTS = {
+  tenantA: 'a.open-source-dashboard.ddev.site',
+  tenantB: 'b.open-source-dashboard.ddev.site',
+  wwwTenantA: 'www.a.open-source-dashboard.ddev.site',
+  // A host no tenant owns; listed in .ddev/config.yaml so the DDEV router forwards it.
+  unknown: 'unknown.open-source-dashboard.ddev.site',
 };
+
+const TENANT_CONFIG = '/api/v1/config/tenant';
 
 test.describe('Domain-based Tenant Resolution', () => {
   test.beforeAll(async () => {
@@ -57,15 +58,14 @@ test.describe('Domain-based Tenant Resolution', () => {
         throw new Error('Seeding failed');
       }
     } catch (error) {
-      console.error('Failed to seed test data. Make sure ddev is running.');
-      console.error('Run: ddev start && npm run test:e2e:seed');
+      console.error('Failed to seed test data. Check E2E_ARTISAN_CMD (default: ddev exec php artisan).');
       throw error;
     }
   });
 
   test.describe('Domain → Tenant Mapping', () => {
     test('resolves tenant A from a.open-source-dashboard.ddev.site domain', async ({ request }) => {
-      const response = await request.get(`${BASE_URLS.tenantA}/api/v1/config/tenant`);
+      const response = await request.get(TENANT_CONFIG, { headers: { Host: HOSTS.tenantA } });
       
       expect(response.ok()).toBeTruthy();
       
@@ -78,7 +78,7 @@ test.describe('Domain-based Tenant Resolution', () => {
     });
 
     test('resolves tenant B from b.open-source-dashboard.ddev.site domain', async ({ request }) => {
-      const response = await request.get(`${BASE_URLS.tenantB}/api/v1/config/tenant`);
+      const response = await request.get(TENANT_CONFIG, { headers: { Host: HOSTS.tenantB } });
       
       expect(response.ok()).toBeTruthy();
       
@@ -93,29 +93,16 @@ test.describe('Domain-based Tenant Resolution', () => {
 
   test.describe('www. Prefix Stripping', () => {
     test('strips www. prefix and resolves tenant A', async ({ request }) => {
-      // This test requires www.a.open-source-dashboard.ddev.site to be configured in ddev
-      // If not available, the test will be skipped
-      try {
-        const response = await request.get(`${BASE_URLS.wwwTenantA}/api/v1/config/tenant`, {
-          timeout: 5000,
-        });
-        
-        // If we get a response, verify tenant resolution
-        if (response.ok()) {
-          const data = await response.json();
-          
-          expect(data.data).toMatchObject({
-            slug: 'tenant-a',
-            resolved_by: 'domain',
-          });
-        } else {
-          // www subdomain might not be configured - skip with info
-          test.skip(true, 'www subdomain not configured in ddev');
-        }
-      } catch (error) {
-        // Connection refused or timeout - www subdomain not available
-        test.skip(true, 'www subdomain not reachable (may need ddev restart after config change)');
-      }
+      const response = await request.get(TENANT_CONFIG, { headers: { Host: HOSTS.wwwTenantA } });
+
+      expect(response.ok()).toBeTruthy();
+
+      const data = await response.json();
+
+      expect(data.data).toMatchObject({
+        slug: 'tenant-a',
+        resolved_by: 'domain',
+      });
     });
   });
 
@@ -123,8 +110,9 @@ test.describe('Domain-based Tenant Resolution', () => {
     test('token takes precedence over domain (tenant A token on tenant B domain)', async ({ request }) => {
       // Request tenant B domain but with tenant A token
       // Token should win -> resolved_by = 'token', slug = 'tenant-a'
-      const response = await request.get(`${BASE_URLS.tenantB}/api/v1/config/tenant`, {
+      const response = await request.get(TENANT_CONFIG, {
         headers: {
+          Host: HOSTS.tenantB,
           'Authorization': `Bearer ${fixtures.tokens.tenantA}`,
         },
       });
@@ -142,7 +130,7 @@ test.describe('Domain-based Tenant Resolution', () => {
     test('domain takes precedence over default (no token, known domain)', async ({ request }) => {
       // Request tenant A domain without token
       // Domain should match -> resolved_by = 'domain'
-      const response = await request.get(`${BASE_URLS.tenantA}/api/v1/config/tenant`);
+      const response = await request.get(TENANT_CONFIG, { headers: { Host: HOSTS.tenantA } });
       
       expect(response.ok()).toBeTruthy();
       
@@ -157,9 +145,11 @@ test.describe('Domain-based Tenant Resolution', () => {
 
   test.describe('Default Fallback', () => {
     test('resolves default tenant from its configured domain', async ({ request }) => {
-      // Request default domain without token
-      // Default tenant has domain open-source-dashboard.ddev.site -> resolved_by = 'domain'
-      const response = await request.get(`${BASE_URLS.default}/api/v1/config/tenant`);
+      // The seed command gives the default tenant the APP_URL host.
+      const domain = fixtures.tenants.default.domain;
+      expect(domain).toBeTruthy();
+
+      const response = await request.get(TENANT_CONFIG, { headers: { Host: domain! } });
 
       expect(response.ok()).toBeTruthy();
 
@@ -171,22 +161,23 @@ test.describe('Domain-based Tenant Resolution', () => {
       });
     });
 
-    test('default domain without token resolves via domain match', async ({ request }) => {
-      // Request default domain without token - resolved by domain mapping
-      const response = await request.get(`${BASE_URLS.default}/api/v1/config/tenant`);
+    test('unknown domain without token falls back to the default tenant', async ({ request }) => {
+      const response = await request.get(TENANT_CONFIG, { headers: { Host: HOSTS.unknown } });
 
       expect(response.ok()).toBeTruthy();
 
       const data = await response.json();
 
-      // Default tenant now has a domain configured, so resolved_by = 'domain'
-      expect(data.data.resolved_by).toBe('domain');
+      expect(data.data).toMatchObject({
+        slug: 'default',
+        resolved_by: 'default',
+      });
     });
   });
 
   test.describe('API Response Structure', () => {
     test('/api/v1/config/tenant returns expected fields', async ({ request }) => {
-      const response = await request.get(`${BASE_URLS.tenantA}/api/v1/config/tenant`);
+      const response = await request.get(TENANT_CONFIG, { headers: { Host: HOSTS.tenantA } });
       
       expect(response.ok()).toBeTruthy();
       

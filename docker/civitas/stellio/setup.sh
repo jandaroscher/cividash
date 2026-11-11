@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: EUPL-1.2+
 
 #
-# Bring up the local Stellio NGSI-LD broker (CORE V1.6.2-aligned) and seed it
+# Bring up the local Stellio NGSI-LD broker (CORE 1.6.2 to 1.8.x aligned) and seed it
 # with the 3 NachhaltigkeitsIndikator entities for Pull-pipeline validation.
 #
 # BOUNDED: never spins longer than ~5 minutes total on readiness. On timeout it
@@ -16,7 +16,7 @@
 # (HTTP 409) is treated as success.
 #
 # Usage:
-#   ./docker/civitas/v1.6.2/setup.sh
+#   ./docker/civitas/stellio/setup.sh
 #
 set -euo pipefail
 
@@ -146,6 +146,6 @@ Then run the sync from DDEV, e.g.:
   ddev exec php artisan integration:sync-civitas --tenant=<slug> --dry-run   # preview
   ddev exec php artisan integration:sync-civitas --tenant=<slug>             # persist
 
-Tear down with:  ./docker/civitas/v1.6.2/teardown.sh
+Tear down with:  ./docker/civitas/stellio/teardown.sh
 ============================================================================
 EOF
