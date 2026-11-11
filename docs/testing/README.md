@@ -49,11 +49,14 @@ start a server.
 DDEV site `http://open-source-dashboard.ddev.site`. The specs use relative paths, so one
 variable changes the target of all of them.
 
-Two specs keep their own host names, because they test tenant resolution by domain:
-
-- `tests/e2e/tenant-resolution.spec.ts` needs the DDEV subdomains `a.` and `b.`.
-- `tests/e2e/frontend/export.spec.ts` needs the `demo-city.` subdomain. No Playwright
-  project matches this spec at the moment, so `npm run test:e2e` skips it.
+`tests/e2e/tenant-resolution.spec.ts` tests tenant resolution by domain. It sends its
+requests to the same base URL and sets the tenant domain in the `Host` header, so the
+test domains need no DNS entries.
+`tests/e2e/frontend/export.spec.ts` opens the `demo-city` tenant on the `demo-city.`
+subdomain of the base URL host. Without DDEV, use `localhost` in `APP_URL` and
+`PLAYWRIGHT_BASE_URL`; the seeders derive the tenant domains from `APP_URL`, and
+`demo-city.localhost` resolves to the local machine. No Playwright project matches this
+spec at the moment, so `npm run test:e2e` skips it.
 
 Specs that seed fixtures run `${E2E_ARTISAN_CMD} e2e:seed-full --json`.
 `E2E_ARTISAN_CMD` defaults to `ddev exec php artisan`.
@@ -71,13 +74,13 @@ npx playwright test --project=accessibility       # accessibility audit only
 Use `php artisan serve` and a SQLite file:
 
 ```bash
-export DB_CONNECTION=sqlite DB_DATABASE="$PWD/database/e2e.sqlite"
+export APP_URL=http://localhost:8000 DB_CONNECTION=sqlite DB_DATABASE="$PWD/database/e2e.sqlite"
 rm -f "$DB_DATABASE" && touch "$DB_DATABASE"
 php artisan migrate --seed
 npm run build
 php artisan serve --port=8000 --no-reload &
 
-export PLAYWRIGHT_BASE_URL=http://127.0.0.1:8000 E2E_ARTISAN_CMD="php artisan"
+export PLAYWRIGHT_BASE_URL=http://localhost:8000 E2E_ARTISAN_CMD="php artisan"
 npx playwright test --project=accessibility
 ```
 

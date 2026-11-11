@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2+
 
-import { test, expect } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 
 /**
  * E2E tests for the JSON/CSV export feature.
@@ -13,15 +13,22 @@ import { test, expect } from '@playwright/test';
  *  - Footer: global catalog export dialog
  *
  * Prerequisites:
- *  - ddev running with the demo-city tenant seeded (dashboard:reset)
- *    (Tenant resolution via the demo-city subdomain)
+ *  - the demo-city tenant seeded with content. It is resolved by its
+ *    domain, the demo-city. subdomain of the PLAYWRIGHT_BASE_URL host. Without
+ *    DDEV, use a localhost base URL: demo-city.localhost resolves locally.
  */
 
-const BASE_URL = 'https://demo-city.open-source-dashboard.ddev.site';
+const test = base.extend({
+    baseURL: async ({ baseURL }, use) => {
+        const url = new URL(baseURL!);
+        url.hostname = `demo-city.${url.hostname}`;
+        await use(url.origin);
+    },
+});
 
 test.describe('Exports', () => {
     test('tile card offers a direct CSV download', async ({ page }) => {
-        await page.goto(`${BASE_URL}/tiles`);
+        await page.goto('/tiles');
         await page.waitForLoadState('networkidle');
 
         const firstCard = page.locator('.shadow-card').first();
@@ -39,7 +46,7 @@ test.describe('Exports', () => {
     });
 
     test('tile overlay opens the export dialog and downloads JSON', async ({ page }) => {
-        await page.goto(`${BASE_URL}/tiles`);
+        await page.goto('/tiles');
         await page.waitForLoadState('networkidle');
 
         const firstCard = page.locator('.shadow-card').first();
@@ -66,7 +73,7 @@ test.describe('Exports', () => {
     });
 
     test('footer exposes a global catalog export', async ({ page }) => {
-        await page.goto(`${BASE_URL}/tiles`);
+        await page.goto('/tiles');
         await page.waitForLoadState('networkidle');
 
         const catalogButton = page.getByRole('button', { name: /Alle Kacheln exportieren|Export all tiles/ });
