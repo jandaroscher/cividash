@@ -53,6 +53,9 @@ jobs:
   opencode-release:
     # After images (SBOMs attached) and mirror (tag on openCode).
     needs: [images, mirror]
+    # Also when the mirror run was cancelled: a missing tag then fails the
+    # POST visibly instead of skipping the release silently.
+    if: ${{ !cancelled() && needs.images.result == 'success' }}
     permissions:
       contents: read
     uses: ./.github/workflows/opencode-releases.yml
