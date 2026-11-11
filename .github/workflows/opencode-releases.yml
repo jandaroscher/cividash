@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+#
+# SPDX-License-Identifier: EUPL-1.2+
+
+# Creates a release on openCode for every published GitHub release that has
+# none there yet: same name, notes and date, with the GitHub release assets
+# (SBOMs) as links. Idempotent, so every run also backfills older releases.
+# Create-only: a release that already exists on openCode is not updated.
+# The tags themselves come from mirror-opencode.yml, which must run first.
+# OPENCODE_MIRROR_TOKEN needs the "api" scope for the releases API.
+name: openCode releases
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+concurrency:
+  group: opencode-releases
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      OPENCODE_TOKEN: ${{ secrets.OPENCODE_MIRROR_TOKEN }}
+      OPENCODE_API: https://gitlab.opencode.de/api/v4/projects/regensburg_next%2Fcividash
+    steps:
+      - name: Create missing releases on openCode
+        run: |
+          set -euo pipefail
+          if [ -z "$OPENCODE_TOKEN" ]; then
+            echo "::warning::OPENCODE_MIRROR_TOKEN is not set, skipping."
+            exit 0
+          fi
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+            --jq '.[] | select(.draft | not)' > releases.jsonl
+          jq -r '.tag_name' releases.jsonl | while read -r tag; do
+            status=$(curl -s --retry 3 -o /dev/null -w '%{http_code}' \
+              -H "PRIVATE-TOKEN: $OPENCODE_TOKEN" \
+              "$OPENCODE_API/releases/$(jq -rn --arg t "$tag" '$t|@uri')")
+            if [ "$status" = 200 ]; then
+              echo "$tag: already on openCode"
+              continue
+            fi
+            if [ "$status" != 404 ]; then
+              echo "::error::$tag: openCode answered $status"
+              exit 1
+            fi
+            # released_at only for older releases: GitLab marks every release
+            # with a past date as historical.
+            jq -c --arg tag "$tag" 'select(.tag_name == $tag) | {
+                tag_name, name: (.name // .tag_name), description: (.body // ""),
+                assets: {links: [.assets[] | {name, url: .browser_download_url, link_type: "other"}]}
+              } + (if (.published_at | fromdate) < (now - 86400)
+                   then {released_at: .published_at} else {} end)' releases.jsonl > payload.json
+            curl -s --retry 3 --fail-with-body -X POST -H "PRIVATE-TOKEN: $OPENCODE_TOKEN" \
+              -H 'Content-Type: application/json' --data @payload.json \
+              "$OPENCODE_API/releases" > /dev/null
+            echo "$tag: created on openCode"
+          done
