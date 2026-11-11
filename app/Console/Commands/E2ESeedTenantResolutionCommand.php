@@ -51,6 +51,10 @@ class E2ESeedTenantResolutionCommand extends Command
                 ['slug' => 'default'],
                 ['name' => 'Default Dashboard']
             );
+            if (! $defaultTenant->domain) {
+                // Same rule as TenantSeeder: the default tenant owns the APP_URL host.
+                $defaultTenant->update(['domain' => parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost']);
+            }
 
             // Remove any non-matching tenants holding the domains we need
             Tenant::whereIn('domain', [

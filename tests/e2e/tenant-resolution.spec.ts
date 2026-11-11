@@ -36,6 +36,8 @@ const HOSTS = {
   tenantA: 'a.open-source-dashboard.ddev.site',
   tenantB: 'b.open-source-dashboard.ddev.site',
   wwwTenantA: 'www.a.open-source-dashboard.ddev.site',
+  // A host no tenant owns; listed in .ddev/config.yaml so the DDEV router forwards it.
+  unknown: 'unknown.open-source-dashboard.ddev.site',
 };
 
 const TENANT_CONFIG = '/api/v1/config/tenant';
@@ -143,9 +145,9 @@ test.describe('Domain-based Tenant Resolution', () => {
 
   test.describe('Default Fallback', () => {
     test('resolves default tenant from its configured domain', async ({ request }) => {
-      // The seeders derive the default domain from APP_URL.
+      // The seed command gives the default tenant the APP_URL host.
       const domain = fixtures.tenants.default.domain;
-      test.skip(!domain, 'default tenant has no domain');
+      expect(domain).toBeTruthy();
 
       const response = await request.get(TENANT_CONFIG, { headers: { Host: domain! } });
 
@@ -160,7 +162,7 @@ test.describe('Domain-based Tenant Resolution', () => {
     });
 
     test('unknown domain without token falls back to the default tenant', async ({ request }) => {
-      const response = await request.get(TENANT_CONFIG, { headers: { Host: 'unknown.example' } });
+      const response = await request.get(TENANT_CONFIG, { headers: { Host: HOSTS.unknown } });
 
       expect(response.ok()).toBeTruthy();
 

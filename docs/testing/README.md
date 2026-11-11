@@ -54,8 +54,12 @@ requests to the same base URL and sets the tenant domain in the `Host` header, s
 test domains need no DNS entries.
 
 `tests/e2e/frontend/export.spec.ts` (project `exports`) opens the `demo-city` tenant on
-the `demo-city.` subdomain of the base URL host. It needs tiles and pages in that tenant
-(`dashboard:reset`). Without DDEV, use `localhost` in `APP_URL` and `PLAYWRIGHT_BASE_URL`;
+the `demo-city.` subdomain of the base URL host. It needs tiles and pages in that tenant,
+which `e2e:seed-full` does not create. Seed them with `php artisan dashboard:reset --force`.
+The command reads a dashboard file in the legacy JSON format from `SEED_DASHBOARD_JSON`
+(default `storage/app/seeds/dashboard.json`, not in the repository) or downloads it from
+`SEED_DASHBOARD_JSON_URL`; see [Seeding](../deployment/seeding.md). **It deletes the
+content of the default and Demo City tenants**, so run it only on a test database. Without DDEV, use `localhost` in `APP_URL` and `PLAYWRIGHT_BASE_URL`;
 the seeders derive the tenant domains from `APP_URL`, and `demo-city.localhost` resolves to
 the local machine.
 
