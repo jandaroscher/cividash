@@ -49,3 +49,11 @@ jobs:
       contents: read
     uses: ./.github/workflows/mirror-opencode.yml
     secrets: inherit
+
+  opencode-release:
+    # After images (SBOMs attached) and mirror (tag on openCode).
+    needs: [images, mirror]
+    permissions:
+      contents: read
+    uses: ./.github/workflows/opencode-releases.yml
+    secrets: inherit
