@@ -27,12 +27,12 @@ class CivitasConfigTest extends TestCase
 
     public function test_api_url_default_uses_stellio_ngsi_ld_path(): void
     {
-        // CORE V1.6.2 exposes NGSI-LD via Stellio at /context/ngsi-ld,
-        // not the legacy /ngsi-ld/v1 path. Default must reflect this.
+        // CORE v1 routes /context/ngsi-ld/* to Stellio's /ngsi-ld/*, and the
+        // client appends /entities, so the base must carry the /v1 segment.
         // No CIVITAS_API_URL env override is set in the test environment,
         // so config() resolves to the hard-coded default.
         $this->assertSame(
-            'http://localhost:8080/context/ngsi-ld',
+            'http://localhost:8080/context/ngsi-ld/v1',
             config('integrations.civitas.api_url'),
         );
     }

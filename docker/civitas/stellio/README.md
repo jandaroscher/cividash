@@ -52,11 +52,11 @@ The api-gateway (`:8080` internally) is published to the host on `8090` (`API_GA
 
 The Laravel/Filament app runs inside DDEV, while this broker runs in a separate docker compose on the host. DDEV containers reach the host via the `host.docker.internal` alias. Because the api-gateway port is published to the host, DDEV can reach it at `http://host.docker.internal:8090/ngsi-ld/v1`. (`localhost` from inside DDEV would point at the DDEV container itself, not the broker, so always use `host.docker.internal`.)
 
-## `/ngsi-ld/v1` (local) vs `/context/ngsi-ld` (production)
+## `/ngsi-ld/v1` (local) vs `/context/ngsi-ld/v1` (production)
 
-Bare Stellio serves NGSI-LD at its native base path `/ngsi-ld/v1`. CORE production fronts Stellio with APISIX and exposes NGSI-LD at `/context/ngsi-ld`.
+Bare Stellio serves NGSI-LD at its native base path `/ngsi-ld/v1`. CORE production fronts Stellio with APISIX, which rewrites `/context/ngsi-ld/*` to `/ngsi-ld/*`, so the base path there is `/context/ngsi-ld/v1`.
 
-Our config default (`config/integrations.php`) stays on the production path `/context/ngsi-ld`. For local dev we override it via the `CIVITAS_API_URL` env var to Stellio's native `/ngsi-ld/v1`. The config itself never changes for this.
+Our config default (`config/integrations.php`) is the production path `/context/ngsi-ld/v1`. For local dev we override it via the `CIVITAS_API_URL` env var to Stellio's native `/ngsi-ld/v1`.
 
 ## Connecting the dashboard (sync proof)
 

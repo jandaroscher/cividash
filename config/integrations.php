@@ -24,9 +24,10 @@ return [
         // 'sensorthings' (FROST). Selects the client + data mapper used.
         'driver' => env('CIVITAS_DRIVER', 'ngsi-ld'),
 
-        // API base URL. CORE V1.6.2 exposes NGSI-LD via Stellio at
-        // '/context/ngsi-ld' (NOT the legacy '/ngsi-ld/v1' path).
-        'api_url' => env('CIVITAS_API_URL', 'http://localhost:8080/context/ngsi-ld'),
+        // API base URL including the NGSI-LD version segment. CORE v1 routes
+        // '/context/ngsi-ld/*' through APISIX to Stellio's '/ngsi-ld/*', so
+        // the base is '/context/ngsi-ld/v1'; bare Stellio serves '/ngsi-ld/v1'.
+        'api_url' => env('CIVITAS_API_URL', 'http://localhost:8080/context/ngsi-ld/v1'),
 
         // JSON-LD @context URL sent with NGSI-LD requests. May be null when
         // the broker serves a default context.
