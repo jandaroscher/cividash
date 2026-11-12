@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+#
+# SPDX-License-Identifier: EUPL-1.2+
+
+# Copies the release images of a tag from GHCR to the openCode container
+# registry (registry.opencode.de/regensburg_next/cividash), so the images are
+# also available outside GitHub. A copy, not a rebuild: digests stay the same.
+# Idempotent; run it manually to backfill an older tag.
+# OPENCODE_MIRROR_TOKEN needs the "write_registry" scope.
+name: openCode images
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, e.g. v1.1.3
+        required: true
+        type: string
+
+concurrency:
+  group: opencode-images-${{ inputs.tag }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SOURCE: ghcr.io/jandaroscher
+      TARGET: registry.opencode.de/regensburg_next/cividash
+      TAG: ${{ inputs.tag }}
+    steps:
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6  # v4.7.0
+        with:
+          registry: registry.opencode.de
+          username: oauth2
+          password: ${{ secrets.OPENCODE_MIRROR_TOKEN }}
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069  # v4.4.1
+
+      - name: Copy app and web images
+        run: |
+          set -euo pipefail
+          VERSION="${TAG#v}"
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "not a release tag: $TAG" >&2; exit 1; }
+          # Moving tags (minor, latest) only follow the newest GitHub release.
+          LATEST=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)
+          for image in cividash-app cividash-web; do
+            tags=(-t "$TARGET/$image:$VERSION")
+            if [ "$TAG" = "$LATEST" ]; then
+              tags+=(-t "$TARGET/$image:${VERSION%.*}" -t "$TARGET/$image:latest")
+            fi
+            docker buildx imagetools create "${tags[@]}" "$SOURCE/$image:$VERSION"
+            echo "$image:$VERSION copied to openCode"
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

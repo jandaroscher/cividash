@@ -179,7 +179,11 @@ dependency updates (Dependabot), releases (tags, GitHub Releases and
 `ghcr.io/jandaroscher/cividash-app` and `ghcr.io/jandaroscher/cividash-web` all come from
 https://github.com/jandaroscher/cividash. Watch that repository for new releases and
 security fixes. The openCode repository is a mirror for discoverability; changes made
-there are not merged back.
+there are not merged back. Each release's images are also copied unchanged (same
+digests) to the openCode registry as
+`registry.opencode.de/regensburg_next/cividash/cividash-app` and
+`registry.opencode.de/regensburg_next/cividash/cividash-web`, so an operator can pull
+them without depending on GitHub.
 
 ## Privacy
 
@@ -198,6 +202,7 @@ requires a code change; it cannot be switched on by configuration.
 
 ## Contact and security
 
+- Maintainer and contact: Stadt Regensburg, code@regensburg.de.
 - Security vulnerabilities: report them privately as described in [SECURITY.md](SECURITY.md)
   (machine-readable: [public/.well-known/security.txt](public/.well-known/security.txt)).
   Do not open a public issue.

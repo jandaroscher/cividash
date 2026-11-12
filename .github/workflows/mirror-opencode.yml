@@ -42,3 +42,20 @@ jobs:
           remote="https://oauth2:${OPENCODE_MIRROR_TOKEN}@gitlab.opencode.de/regensburg_next/cividash.git"
           git push "$remote" origin/main:refs/heads/main
           git push "$remote" 'refs/tags/*:refs/tags/*'
+      # Description and topics follow the GitHub repository settings, minus
+      # the mirror note and the "opencode" topic. Needs the "api" scope.
+      - name: Sync description and topics to openCode
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENCODE_MIRROR_TOKEN: ${{ secrets.OPENCODE_MIRROR_TOKEN }}
+        run: |
+          set -euo pipefail
+          [ -n "$OPENCODE_MIRROR_TOKEN" ] || exit 0
+          gh api "repos/$GITHUB_REPOSITORY" --jq '{
+              description: (.description // "" | sub(" *Mirror of openCode\\.?$"; "")),
+              topics: [.topics[] | select(. != "opencode")]
+            }' > metadata.json
+          curl -s --retry 3 --fail-with-body -X PUT -H "PRIVATE-TOKEN: $OPENCODE_MIRROR_TOKEN" \
+            -H 'Content-Type: application/json' --data @metadata.json \
+            "https://gitlab.opencode.de/api/v4/projects/regensburg_next%2F${GITHUB_REPOSITORY#*/}" > /dev/null
+          cat metadata.json
