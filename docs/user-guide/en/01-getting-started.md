@@ -74,6 +74,8 @@ The overview has two rows of cards:
 | 2 | **Documentation** | Links to the open-source documentation and the user guide |
 | 2 | **Server** | Technical facts about the installation (environment, server and local time, version numbers) |
 
+Below the cards is the line "Developed with ❤️ in Regensburg".
+
 The overview is reachable at any time via the **Overview** entry at the very top of the sidebar.
 
 > **Note:** The numbers shown always refer to the currently selected dashboard. After switching dashboards (see [Chapter 1.1, Login and Interface](01-getting-started.md#switch-dashboard)), the values update accordingly.

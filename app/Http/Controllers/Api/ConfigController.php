@@ -461,7 +461,9 @@ class ConfigController extends Controller
     /**
      * Retrieve dashboard meta configuration.
      *
-     * Returns contact details, documentation URLs, and display preferences.
+     * Returns contact details, documentation URLs, and display preferences. The admin
+     * overview shows only the documentation URLs and the server time; the contact
+     * fields and made_with_text are kept for API compatibility.
      *
      * @group Public API - Configuration
      *
@@ -508,6 +510,7 @@ class ConfigController extends Controller
      * Partially update navigation settings.
      *
      * Only provided fields are updated. Requires admin-api permission and an explicit tenant context.
+     * The contact fields and made_with_text are stored but no longer shown on the admin overview.
      *
      * @group Admin API - Navigation Configuration
      *

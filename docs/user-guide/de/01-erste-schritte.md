@@ -74,6 +74,8 @@ Die Übersicht zeigt zwei Reihen von Karten:
 | 2 | **Dokumentation** | Links zur Open-Source-Dokumentation und zum Nutzerhandbuch |
 | 2 | **Server** | Technische Eckdaten der Installation (Umgebung, Server- und lokale Zeit, Versionsstände) |
 
+Unter den Karten steht die Zeile „Mit ❤️ in Regensburg entwickelt“.
+
 Die Übersicht ist jederzeit über den Eintrag **Übersicht** ganz oben in der Seitenleiste erreichbar.
 
 > **Hinweis:** Die angezeigten Zahlen beziehen sich immer auf das aktuell gewählte Dashboard. Nach einem Wechsel des Dashboards (siehe [Kapitel 1.1, Anmeldung und Oberfläche](01-erste-schritte.md#dashboard-wechseln)) aktualisieren sich die Werte entsprechend.
