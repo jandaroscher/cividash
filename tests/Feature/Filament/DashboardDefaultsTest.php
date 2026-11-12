@@ -18,8 +18,8 @@ class DashboardDefaultsTest extends TestCase
     {
         $settings = app(DashboardSettings::class);
 
-        $this->assertSame('https://www.example.org/kontakt', $settings->open_source_docs_url);
-        $this->assertSame('https://www.example.org/kontakt', $settings->user_manual_url);
+        $this->assertSame('https://github.com/jandaroscher/cividash/tree/main/docs', $settings->open_source_docs_url);
+        $this->assertSame('https://github.com/jandaroscher/cividash/tree/main/docs/user-guide', $settings->user_manual_url);
         $this->assertNull($settings->contact_name);
         $this->assertSame('support@example.org', $settings->contact_email);
         $this->assertSame('https://www.example.org/kontakt', $settings->contact_url);

@@ -18,11 +18,22 @@ SPDX-License-Identifier: EUPL-1.2+
 
         $safeOpenSourceDocsUrl = $isSafeHttpUrl($openSourceDocsUrl);
         $safeUserManualUrl = $isSafeHttpUrl($userManualUrl);
-        $safeContactUrl = $isSafeHttpUrl($contactUrl);
-        $safeContactEmail = $contactEmail && filter_var($contactEmail, FILTER_VALIDATE_EMAIL)
-            ? $contactEmail
-            : null;
+
+        $stats = [
+            ['value' => $tileCount, 'label' => __('filament.pages.dashboard_overview.active_tiles')],
+            ['value' => $timePeriodCount, 'label' => __('filament.pages.dashboard_overview.period_data')],
+            ['value' => $categoryCount, 'label' => __('filament.pages.dashboard_overview.active_categories')],
+        ];
     @endphp
+
+    <div data-testid="dashboard-stats" class="grid grid-cols-1 gap-6 md:grid-cols-3">
+        @foreach($stats as $stat)
+            <x-filament::section>
+                <p class="dashboard-stat-value">{{ $stat['value'] }}</p>
+                <p class="dashboard-label mt-1 text-sm">{{ $stat['label'] }}</p>
+            </x-filament::section>
+        @endforeach
+    </div>
 
     <div data-testid="dashboard-grid" class="grid grid-cols-1 gap-6 md:grid-cols-2">
         <x-filament::section :heading="__('filament.pages.dashboard_overview.content_links')">
@@ -61,55 +72,6 @@ SPDX-License-Identifier: EUPL-1.2+
             @endif
         </x-filament::section>
 
-        <x-filament::section :heading="__('filament.pages.dashboard_overview.stats_heading')">
-            <ul class="space-y-2">
-                <li>
-                    {{ __('filament.pages.dashboard_overview.active_tiles', ['count' => $tileCount]) }}
-                </li>
-                <li>
-                    {{ __('filament.pages.dashboard_overview.period_data', ['count' => $timePeriodCount]) }}
-                </li>
-                <li>
-                    {{ __('filament.pages.dashboard_overview.active_categories', ['count' => $categoryCount]) }}
-                </li>
-            </ul>
-        </x-filament::section>
-
-        @if($contactName || $safeContactEmail || $safeContactUrl || $madeWithText)
-            <x-filament::section :heading="__('filament.pages.dashboard_overview.contact_heading')">
-                <ul class="space-y-2">
-                    @if($contactName)
-                        <li>{{ $contactName }}</li>
-                    @endif
-
-                    @if($safeContactEmail)
-                        <li>
-                            <a href="mailto:{{ $safeContactEmail }}" class="text-primary-600 underline dark:text-primary-400">
-                                {{ $safeContactEmail }}
-                            </a>
-                        </li>
-                    @endif
-
-                    @if($safeContactUrl)
-                        <li>
-                            <a
-                                href="{{ $safeContactUrl }}"
-                                class="text-primary-600 underline dark:text-primary-400"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                {{ $safeContactUrl }}
-                            </a>
-                        </li>
-                    @endif
-                </ul>
-
-                @if($madeWithText)
-                    <p class="dashboard-body mt-3 text-sm text-gray-700">{{ $madeWithText }}</p>
-                @endif
-            </x-filament::section>
-        @endif
-
         <x-filament::section :heading="__('filament.pages.dashboard_overview.server_time_heading')">
             <dl class="dashboard-body grid grid-cols-1 gap-3 text-sm text-gray-700">
                 <div class="flex items-center justify-between">
@@ -141,4 +103,6 @@ SPDX-License-Identifier: EUPL-1.2+
             </dl>
         </x-filament::section>
     </div>
+
+    <p class="dashboard-muted text-center text-sm">{{ __('filament.pages.dashboard_overview.made_with') }}</p>
 </x-filament-panels::page>

@@ -13,7 +13,7 @@ use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class DashboardContactTest extends TestCase
+class DashboardFooterTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -40,37 +40,37 @@ class DashboardContactTest extends TestCase
         Filament::setTenant($this->tenant);
     }
 
-    public function test_dashboard_renders_contact_block_from_settings(): void
+    public function test_dashboard_does_not_show_stored_contact_details(): void
     {
         $settings = app(DashboardSettings::class);
         $settings->contact_name = 'Open Source Team';
         $settings->contact_email = 'opensource@example.test';
         $settings->contact_url = 'https://example.test/kontakt';
+        $settings->made_with_text = 'Made with love in Demo City';
         $settings->save();
 
         $response = $this->followingRedirects()->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('Kontakt', false);
-        $response->assertSee('Open Source Team', false);
-        $response->assertSee('opensource@example.test', false);
-        $response->assertSee('https://example.test/kontakt', false);
+        $response->assertDontSee('Open Source Team', false);
+        $response->assertDontSee('opensource@example.test', false);
+        $response->assertDontSee('https://example.test/kontakt', false);
+        $response->assertDontSee('Made with love in Demo City', false);
     }
 
-    public function test_dashboard_skips_contact_links_with_unsafe_values(): void
+    public function test_dashboard_shows_made_in_regensburg_line_in_german(): void
     {
-        $settings = app(DashboardSettings::class);
-        $settings->contact_name = 'Open Source Team';
-        $settings->contact_email = 'not-an-email';
-        $settings->contact_url = 'javascript:alert(1)';
-        $settings->save();
-
         $response = $this->followingRedirects()->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('Open Source Team', false);
-        $response->assertDontSee('not-an-email', false);
-        $response->assertDontSee('javascript:alert(1)', false);
-        $response->assertDontSee('mailto:not-an-email', false);
+        $response->assertSee('Mit ❤️ in Regensburg entwickelt', false);
+    }
+
+    public function test_dashboard_shows_made_in_regensburg_line_in_english(): void
+    {
+        $response = $this->withSession(['locale' => 'en'])->followingRedirects()->get('/admin');
+
+        $response->assertStatus(200);
+        $response->assertSee('Developed with ❤️ in Regensburg', false);
     }
 }
