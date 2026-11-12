@@ -41,6 +41,7 @@ class Dashboard extends BaseDashboard
      *   tileCount: int,
      *   timePeriodCount: int,
      *   categoryCount: int,
+     *   madeIn: string|null,
      *   serverInfo: array<string, mixed>
      * } An associative array containing configuration values from DashboardSettings, counts for tiles and time periods, optionally the current server time, and a `serverInfo` map with server-related metadata. */
     protected function getViewData(): array
@@ -59,6 +60,7 @@ class Dashboard extends BaseDashboard
             'tileCount' => $tileCount,
             'timePeriodCount' => $timePeriodCount,
             'categoryCount' => $categoryCount,
+            'madeIn' => $settings->made_in,
             'serverInfo' => $serverInfo,
         ];
     }

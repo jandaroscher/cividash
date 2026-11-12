@@ -74,7 +74,7 @@ Die Übersicht zeigt zwei Reihen von Karten:
 | 2 | **Dokumentation** | Links zur Open-Source-Dokumentation und zum Nutzerhandbuch |
 | 2 | **Server** | Technische Eckdaten der Installation (Umgebung, Server- und lokale Zeit, Versionsstände) |
 
-Unter den Karten steht die Zeile „Mit ❤️ in Regensburg entwickelt“.
+Ist für die Installation ein Ort hinterlegt (Einstellung `made_in`, über die Admin-API), steht unter den Karten die Zeile „Mit ❤️ in *Ort* entwickelt“.
 
 Die Übersicht ist jederzeit über den Eintrag **Übersicht** ganz oben in der Seitenleiste erreichbar.
 

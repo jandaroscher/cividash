@@ -74,7 +74,7 @@ The overview has two rows of cards:
 | 2 | **Documentation** | Links to the open-source documentation and the user guide |
 | 2 | **Server** | Technical facts about the installation (environment, server and local time, version numbers) |
 
-Below the cards is the line "Developed with ❤️ in Regensburg".
+If the installation has a place set (setting `made_in`, through the admin API), the line "Developed with ❤️ in *place*" appears below the cards.
 
 The overview is reachable at any time via the **Overview** entry at the very top of the sidebar.
 

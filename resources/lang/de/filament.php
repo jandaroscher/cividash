@@ -261,6 +261,8 @@ return [
             'show_server_time' => 'Serverzeit anzeigen',
             'stats_section' => 'Statistiken',
             'made_with_text' => 'Made-with-Text',
+            'made_in' => 'Entwickelt in (Ort)',
+            'made_in_helper' => 'Erscheint unter der Übersicht als „Mit ❤️ in … entwickelt“. Leer lassen, um die Zeile auszublenden.',
         ],
         'dashboard_overview' => [
             'title' => 'Übersicht',
@@ -279,7 +281,7 @@ return [
             'active_tiles' => 'Aktive Kacheln',
             'period_data' => 'Zeitraumdaten',
             'active_categories' => 'Kategorien',
-            'made_with' => 'Mit ❤️ in Regensburg entwickelt',
+            'made_with' => 'Mit ❤️ in :place entwickelt',
         ],
         'manage_api_keys' => [
             'title' => 'API Keys',

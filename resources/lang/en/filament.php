@@ -96,6 +96,8 @@ return [
             'show_server_time' => 'Show server time',
             'stats_section' => 'Statistics',
             'made_with_text' => 'Made with text',
+            'made_in' => 'Developed in (place)',
+            'made_in_helper' => 'Shown below the overview as "Developed with ❤️ in …". Leave empty to hide the line.',
         ],
         'dashboard_overview' => [
             'title' => 'Overview',
@@ -114,7 +116,7 @@ return [
             'active_tiles' => 'Active tiles',
             'period_data' => 'Period data',
             'active_categories' => 'Categories',
-            'made_with' => 'Developed with ❤️ in Regensburg',
+            'made_with' => 'Developed with ❤️ in :place',
         ],
         'manage_api_keys' => [
             'title' => 'API Keys',

@@ -24,7 +24,7 @@ class DashboardDocsLinksMigrationTest extends TestCase
             'https://www.janda-roscher.de/kontakt' => self::DOCS,
             '' => self::DOCS,
             'javascript:alert(1)' => self::DOCS,
-            'https://regensburg.example.test/handbuch' => 'https://regensburg.example.test/handbuch',
+            'https://city.example.test/handbuch' => 'https://city.example.test/handbuch',
         ];
         $row = fn (int $tenantId) => DB::table('settings')
             ->where(['group' => 'dashboard', 'name' => 'user_manual_url', 'tenant_id' => $tenantId]);

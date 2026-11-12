@@ -58,19 +58,35 @@ class DashboardFooterTest extends TestCase
         $response->assertDontSee('Made with love in Demo City', false);
     }
 
-    public function test_dashboard_shows_made_in_regensburg_line_in_german(): void
+    public function test_dashboard_shows_developed_in_line_with_configured_place_in_german(): void
+    {
+        $settings = app(DashboardSettings::class);
+        $settings->made_in = 'Demo City';
+        $settings->save();
+
+        $response = $this->followingRedirects()->get('/admin');
+
+        $response->assertStatus(200);
+        $response->assertSee('Mit ❤️ in Demo City entwickelt', false);
+    }
+
+    public function test_dashboard_shows_developed_in_line_with_configured_place_in_english(): void
+    {
+        $settings = app(DashboardSettings::class);
+        $settings->made_in = 'Demo City';
+        $settings->save();
+
+        $response = $this->withSession(['locale' => 'en'])->followingRedirects()->get('/admin');
+
+        $response->assertStatus(200);
+        $response->assertSee('Developed with ❤️ in Demo City', false);
+    }
+
+    public function test_dashboard_hides_developed_in_line_without_place(): void
     {
         $response = $this->followingRedirects()->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('Mit ❤️ in Regensburg entwickelt', false);
-    }
-
-    public function test_dashboard_shows_made_in_regensburg_line_in_english(): void
-    {
-        $response = $this->withSession(['locale' => 'en'])->followingRedirects()->get('/admin');
-
-        $response->assertStatus(200);
-        $response->assertSee('Developed with ❤️ in Regensburg', false);
+        $response->assertDontSee('entwickelt', false);
     }
 }

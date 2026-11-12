@@ -105,6 +105,12 @@ class ManageDashboard extends SettingsPage
                             ->placeholder('Made with ❤️ in Demo City')
                             ->nullable()
                             ->maxLength(255),
+                        TextInput::make('made_in')
+                            ->label(__('filament.pages.manage_dashboard.made_in'))
+                            ->helperText(__('filament.pages.manage_dashboard.made_in_helper'))
+                            ->placeholder('Demo City')
+                            ->nullable()
+                            ->maxLength(255),
                     ])
                     ->columns(2),
                 Section::make(__('filament.pages.manage_dashboard.server_section'))

@@ -25,5 +25,6 @@ class DashboardDefaultsTest extends TestCase
         $this->assertSame('https://www.example.org/kontakt', $settings->contact_url);
         $this->assertTrue($settings->show_server_time);
         $this->assertNull($settings->made_with_text);
+        $this->assertNull($settings->made_in);
     }
 }
