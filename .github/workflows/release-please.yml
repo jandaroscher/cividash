@@ -50,15 +50,6 @@ jobs:
     uses: ./.github/workflows/mirror-opencode.yml
     secrets: inherit
 
-  opencode-images:
-    needs: [release-please, images]
-    permissions:
-      contents: read
-    uses: ./.github/workflows/opencode-images.yml
-    with:
-      tag: ${{ needs.release-please.outputs.tag_name }}
-    secrets: inherit
-
   opencode-release:
     # After images (SBOMs attached) and mirror (tag on openCode).
     needs: [images, mirror]
