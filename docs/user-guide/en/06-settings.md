@@ -330,6 +330,8 @@ Clicking an account opens the same form as when creating it. There, the role, da
 
 > **Note:** An account cannot deactivate itself — the corresponding toggle is disabled on its own record.
 
+> **Note (single sign-on):** For accounts that sign in with Keycloak, the admin status and the role in the default dashboard come from Keycloak. Changes made here are overwritten at the next sign-in; change these roles in Keycloak instead.
+
 <!-- Screenshot: Edit a user -->
 ![Edit a user](../assets/screenshots/en/07-user-edit.png)
 

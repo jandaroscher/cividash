@@ -330,6 +330,8 @@ Ein Klick auf einen Account öffnet dasselbe Formular wie beim Anlegen. Dort las
 
 > **Hinweis:** Ein Konto kann nicht sich selbst deaktivieren — der entsprechende Schalter ist im eigenen Datensatz gesperrt.
 
+> **Hinweis (Single Sign-on):** Bei Konten mit Keycloak-Anmeldung kommen Admin-Status und Rolle im Standard-Dashboard aus Keycloak. Änderungen hier werden bei der nächsten Anmeldung überschrieben; diese Rollen in Keycloak ändern.
+
 <!-- Screenshot: Benutzer bearbeiten -->
 ![Benutzer bearbeiten](../assets/screenshots/de/07-benutzer-bearbeiten.png)
 
