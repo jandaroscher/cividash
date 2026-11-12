@@ -21,7 +21,7 @@ Mit **Anmelden** bestätigen.
 
 > **Hinweis:** Nach fünf fehlgeschlagenen Anmeldeversuchen wird der Zugang vorübergehend gesperrt. Eine Minute warten und erneut versuchen.
 
-> **Hinweis (Single Sign-on):** Single Sign-on bedeutet Anmeldung mit dem zentralen Konto der eigenen Organisation, hier über Keycloak, den Anmeldedienst der Plattform. Ist diese Anmeldung eingerichtet, zeigt die Anmeldeseite die Schaltfläche **Mit Keycloak anmelden**; manche Installationen bieten nur diese Schaltfläche. Mit dem Keycloak-Konto der eigenen Organisation anmelden. Das CiviDash-Konto entsteht bei der ersten Anmeldung, die Rollen kommen aus Keycloak.
+> **Hinweis (Single Sign-on):** Single Sign-on bedeutet Anmeldung mit dem zentralen Konto der eigenen Organisation, hier über Keycloak, den Anmeldedienst der Plattform. Ist diese Anmeldung eingerichtet, zeigt die Anmeldeseite die Schaltfläche **Mit Keycloak anmelden**; manche Installationen bieten nur diese Schaltfläche. Mit dem Keycloak-Konto der eigenen Organisation anmelden. Das CiviDash-Konto entsteht bei der ersten Anmeldung, die Rollen kommen aus Keycloak. Voraussetzung ist eine in Keycloak bestätigte E-Mail-Adresse; sonst schlägt die Anmeldung fehl. Dann die E-Mail-Adresse in Keycloak bestätigen oder an die Administration wenden.
 
 ### Aufbau der Oberfläche
 

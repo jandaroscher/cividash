@@ -21,7 +21,7 @@ Confirm with **Sign in**.
 
 > **Note:** After five failed login attempts, access is temporarily locked. Wait one minute and try again.
 
-> **Note (single sign-on):** Single sign-on means signing in with the central account of your organization, here through Keycloak, the login service of the platform. Where it is set up, the login page shows a **Sign in with Keycloak** button; some installations offer only this button. Sign in with the Keycloak account of your organization. The CiviDash account is created at the first sign-in, and the roles come from Keycloak.
+> **Note (single sign-on):** Single sign-on means signing in with the central account of your organization, here through Keycloak, the login service of the platform. Where it is set up, the login page shows a **Sign in with Keycloak** button; some installations offer only this button. Sign in with the Keycloak account of your organization. The CiviDash account is created at the first sign-in, and the roles come from Keycloak. This requires a verified email address in Keycloak; otherwise the sign-in fails. In that case, verify the email address in Keycloak or contact the administrator.
 
 ### Interface layout
 
