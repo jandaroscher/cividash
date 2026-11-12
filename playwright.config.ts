@@ -12,14 +12,13 @@ import { defineConfig } from '@playwright/test';
  * filter/search, locale switching, content pages, and branding.
  *
  * Prerequisites:
- * - ddev must be running: `ddev start`
- * - Test data must be seeded: `ddev php artisan e2e:seed-full --clean --json`
- * - ddev hostnames configured: a.open-source-dashboard.ddev.site, b.open-source-dashboard.ddev.site
+ * - A running app at PLAYWRIGHT_BASE_URL. The default is the DDEV site; any other
+ *   server works too, e.g. `php artisan serve` (see docs/testing/README.md).
+ * - Test data seeded: `${E2E_ARTISAN_CMD} e2e:seed-full --clean --json`.
+ *   E2E_ARTISAN_CMD defaults to `ddev exec php artisan`.
  *
- * Set PLAYWRIGHT_BASE_URL to run against another server, e.g. `php artisan serve`.
- * Specs seed fixtures via `${E2E_ARTISAN_CMD} e2e:seed-full --json` etc.;
- * E2E_ARTISAN_CMD defaults to `ddev exec php artisan`. tenant-resolution.spec.ts and
- * export.spec.ts need the ddev tenant subdomains and keep their own hostnames.
+ * tenant-resolution.spec.ts sends tenant domains in the Host header, and
+ * export.spec.ts uses the demo-city subdomain of the base URL host.
  * See docs/testing/README.md.
  */
 export default defineConfig({
