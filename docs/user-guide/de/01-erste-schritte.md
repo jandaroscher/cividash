@@ -21,6 +21,8 @@ Mit **Anmelden** bestätigen.
 
 > **Hinweis:** Nach fünf fehlgeschlagenen Anmeldeversuchen wird der Zugang vorübergehend gesperrt. Eine Minute warten und erneut versuchen.
 
+> **Single Sign-on:** Ist die Anmeldung über Keycloak eingerichtet, zeigt die Anmeldeseite die Schaltfläche **Mit Keycloak anmelden**; manche Installationen bieten nur diese Schaltfläche. Mit dem Keycloak-Konto der eigenen Organisation anmelden. Das CiviDash-Konto entsteht bei der ersten Anmeldung, die Rollen kommen aus Keycloak.
+
 ### Aufbau der Oberfläche
 
 Nach der Anmeldung öffnet sich der Adminbereich. Die Oberfläche gliedert sich in drei Bereiche:

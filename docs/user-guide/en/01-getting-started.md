@@ -21,6 +21,8 @@ Confirm with **Sign in**.
 
 > **Note:** After five failed login attempts, access is temporarily locked. Wait one minute and try again.
 
+> **Single sign-on:** Where Keycloak sign-in is set up, the login page shows a **Sign in with Keycloak** button; some installations offer only this button. Sign in with the Keycloak account of your organization. The CiviDash account is created at the first sign-in, and the roles come from Keycloak.
+
 ### Interface layout
 
 After logging in, the admin panel opens. The interface is divided into three areas:

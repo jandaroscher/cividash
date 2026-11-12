@@ -21,10 +21,13 @@ related CIVITAS/CORE add-on is maintained separately.
 ## Where to start
 
 - **Editors and admins in the municipal administration:** the admin panel of a running
-  dashboard is at `/admin` on its domain, e.g. `https://dashboard.example.org/admin`. Sign
-  in with email and password, or with **Sign in with Keycloak** where single sign-on is set
-  up. Accounts are created by an admin of the dashboard. The
-  [user guide](docs/user-guide/en/00-introduction.md)
+  dashboard is at `/admin` on its domain, e.g. `https://dashboard.example.org/admin`. If
+  you do not know the domain, ask whoever runs your dashboard. Sign in with email and
+  password, or with **Sign in with Keycloak** (German: **Mit Keycloak anmelden**) where
+  single sign-on is set up; some installations offer only the Keycloak button. An admin
+  of the dashboard creates your account; with Keycloak, whoever manages your Keycloak or
+  CIVITAS/CORE accounts grants access, and the account is created at your first sign-in.
+  The [user guide](docs/user-guide/en/00-introduction.md)
   ([German](docs/user-guide/de/00-einstieg.md)) explains the panel step by step, starting
   with [login and interface](docs/user-guide/en/01-getting-started.md)
   ([German](docs/user-guide/de/01-erste-schritte.md)).
@@ -98,8 +101,7 @@ Other setups:
 - DDEV is for local development only ([docs/deployment/ddev.md](docs/deployment/ddev.md)).
 - Local CIVITAS/CORE test environment: [docker/civitas/README.md](docker/civitas/README.md).
 
-Operators start with the [admin guide](docs/admin-guide.md). Hosted deployments are
-maintained outside this repository.
+Hosted deployments are maintained outside this repository.
 
 ## Services and ports
 
