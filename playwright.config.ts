@@ -14,7 +14,7 @@ import { defineConfig } from '@playwright/test';
  * Prerequisites:
  * - A running app at PLAYWRIGHT_BASE_URL. The default is the DDEV site; any other
  *   server works too, e.g. `php artisan serve` (see docs/testing/README.md).
- * - Test data seeded: `${E2E_ARTISAN_CMD} e2e:seed-full --clean --json`.
+ * - Test data seeded: `${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --clean --json`.
  *   E2E_ARTISAN_CMD defaults to `ddev exec php artisan`.
  *
  * tenant-resolution.spec.ts sends tenant domains in the Host header, and

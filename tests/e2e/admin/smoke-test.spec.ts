@@ -17,7 +17,7 @@ import { execSync } from 'child_process';
  *
  * Prerequisites:
  * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
- * - Test data seeded via: ${E2E_ARTISAN_CMD} e2e:seed-full --json
+ * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
  */
 
 let fixtures: {
