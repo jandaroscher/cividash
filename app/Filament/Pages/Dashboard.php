@@ -36,15 +36,12 @@ class Dashboard extends BaseDashboard
      * @return array{
      *   openSourceDocsUrl: string|null,
      *   userManualUrl: string|null,
-     *   contactName: string|null,
-     *   contactEmail: string|null,
-     *   contactUrl: string|null,
      *   showServerTime: bool,
      *   serverTime: string|null,
      *   tileCount: int,
      *   timePeriodCount: int,
      *   categoryCount: int,
-     *   madeWithText: string|null,
+     *   madeIn: string|null,
      *   serverInfo: array<string, mixed>
      * } An associative array containing configuration values from DashboardSettings, counts for tiles and time periods, optionally the current server time, and a `serverInfo` map with server-related metadata. */
     protected function getViewData(): array
@@ -58,15 +55,12 @@ class Dashboard extends BaseDashboard
         return [
             'openSourceDocsUrl' => $settings->open_source_docs_url,
             'userManualUrl' => $settings->user_manual_url,
-            'contactName' => $settings->contact_name,
-            'contactEmail' => $settings->contact_email,
-            'contactUrl' => $settings->contact_url,
             'showServerTime' => $settings->show_server_time,
             'serverTime' => $settings->show_server_time ? $serverInfo['server_time'] : null,
             'tileCount' => $tileCount,
             'timePeriodCount' => $timePeriodCount,
             'categoryCount' => $categoryCount,
-            'madeWithText' => $settings->made_with_text,
+            'madeIn' => $settings->made_in,
             'serverInfo' => $serverInfo,
         ];
     }

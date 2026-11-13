@@ -461,13 +461,16 @@ class ConfigController extends Controller
     /**
      * Retrieve dashboard meta configuration.
      *
-     * Returns contact details, documentation URLs, and display preferences.
+     * Returns contact details, documentation URLs, and display preferences. The admin
+     * overview shows the documentation URLs, the server time and, when set, a
+     * "developed in" line with made_in. The contact fields and made_with_text are
+     * kept for API compatibility and are not shown.
      *
      * @group Public API - Configuration
      *
      * @unauthenticated
      *
-     * @response 200 scenario="Dashboard config" {"data": {"open_source_docs_url": "https://example.com/docs", "user_manual_url": null, "contact_name": "Max Mustermann", "contact_email": "max@example.com", "contact_url": null, "made_with_text": "Made with love", "show_server_time": false}}
+     * @response 200 scenario="Dashboard config" {"data": {"open_source_docs_url": "https://example.com/docs", "user_manual_url": null, "contact_name": "Max Mustermann", "contact_email": "max@example.com", "contact_url": null, "made_with_text": "Made with love", "made_in": "Demo City", "show_server_time": false}}
      */
     public function dashboard(): JsonResource
     {
@@ -480,6 +483,7 @@ class ConfigController extends Controller
             'contact_email' => $settings->contact_email,
             'contact_url' => $settings->contact_url,
             'made_with_text' => $settings->made_with_text,
+            'made_in' => $settings->made_in,
             'show_server_time' => $settings->show_server_time,
         ]);
     }
@@ -508,6 +512,7 @@ class ConfigController extends Controller
      * Partially update navigation settings.
      *
      * Only provided fields are updated. Requires admin-api permission and an explicit tenant context.
+     * The contact fields and made_with_text are stored but no longer shown on the admin overview.
      *
      * @group Admin API - Navigation Configuration
      *
@@ -659,10 +664,11 @@ class ConfigController extends Controller
      * @bodyParam contact_name string Contact person name. Example: Max Mustermann
      * @bodyParam contact_email string Contact email address. Example: max@example.com
      * @bodyParam contact_url string Contact URL. Example: https://example.com/contact
-     * @bodyParam made_with_text string Made-with attribution text. Example: Made with love
+     * @bodyParam made_with_text string Made-with attribution text (no longer shown on the admin overview). Example: Made with love
+     * @bodyParam made_in string Place shown in the "developed with love in ..." line below the admin overview. Example: Demo City
      * @bodyParam show_server_time boolean Show server time in dashboard. Example: false
      *
-     * @response 200 scenario="Dashboard settings updated" {"data": {"open_source_docs_url": "https://example.com/docs", "user_manual_url": null, "contact_name": "Max Mustermann", "contact_email": "max@example.com", "contact_url": null, "made_with_text": "Made with love", "show_server_time": false}}
+     * @response 200 scenario="Dashboard settings updated" {"data": {"open_source_docs_url": "https://example.com/docs", "user_manual_url": null, "contact_name": "Max Mustermann", "contact_email": "max@example.com", "contact_url": null, "made_with_text": "Made with love", "made_in": "Demo City", "show_server_time": false}}
      */
     public function updateDashboard(UpdateDashboardRequest $request): JsonResource
     {
@@ -687,6 +693,7 @@ class ConfigController extends Controller
             'contact_email' => $settings->contact_email,
             'contact_url' => $settings->contact_url,
             'made_with_text' => $settings->made_with_text,
+            'made_in' => $settings->made_in,
             'show_server_time' => $settings->show_server_time,
         ]);
     }

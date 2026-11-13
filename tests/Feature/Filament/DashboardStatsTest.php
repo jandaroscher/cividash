@@ -12,7 +12,6 @@ use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Models\User;
-use App\Settings\DashboardSettings;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -44,7 +43,7 @@ class DashboardStatsTest extends TestCase
         Filament::setTenant($this->tenant);
     }
 
-    public function test_dashboard_renders_stats_and_made_with_text(): void
+    public function test_dashboard_renders_each_stat_as_number_above_label(): void
     {
         Tile::create([
             'title' => ['de' => 'Tile A', 'en' => 'Tile A'],
@@ -78,18 +77,13 @@ class DashboardStatsTest extends TestCase
         $group = CategoryGroup::factory()->forTenant($this->tenant)->create();
         Category::factory()->forGroup($group)->count(3)->create();
 
-        $settings = app(DashboardSettings::class);
-        $settings->made_with_text = 'Made with ❤️ in Demo City';
-        $settings->save();
-
         $response = $this->followingRedirects()->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('Statistiken', false);
-        $response->assertSee('2 aktive Kacheln', false);
-        $response->assertSee('3 Zeitraumdaten', false);
-        $response->assertSee('3 Kategorien', false);
-        $response->assertSee('Kontakt', false);
-        $response->assertSee('Made with ❤️ in Demo City', false);
+        $response->assertSeeInOrder([
+            '<p class="dashboard-stat-value">2</p>', 'Aktive Kacheln',
+            '<p class="dashboard-stat-value">3</p>', 'Zeitraumdaten',
+            '<p class="dashboard-stat-value">3</p>', 'Kategorien',
+        ], false);
     }
 }
