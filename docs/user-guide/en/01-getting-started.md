@@ -21,6 +21,8 @@ Confirm with **Sign in**.
 
 > **Note:** After five failed login attempts, access is temporarily locked. Wait one minute and try again.
 
+> **Note (single sign-on):** Single sign-on means signing in with the central account of your organization, here through Keycloak, the login service of the platform. Where it is set up, the login page shows a **Sign in with Keycloak** button; some installations offer only this button. Sign in with the Keycloak account of your organization. The CiviDash account is created at the first sign-in, and the roles come from Keycloak. This requires a verified email address in Keycloak; otherwise the sign-in fails. In that case, verify the email address in Keycloak or contact the administrator.
+
 ### Interface layout
 
 After logging in, the admin panel opens. The interface is divided into three areas:
@@ -63,17 +65,18 @@ The active dashboard is shown at the top of the sidebar (in the example, "Demo C
 
 After signing in, the **Overview** opens — the admin panel's home screen. It summarizes the state of the active dashboard and serves as the starting point for all further tasks.
 
-<!-- Screenshot: Overview home screen with the four info cards -->
+<!-- Screenshot: Overview home screen with the statistics row, the documentation and server cards, and the footer line -->
 ![Dashboard overview](../assets/screenshots/en/01-admin-overview.png)
 
-The overview consists of four info cards:
+The overview has two rows of cards:
 
-| Card | Content |
-|------|---------|
-| **Documentation** | Links to the open-source documentation and the user guide |
-| **Statistics** | Number of active tiles, recorded time-period entries, and categories in the current dashboard |
-| **Contact** | Contact person and support address |
-| **Server** | Technical facts about the installation (environment, server and local time, version numbers) |
+| Row | Card | Content |
+|-----|------|---------|
+| 1 | **Active tiles**, **Period data**, **Categories** | One figure each: the number of active tiles, recorded time-period entries, and categories in the current dashboard |
+| 2 | **Documentation** | Links to the open-source documentation and the user guide |
+| 2 | **Server** | Technical facts about the installation (environment, server and local time, version numbers) |
+
+If the installation has a place set (setting `made_in`, through the admin API), the line "Developed with ❤️ in *place*" appears below the cards.
 
 The overview is reachable at any time via the **Overview** entry at the very top of the sidebar.
 

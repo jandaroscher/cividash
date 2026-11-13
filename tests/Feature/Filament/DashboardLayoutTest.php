@@ -37,12 +37,14 @@ class DashboardLayoutTest extends TestCase
         Filament::setTenant($this->tenant);
     }
 
-    public function test_dashboard_renders_two_column_layout_wrapper(): void
+    public function test_dashboard_renders_stats_row_above_two_column_grid(): void
     {
         $response = $this->followingRedirects()->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('data-testid="dashboard-grid"', false);
-        $response->assertSee('md:grid-cols-2', false);
+        $response->assertSeeInOrder([
+            'data-testid="dashboard-stats" class="grid grid-cols-1 gap-6 md:grid-cols-3"',
+            'data-testid="dashboard-grid" class="grid grid-cols-1 gap-6 md:grid-cols-2"',
+        ], false);
     }
 }

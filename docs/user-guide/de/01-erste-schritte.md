@@ -21,6 +21,8 @@ Mit **Anmelden** bestätigen.
 
 > **Hinweis:** Nach fünf fehlgeschlagenen Anmeldeversuchen wird der Zugang vorübergehend gesperrt. Eine Minute warten und erneut versuchen.
 
+> **Hinweis (Single Sign-on):** Single Sign-on bedeutet Anmeldung mit dem zentralen Konto der eigenen Organisation, hier über Keycloak, den Anmeldedienst der Plattform. Ist diese Anmeldung eingerichtet, zeigt die Anmeldeseite die Schaltfläche **Mit Keycloak anmelden**; manche Installationen bieten nur diese Schaltfläche. Mit dem Keycloak-Konto der eigenen Organisation anmelden. Das CiviDash-Konto entsteht bei der ersten Anmeldung, die Rollen kommen aus Keycloak. Voraussetzung ist eine in Keycloak bestätigte E-Mail-Adresse; sonst schlägt die Anmeldung fehl. Dann die E-Mail-Adresse in Keycloak bestätigen oder an die Administration wenden.
+
 ### Aufbau der Oberfläche
 
 Nach der Anmeldung öffnet sich der Adminbereich. Die Oberfläche gliedert sich in drei Bereiche:
@@ -63,17 +65,18 @@ Am oberen Rand der Seitenleiste wird das aktive Dashboard angezeigt (im Beispiel
 
 Nach der Anmeldung öffnet sich die **Übersicht** — die Startseite des Adminbereichs. Sie fasst den Zustand des aktiven Dashboards zusammen und dient als Ausgangspunkt für alle weiteren Aufgaben.
 
-<!-- Screenshot: Übersicht-Startseite mit den vier Info-Karten -->
+<!-- Screenshot: Übersicht-Startseite mit der Statistik-Zeile, den Karten Dokumentation und Server und der Fußzeile -->
 ![Dashboard-Übersicht](../assets/screenshots/de/01-oberflaeche-uebersicht.png)
 
-Die Übersicht besteht aus vier Info-Karten:
+Die Übersicht zeigt zwei Reihen von Karten:
 
-| Karte | Inhalt |
-|-------|--------|
-| **Dokumentation** | Links zur Open-Source-Dokumentation und zum Nutzerhandbuch |
-| **Statistiken** | Anzahl der aktiven Kacheln, der erfassten Zeitraumdaten und der Kategorien im aktuellen Dashboard |
-| **Kontakt** | Ansprechpartner und Support-Adresse |
-| **Server** | Technische Eckdaten der Installation (Umgebung, Server- und lokale Zeit, Versionsstände) |
+| Reihe | Karte | Inhalt |
+|-------|-------|--------|
+| 1 | **Aktive Kacheln**, **Zeitraumdaten**, **Kategorien** | Je eine Zahl: Anzahl der aktiven Kacheln, der erfassten Zeitraumdaten und der Kategorien im aktuellen Dashboard |
+| 2 | **Dokumentation** | Links zur Open-Source-Dokumentation und zum Nutzerhandbuch |
+| 2 | **Server** | Technische Eckdaten der Installation (Umgebung, Server- und lokale Zeit, Versionsstände) |
+
+Ist für die Installation ein Ort hinterlegt (Einstellung `made_in`, über die Admin-API), steht unter den Karten die Zeile „Mit ❤️ in *Ort* entwickelt“.
 
 Die Übersicht ist jederzeit über den Eintrag **Übersicht** ganz oben in der Seitenleiste erreichbar.
 

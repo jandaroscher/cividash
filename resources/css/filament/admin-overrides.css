@@ -98,6 +98,12 @@
     color: #4b5563 !important; /* gray-600 */
 }
 
+.dashboard-stat-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 2.25rem;
+}
+
 .dark .dashboard-muted {
     color: #9ca3af !important; /* gray-400 */
 }
