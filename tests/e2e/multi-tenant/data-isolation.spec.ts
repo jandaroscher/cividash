@@ -12,8 +12,8 @@ import { execSync } from 'child_process';
  * only return data belonging to their respective tenant.
  *
  * Prerequisites:
- * - ddev running
- * - Test data seeded via: ddev php artisan e2e:seed-full --json
+ * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
+ * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
  */
 
 let fixtures: {
@@ -50,8 +50,7 @@ test.describe('Multi-Tenant Data Isolation', () => {
         throw new Error('Seeding failed');
       }
     } catch (error) {
-      console.error('Failed to seed test data. Make sure ddev is running.');
-      console.error('Run: ddev start && ddev php artisan e2e:seed-full --json');
+      console.error('Failed to seed test data. Check E2E_ARTISAN_CMD (default: ddev exec php artisan).');
       throw error;
     }
   });

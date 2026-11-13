@@ -15,8 +15,10 @@ import { test, expect } from '@playwright/test';
  * - Footer is visible with navigation items
  *
  * Prerequisites:
- * - ddev running
- * - Test data seeded via: ddev php artisan e2e:seed-full --json
+ * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
+ * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
+ * - Tiles for the demo-city tenant: dashboard:reset (see docs/testing/README.md;
+ *   it deletes tenant content)
  */
 
 test.describe('Dashboard Navigation', () => {

@@ -14,8 +14,8 @@ import { test, expect } from '@playwright/test';
  * - Font family is applied from branding
  *
  * Prerequisites:
- * - ddev running
- * - Test data seeded via: ddev php artisan e2e:seed-full --json
+ * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
+ * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
  */
 
 test.describe('Branding', () => {
