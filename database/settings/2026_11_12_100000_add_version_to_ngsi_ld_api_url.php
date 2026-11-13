@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2+
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Spatie\LaravelSettings\Migrations\SettingsMigration;
 
@@ -28,6 +29,9 @@ return new class extends SettingsMigration
                         ->update(['payload' => json_encode(rtrim($url, '/').'/v1')]);
                 }
             });
+
+        // The rows were written directly, so a settings cache would keep the old URL.
+        Artisan::call('settings:clear-cache');
     }
 
     /**

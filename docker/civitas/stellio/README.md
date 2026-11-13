@@ -56,7 +56,7 @@ The Laravel/Filament app runs inside DDEV, while this broker runs in a separate 
 
 Bare Stellio serves NGSI-LD at its native base path `/ngsi-ld/v1`. CORE production fronts Stellio with APISIX, which rewrites `/context/ngsi-ld/*` to `/ngsi-ld/*`, so the base path there is `/context/ngsi-ld/v1`.
 
-Our config default (`config/integrations.php`) is the production path `/context/ngsi-ld/v1`. For local dev we override it via the `CIVITAS_API_URL` env var to Stellio's native `/ngsi-ld/v1`.
+Our config default (`config/integrations.php`) is the production path `/context/ngsi-ld/v1`. For local dev we override it via the `CIVITAS_API_URL` env var to Stellio's native `/ngsi-ld/v1`. A CORE API URL saved in the admin integration settings takes precedence over the env var, so clear it there or set it to the same value.
 
 ## Connecting the dashboard (sync proof)
 
