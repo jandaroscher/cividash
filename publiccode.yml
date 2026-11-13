@@ -31,8 +31,8 @@ legal:
 maintenance:
   type: internal
   contacts:
-    - name: "JANDA+ROSCHER GmbH & Co. KG"
-      email: "support@janda-roscher.de"
+    - name: "Stadt Regensburg"
+      email: "code@regensburg.de"
 
 usedBy:
   - "Stadt Regensburg"

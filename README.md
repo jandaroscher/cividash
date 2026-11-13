@@ -217,6 +217,7 @@ requires a code change; it cannot be switched on by configuration.
 
 ## Contact and security
 
+- Maintainer and contact: Stadt Regensburg, code@regensburg.de.
 - Security vulnerabilities: report them privately as described in [SECURITY.md](SECURITY.md)
   (machine-readable: [public/.well-known/security.txt](public/.well-known/security.txt)).
   Do not open a public issue.
