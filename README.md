@@ -150,7 +150,7 @@ Defaults below are the code defaults from `config/`.
 | Proxy | `TRUSTED_PROXIES` | `*` | Proxies whose `X-Forwarded-*` headers are trusted |
 | Logging | `LOG_CHANNEL` / `LOG_LEVEL` | `stack` / `debug` | Use `stderr` and `warning` or `info` in containers |
 | CORE sync | `CIVITAS_ENABLED` | `false` | Enables the scheduled `integration:sync-civitas` pull |
-| CORE sync | `CIVITAS_API_URL` / `CIVITAS_DRIVER` | `http://localhost:8080/context/ngsi-ld` / `ngsi-ld` | Broker URL and driver (`ngsi-ld` or `sensorthings`) |
+| CORE sync | `CIVITAS_API_URL` / `CIVITAS_DRIVER` | `http://localhost:8080/context/ngsi-ld/v1` / `ngsi-ld` | Broker URL and driver (`ngsi-ld` or `sensorthings`) |
 | CORE sync | `CIVITAS_OAUTH_TOKEN_URL` / `CIVITAS_OAUTH_CLIENT_ID` / `CIVITAS_OAUTH_CLIENT_SECRET` | empty | OAuth2 client credentials for the broker; the secret is secret |
 | CORE sync | `CIVITAS_SYNC_SCHEDULE` | `daily` | `daily` (04:00) or `hourly` |
 | SSO | `KEYCLOAK_SSO_ENABLED` / `KEYCLOAK_SSO_PASSWORD_LOGIN` | `false` / `true` | Keycloak login for the admin panel; `false` disables password login while SSO is on |

@@ -46,7 +46,7 @@ x-app-env: &app-env
 
   # CIVITAS integration points at the local bare Stellio broker on the host
   # (docker/civitas/stellio stack, host port 8090). NOTE: the bare broker serves
-  # NGSI-LD at /ngsi-ld/v1; behind CORE's APISIX the prod path is /context/ngsi-ld.
+  # NGSI-LD at /ngsi-ld/v1; behind CORE's APISIX the prod path is /context/ngsi-ld/v1.
   CIVITAS_ENABLED: "true"
   CIVITAS_DRIVER: ngsi-ld
   CIVITAS_API_URL: http://host.docker.internal:8090/ngsi-ld/v1
