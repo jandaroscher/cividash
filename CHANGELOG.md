@@ -5,6 +5,30 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/jandaroscher/cividash/compare/v1.1.3...v1.2.0) (2026-11-17)
+
+
+### Features
+
+* **admin:** show a fixed developed-in line below the overview ([#98](https://github.com/jandaroscher/cividash/issues/98)) ([f7f72c6](https://github.com/jandaroscher/cividash/commit/f7f72c6d62e891a17e2e67ae3f4da5e63ad5e46e))
+* **admin:** show overview stats as figures and drop the contact card ([#96](https://github.com/jandaroscher/cividash/issues/96)) ([1bd09ac](https://github.com/jandaroscher/cividash/commit/1bd09acbcf62c4dc103f103b51f6647e4f8510db))
+* **opencode:** sync metadata, name the city as contact ([#92](https://github.com/jandaroscher/cividash/issues/92)) ([4cc3897](https://github.com/jandaroscher/cividash/commit/4cc38976c7741c9981f3bba62bd1a5c676fe7b19))
+
+
+### Bug Fixes
+
+* **deps:** bump phpseclib to 4.0.3 for PKSA-h7cz-q7zq-mdkt ([#95](https://github.com/jandaroscher/cividash/issues/95)) ([e7c7357](https://github.com/jandaroscher/cividash/commit/e7c735751462b90e68f5f9fd1d91c9bc7e817080))
+* **integration:** include /v1 in the NGSI-LD base URL for CORE ([#94](https://github.com/jandaroscher/cividash/issues/94)) ([80125d7](https://github.com/jandaroscher/cividash/commit/80125d732085c4173dae04527cc59eb3495e46a0))
+
+
+### Documentation
+
+* **civitas:** align the CORE test broker and the E2E domain specs ([#86](https://github.com/jandaroscher/cividash/issues/86)) ([3bb9feb](https://github.com/jandaroscher/cividash/commit/3bb9febbaf43c529d5cea19b6f2d45c5b5b6f265))
+* **e2e:** drop the stale DDEV requirement from spec headers ([#91](https://github.com/jandaroscher/cividash/issues/91)) ([fe159e6](https://github.com/jandaroscher/cividash/commit/fe159e600ef53528390a14842c20fa92060804ca))
+* **media:** name 1.1.2 as the last release with prefixed S3 keys ([#83](https://github.com/jandaroscher/cividash/issues/83)) ([f86a09c](https://github.com/jandaroscher/cividash/commit/f86a09cd6225ea379b495f04b4b92ba6d500a9ef))
+* **readme:** point administrations to the admin panel and user guide ([#93](https://github.com/jandaroscher/cividash/issues/93)) ([b8d5d15](https://github.com/jandaroscher/cividash/commit/b8d5d15881edd94d9f854acf4eaca27a3818e8ba))
+* **user-guide:** retake the admin overview screenshots with demo data ([#97](https://github.com/jandaroscher/cividash/issues/97)) ([66b7a4b](https://github.com/jandaroscher/cividash/commit/66b7a4b3dea3e6543d825dcf09e247d348ba1914))
+
 ## [1.1.3](https://github.com/jandaroscher/cividash/compare/v1.1.2...v1.1.3) (2026-11-10)
 
 
