@@ -58,35 +58,21 @@ class DashboardFooterTest extends TestCase
         $response->assertDontSee('Made with love in Demo City', false);
     }
 
-    public function test_dashboard_shows_developed_in_line_with_configured_place_in_german(): void
+    public function test_dashboard_always_shows_the_developed_in_line_in_german(): void
     {
-        $settings = app(DashboardSettings::class);
-        $settings->made_in = 'Demo City';
-        $settings->save();
-
         $response = $this->followingRedirects()->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('Mit ❤️ in Demo City entwickelt', false);
+        $response->assertSee(trans('filament.pages.dashboard_overview.made_with', [], 'de'), false);
+        $response->assertSee('Mit ❤️ in', false);
     }
 
-    public function test_dashboard_shows_developed_in_line_with_configured_place_in_english(): void
+    public function test_dashboard_always_shows_the_developed_in_line_in_english(): void
     {
-        $settings = app(DashboardSettings::class);
-        $settings->made_in = 'Demo City';
-        $settings->save();
-
         $response = $this->withSession(['locale' => 'en'])->followingRedirects()->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('Developed with ❤️ in Demo City', false);
-    }
-
-    public function test_dashboard_hides_developed_in_line_without_place(): void
-    {
-        $response = $this->followingRedirects()->get('/admin');
-
-        $response->assertStatus(200);
-        $response->assertDontSee('entwickelt', false);
+        $response->assertSee(trans('filament.pages.dashboard_overview.made_with', [], 'en'), false);
+        $response->assertSee('Developed with ❤️ in', false);
     }
 }

@@ -79,15 +79,19 @@ jobs:
       - name: Check product core for tenant-specific names
         run: |
           set +e
-          git grep -n -i regensburg -- app config database resources tests
+          matches=$(git grep -n -i regensburg -- app config database resources tests)
           status=$?
           set -e
-          if [ "$status" -eq 0 ]; then
-            echo "::error::Tenant-specific name found in the product core (see matches above)."
-            exit 1
-          elif [ "$status" -ne 1 ]; then
+          if [ "$status" -gt 1 ]; then
             echo "::error::git grep failed with exit code $status."
             exit "$status"
+          fi
+          # The admin overview credits where the product is built; that line is not tenant content.
+          matches=$(printf '%s\n' "$matches" | grep -v -E "^resources/lang/(de|en)/filament\.php:[0-9]+: +'made_with' => " || true)
+          if [ -n "$matches" ]; then
+            echo "$matches"
+            echo "::error::Tenant-specific name found in the product core (see matches above)."
+            exit 1
           fi
 
       - name: Setup PHP
