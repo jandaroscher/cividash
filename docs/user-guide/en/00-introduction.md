@@ -1,6 +1,6 @@
 # User Guide
 
-**Last updated:** 2026-11-12
+**Last updated:** 2026-11-17
 
 ---
 
