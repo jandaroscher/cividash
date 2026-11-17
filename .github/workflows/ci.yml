@@ -87,7 +87,7 @@ jobs:
             exit "$status"
           fi
           # The admin overview credits where the product is built; that line is not tenant content.
-          matches=$(printf '%s\n' "$matches" | grep -v -E "^resources/lang/(de|en)/filament\.php:[0-9]+: +'made_with' => " || true)
+          matches=$(printf '%s\n' "$matches" | grep -v -E "^resources/lang/de/filament\.php:[0-9]+: +'made_with' => 'Mit ❤️ in Regensburg entwickelt',\$|^resources/lang/en/filament\.php:[0-9]+: +'made_with' => 'Developed with ❤️ in Regensburg',\$" || true)
           if [ -n "$matches" ]; then
             echo "$matches"
             echo "::error::Tenant-specific name found in the product core (see matches above)."

@@ -24,10 +24,15 @@ class DashboardMadeInRemovalMigrationTest extends TestCase
             );
         }
 
-        (require database_path('settings/2026_11_17_100000_remove_dashboard_made_in.php'))->up();
+        $migration = require database_path('settings/2026_11_17_100000_remove_dashboard_made_in.php');
+        $migration->up();
 
         $this->assertSame(0, DB::table('settings')->where(['group' => 'dashboard', 'name' => 'made_in'])->count());
         app()->forgetInstance(DashboardSettings::class);
         $this->assertNotNull(app(DashboardSettings::class)->open_source_docs_url);
+
+        $migration->down();
+
+        $this->assertSame(1, DB::table('settings')->where(['group' => 'dashboard', 'name' => 'made_in'])->count());
     }
 }

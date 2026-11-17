@@ -17,4 +17,12 @@ return new class extends SettingsMigration
     {
         DB::table('settings')->where('group', 'dashboard')->where('name', 'made_in')->delete();
     }
+
+    /**
+     * Earlier builds require the property, so a rollback re-adds it empty.
+     */
+    public function down(): void
+    {
+        $this->migrator->add('dashboard.made_in', null);
+    }
 };

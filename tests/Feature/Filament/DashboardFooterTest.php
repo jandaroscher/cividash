@@ -65,6 +65,7 @@ class DashboardFooterTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee(trans('filament.pages.dashboard_overview.made_with', [], 'de'), false);
         $response->assertSee('Mit ❤️ in', false);
+        $response->assertDontSee(':place', false);
     }
 
     public function test_dashboard_always_shows_the_developed_in_line_in_english(): void
@@ -74,5 +75,6 @@ class DashboardFooterTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee(trans('filament.pages.dashboard_overview.made_with', [], 'en'), false);
         $response->assertSee('Developed with ❤️ in', false);
+        $response->assertDontSee(':place', false);
     }
 }
