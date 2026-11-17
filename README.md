@@ -25,10 +25,10 @@ related CIVITAS/CORE add-on is maintained separately.
   you do not know the domain, ask whoever runs your dashboard. Sign in with email and
   password, or with **Sign in with Keycloak** (German: **Mit Keycloak anmelden**) where
   single sign-on is set up; some installations offer only the Keycloak button. The
-  [user guide](docs/user-guide/en/00-introduction.md)
-  ([German](docs/user-guide/de/00-einstieg.md)) explains the panel step by step, starting
-  with [login and interface](docs/user-guide/en/01-getting-started.md)
-  ([German](docs/user-guide/de/01-erste-schritte.md)).
+  **user guide** ([German](docs/user-guide/de/00-einstieg.md) /
+  [English](docs/user-guide/en/00-introduction.md)) explains the panel step by step,
+  starting with **login and interface** ([German](docs/user-guide/de/01-erste-schritte.md) /
+  [English](docs/user-guide/en/01-getting-started.md)).
 - **Getting access:** an admin of the dashboard creates your account. With Keycloak,
   whoever manages your Keycloak or CIVITAS/CORE accounts grants access, and the account is
   created at your first sign-in.
@@ -183,7 +183,7 @@ store absolute media URLs.
 - [Deployment](docs/deployment)
 - [Testing](docs/testing)
 - [Data upload](docs/upload)
-- [User guide](docs/user-guide) (CMS usage, German and English)
+- **User guide** for CMS usage ([German](docs/user-guide/de/00-einstieg.md) / [English](docs/user-guide/en/00-introduction.md))
 - [CHANGELOG.md](CHANGELOG.md)
 
 ## Contributing
