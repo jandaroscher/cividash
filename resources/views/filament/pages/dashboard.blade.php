@@ -104,7 +104,5 @@ SPDX-License-Identifier: EUPL-1.2+
         </x-filament::section>
     </div>
 
-    @if(filled($madeIn))
-        <p class="dashboard-muted text-center text-sm">{{ __('filament.pages.dashboard_overview.made_with', ['place' => $madeIn]) }}</p>
-    @endif
+    <p class="dashboard-muted text-center text-sm">{{ __('filament.pages.dashboard_overview.made_with') }}</p>
 </x-filament-panels::page>

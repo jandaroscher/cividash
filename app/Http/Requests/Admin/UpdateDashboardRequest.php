@@ -24,7 +24,6 @@ class UpdateDashboardRequest extends FormRequest
             'contact_email' => ['sometimes', 'nullable', 'string', 'email', 'max:255'],
             'contact_url' => ['sometimes', 'nullable', 'string', 'max:500'],
             'made_with_text' => ['sometimes', 'nullable', 'string', 'max:500'],
-            'made_in' => ['sometimes', 'nullable', 'string', 'max:255'],
             'show_server_time' => ['sometimes', 'boolean'],
         ];
     }

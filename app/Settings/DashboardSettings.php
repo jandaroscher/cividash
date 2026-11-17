@@ -24,8 +24,6 @@ class DashboardSettings extends Settings
 
     public ?string $made_with_text;
 
-    public ?string $made_in;
-
     /**
      * Get the settings group name used to register these settings.
      *
