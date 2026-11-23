@@ -20,7 +20,7 @@ on:
       - '**/*.md'
 
 env:
-  PHP_VERSION: '8.2'
+  PHP_VERSION: '8.4'
 
 concurrency:
   group: ci-${{ github.ref }}

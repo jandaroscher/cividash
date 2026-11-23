@@ -6,9 +6,9 @@ server, outside of the DDEV/CI setup used for development. It reflects the curre
 
 ## 1. System requirements
 
-- **PHP**: 8.2 or newer (composer.json `require.php` is `^8.2`). CI
+- **PHP**: 8.4 or newer (composer.json `require.php` is `^8.4`). CI
   (`.github/workflows/ci-postgres.yml`), DDEV (`.ddev/config.yaml`) and the production image
-  use 8.2.
+  use 8.4.
 - **PHP extensions**: `mbstring`, `intl`, `bcmath`, `gd`, `curl`, `xml`, `zip`, `redis`
   (from the CI `setup-php` step; see Known limitations on whether `redis` is strictly required).
 - **Node.js**: 22 (`.github/workflows/ci.yml` `actions/setup-node`). `npm ci` is used,

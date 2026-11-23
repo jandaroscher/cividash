@@ -26,8 +26,8 @@ on:
   workflow_dispatch:
 
 env:
-  # Test on the composer floor (PHP 8.2).
-  PHP_VERSION: '8.2'
+  # Test on the composer floor (PHP 8.4).
+  PHP_VERSION: '8.4'
 
 concurrency:
   group: ci-postgres-${{ github.ref }}

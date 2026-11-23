@@ -83,7 +83,7 @@ updates:
     commit-message:
       prefix: "fix(docker)"
     ignore:
-      # Stay on the PHP 8.2 line; moving to a newer PHP minor is a planned upgrade.
+      # Stay on the PHP 8.4 line; moving to a newer PHP minor is a planned upgrade.
       - dependency-name: "php"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "node"
