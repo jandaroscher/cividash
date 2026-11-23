@@ -70,3 +70,25 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+
+  # Base images of the production containers. Only exact tags are tracked, so
+  # the runtime images are pinned to an exact patch release.
+  - package-ecosystem: "docker"
+    directories:
+      - "/docker/production"
+      - "/docker/production/nginx"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "fix(docker)"
+    ignore:
+      # Stay on the PHP 8.2 line; moving to a newer PHP minor is a planned upgrade.
+      - dependency-name: "php"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "composer"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "nginxinc/nginx-unprivileged"
+        update-types: ["version-update:semver-major"]

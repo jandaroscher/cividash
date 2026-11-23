@@ -23,7 +23,8 @@ FROM ${APP_IMAGE} AS appsrc
 
 # Rootless nginx (uid 101, listens on 8080, pid/temp paths under /tmp). Every
 # process in the image runs as the nginx user; no capabilities are needed.
-FROM nginxinc/nginx-unprivileged:alpine
+# Pinned to an exact release so Dependabot proposes nginx security updates.
+FROM nginxinc/nginx-unprivileged:1.31.7-alpine
 
 # Laravel front controller + compiled assets, served straight from disk.
 COPY --from=appsrc --chown=nginx:nginx /var/www/html/public /var/www/html/public
