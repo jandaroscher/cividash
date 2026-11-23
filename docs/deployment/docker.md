@@ -12,7 +12,7 @@ Two images, built from the repo root as build context:
   dependencies. Stage 3 (`php:8.2.35-fpm-alpine`) is the runtime image: PHP-FPM on port 9000,
   running as `www-data`. This one image is the workload for `fpm`, `queue:work`, the
   `schedule:run` loop and one-shot `migrate --force`.
-- `cividash-web` (`docker/production/nginx/Dockerfile`): thin rootless `nginxinc/nginx-unprivileged:alpine`
+- `cividash-web` (`docker/production/nginx/Dockerfile`): thin rootless `nginxinc/nginx-unprivileged` (exact alpine release)
   front listening on port 8080 (no root, no capabilities). Copies
   `public/` from an already-built `cividash-app` image (`--build-arg APP_IMAGE=...`) and proxies
   PHP requests to `cividash-fpm:9000`. Config: `docker/production/nginx/nginx.conf`.

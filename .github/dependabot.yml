@@ -72,7 +72,7 @@ updates:
         patterns: ["*"]
 
   # Base images of the production containers. Only exact tags are tracked, so
-  # the runtime images are pinned to a patch release (e.g. php:8.2.36-fpm-alpine).
+  # the runtime images are pinned to an exact patch release.
   - package-ecosystem: "docker"
     directories:
       - "/docker/production"
