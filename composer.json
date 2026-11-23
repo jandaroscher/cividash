@@ -11,7 +11,7 @@
         "source": "https://github.com/jandaroscher/cividash"
     },
     "require": {
-        "php": "^8.2",
+        "php": "^8.4",
         "aws/aws-sdk-php": "^3.0",
         "bezhansalleh/filament-language-switch": "^3.1",
         "codewithdennis/filament-simple-alert": "^3.0",
@@ -91,7 +91,7 @@
             "php-http/discovery": true
         },
         "platform": {
-            "php": "8.2.36"
+            "php": "8.4.28"
         },
         "audit": {
             "abandoned": "report"

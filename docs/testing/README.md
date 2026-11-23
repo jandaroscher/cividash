@@ -20,7 +20,7 @@ ddev exec php artisan test tests/Feature/Api/                # one directory
 ddev exec vendor/bin/pint --test                             # code style check
 ```
 
-Without DDEV, run the same commands without `ddev exec`. You need PHP 8.2 or later and
+Without DDEV, run the same commands without `ddev exec`. You need PHP 8.4 or later and
 `composer install`.
 
 ## Vitest

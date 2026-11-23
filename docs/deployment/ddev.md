@@ -16,7 +16,7 @@ ddev exec php artisan db:seed           # seed demo data (tenants, roles)
 ddev exec npm run build                 # build frontend assets (public routes need the Vite manifest)
 ```
 
-Config: `.ddev/config.yaml`. Project type `laravel`, PHP 8.2, nginx-fpm, docroot `public`.
+Config: `.ddev/config.yaml`. Project type `laravel`, PHP 8.4, nginx-fpm, docroot `public`.
 
 ## Database: PostgreSQL 16
 
