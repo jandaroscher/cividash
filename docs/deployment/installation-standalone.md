@@ -66,7 +66,7 @@ column or add swap.
   about 220 MB, and `node_modules` about 270 MB when you build on the host. The database
   stays small. Media uploads and log files grow over time, so size the disk for your uploads,
   set `LOG_LEVEL` as described in [section 5](#5-environment-variables), and rotate
-  `storage/logs/` (logrotate, or `LOG_STACK=daily`).
+  `storage/logs/` (logrotate, or `LOG_STACK=daily` followed by `php artisan config:cache`).
 
 Traffic, the number of dashboards and the amount of media change these figures. Treat them as a
 starting point and monitor the server.
