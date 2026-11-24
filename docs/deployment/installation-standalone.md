@@ -36,6 +36,36 @@ server, outside of the DDEV/CI setup used for development. It reflects the curre
   and run the post-deploy steps below there. A separate, container-based production setup also exists in this repo under
   `docker/production/`, see docker.md if you'd rather deploy with Docker.
 
+### Hardware
+
+| Resource | Minimum | Recommended |
+| --- | --- | --- |
+| CPU | 1 vCPU | 2 vCPU |
+| RAM | 1 GB | 2 GB |
+| Disk | 10 GB, including the operating system | 20 GB, plus media uploads |
+
+These figures are for one server without a desktop (Debian or Ubuntu Server) that runs the
+webserver, PHP-FPM and PostgreSQL, with the frontend and Composer dependencies built elsewhere
+(CI or the Docker image):
+
+- **Memory**: [Debian](https://www.debian.org/releases/trixie/amd64/ch03s04.en.html)
+  recommends 1 GB for an installation without a desktop, and
+  [Ubuntu Server](https://documentation.ubuntu.com/server/reference/installation/system-requirements/)
+  needs at least 1 GB for cloud images. CiviDash itself is a small CRUD application without
+  image processing, search or websocket services. PHP-FPM, PostgreSQL with its default
+  `shared_buffers` of 128 MB and nginx fit into that.
+- **Building on the server**: Composer raises its own memory limit to 1.5 GB
+  ([Composer troubleshooting](https://getcomposer.org/doc/articles/troubleshooting.md#memory-limit-errors)),
+  and the Vite build runs on Node.js. If you build on the target host, plan for 2 GB of RAM or
+  add swap.
+- **Disk**: the operating system needs 4 to 5 GB, the application with its PHP dependencies
+  about 220 MB, and `node_modules` about 270 MB when you build on the host. The database
+  stays small. Media uploads and log files grow over time, so size the disk for your uploads
+  and set `LOG_LEVEL` as described in section 5.
+
+Traffic, the number of dashboards and the amount of media change these figures. Treat them as a
+starting point and monitor the server.
+
 ## 2. Step-by-step installation
 
 ```bash
