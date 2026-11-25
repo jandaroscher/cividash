@@ -63,6 +63,7 @@ resources/views/scribe/
 public/vendor/scribe/
 public/docs/
 public/css/filament/
+public/fonts/filament/
 public/css/app/
 public/js/filament/
 public/css/pboivin/

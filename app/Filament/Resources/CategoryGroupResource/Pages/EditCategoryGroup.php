@@ -7,7 +7,6 @@
 namespace App\Filament\Resources\CategoryGroupResource\Pages;
 
 use App\Filament\Resources\CategoryGroupResource;
-use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;

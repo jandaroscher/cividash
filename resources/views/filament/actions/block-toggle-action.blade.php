@@ -7,11 +7,11 @@ SPDX-License-Identifier: EUPL-1.2+
 {{-- Same Livewire wiring as Filament's own action buttons (Action::toButtonHtml()). --}}
 <x-filament::block-toggle
     :attributes="
-        (new \Illuminate\View\ComponentAttributeBag([
+        (new \Illuminate\View\ComponentAttributeBag(array_filter([
             'wire:click' => $action->getLivewireClickHandler(),
             'wire:target' => $action->getLivewireTarget(),
             'x-on:click' => $action->getAlpineClickHandler(),
-        ]))
+        ], filled(...))))
             ->merge($action->getExtraAttributes(), escape: false)
             ->class(['fi-ac-block-toggle-action self-center'])
     "

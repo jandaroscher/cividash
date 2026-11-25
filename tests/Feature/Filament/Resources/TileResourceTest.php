@@ -69,7 +69,7 @@ class TileResourceTest extends TestCase
 
         // Filament sets tabindex client-side (x-bind) and handles Enter/Space on the switch.
         $this->assertMatchesRegularExpression(
-            '/x-bind:tabindex="[^"]*\'0\'"[^>]*x-on:keydown\.space[^>]*role="switch"[^>]*aria-label="'.preg_quote(__('filament.resources.tile.is_public'), '/').'"/s',
+            '/aria-checked="(true|false)"[^>]*x-bind:tabindex="[^"]*\'0\'"[^>]*x-on:keydown\.space[^>]*role="switch"[^>]*aria-label="'.preg_quote(__('filament.resources.tile.is_public'), '/').'"/s',
             $html,
         );
     }
