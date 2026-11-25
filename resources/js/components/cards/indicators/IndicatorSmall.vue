@@ -12,7 +12,7 @@ SPDX-License-Identifier: EUPL-1.2+
       width="80"
       height="80"
       :src="imageUrl"
-      :alt="title"
+      alt=""
       loading="lazy"
     >
 

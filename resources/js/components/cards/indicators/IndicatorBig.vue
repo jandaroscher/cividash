@@ -31,7 +31,7 @@ SPDX-License-Identifier: EUPL-1.2+
       height="216"
       width="363"
       :src="imageUrl"
-      :alt="title"
+      alt=""
       loading="lazy"
     >
 

@@ -81,7 +81,7 @@ SPDX-License-Identifier: EUPL-1.2+
           height="216"
           width="363"
           :src="imageUrl"
-          :alt="header"
+          alt=""
           loading="lazy"
           @error="onImageError"
         >
@@ -477,8 +477,7 @@ const years = ref([]);
 const currentYear = ref(null);
 const periodLabelMap = ref({});
 
-// vue-slider renders a plain focusable div; expose it to screen readers as a
-// slider that announces the selected period, not an index.
+// Announce the selected period instead of vue-slider's raw value (a period key).
 const sliderDotAttrs = computed(() => ({
     role: 'slider',
     'aria-label': currentLocale.value === 'en' ? 'Select period' : 'Zeitraum auswählen',

@@ -19,6 +19,9 @@
     RewriteRule ^ %1 [L,R=301]
 
     # Send Requests To Front Controller...
+    # Missing build assets stay 404s; the SPA must not answer them with HTML
+    # under the immutable cache header below.
+    RewriteCond %{REQUEST_URI} !^/build/
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
@@ -37,5 +40,7 @@
     </If>
     <ElseIf "%{REQUEST_URI} =~ m#^/storage/#">
         Header set Cache-Control "public, max-age=604800"
+        # Uploaded SVGs must not run script on the app origin when opened directly.
+        Header set Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; sandbox"
     </ElseIf>
 </IfModule>
