@@ -113,8 +113,8 @@ class TileShareImageTest extends TestCase
     public function test_tile_without_metrics_still_gets_a_preview(): void
     {
         $tile = Tile::create([
-            'title' => ['de' => str_repeat('Sehr langer Kacheltitel ', 12)],
-            'slug' => ['de' => 'text'],
+            'title' => ['de' => str_repeat('Sehr langer Kacheltitel ', 6)],
+            'slug' => ['de' => 'text', 'en' => 'text'],
             'description' => ['de' => '<p>Beschreibung mit <strong>Markup</strong>.</p>'],
         ]);
 
