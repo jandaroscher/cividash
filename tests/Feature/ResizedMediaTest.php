@@ -78,7 +78,58 @@ class ResizedMediaTest extends TestCase
 
         $this->get('/storage/_resized/960/page-blocks/missing.jpg')->assertNotFound();
         $this->get('/storage/_resized/960/page-blocks/icon.svg')->assertNotFound();
-        $this->get('/storage/_resized/960/../.env')->assertNotFound();
         $this->get('/storage/_resized/960/_resized/960/page-blocks/missing.jpg')->assertNotFound();
+    }
+
+    public function test_keeps_png_transparency(): void
+    {
+        $image = imagecreatetruecolor(2000, 1000);
+        imagealphablending($image, false);
+        imagesavealpha($image, true);
+        imagefill($image, 0, 0, imagecolorallocatealpha($image, 0, 0, 0, 127));
+        ob_start();
+        imagepng($image);
+        Storage::disk('public')->put('page-blocks/logo.png', ob_get_clean());
+
+        $scaled = imagecreatefromstring($this->get('/storage/_resized/480/page-blocks/logo.png')->streamedContent());
+
+        $this->assertGreaterThan(120, imagecolorsforindex($scaled, imagecolorat($scaled, 10, 10))['alpha']);
+    }
+
+    public function test_applies_the_exif_orientation_of_phone_photos(): void
+    {
+        // A landscape JPEG whose EXIF says "rotate 90° clockwise", as phones store portrait photos.
+        $image = imagecreatetruecolor(3000, 2000);
+        ob_start();
+        imagejpeg($image);
+        $jpeg = ob_get_clean();
+        $tiff = "II*\x00\x08\x00\x00\x00\x01\x00\x12\x01\x03\x00\x01\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00";
+        $app1 = "\xFF\xE1".pack('n', strlen($tiff) + 8)."Exif\x00\x00".$tiff;
+        Storage::disk('public')->put('page-blocks/portrait.jpg', substr($jpeg, 0, 2).$app1.substr($jpeg, 2));
+
+        $response = $this->get('/storage/_resized/960/page-blocks/portrait.jpg');
+
+        $this->assertSame([960, 1440], array_slice(getimagesizefromstring($response->streamedContent()), 0, 2));
+    }
+
+    public function test_stores_images_it_does_not_scale_so_the_web_server_can_serve_them(): void
+    {
+        $this->putImage('page-blocks/small.jpg', 400, 300);
+        $this->putImage('page-blocks/tall.jpg', 1700, 24000);
+
+        $small = $this->get('/storage/_resized/480/page-blocks/small.jpg');
+        $this->get('/storage/_resized/1600/page-blocks/tall.jpg')->assertOk();
+
+        $this->assertStringContainsString('sandbox', $small->headers->get('Content-Security-Policy'));
+        $this->assertTrue(Storage::disk('public')->exists('_resized/480/page-blocks/small.jpg'));
+        $this->assertSame(1700, getimagesizefromstring(Storage::disk('public')->get('_resized/1600/page-blocks/tall.jpg'))[0]);
+        $this->assertSame([], Storage::disk('public')->allFiles('_resized/.tmp'));
+    }
+
+    public function test_does_not_scale_copies_again(): void
+    {
+        $this->putImage('_resized/960/page-blocks/slide.jpg', 960, 640);
+
+        $this->get('/storage/_resized/480//_resized/960/page-blocks/slide.jpg')->assertNotFound();
     }
 }

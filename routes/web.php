@@ -45,6 +45,8 @@ Route::get('/storage/_resized/{width}/{path}', ResizedMediaController::class)
     ->whereNumber('width')
     ->where('path', '.*')
     ->withoutMiddleware($sessionless)
+    // Scaling is CPU-heavy; with the local disk only first requests reach PHP.
+    ->middleware('throttle:120,1')
     ->name('media.resized');
 
 // Public media (uploads on the 'public' disk), whatever driver backs the disk.

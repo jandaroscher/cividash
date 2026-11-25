@@ -50,13 +50,22 @@ describe('BlockImage', () => {
     });
 
     it('escapes spaces and commas in file names inside the srcset', () => {
-        const img = createWrapper({ src: '/storage/slider/logo GTC, final.png' }).find('img');
-        expect(img.attributes('srcset').split(', ')[0]).toBe('/storage/_resized/480/slider/logo%20GTC%2C%20final.png 480w');
+        const img = createWrapper({ src: '/storage/slider/team photo, final.png', sizes: '80vw' }).find('img');
+        expect(img.attributes('srcset').split(', ')[0]).toBe('/storage/_resized/480/slider/team%20photo%2C%20final.png 480w');
+    });
+
+    it('offers no srcset unless the block states the rendered width', () => {
+        expect(createWrapper({ src: '/storage/page-blocks/slide.jpg' }).find('img').attributes('srcset')).toBeUndefined();
+    });
+
+    it('treats an absolute URL on the own origin like a relative one', () => {
+        const img = createWrapper({ src: `${window.location.origin}/storage/hero/photo.jpg`, sizes: '100vw' }).find('img');
+        expect(img.attributes('srcset')).toContain('/storage/_resized/960/hero/photo.jpg 960w');
     });
 
     it('leaves vector graphics and external images as they are', () => {
         for (const src of ['/storage/icons/logo.svg', 'https://example.org/pic.jpg']) {
-            const img = createWrapper({ src }).find('img');
+            const img = createWrapper({ src, sizes: '80vw' }).find('img');
             expect(img.attributes('srcset')).toBeUndefined();
             expect(img.attributes('sizes')).toBeUndefined();
         }

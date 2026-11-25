@@ -27,20 +27,23 @@ const props = defineProps({
     title: { type: String, default: '' },
     copyright: { type: String, default: '' },
     imgClass: { type: [String, Array, Object], default: '' },
-    // Rendered width of the image, so the browser picks the smallest fitting copy.
-    sizes: { type: String, default: '(min-width: 768px) 50vw, 100vw' },
+    // Rendered width of the image. Set it only where CSS fixes the image width:
+    // with a srcset the browser renders an unstyled image at this width.
+    sizes: { type: String, default: '' },
 });
 
 // Widths the server scales uploads to (ResizedMediaController::WIDTHS).
 const RESIZED_WIDTHS = [480, 960, 1600];
 
 const srcset = computed(() => {
-    const match = /^\/storage\/(?!_resized\/)(.+\.(?:jpe?g|png|webp))$/i.exec(props.src);
+    if (!props.sizes) return undefined;
+    const src = props.src.startsWith(window.location.origin) ? props.src.slice(window.location.origin.length) : props.src;
+    const match = /^\/storage\/(?!_resized\/)(.+\.(?:jpe?g|png|webp))$/i.exec(src);
     if (!match) return undefined;
-    // srcset splits candidates on whitespace and commas, so both must be escaped.
+    // srcset splits candidates on whitespace and commas, so encode each segment.
     let path;
     try {
-        path = encodeURI(decodeURI(match[1])).replaceAll(',', '%2C');
+        path = match[1].split('/').map((segment) => encodeURIComponent(decodeURIComponent(segment))).join('/');
     } catch {
         return undefined;
     }
