@@ -172,8 +172,14 @@
                                     ></div>
                                 @endif
 
-                                <span class="fi-dropdown-list-item-label">
-                                    {{ $tenantName }}
+                                {{-- CiviDash: dashboard description below the name --}}
+                                <span class="fi-dropdown-list-item-label grid">
+                                    <span>{{ $tenantName }}</span>
+                                    @if (filled($tenant->description))
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $tenant->description }}
+                                        </span>
+                                    @endif
                                 </span>
                             </a>
                         @else

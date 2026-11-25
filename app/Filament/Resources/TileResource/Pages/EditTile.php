@@ -6,6 +6,7 @@
 
 namespace App\Filament\Resources\TileResource\Pages;
 
+use App\Filament\Concerns\OpensInLinkedLocale;
 use App\Filament\Resources\TileResource;
 use Filament\Actions;
 use Filament\Actions\Action;
@@ -19,6 +20,7 @@ use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable
 
 class EditTile extends EditRecord
 {
+    use OpensInLinkedLocale;
     use Translatable;
 
     protected static string $resource = TileResource::class;
@@ -29,11 +31,7 @@ class EditTile extends EditRecord
     {
         parent::mount($record);
 
-        $locale = request()->query('activeLocale');
-
-        if ($locale && in_array($locale, $this->getTranslatableLocales()) && $locale !== $this->activeLocale) {
-            $this->setActiveLocale($locale);
-        }
+        $this->openLinkedLocale();
     }
 
     /****

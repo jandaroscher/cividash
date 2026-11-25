@@ -6,6 +6,7 @@
 
 namespace App\Filament\Resources\CategoryResource\Pages;
 
+use App\Filament\Concerns\OpensInLinkedLocale;
 use App\Filament\Resources\CategoryResource;
 use Filament\Actions;
 use Filament\Actions\Action;
@@ -16,6 +17,7 @@ use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable
 
 class EditCategory extends EditRecord
 {
+    use OpensInLinkedLocale;
     use Translatable;
 
     protected static string $resource = CategoryResource::class;
@@ -24,11 +26,7 @@ class EditCategory extends EditRecord
     {
         parent::mount($record);
 
-        $locale = request()->query('activeLocale');
-
-        if ($locale && in_array($locale, $this->getTranslatableLocales()) && $locale !== $this->activeLocale) {
-            $this->setActiveLocale($locale);
-        }
+        $this->openLinkedLocale();
     }
 
     /**

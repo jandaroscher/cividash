@@ -6,6 +6,7 @@
 
 namespace App\Filament\Fabricator\Resources\PageResource\Pages;
 
+use App\Filament\Concerns\OpensInLinkedLocale;
 use App\Filament\Fabricator\Resources\PageResource;
 use Filament\Actions\Action;
 use Illuminate\Support\Arr;
@@ -15,6 +16,7 @@ use Z3d0X\FilamentFabricator\Resources\PageResource\Pages\EditPage as Fabricator
 
 class EditPage extends FabricatorEditPage
 {
+    use OpensInLinkedLocale;
     use Translatable;
 
     protected static string $resource = PageResource::class;
@@ -23,11 +25,7 @@ class EditPage extends FabricatorEditPage
     {
         parent::mount($record);
 
-        $locale = request()->query('activeLocale');
-
-        if ($locale && in_array($locale, $this->getTranslatableLocales()) && $locale !== $this->activeLocale) {
-            $this->setActiveLocale($locale);
-        }
+        $this->openLinkedLocale();
     }
 
     protected function getHeaderActions(): array

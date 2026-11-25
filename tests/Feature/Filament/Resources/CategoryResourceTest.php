@@ -126,6 +126,17 @@ class CategoryResourceTest extends TestCase
 
     // ========== Edit Page ==========
 
+    public function test_edit_page_opens_in_the_locale_from_the_link(): void
+    {
+        app()->setLocale('de');
+        $record = Category::factory()->forGroup($this->group)->create(['slug' => ['de' => 'deutscher-titel', 'en' => 'english-title']]);
+
+        Livewire::withQueryParams(['activeLocale' => 'en'])
+            ->test(EditCategory::class, ['record' => $record->getRouteKey()])
+            ->assertSet('activeLocale', 'en')
+            ->assertSchemaStateSet(['slug' => 'english-title']);
+    }
+
     public function test_edit_page_renders(): void
     {
         $category = Category::factory()->forGroup($this->group)->create();

@@ -49,6 +49,21 @@ class TenantMenuTest extends TestCase
         $this->assertStringContainsString('Second dashboard', $html);
     }
 
+    public function test_searchable_menu_with_many_dashboards_still_shows_descriptions(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $tenantIds = [$this->tenant->id];
+        foreach (range(1, 10) as $i) {
+            $tenantIds[] = Tenant::create(['slug' => "city-{$i}", 'name' => "City {$i}", 'description' => "Dashboard number {$i}"])->id;
+        }
+        $admin->tenants()->sync($tenantIds);
+
+        $html = $this->adminPageFor($admin);
+
+        $this->assertStringContainsString('x-model="search"', $html);
+        $this->assertStringContainsString('Dashboard number 7', $html);
+    }
+
     private function adminPageFor(User $user): string
     {
         $this->actingAs($user);

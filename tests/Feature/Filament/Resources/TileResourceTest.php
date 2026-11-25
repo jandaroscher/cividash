@@ -153,6 +153,17 @@ class TileResourceTest extends TestCase
 
     // ========== Edit Page ==========
 
+    public function test_edit_page_opens_in_the_locale_from_the_link(): void
+    {
+        app()->setLocale('de');
+        $record = Tile::factory()->forTenant($this->tenant)->create(['title' => ['de' => 'Deutscher Titel', 'en' => 'English title']]);
+
+        Livewire::withQueryParams(['activeLocale' => 'en'])
+            ->test(EditTile::class, ['record' => $record->getRouteKey()])
+            ->assertSet('activeLocale', 'en')
+            ->assertSchemaStateSet(['title' => 'English title']);
+    }
+
     public function test_edit_page_renders(): void
     {
         $tile = Tile::factory()->forTenant($this->tenant)->create();
