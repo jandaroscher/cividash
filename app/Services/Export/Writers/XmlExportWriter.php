@@ -57,8 +57,8 @@ class XmlExportWriter implements ExportWriter
         if (is_array($tenant)) {
             $this->xml->startElement('tenant');
             $this->xml->writeAttribute('id', (string) $tenant['id']);
-            $this->xml->writeAttribute('slug', $this->clean((string) $tenant['slug']));
-            $this->xml->text($this->clean((string) ($tenant['name'] ?? $tenant['slug'])));
+            $this->xml->writeAttribute('slug', XmlSafeText::clean((string) $tenant['slug']));
+            $this->xml->text(XmlSafeText::clean((string) ($tenant['name'] ?? $tenant['slug'])));
             $this->xml->endElement();
         }
 
@@ -128,18 +128,7 @@ class XmlExportWriter implements ExportWriter
             is_bool($value) => $value ? 'true' : 'false',
             // json_encode keeps the shortest round-trip form, like the JSON export.
             is_float($value) => json_encode($value, JSON_THROW_ON_ERROR),
-            default => $this->clean((string) $value),
+            default => XmlSafeText::clean((string) $value),
         };
-    }
-
-    /**
-     * XML 1.0 forbids most control characters; XMLWriter would emit them
-     * verbatim and leave the document unparseable.
-     */
-    private function clean(string $value): string
-    {
-        $value = mb_scrub($value, 'UTF-8');
-
-        return preg_replace('/[^\x{9}\x{A}\x{D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]/u', '', $value) ?? '';
     }
 }

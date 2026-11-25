@@ -85,7 +85,7 @@ class XmlExportWriterTest extends TestCase
         $query = new ExportQuery(format: ExportQuery::FORMAT_XML, locale: 'de', fields: FieldWhitelist::all());
 
         $xpath = $this->load($this->drainWriter($query, [$this->fullRow()], [
-            'tenant' => ['id' => 1, 'slug' => 'default', 'name' => 'Regensburg'],
+            'tenant' => ['id' => 1, 'slug' => 'default', 'name' => 'Default Dashboard'],
             'filter' => ['tile_ids' => [7], 'year_from' => 2020],
         ]));
 

@@ -62,8 +62,6 @@ return [
         'format' => 'Format',
         'format_json' => 'JSON',
         'format_csv' => 'CSV (Excel-kompatibel)',
-        'format_xml' => 'XML',
-        'format_xlsx' => 'Excel (.xlsx)',
         'fields' => 'Felder',
         'field_groups' => [
             'tile' => 'Kachel-Metadaten',

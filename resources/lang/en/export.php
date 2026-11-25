@@ -62,8 +62,6 @@ return [
         'format' => 'Format',
         'format_json' => 'JSON',
         'format_csv' => 'CSV (Excel-friendly)',
-        'format_xml' => 'XML',
-        'format_xlsx' => 'Excel (.xlsx)',
         'fields' => 'Fields',
         'field_groups' => [
             'tile' => 'Tile metadata',

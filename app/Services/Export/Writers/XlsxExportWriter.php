@@ -40,6 +40,8 @@ class XlsxExportWriter implements ExportWriter
 
     private string $tempFile;
 
+    private bool $closed = false;
+
     /** @var array<string, mixed> */
     private array $meta;
 
@@ -91,6 +93,7 @@ class XlsxExportWriter implements ExportWriter
         $this->writeInfoSheet();
         $this->writer->setCurrentSheet($data);
         $this->writer->close();
+        $this->closed = true;
 
         $file = fopen($this->tempFile, 'rb');
         stream_copy_to_stream($file, $stream);
@@ -99,7 +102,15 @@ class XlsxExportWriter implements ExportWriter
 
     public function __destruct()
     {
-        // Also runs when the export aborts before close().
+        // An export that aborts before close() still has OpenSpout's work
+        // folder on disk; only Writer::close() removes it.
+        if (! $this->closed && isset($this->writer)) {
+            try {
+                $this->writer->close();
+            } catch (\Throwable) {
+                // Cleanup only; the original error is already on its way.
+            }
+        }
         if (isset($this->tempFile) && is_file($this->tempFile)) {
             unlink($this->tempFile);
         }
@@ -142,8 +153,22 @@ class XlsxExportWriter implements ExportWriter
             return new EmptyCell(null, null);
         }
 
-        // Excel rejects longer cells; cut instead of aborting a half-sent download.
-        return new StringCell(mb_substr((string) $value, 0, self::MAX_CELL_LENGTH), null);
+        return new StringCell($this->fitCell(XmlSafeText::clean((string) $value)), null);
+    }
+
+    /**
+     * Excel limits a cell to 32,767 UTF-16 code units; cut instead of
+     * aborting a half-sent download.
+     */
+    private function fitCell(string $value): string
+    {
+        $utf16 = mb_convert_encoding($value, 'UTF-16LE', 'UTF-8');
+        if (strlen($utf16) <= self::MAX_CELL_LENGTH * 2) {
+            return $value;
+        }
+
+        // mb_strcut never splits a surrogate pair.
+        return mb_convert_encoding(mb_strcut($utf16, 0, self::MAX_CELL_LENGTH * 2, 'UTF-16LE'), 'UTF-8', 'UTF-16LE');
     }
 
     private function label(string $key): string

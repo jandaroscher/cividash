@@ -129,7 +129,7 @@ class XlsxExportWriterTest extends TestCase
         $query = new ExportQuery(format: ExportQuery::FORMAT_XLSX, locale: 'de', fields: [FieldWhitelist::TILE_TITLE]);
 
         $sheets = $this->export($query, [], [
-            'tenant' => ['id' => 1, 'slug' => 'default', 'name' => 'Regensburg'],
+            'tenant' => ['id' => 1, 'slug' => 'default', 'name' => 'Default Dashboard'],
             'filter' => ['year_from' => 2020],
         ]);
 
@@ -137,7 +137,7 @@ class XlsxExportWriterTest extends TestCase
         $this->assertSame('1.0', $info['Schema-Version']);
         $this->assertInstanceOf(DateTimeImmutable::class, $info['Erstellt am']);
         $this->assertSame('2026-11-25 10:30', $info['Erstellt am']->format('Y-m-d H:i'));
-        $this->assertSame('Regensburg (default)', $info['Dashboard']);
+        $this->assertSame('Default Dashboard (default)', $info['Dashboard']);
         $this->assertSame('{"year_from":2020}', $info['Filter']);
         // Empty export still has the header row.
         $this->assertCount(1, $sheets['Daten']);
@@ -150,5 +150,41 @@ class XlsxExportWriterTest extends TestCase
         $sheets = $this->export($query, [[FieldWhitelist::TILE_DESCRIPTION => str_repeat('ä', 40000)]]);
 
         $this->assertSame(32767, mb_strlen($sheets['Daten'][1][0]));
+    }
+
+    public function test_emoji_text_is_cut_by_utf16_units_without_splitting_a_character(): void
+    {
+        $query = new ExportQuery(format: ExportQuery::FORMAT_XLSX, locale: 'de', fields: [FieldWhitelist::TILE_DESCRIPTION]);
+
+        // Each emoji is two UTF-16 units: 32,767 units hold 16,383 of them.
+        $sheets = $this->export($query, [[FieldWhitelist::TILE_DESCRIPTION => 'a'.str_repeat('🌱', 20000)]]);
+
+        $cell = $sheets['Daten'][1][0];
+        $this->assertSame('a'.str_repeat('🌱', 16383), $cell);
+    }
+
+    public function test_characters_xml_forbids_are_dropped_so_excel_can_open_the_file(): void
+    {
+        $query = new ExportQuery(format: ExportQuery::FORMAT_XLSX, locale: 'de', fields: [FieldWhitelist::TILE_TITLE]);
+
+        $sheets = $this->export($query, [[FieldWhitelist::TILE_TITLE => "c\u{FFFE}d\u{FFFF}e"]]);
+
+        $this->assertSame('cde', $sheets['Daten'][1][0]);
+        $doc = new \DOMDocument;
+        $this->assertTrue($doc->loadXML($this->sheetXml('xl/worksheets/sheet1.xml')));
+    }
+
+    public function test_an_aborted_export_leaves_no_temporary_files(): void
+    {
+        $before = glob(sys_get_temp_dir().'/*') ?: [];
+
+        $writer = new XlsxExportWriter;
+        $stream = fopen('php://memory', 'w+b');
+        $writer->open($stream, new ExportQuery(format: ExportQuery::FORMAT_XLSX, locale: 'de', fields: [FieldWhitelist::TILE_TITLE]), []);
+        $writer->writeRow($stream, [FieldWhitelist::TILE_TITLE => 'A']);
+        unset($writer);
+        fclose($stream);
+
+        $this->assertSame([], array_values(array_diff(glob(sys_get_temp_dir().'/*') ?: [], $before)));
     }
 }
