@@ -8,8 +8,10 @@ namespace Tests\Feature\Sharing;
 
 use App\Models\MetricDefinition;
 use App\Models\MetricValue;
+use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TimePeriod;
+use App\Services\Sharing\TileShareImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -127,5 +129,56 @@ class TileShareImageTest extends TestCase
         $tile->update(['is_public' => false]);
 
         $this->get("/share/tiles/{$tile->id}.png")->assertNotFound();
+    }
+
+    public function test_preview_shows_the_period_the_tile_card_opens_on(): void
+    {
+        $tile = $this->tileWithValue(1234.5);
+        $second = MetricDefinition::create([
+            'tile_id' => $tile->id,
+            'metric_key' => 'co2-traffic',
+            'label' => ['de' => 'Verkehr'],
+            'unit' => ['de' => 't'],
+            'indicator_type' => 'small',
+            'is_active' => true,
+        ]);
+        $newer = TimePeriod::create(['tile_id' => $tile->id, 'period_key' => '2025', 'granularity' => 'year', 'label' => '2025']);
+        MetricValue::create(['metric_definition_id' => $second->id, 'time_period_id' => $newer->id, 'value' => 7, 'is_active' => true]);
+
+        // The card opens on 2025, where the first metric has no value, so no stale 2024 figure.
+        $this->get('/tiles/co2')->assertSee('<meta property="og:image:alt" content="CO2-Emissionen">', false);
+
+        $first = $tile->metricDefinitions()->where('metric_key', 'co2')->first();
+        MetricValue::create(['metric_definition_id' => $first->id, 'time_period_id' => $newer->id, 'value' => 99.9, 'is_active' => true]);
+
+        $this->get('/tiles/co2')->assertSee('<meta property="og:image:alt" content="CO2-Emissionen: 99,9 t">', false);
+    }
+
+    public function test_tile_of_another_dashboard_has_no_preview(): void
+    {
+        $other = Tenant::factory()->create(['slug' => 'demo-city', 'domain' => 'demo-city.test']);
+        $tile = Tile::create(['title' => ['de' => 'Fremd'], 'slug' => ['de' => 'fremd'], 'tenant_id' => $other->id]);
+
+        $this->get("/share/tiles/{$tile->id}.png")->assertNotFound();
+        $this->get("http://demo-city.test/share/tiles/{$tile->id}.png")->assertOk();
+    }
+
+    public function test_long_titles_and_values_stay_inside_the_image(): void
+    {
+        $image = app(TileShareImage::class);
+        $png = $image->render([
+            'layout' => 1, 'locale' => 'de', 'logo' => null, 'site_name' => 'Dashboard', 'color' => '#0d47a1',
+            'title' => str_repeat('Donaudampfschifffahrt', 6).' Ende',
+            'description' => '',
+            'headline' => ['value' => '1.000.000.000.000.000,25', 'unit' => 't CO₂-Äquivalent', 'label' => 'Gesamt', 'period' => '2024'],
+        ]);
+
+        // The right margin (last 40px) must stay blank.
+        $gd = imagecreatefromstring($png);
+        for ($x = TileShareImage::WIDTH - 40; $x < TileShareImage::WIDTH; $x++) {
+            for ($y = 0; $y < TileShareImage::HEIGHT; $y++) {
+                $this->assertSame(0xFFFFFF, imagecolorat($gd, $x, $y) & 0xFFFFFF, "ink at {$x},{$y}");
+            }
+        }
     }
 }

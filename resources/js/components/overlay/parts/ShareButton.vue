@@ -61,7 +61,7 @@ SPDX-License-Identifier: EUPL-1.2+
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, ref } from 'vue';
 import { useLocale } from '../../../composables/useLocale';
 import { useBrandingStore } from '../../../stores/branding';
 
@@ -77,6 +77,8 @@ const props = defineProps({
 const brandingStore = useBrandingStore();
 const { currentLocale } = useLocale();
 const copied = ref(false);
+let resetTimer = null;
+onBeforeUnmount(() => clearTimeout(resetTimer));
 
 const labels = computed(() => (currentLocale.value === 'en'
     ? { share: 'Share tile', copied: 'Link copied' }
@@ -101,7 +103,8 @@ async function share() {
     try {
         await navigator.clipboard.writeText(url.value);
         copied.value = true;
-        setTimeout(() => (copied.value = false), 3000);
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => (copied.value = false), 3000);
     } catch {
         // Clipboard blocked (insecure context or denied): offer the URL to copy by hand.
         window.prompt(labels.value.share, url.value);

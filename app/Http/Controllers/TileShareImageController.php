@@ -23,7 +23,7 @@ class TileShareImageController extends Controller
         $version = $image->version($content);
 
         // The cache store, not the filesystem, so it works on a read-only root
-        // filesystem. Base64 because the database store cannot hold raw bytes on Postgres.
+        // filesystem. Base64 because the MySQL/MariaDB cache column is utf8mb4 text.
         $png = base64_decode(Cache::remember(
             "tile-share-image:{$tile->tenant_id}:{$tile->id}:{$version}",
             now()->addDays(30),

@@ -8,11 +8,11 @@ namespace App\Services\Sharing;
 
 use App\Models\MetricValue;
 use App\Models\Tile;
+use App\Models\TimePeriod;
 use App\Settings\BrandingSettings;
 use App\Settings\GeneralSettings;
 use GdImage;
 use Illuminate\Support\Facades\Storage;
-use NumberFormatter;
 
 /**
  * Open Graph preview image of a single tile (title, headline value, branding),
@@ -44,6 +44,7 @@ class TileShareImage
     {
         $title = $tile->getTranslation('title', $locale, false)
             ?: $tile->getTranslation('title', 'de', false)
+            ?: $tile->getTranslation('title', 'en', false)
             ?: '';
 
         return [
@@ -110,7 +111,13 @@ class TileShareImage
 
         if ($headline = $content['headline']) {
             $y += 50;
-            $valueWidth = $this->text($img, 88, $x, $y + 40, $accent, $headline['value'], bold: true);
+            // Shrink the value until value and unit fit side by side.
+            $unitWidth = $headline['unit'] === '' ? 0 : min($this->width($headline['unit'], 36, true) + 16, (int) ($maxWidth / 3));
+            $size = 88;
+            while ($size > 40 && $this->width($headline['value'], $size, true) > $maxWidth - $unitWidth) {
+                $size -= 4;
+            }
+            $valueWidth = $this->text($img, $size, $x, $y + 40, $accent, $headline['value'], bold: true, maxWidth: $maxWidth - $unitWidth);
             if ($headline['unit'] !== '') {
                 $this->text($img, 36, $x + $valueWidth + 16, $y + 40, $accent, $headline['unit'], bold: true,
                     maxWidth: $maxWidth - $valueWidth - 16);
@@ -133,40 +140,58 @@ class TileShareImage
     }
 
     /**
-     * First active metric of the tile with its value in the most recent period,
-     * which is what the tile card shows by default.
+     * Value of the first active metric in the newest period of any active metric,
+     * which is the period the tile card opens on.
      *
      * @return array{value: string, unit: string, label: string, period: string}|null
      */
     protected function headline(Tile $tile, string $locale): ?array
     {
-        $definition = $tile->metricDefinitions()->where('is_active', true)->first();
-        if (! $definition) {
+        $definitions = $tile->metricDefinitions()->where('is_active', true)->get();
+        if ($definitions->isEmpty()) {
             return null;
         }
 
-        $value = MetricValue::query()
-            ->where('metric_values.metric_definition_id', $definition->id)
-            ->where('metric_values.is_active', true)
-            ->whereNotNull('metric_values.value')
-            ->join('time_periods', 'time_periods.id', '=', 'metric_values.time_period_id')
-            ->orderByDesc('time_periods.period_key')
-            ->select('metric_values.value', 'time_periods.period_key', 'time_periods.label as period_label')
+        $period = TimePeriod::query()
+            ->whereIn('id', MetricValue::query()
+                ->whereIn('metric_definition_id', $definitions->pluck('id'))
+                ->where('is_active', true)
+                ->select('time_period_id'))
+            ->orderByDesc('period_key')
             ->first();
 
-        if (! $value) {
+        $definition = $definitions->first();
+        $value = $period
+            ? MetricValue::query()
+                ->where('metric_definition_id', $definition->id)
+                ->where('time_period_id', $period->id)
+                ->where('is_active', true)
+                ->value('value')
+            : null;
+
+        if ($value === null) {
             return null;
         }
 
-        $formatter = new NumberFormatter($locale === 'en' ? 'en_US' : 'de_DE', NumberFormatter::DECIMAL);
-        $formatter->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, 2);
-
         return [
-            'value' => (string) $formatter->format((float) $value->value),
+            'value' => $this->formatNumber((float) $value, $locale),
             'unit' => (string) ($definition->getTranslation('unit', $locale, false) ?: $definition->getTranslation('unit', 'de', false) ?: ''),
             'label' => (string) ($definition->getTranslation('label', $locale, false) ?: $definition->getTranslation('label', 'de', false) ?: ''),
-            'period' => (string) ($value->period_label ?: $value->period_key),
+            'period' => (string) ($period->label ?: $period->period_key),
         ];
+    }
+
+    /**
+     * Up to two decimals without trailing zeros. Separators are set explicitly
+     * because the Alpine runtime image ships ICU data for English locales only.
+     */
+    protected function formatNumber(float $value, string $locale): string
+    {
+        $decimals = strlen(rtrim(explode('.', number_format(abs($value), 2, '.', ''))[1], '0'));
+
+        return $locale === 'en'
+            ? number_format($value, $decimals, '.', ',')
+            : number_format($value, $decimals, ',', '.');
     }
 
     protected function siteName(): string
@@ -195,7 +220,7 @@ class TileShareImage
     }
 
     /**
-     * Draws a raster logo (PNG, JPEG, GIF, WebP) scaled to 72px height. GD cannot
+     * Draws a raster logo (PNG, JPEG, GIF) scaled to 72px height. GD cannot
      * read SVG, so callers fall back to the site name in that case.
      */
     protected function drawLogo(GdImage $img, ?string $path, int $x, int $y): bool
@@ -252,7 +277,7 @@ class TileShareImage
 
                 return $lines;
             }
-            $lines[] = $current;
+            $lines[] = $this->fit($current, $size, $maxWidth, $bold);
             $current = $word;
         }
 
