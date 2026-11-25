@@ -132,4 +132,18 @@ class ResizedMediaTest extends TestCase
 
         $this->get('/storage/_resized/480//_resized/960/page-blocks/slide.jpg')->assertNotFound();
     }
+
+    public function test_limits_new_copies_per_client_but_not_stored_ones(): void
+    {
+        $this->putImage('page-blocks/slide.jpg', 600, 400);
+        $this->get('/storage/_resized/480/page-blocks/slide.jpg')->assertOk();
+        for ($i = 0; $i < 60; $i++) {
+            $this->putImage("page-blocks/many-{$i}.jpg", 600, 400);
+            $this->get("/storage/_resized/480/page-blocks/many-{$i}.jpg");
+        }
+
+        $this->putImage('page-blocks/one-more.jpg', 600, 400);
+        $this->get('/storage/_resized/480/page-blocks/one-more.jpg')->assertStatus(429);
+        $this->get('/storage/_resized/480/page-blocks/slide.jpg')->assertOk();
+    }
 }

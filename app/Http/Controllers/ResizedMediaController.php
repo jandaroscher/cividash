@@ -7,6 +7,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use League\Flysystem\CorruptedPathDetected;
@@ -27,9 +28,13 @@ class ResizedMediaController extends Controller
 {
     public const WIDTHS = [480, 960, 1600];
 
-    // Source plus scaled copy at 4 bytes per pixel must stay well below the PHP
-    // memory limit (256M); larger images are stored and served unscaled.
+    // Source plus two scaled bitmaps (scale, then rotate) at 4 bytes per pixel must
+    // stay well below the PHP memory limit (256M); larger images are served unscaled.
     private const MAX_PIXELS = 40_000_000;
+
+    // Scaling is CPU-heavy, so only requests that create a copy count; stored copies
+    // are served without limit.
+    private const RESIZES_PER_MINUTE = 60;
 
     private const HEADERS = [
         'Cache-Control' => 'public, max-age=604800',
@@ -54,6 +59,9 @@ class ResizedMediaController extends Controller
         }
 
         if (! $disk->fileExists($target)) {
+            $key = 'media-resize:'.request()->ip();
+            abort_if(RateLimiter::tooManyAttempts($key, self::RESIZES_PER_MINUTE), 429);
+            RateLimiter::hit($key);
             // shortcut: a replaced source at the same path keeps its old copies; uploads get unique names, so only reseeded files are affected.
             $source = $disk->get($path);
             $this->store($disk, $target, $this->resize($source, $width) ?? $source);
@@ -85,7 +93,7 @@ class ResizedMediaController extends Controller
         $quarterTurns = $info[2] === IMAGETYPE_JPEG ? $this->exifQuarterTurns($bytes) : 0;
         [$sourceWidth, $sourceHeight] = $quarterTurns % 2 === 1 ? [$info[1], $info[0]] : [$info[0], $info[1]];
         $height = (int) round($sourceHeight * $width / $sourceWidth);
-        if ($sourceWidth <= $width || $info[0] * $info[1] + $width * $height > self::MAX_PIXELS) {
+        if ($sourceWidth <= $width || $info[0] * $info[1] + 2 * $width * $height > self::MAX_PIXELS) {
             return null;
         }
 
@@ -93,14 +101,14 @@ class ResizedMediaController extends Controller
         if ($image === false) {
             return null;
         }
-        if ($quarterTurns > 0) {
-            $rotated = imagerotate($image, -90 * $quarterTurns, 0);
-            imagedestroy($image);
-            $image = $rotated;
-        }
-
-        $scaled = imagescale($image, $width, $height);
+        // Scale before rotating, so the rotation only copies the small bitmap.
+        $scaled = $quarterTurns % 2 === 1 ? imagescale($image, $height, $width) : imagescale($image, $width, $height);
         imagedestroy($image);
+        if ($scaled !== false && $quarterTurns > 0) {
+            $rotated = imagerotate($scaled, -90 * $quarterTurns, 0);
+            imagedestroy($scaled);
+            $scaled = $rotated;
+        }
         if ($scaled === false) {
             return null;
         }
