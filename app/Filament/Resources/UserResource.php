@@ -47,6 +47,9 @@ class UserResource extends Resource
 
     protected static ?string $tenantOwnershipRelationshipName = 'tenants';
 
+    // Users span all dashboards; without this Filament 4+ adds a global tenant scope to User.
+    protected static bool $isScopedToTenant = false;
+
     public static function getNavigationGroup(): string
     {
         return __('filament.navigation.groups.system');

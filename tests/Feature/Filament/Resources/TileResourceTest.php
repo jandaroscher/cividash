@@ -164,6 +164,26 @@ class TileResourceTest extends TestCase
             ->assertSchemaStateSet(['title' => 'English title']);
     }
 
+    public function test_switching_locale_keeps_rich_text_of_the_other_locale_as_html(): void
+    {
+        app()->setLocale('de');
+        $tile = Tile::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Titel', 'en' => 'Title'],
+            'description' => ['de' => '<p>Deutscher Text</p>', 'en' => '<p>English text</p>'],
+        ]);
+
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->set('activeLocale', 'en')
+            ->set('activeLocale', 'de')
+            ->set('activeLocale', 'en')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $tile->refresh();
+        $this->assertSame('<p>Deutscher Text</p>', $tile->getTranslation('description', 'de'));
+        $this->assertSame('<p>English text</p>', $tile->getTranslation('description', 'en'));
+    }
+
     public function test_edit_page_renders(): void
     {
         $tile = Tile::factory()->forTenant($this->tenant)->create();

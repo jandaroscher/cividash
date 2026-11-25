@@ -157,6 +157,31 @@ class PageResourceTest extends TestCase
             ->assertSchemaStateSet(['title' => 'English title']);
     }
 
+    public function test_switching_locale_keeps_block_rich_text_of_the_other_locale_as_html(): void
+    {
+        app()->setLocale('de');
+        $block = fn (string $heading, string $text): array => [[
+            'type' => 'intro-text',
+            'data' => ['heading' => $heading, 'subheading' => null, 'text' => $text, 'is_active' => true],
+        ]];
+        $page = Page::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Titel', 'en' => 'Title'],
+            'blocks' => ['de' => $block('Hallo', '<p>Deutscher Text</p>'), 'en' => $block('Hello', '<p>English text</p>')],
+        ]);
+
+        Livewire::test(EditPage::class, ['record' => $page->getRouteKey()])
+            ->set('activeLocale', 'en')
+            ->set('activeLocale', 'de')
+            ->set('activeLocale', 'en')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $page->refresh();
+        $this->assertSame('<p>Deutscher Text</p>', $page->getTranslation('blocks', 'de')[0]['data']['text']);
+        $this->assertSame('<p>English text</p>', $page->getTranslation('blocks', 'en')[0]['data']['text']);
+        $this->assertTrue(array_is_list($page->getTranslation('blocks', 'de')));
+    }
+
     public function test_edit_page_renders(): void
     {
         $page = Page::factory()->forTenant($this->tenant)->create();
