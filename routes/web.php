@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\KeycloakSsoController;
 use App\Http\Controllers\Auth\PasswordResetRedirectController;
 use App\Http\Controllers\PublicMediaController;
 use App\Http\Controllers\SpaController;
+use App\Http\Controllers\TileShareImageController;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Session\Middleware\StartSession;
@@ -43,6 +44,13 @@ Route::get('/storage/{path}', PublicMediaController::class)
     ->where('path', '.*')
     ->withoutMiddleware($sessionless)
     ->name('media.public');
+
+// Open Graph preview image of a public tile, referenced by its og:image tag.
+Route::get('/share/tiles/{tile}.png', TileShareImageController::class)
+    ->whereNumber('tile')
+    ->middleware(['resolve.tenant'])
+    ->withoutMiddleware($sessionless)
+    ->name('share.tile-image');
 
 // Vue SPA catch-all route
 // Excludes API routes, admin routes, and other system routes

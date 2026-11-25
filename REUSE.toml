@@ -101,3 +101,10 @@ path = "config/scribe.php"
 precedence = "override"
 SPDX-FileCopyrightText = ["Shalvah", "2025-2026 JANDA+ROSCHER GmbH & Co. KG"]
 SPDX-License-Identifier = "MIT"
+
+# Open Sans, used to render tile share images (GD needs TTF, Fontsource ships only WOFF).
+[[annotations]]
+path = "resources/fonts/OpenSans-*.ttf"
+precedence = "override"
+SPDX-FileCopyrightText = "2020 The Open Sans Project Authors (https://github.com/googlefonts/opensans)"
+SPDX-License-Identifier = "OFL-1.1"

@@ -31,6 +31,13 @@ SPDX-License-Identifier: EUPL-1.2+
     @endif
     @if($meta->image)
     <meta property="og:image" content="{{ $meta->image }}">
+    @if($meta->imageWidth && $meta->imageHeight)
+    <meta property="og:image:width" content="{{ $meta->imageWidth }}">
+    <meta property="og:image:height" content="{{ $meta->imageHeight }}">
+    @endif
+    @if($meta->imageAlt)
+    <meta property="og:image:alt" content="{{ $meta->imageAlt }}">
+    @endif
     @endif
     <meta property="og:locale" content="{{ $meta->locale === 'en' ? 'en_US' : 'de_DE' }}">
 
@@ -40,6 +47,9 @@ SPDX-License-Identifier: EUPL-1.2+
     <meta name="twitter:description" content="{{ $meta->description }}">
     @if($meta->image)
     <meta name="twitter:image" content="{{ $meta->image }}">
+    @if($meta->imageAlt)
+    <meta name="twitter:image:alt" content="{{ $meta->imageAlt }}">
+    @endif
     @endif
 
     {{-- Hreflang --}}
