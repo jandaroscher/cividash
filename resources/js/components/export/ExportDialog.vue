@@ -74,52 +74,31 @@ SPDX-License-Identifier: EUPL-1.2+
             >
               {{ labels.format }}
             </legend>
-            <div class="flex gap-4">
+            <div class="flex flex-wrap gap-x-4 gap-y-2">
               <label
+                v-for="option in formats"
+                :key="option.value"
                 class="flex items-center gap-2 cursor-pointer text-sm"
                 :style="textPrimaryStyle"
               >
                 <input
                   v-model="format"
                   type="radio"
-                  value="json"
+                  :value="option.value"
                   class="sr-only"
                 >
                 <span
                   class="w-5 h-5 rounded-full border flex items-center justify-center shrink-0"
-                  :style="radioStyle('json')"
+                  :style="radioStyle(option.value)"
                   aria-hidden="true"
                 >
                   <span
-                    v-if="format === 'json'"
+                    v-if="format === option.value"
                     class="w-2 h-2 rounded-full"
                     :style="inverseBgStyle"
                   />
                 </span>
-                <span>{{ labels.formatJson }}</span>
-              </label>
-              <label
-                class="flex items-center gap-2 cursor-pointer text-sm"
-                :style="textPrimaryStyle"
-              >
-                <input
-                  v-model="format"
-                  type="radio"
-                  value="csv"
-                  class="sr-only"
-                >
-                <span
-                  class="w-5 h-5 rounded-full border flex items-center justify-center shrink-0"
-                  :style="radioStyle('csv')"
-                  aria-hidden="true"
-                >
-                  <span
-                    v-if="format === 'csv'"
-                    class="w-2 h-2 rounded-full"
-                    :style="inverseBgStyle"
-                  />
-                </span>
-                <span>{{ labels.formatCsv }}</span>
+                <span>{{ labels[option.label] }}</span>
               </label>
             </div>
           </fieldset>
@@ -261,6 +240,12 @@ const { download, tileUrl, filteredTilesUrl, catalogUrl, loading } = useExport()
 const titleId = `export-dialog-title-${Math.random().toString(36).slice(2)}`;
 const formId = `export-dialog-form-${Math.random().toString(36).slice(2)}`;
 const format = ref('json');
+const formats = [
+    { value: 'json', label: 'formatJson' },
+    { value: 'csv', label: 'formatCsv' },
+    { value: 'xlsx', label: 'formatXlsx' },
+    { value: 'xml', label: 'formatXml' },
+];
 const localError = ref('');
 const dialogRoot = ref(null);
 const closeButton = ref(null);
@@ -358,6 +343,8 @@ const translations = {
         format: 'Format',
         formatJson: 'JSON',
         formatCsv: 'CSV (Excel-kompatibel)',
+        formatXlsx: 'Excel (.xlsx)',
+        formatXml: 'XML',
         fields: 'Felder',
         download: 'Herunterladen',
         downloading: 'Wird vorbereitet …',
@@ -379,6 +366,8 @@ const translations = {
         format: 'Format',
         formatJson: 'JSON',
         formatCsv: 'CSV (Excel-friendly)',
+        formatXlsx: 'Excel (.xlsx)',
+        formatXml: 'XML',
         fields: 'Fields',
         download: 'Download',
         downloading: 'Preparing …',

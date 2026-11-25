@@ -26,8 +26,9 @@ class ExportController extends Controller
      * Export a single tile
      *
      * Streams all metrics, values, years and category metadata for one tile
-     * as JSON or CSV. The file contains a stable `schema_version` header
-     * (1.0) so downstream tools can rely on the column layout.
+     * as JSON, CSV, Excel or XML. The file contains a stable `schema_version`
+     * (1.0) so downstream tools can rely on the column layout. The XML schema
+     * is in docs/export/schemas/v1/export.xsd.
      *
      * @group Public API - Export
      *
@@ -35,7 +36,7 @@ class ExportController extends Controller
      *
      * @urlParam slug string required Tile slug (locale-aware) or numeric ID. Example: mobilitaet
      *
-     * @queryParam format string Output format: `json` (default) or `csv`. Example: csv
+     * @queryParam format string Output format: `json` (default), `csv`, `xlsx` or `xml`. Example: csv
      * @queryParam locale string Locale for translated labels (`de` or `en`). Example: de
      * @queryParam fields string[] Optional field whitelist (omit for full export). Repeat as `fields[]=tile.title&fields[]=metric.key`. No-example
      * @queryParam year_from integer Optional lower bound for value years. Example: 2015
@@ -78,13 +79,13 @@ class ExportController extends Controller
      * Export filtered tiles
      *
      * Streams multiple tiles matching the given category/tile/year filters
-     * (same shape as the dashboard filter state) as JSON or CSV.
+     * (same shape as the dashboard filter state) as JSON, CSV, Excel or XML.
      *
      * @group Public API - Export
      *
      * @unauthenticated
      *
-     * @queryParam format string `json` (default) or `csv`. Example: csv
+     * @queryParam format string `json` (default), `csv`, `xlsx` or `xml`. Example: csv
      * @queryParam locale string `de` or `en`. Example: de
      * @queryParam fields string[] Optional field whitelist. Repeat as `fields[]=…`. No-example
      * @queryParam tiles integer[] Restrict to these tile IDs. Repeat as `tiles[]=…`. No-example
@@ -116,7 +117,7 @@ class ExportController extends Controller
      *
      * @unauthenticated
      *
-     * @queryParam format string `json` (default) or `csv`. Example: csv
+     * @queryParam format string `json` (default), `csv`, `xlsx` or `xml`. Example: csv
      * @queryParam locale string `de` or `en`. Example: de
      * @queryParam fields string[] Optional field whitelist. Repeat as `fields[]=…`. No-example
      *

@@ -19,6 +19,12 @@ class ExportQuery
 
     public const FORMAT_CSV = 'csv';
 
+    public const FORMAT_XML = 'xml';
+
+    public const FORMAT_XLSX = 'xlsx';
+
+    public const FORMATS = [self::FORMAT_JSON, self::FORMAT_CSV, self::FORMAT_XML, self::FORMAT_XLSX];
+
     /**
      * @param  list<string>  $fields  Already filtered via FieldWhitelist::filter().
      * @param  list<int>  $tileIds
@@ -34,14 +40,4 @@ class ExportQuery
         public readonly ?int $yearFrom = null,
         public readonly ?int $yearTo = null,
     ) {}
-
-    public function isJson(): bool
-    {
-        return $this->format === self::FORMAT_JSON;
-    }
-
-    public function isCsv(): bool
-    {
-        return $this->format === self::FORMAT_CSV;
-    }
 }

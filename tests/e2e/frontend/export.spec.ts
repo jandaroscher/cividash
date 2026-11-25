@@ -2,10 +2,11 @@
 //
 // SPDX-License-Identifier: EUPL-1.2+
 
+import { readFile } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 
 /**
- * E2E tests for the JSON/CSV export feature.
+ * E2E tests for the export feature (JSON, CSV, Excel, XML).
  *
  * Covers both frontend entry points:
  *  - Tile detail: "Daten herunterladen" dialog for a single tile
@@ -68,4 +69,28 @@ test.describe('Exports', () => {
 
         expect(download.suggestedFilename()).toMatch(/catalog-.*\.csv$/);
     });
+
+    for (const { label, extension, magic } of [
+        { label: 'Excel (.xlsx)', extension: 'xlsx', magic: 'PK' },
+        { label: 'XML', extension: 'xml', magic: '<?xml' },
+    ]) {
+        test(`catalog export downloads ${label}`, async ({ page }) => {
+            await page.goto('/');
+
+            await page.getByRole('button', { name: /Alle Kacheln exportieren|Export all tiles/ }).click();
+
+            const dialog = page.getByRole('dialog');
+            await dialog.getByText(label, { exact: true }).click();
+            await expect(dialog.getByRole('radio', { name: label })).toBeChecked();
+
+            const [download] = await Promise.all([
+                page.waitForEvent('download'),
+                dialog.getByRole('button', { name: /^Herunterladen$|^Download$/ }).click(),
+            ]);
+
+            expect(download.suggestedFilename()).toMatch(new RegExp(`catalog-.*\\.${extension}$`));
+            const content = await readFile(await download.path());
+            expect(content.subarray(0, magic.length).toString('latin1')).toBe(magic);
+        });
+    }
 });

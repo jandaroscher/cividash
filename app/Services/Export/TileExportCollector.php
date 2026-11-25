@@ -151,7 +151,10 @@ class TileExportCollector
      */
     private function richText(?string $html, ExportQuery $query): ?string
     {
-        return $query->isCsv() ? $this->plainText($html) : $html;
+        // Spreadsheet formats get plain text; JSON and XML keep the HTML.
+        $flatten = in_array($query->format, [ExportQuery::FORMAT_CSV, ExportQuery::FORMAT_XLSX], true);
+
+        return $flatten ? $this->plainText($html) : $html;
     }
 
     private function plainText(?string $html): ?string

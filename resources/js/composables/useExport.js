@@ -75,7 +75,7 @@ export function useExport() {
      * Build a query string from a set of export parameters.
      *
      * @param {Object} params
-     * @param {'json'|'csv'} [params.format]
+     * @param {'json'|'csv'|'xml'|'xlsx'} [params.format]
      * @param {'de'|'en'} [params.locale]
      * @param {string[]} [params.fields]
      * @param {number[]} [params.tiles]

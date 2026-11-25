@@ -92,6 +92,21 @@ class ExportFilteredTest extends TestCase
         $this->assertSame([2020, 2022], array_values($years));
     }
 
+    public function test_xml_export_applies_the_same_filters(): void
+    {
+        $response = $this->get('/api/v1/exports/tiles?format=xml&tiles[]='.$this->mobility->id.'&year_from=2020&year_to=2022');
+
+        $doc = new \DOMDocument;
+        $doc->loadXML($response->streamedContent());
+        $xpath = new \DOMXPath($doc);
+        $xpath->registerNamespace('e', 'urn:cividash:export:1.0');
+
+        $years = array_map(fn ($n) => (int) $n->textContent, iterator_to_array($xpath->query('//e:row/e:value.year')));
+        sort($years);
+        $this->assertSame([2020, 2022], $years);
+        $this->assertSame('2020', $xpath->evaluate('string(/e:export/e:filter/e:year_from)'));
+    }
+
     public function test_year_to_lower_than_year_from_returns_422(): void
     {
         $this->getJson('/api/v1/exports/tiles?year_from=2024&year_to=2020')
