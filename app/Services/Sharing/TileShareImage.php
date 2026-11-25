@@ -56,7 +56,9 @@ class TileShareImage
                 ?: '')),
             'headline' => $this->headline($tile, $locale),
             'site_name' => $this->siteName(),
-            'logo' => rescue(fn () => $this->branding->logo_url, null, false),
+            'logo' => $logo = rescue(fn () => $this->branding->logo_url, null, false),
+            // Logo uploads keep their file name, so a replaced logo only shows in its timestamp.
+            'logo_modified' => $logo ? rescue(fn () => Storage::disk('public')->lastModified($logo), null, false) : null,
             'color' => $this->color(rescue(fn () => $this->branding->primary_color, null, false)),
         ];
     }
@@ -220,7 +222,7 @@ class TileShareImage
     }
 
     /**
-     * Draws a raster logo (PNG, JPEG, GIF) scaled to 72px height. GD cannot
+     * Draws a raster logo (PNG, JPEG, GIF) scaled to fit 480x72 px. GD cannot
      * read SVG, so callers fall back to the site name in that case.
      */
     protected function drawLogo(GdImage $img, ?string $path, int $x, int $y): bool
@@ -235,8 +237,9 @@ class TileShareImage
             return false;
         }
 
-        $height = 72;
-        $width = (int) min(480, round(imagesx($logo) * $height / max(1, imagesy($logo))));
+        $scale = min(72 / max(1, imagesy($logo)), 480 / max(1, imagesx($logo)));
+        $width = max(1, (int) round(imagesx($logo) * $scale));
+        $height = max(1, (int) round(imagesy($logo) * $scale));
         imagecopyresampled($img, $logo, $x, $y, 0, 0, $width, $height, imagesx($logo), imagesy($logo));
         imagedestroy($logo);
 

@@ -12,7 +12,9 @@ use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Services\Sharing\TileShareImage;
+use App\Settings\BrandingSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class TileShareImageTest extends TestCase
@@ -180,5 +182,46 @@ class TileShareImageTest extends TestCase
                 $this->assertSame(0xFFFFFF, imagecolorat($gd, $x, $y) & 0xFFFFFF, "ink at {$x},{$y}");
             }
         }
+    }
+
+    private function png(int $width, int $height): string
+    {
+        $img = imagecreatetruecolor($width, $height);
+        imagefill($img, 0, 0, imagecolorallocate($img, 255, 0, 0));
+        ob_start();
+        imagepng($img);
+
+        return (string) ob_get_clean();
+    }
+
+    public function test_replacing_the_logo_file_refreshes_the_preview(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('branding/logo.png', $this->png(100, 50));
+        $branding = app(BrandingSettings::class);
+        $branding->logo_url = 'branding/logo.png';
+        $branding->save();
+        $this->tileWithValue(1);
+        $before = $this->ogImage('/tiles/co2');
+
+        Storage::disk('public')->put('branding/logo.png', $this->png(200, 50));
+        touch(Storage::disk('public')->path('branding/logo.png'), time() + 60);
+
+        $this->assertNotSame($before, $this->ogImage('/tiles/co2'));
+    }
+
+    public function test_wide_logos_keep_their_aspect_ratio(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('branding/wide.png', $this->png(1000, 100));
+
+        $gd = imagecreatefromstring(app(TileShareImage::class)->render([
+            'layout' => 1, 'locale' => 'de', 'logo' => 'branding/wide.png', 'site_name' => 'Dashboard', 'color' => '#0d47a1',
+            'title' => 'Titel', 'description' => '', 'headline' => null,
+        ]));
+
+        // 1000x100 scaled into 480x72 is 480x48, drawn from (80, 56).
+        $this->assertSame(0xFF0000, imagecolorat($gd, 300, 56 + 24) & 0xFFFFFF);
+        $this->assertSame(0xFFFFFF, imagecolorat($gd, 300, 56 + 60) & 0xFFFFFF);
     }
 }
