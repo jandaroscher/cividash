@@ -20,6 +20,9 @@ class MetaTagData
         public readonly string $locale,
         public readonly array $hreflangLinks,
         public readonly ?string $siteName,
+        public readonly ?string $imageAlt = null,
+        public readonly ?int $imageWidth = null,
+        public readonly ?int $imageHeight = null,
     ) {}
 
     /**
@@ -31,6 +34,9 @@ class MetaTagData
             'title' => $this->title,
             'description' => $this->description,
             'image' => $this->image,
+            'image_alt' => $this->imageAlt,
+            'image_width' => $this->imageWidth,
+            'image_height' => $this->imageHeight,
             'canonical_url' => $this->canonicalUrl,
             'og_type' => $this->ogType,
             'locale' => $this->locale,

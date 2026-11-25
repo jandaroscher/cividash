@@ -57,4 +57,12 @@ describe('OverlayHeader', () => {
         expect(wrapper.find(embedButton).exists()).toBe(false);
         expect(wrapper.find(exportButton).exists()).toBe(true);
     });
+
+    it('offers sharing in the overlay and on the standalone tile page', () => {
+        for (const embeddable of [true, false]) {
+            const wrapper = shallowMount(OverlayHeader, { props: { tile, embeddable } });
+
+            expect(wrapper.findComponent({ name: 'ShareButton' }).props('tileSlug')).toBe('co2');
+        }
+    });
 });

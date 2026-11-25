@@ -8,6 +8,7 @@ namespace App\Services;
 
 use App\Models\Page;
 use App\Models\Tile;
+use App\Services\Sharing\TileShareImage;
 use App\Settings\GeneralSettings;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,6 +16,7 @@ class MetaTagService
 {
     public function __construct(
         protected GeneralSettings $generalSettings,
+        protected TileShareImage $shareImage,
     ) {}
 
     /**
@@ -180,9 +182,22 @@ class MetaTagService
             ?: $tile->getTranslation('description', $locale, false)
             ?: '';
 
-        $image = $tile->meta_image
-            ? Storage::disk('public')->url($tile->meta_image)
-            : null;
+        // An uploaded meta image wins; otherwise a generated preview of the tile.
+        $imageAlt = null;
+        $imageWidth = null;
+        $imageHeight = null;
+        if ($tile->meta_image) {
+            $image = Storage::disk('public')->url($tile->meta_image);
+        } else {
+            $content = $this->shareImage->content($tile, $locale);
+            $image = $this->buildCanonicalUrl(
+                $this->shareImage->path($tile, $locale, $this->shareImage->version($content)),
+                $host,
+            );
+            $imageAlt = $this->shareImage->alt($content);
+            $imageWidth = TileShareImage::WIDTH;
+            $imageHeight = TileShareImage::HEIGHT;
+        }
 
         $path = $tile->getUrl(['locale' => $locale]);
         $canonicalUrl = $this->buildCanonicalUrl($path, $host);
@@ -200,6 +215,9 @@ class MetaTagService
             locale: $locale,
             hreflangLinks: $this->buildSimpleHreflangLinks($dePath, $enPath, $host),
             siteName: $siteName,
+            imageAlt: $imageAlt,
+            imageWidth: $imageWidth,
+            imageHeight: $imageHeight,
         );
     }
 
