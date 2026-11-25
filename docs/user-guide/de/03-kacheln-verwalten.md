@@ -136,6 +136,10 @@ Im Bereich **Kacheleigenschaften** rechts im Formular, unterhalb von URL-Slug un
 
 Bleiben die Felder leer, greifen sinnvolle Standardwerte (z. B. der Kachel-Titel) — identisch zum Verhalten bei Seiten (siehe [Kapitel 2.6, Metadaten pflegen](02-seiten-verwalten.md#26-metadaten-pflegen-seo-titel-beschreibung-vorschaubild)).
 
+Ohne SEO-Bild erzeugt das Dashboard das Vorschaubild automatisch: Kachel-Titel, aktueller Kennzahlwert mit Einheit und Zeitraum, Logo (PNG oder JPEG, sonst der Seitenname) und Primärfarbe. Ändern sich Werte oder Branding, entsteht beim nächsten Teilen ein neues Bild.
+
+Im Frontend teilt der Knopf **Kachel teilen** im Kachel-Overlay den Link zur Kachel: auf Mobilgeräten über das Teilen-Menü des Geräts, sonst als kopierter Link.
+
 ## 3.7 Mehrsprachige Inhalte
 
 Wie bei Seiten (siehe [Kapitel 2.7, Mehrsprachige Inhalte](02-seiten-verwalten.md#27-mehrsprachige-inhalte-locale-switcher)) wählt der **Sprache**-Umschalter oben rechts im Formular, für welche Sprachversion Titel, Beschreibung, Hinweis, Hintergrundblöcke und Metadaten gerade bearbeitet werden. Kategorie-Zuordnung, Icon, Aktiv-Schalter und Kennzahlen-Werte sind **nicht** sprachabhängig — sie gelten für alle Sprachversionen der Kachel gleichermaßen.
