@@ -25,7 +25,7 @@ class TileShareImage
     public const HEIGHT = 630;
 
     // Bump when the layout changes so cached images and crawler caches refresh.
-    private const LAYOUT_VERSION = 1;
+    private const LAYOUT_VERSION = 2;
 
     private const FALLBACK_COLOR = '#0d47a1';
 
@@ -54,7 +54,7 @@ class TileShareImage
             'description' => $this->plainText((string) ($tile->getTranslation('description', $locale, false)
                 ?: $tile->getTranslation('description', 'de', false)
                 ?: '')),
-            'headline' => $this->headline($tile, $locale),
+            ...$this->metrics($tile, $locale),
             'site_name' => $this->siteName(),
             'logo' => $logo = rescue(fn () => $this->branding->logo_url, null, false),
             // Logo uploads keep their file name, so a replaced logo only shows in its timestamp.
@@ -78,11 +78,12 @@ class TileShareImage
 
     public function alt(array $content): string
     {
-        $headline = $content['headline'];
+        if (! $content['headline']) {
+            return $content['title'];
+        }
+        $values = array_map(fn ($m) => trim("{$m['value']} {$m['unit']}"), [$content['headline'], ...$content['more'] ?? []]);
 
-        return $headline
-            ? trim("{$content['title']}: {$headline['value']} {$headline['unit']}")
-            : $content['title'];
+        return "{$content['title']}: ".implode('; ', $values);
     }
 
     /**
@@ -96,7 +97,6 @@ class TileShareImage
         $muted = imagecolorallocate($img, 90, 90, 90);
         $accent = $this->allocate($img, $content['color']);
         imagefilledrectangle($img, 0, 0, self::WIDTH, self::HEIGHT, $white);
-        imagefilledrectangle($img, 0, 0, 23, self::HEIGHT, $accent);
 
         $x = 80;
         $maxWidth = self::WIDTH - $x - 80;
@@ -112,10 +112,11 @@ class TileShareImage
         }
 
         if ($headline = $content['headline']) {
-            $y += 50;
+            $more = $content['more'] ?? [];
+            $y += $more ? 30 : 50;
             // Shrink the value until value and unit fit side by side.
             $unitWidth = $headline['unit'] === '' ? 0 : min($this->width($headline['unit'], 36, true) + 16, (int) ($maxWidth / 3));
-            $size = 88;
+            $size = $more ? 72 : 88;
             while ($size > 40 && $this->width($headline['value'], $size, true) > $maxWidth - $unitWidth) {
                 $size -= 4;
             }
@@ -125,7 +126,20 @@ class TileShareImage
                     maxWidth: $maxWidth - $valueWidth - 16);
             }
             $caption = implode(' · ', array_filter([$headline['label'], $headline['period']]));
-            $this->text($img, 28, $x, $y + 100, $muted, $caption, maxWidth: $maxWidth);
+            $this->text($img, 28, $x, $y + 90, $muted, $caption, maxWidth: $maxWidth);
+
+            // Further metrics of the same period in one row of equal cells.
+            if ($more) {
+                $cell = (int) ($maxWidth / count($more));
+                foreach ($more as $i => $metric) {
+                    $cx = $x + $i * $cell;
+                    $w = $this->text($img, 34, $cx, $y + 160, $ink, $metric['value'], bold: true, maxWidth: $cell - 24);
+                    if ($metric['unit'] !== '' && $w + 10 < $cell - 24) {
+                        $this->text($img, 20, $cx + $w + 10, $y + 160, $ink, $metric['unit'], bold: true, maxWidth: $cell - 34 - $w);
+                    }
+                    $this->text($img, 20, $cx, $y + 194, $muted, $metric['label'], maxWidth: $cell - 24);
+                }
+            }
         } else {
             $y += 20;
             foreach ($this->wrap($content['description'], 30, $maxWidth, 3) as $line) {
@@ -142,16 +156,17 @@ class TileShareImage
     }
 
     /**
-     * Value of the first active metric in the newest period of any active metric,
-     * which is the period the tile card opens on.
+     * Values in the newest period of any active metric, which is the period the
+     * tile card opens on: the first metric as headline, up to three more below.
      *
-     * @return array{value: string, unit: string, label: string, period: string}|null
+     * @return array{headline: array{value: string, unit: string, label: string, period: string}|null, more: list<array{value: string, unit: string, label: string}>}
      */
-    protected function headline(Tile $tile, string $locale): ?array
+    protected function metrics(Tile $tile, string $locale): array
     {
+        $none = ['headline' => null, 'more' => []];
         $definitions = $tile->metricDefinitions()->where('is_active', true)->get();
         if ($definitions->isEmpty()) {
-            return null;
+            return $none;
         }
 
         $period = TimePeriod::query()
@@ -161,25 +176,31 @@ class TileShareImage
                 ->select('time_period_id'))
             ->orderByDesc('period_key')
             ->first();
-
-        $definition = $definitions->first();
-        $value = $period
-            ? MetricValue::query()
-                ->where('metric_definition_id', $definition->id)
-                ->where('time_period_id', $period->id)
-                ->where('is_active', true)
-                ->value('value')
-            : null;
-
-        if ($value === null) {
-            return null;
+        if (! $period) {
+            return $none;
         }
 
+        $values = MetricValue::query()
+            ->whereIn('metric_definition_id', $definitions->pluck('id'))
+            ->where('time_period_id', $period->id)
+            ->where('is_active', true)
+            ->whereNotNull('value')
+            ->pluck('value', 'metric_definition_id');
+
+        // Without the first metric's value there is no headline, so no stale figure either.
+        if (! $values->has($definitions->first()->id)) {
+            return $none;
+        }
+
+        $metrics = $definitions->filter(fn ($d) => $values->has($d->id))->take(4)->map(fn ($d) => [
+            'value' => $this->formatNumber((float) $values[$d->id], $locale),
+            'unit' => (string) ($d->getTranslation('unit', $locale, false) ?: $d->getTranslation('unit', 'de', false) ?: ''),
+            'label' => (string) ($d->getTranslation('label', $locale, false) ?: $d->getTranslation('label', 'de', false) ?: ''),
+        ])->values()->all();
+
         return [
-            'value' => $this->formatNumber((float) $value, $locale),
-            'unit' => (string) ($definition->getTranslation('unit', $locale, false) ?: $definition->getTranslation('unit', 'de', false) ?: ''),
-            'label' => (string) ($definition->getTranslation('label', $locale, false) ?: $definition->getTranslation('label', 'de', false) ?: ''),
-            'period' => (string) ($period->label ?: $period->period_key),
+            'headline' => $metrics[0] + ['period' => (string) ($period->label ?: $period->period_key)],
+            'more' => array_slice($metrics, 1),
         ];
     }
 

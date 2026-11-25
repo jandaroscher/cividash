@@ -136,7 +136,7 @@ Im Bereich **Kacheleigenschaften** rechts im Formular, unterhalb von URL-Slug un
 
 Bleiben die Felder leer, greifen sinnvolle Standardwerte (z. B. der Kachel-Titel) — identisch zum Verhalten bei Seiten (siehe [Kapitel 2.6, Metadaten pflegen](02-seiten-verwalten.md#26-metadaten-pflegen-seo-titel-beschreibung-vorschaubild)).
 
-Ohne SEO-Bild erzeugt das Dashboard das Vorschaubild automatisch: Kachel-Titel, aktueller Kennzahlwert mit Einheit und Zeitraum, Logo (PNG oder JPEG, sonst der Seitenname) und Primärfarbe. Ändern sich Werte oder Branding, entsteht beim nächsten Teilen ein neues Bild.
+Ohne SEO-Bild erzeugt das Dashboard das Vorschaubild automatisch: Kachel-Titel, die Werte von bis zu vier Kennzahlen im aktuellen Zeitraum mit Einheit, Logo (PNG oder JPEG, sonst der Seitenname) und Primärfarbe. Ändern sich Werte oder Branding, entsteht beim nächsten Teilen ein neues Bild.
 
 Im Frontend teilt der Knopf **Kachel teilen** im Kachel-Overlay den Link zur Kachel: auf Mobilgeräten über das Teilen-Menü des Geräts, sonst als kopierter Link.
 

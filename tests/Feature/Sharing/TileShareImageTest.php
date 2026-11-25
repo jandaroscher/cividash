@@ -153,7 +153,23 @@ class TileShareImageTest extends TestCase
         $first = $tile->metricDefinitions()->where('metric_key', 'co2')->first();
         MetricValue::create(['metric_definition_id' => $first->id, 'time_period_id' => $newer->id, 'value' => 99.9, 'is_active' => true]);
 
-        $this->get('/tiles/co2')->assertSee('<meta property="og:image:alt" content="CO2-Emissionen: 99,9 t">', false);
+        $this->get('/tiles/co2')->assertSee('<meta property="og:image:alt" content="CO2-Emissionen: 99,9 t; 7 t">', false);
+    }
+
+    public function test_preview_lists_further_metrics_of_the_same_period(): void
+    {
+        $tile = $this->tileWithValue(1234.5);
+        $period = TimePeriod::where('period_key', '2024')->first();
+        foreach (['Verkehr' => 400, 'Industrie' => null, 'Haushalte' => 300.25, 'Gewerbe' => 200, 'Sonstige' => 100] as $label => $value) {
+            $definition = MetricDefinition::create([
+                'tile_id' => $tile->id, 'metric_key' => $label, 'label' => ['de' => $label], 'unit' => ['de' => 't'],
+                'indicator_type' => 'small', 'is_active' => true,
+            ]);
+            MetricValue::create(['metric_definition_id' => $definition->id, 'time_period_id' => $period->id, 'value' => $value, 'is_active' => true]);
+        }
+
+        // Metrics without a value are skipped, and at most four values are shown.
+        $this->get('/tiles/co2')->assertSee('<meta property="og:image:alt" content="CO2-Emissionen: 1.234,5 t; 400 t; 300,25 t; 200 t">', false);
     }
 
     public function test_tile_of_another_dashboard_has_no_preview(): void
@@ -173,6 +189,7 @@ class TileShareImageTest extends TestCase
             'title' => str_repeat('Donaudampfschifffahrt', 6).' Ende',
             'description' => '',
             'headline' => ['value' => '1.000.000.000.000.000,25', 'unit' => 't CO₂-Äquivalent', 'label' => 'Gesamt', 'period' => '2024'],
+            'more' => array_fill(0, 3, ['value' => '999.999.999.999,99', 'unit' => 'kWh pro Einwohner', 'label' => str_repeat('Lange Bezeichnung ', 4)]),
         ]);
 
         // The right margin (last 40px) must stay blank.

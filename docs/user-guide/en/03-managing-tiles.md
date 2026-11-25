@@ -136,7 +136,7 @@ In the **Tile properties** panel on the right of the form, below the URL slug an
 
 If left empty, sensible defaults apply (e.g. the tile title) — identical to the behavior for pages (see [Chapter 2.6, Manage Metadata](02-managing-pages.md#26-manage-metadata-seo-title-description-preview-image)).
 
-Without an SEO image, the dashboard generates the preview image itself: tile title, current metric value with unit and period, logo (PNG or JPEG, otherwise the site name) and primary color. When values or branding change, the next share uses a new image.
+Without an SEO image, the dashboard generates the preview image itself: tile title, the values of up to four metrics in the current period with unit, logo (PNG or JPEG, otherwise the site name) and primary color. When values or branding change, the next share uses a new image.
 
 In the frontend, the **Share tile** button in the tile overlay shares the link to the tile: on mobile devices through the device's share menu, otherwise as a copied link.
 
