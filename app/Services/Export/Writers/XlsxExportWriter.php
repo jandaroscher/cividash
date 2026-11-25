@@ -9,6 +9,7 @@ namespace App\Services\Export\Writers;
 use App\Services\Export\ExportQuery;
 use App\Services\Export\Writers\Contracts\ExportWriter;
 use Carbon\CarbonImmutable;
+use Illuminate\Filesystem\Filesystem;
 use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Cell\DateTimeCell;
 use OpenSpout\Common\Entity\Cell\EmptyCell;
@@ -17,7 +18,9 @@ use OpenSpout\Common\Entity\Cell\StringCell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\AutoFilter;
+use OpenSpout\Writer\Common\Entity\Sheet;
 use OpenSpout\Writer\XLSX\Entity\SheetView;
+use OpenSpout\Writer\XLSX\Options;
 use OpenSpout\Writer\XLSX\Writer;
 
 /**
@@ -38,12 +41,21 @@ class XlsxExportWriter implements ExportWriter
 
     private ExportQuery $query;
 
+    /** Holds the output file and OpenSpout's work folder, removed as a whole. */
+    private string $workDir;
+
     private string $tempFile;
 
-    private bool $closed = false;
+    /** @var list<Sheet> */
+    private array $dataSheets = [];
 
     /** @var array<string, mixed> */
     private array $meta;
+
+    /**
+     * @param  int  $maxRowsPerSheet  Excel's row limit, header included.
+     */
+    public function __construct(private readonly int $maxRowsPerSheet = 1048576) {}
 
     public function mimeType(): string
     {
@@ -59,24 +71,26 @@ class XlsxExportWriter implements ExportWriter
     {
         $this->query = $query;
         $this->meta = $meta;
-        $this->tempFile = tempnam(sys_get_temp_dir(), 'export-xlsx-');
+        $this->workDir = sys_get_temp_dir().'/export-xlsx-'.bin2hex(random_bytes(8));
+        mkdir($this->workDir, 0700);
+        $this->tempFile = $this->workDir.'/export.xlsx';
 
-        $this->writer = new Writer;
+        $options = new Options;
+        $options->setTempFolder($this->workDir);
+        $this->writer = new Writer($options);
         $this->writer->openToFile($this->tempFile);
 
-        $sheet = $this->writer->getCurrentSheet();
-        $sheet->setName($this->label('sheets.data'));
-        $sheet->setSheetView((new SheetView)->setFreezeRow(2));
-
-        $header = array_map(
-            fn (string $field) => trans('export.columns.'.$field, [], $query->locale),
-            $query->fields,
-        );
-        $this->writer->addRow(Row::fromValues($header, (new Style)->setFontBold()));
+        $this->startDataSheet($this->writer->getCurrentSheet());
     }
 
     public function writeRow($stream, array $row): void
     {
+        // Start the next sheet ourselves before OpenSpout would, so every
+        // data sheet gets the header, frozen pane and autofilter.
+        if ($this->writer->getCurrentSheet()->getWrittenRowCount() >= $this->maxRowsPerSheet) {
+            $this->startDataSheet($this->writer->addNewSheetAndMakeItCurrent());
+        }
+
         $cells = array_map(
             fn (string $field) => $this->cell($row[$field] ?? null),
             $this->query->fields,
@@ -87,13 +101,14 @@ class XlsxExportWriter implements ExportWriter
 
     public function close($stream): void
     {
-        $data = $this->writer->getCurrentSheet();
-        $data->setAutoFilter(new AutoFilter(0, 1, count($this->query->fields) - 1, $data->getWrittenRowCount()));
+        $lastColumn = count($this->query->fields) - 1;
+        foreach ($this->dataSheets as $sheet) {
+            $sheet->setAutoFilter(new AutoFilter(0, 1, $lastColumn, $sheet->getWrittenRowCount()));
+        }
 
         $this->writeInfoSheet();
-        $this->writer->setCurrentSheet($data);
+        $this->writer->setCurrentSheet($this->dataSheets[0]);
         $this->writer->close();
-        $this->closed = true;
 
         $file = fopen($this->tempFile, 'rb');
         stream_copy_to_stream($file, $stream);
@@ -102,18 +117,25 @@ class XlsxExportWriter implements ExportWriter
 
     public function __destruct()
     {
-        // An export that aborts before close() still has OpenSpout's work
-        // folder on disk; only Writer::close() removes it.
-        if (! $this->closed && isset($this->writer)) {
-            try {
-                $this->writer->close();
-            } catch (\Throwable) {
-                // Cleanup only; the original error is already on its way.
-            }
+        // Also runs when the export aborts, even inside open(), where
+        // OpenSpout's own close() would leave its work folder behind.
+        if (isset($this->workDir)) {
+            (new Filesystem)->deleteDirectory($this->workDir);
         }
-        if (isset($this->tempFile) && is_file($this->tempFile)) {
-            unlink($this->tempFile);
-        }
+    }
+
+    private function startDataSheet(Sheet $sheet): void
+    {
+        $number = count($this->dataSheets) + 1;
+        $sheet->setName($this->label('sheets.data').($number > 1 ? ' '.$number : ''));
+        $sheet->setSheetView((new SheetView)->setFreezeRow(2));
+        $this->dataSheets[] = $sheet;
+
+        $header = array_map(
+            fn (string $field) => trans('export.columns.'.$field, [], $this->query->locale),
+            $this->query->fields,
+        );
+        $this->writer->addRow(Row::fromValues($header, (new Style)->setFontBold()));
     }
 
     private function writeInfoSheet(): void

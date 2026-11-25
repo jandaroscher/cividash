@@ -31,12 +31,12 @@ class XlsxExportWriterTest extends TestCase
      *
      * @return array<string, list<list<mixed>>>
      */
-    private function export(ExportQuery $query, array $rows, array $meta = []): array
+    private function export(ExportQuery $query, array $rows, array $meta = [], ?XlsxExportWriter $writer = null): array
     {
         $this->file = tempnam(sys_get_temp_dir(), 'xlsx-test-');
         $stream = fopen($this->file, 'wb');
 
-        $writer = new XlsxExportWriter;
+        $writer ??= new XlsxExportWriter;
         $writer->open($stream, $query, $meta + [
             'schema_version' => '1.0',
             'generated_at' => '2026-11-25T10:30:00+01:00',
@@ -186,5 +186,25 @@ class XlsxExportWriterTest extends TestCase
         fclose($stream);
 
         $this->assertSame([], array_values(array_diff(glob(sys_get_temp_dir().'/*') ?: [], $before)));
+    }
+
+    public function test_rows_beyond_the_sheet_limit_continue_on_sheets_with_header_and_filter(): void
+    {
+        $query = new ExportQuery(format: ExportQuery::FORMAT_XLSX, locale: 'de', fields: [FieldWhitelist::TILE_TITLE, FieldWhitelist::VALUE_VALUE]);
+        $rows = array_map(fn (int $i) => [FieldWhitelist::TILE_TITLE => "T$i", FieldWhitelist::VALUE_VALUE => $i], range(1, 5));
+
+        // Three rows per sheet: the header plus two values.
+        $sheets = $this->export($query, $rows, [], new XlsxExportWriter(maxRowsPerSheet: 3));
+
+        $this->assertSame(['Daten', 'Daten 2', 'Daten 3', 'Info'], array_keys($sheets));
+        $this->assertSame([['Kachel', 'Wert'], ['T1', 1], ['T2', 2]], $sheets['Daten']);
+        $this->assertSame([['Kachel', 'Wert'], ['T3', 3], ['T4', 4]], $sheets['Daten 2']);
+        $this->assertSame([['Kachel', 'Wert'], ['T5', 5]], $sheets['Daten 3']);
+
+        foreach (['sheet1' => 'A1:B3', 'sheet2' => 'A1:B3', 'sheet3' => 'A1:B2'] as $file => $range) {
+            $xml = $this->sheetXml("xl/worksheets/$file.xml");
+            $this->assertStringContainsString('<autoFilter ref="'.$range.'"', $xml, $file);
+            $this->assertStringContainsString('state="frozen"', $xml, $file);
+        }
     }
 }

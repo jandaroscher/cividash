@@ -35,7 +35,8 @@ Excel with German regional settings.
 A workbook with two sheets:
 
 - **Daten / Data**: translated header row (bold, frozen, with an autofilter) and one row per
-  value. Numbers (tile ID, year, value) are numeric cells, everything else is text. Lists
+  value. Exports beyond Excel's limit of 1,048,576 rows per sheet continue on "Daten 2",
+  "Daten 3" and so on, each with its own header row and filter. Numbers (tile ID, year, value) are numeric cells, everything else is text. Lists
   are joined with `, `, rich text is plain text. Text is never stored as a formula, even if
   it starts with `=`. Cells longer than Excel's limit (32,767 UTF-16 code units) are cut, and characters that XML
   does not allow are dropped.
