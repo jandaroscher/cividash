@@ -20,6 +20,18 @@ const detailsButton = 'button[aria-label="Details anzeigen"]';
 describe('OverlayHeader', () => {
     beforeEach(() => setActivePinia(createPinia()));
 
+    it('titles the overlay with a second-level heading', () => {
+        const wrapper = shallowMount(OverlayHeader, { props: { tile, embeddable: true } });
+
+        expect(wrapper.find('h2').text()).toBe('CO2');
+    });
+
+    it('titles the standalone tile page with the page heading', () => {
+        const wrapper = shallowMount(OverlayHeader, { props: { tile, headingLevel: 'h1' } });
+
+        expect(wrapper.find('h1').text()).toBe('CO2');
+    });
+
     it('swaps the embed button for a details button in the embed view', async () => {
         const wrapper = shallowMount(OverlayHeader, { props: { tile, embeddable: true } });
 

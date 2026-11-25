@@ -7,6 +7,9 @@ SPDX-License-Identifier: EUPL-1.2+
 <template>
   <div class="app-wrapper">
     <div class="overflow-x-hidden pt-7 md:pt-12">
+      <h1 class="sr-only">
+        {{ effectiveLocale === 'en' ? 'Tiles' : 'Kacheln' }}
+      </h1>
       <Filter
         v-if="!tilesStore.loading && !tilesStore.error && (showSearch || showFilter)"
         :show-search="showSearch"

@@ -36,6 +36,7 @@ SPDX-License-Identifier: EUPL-1.2+
         v-for="item in items"
         :key="item.id"
         :aria-label="getItemTitle(item)"
+        :aria-pressed="isSelected(item)"
         class="min-h-[204px] flex flex-col items-center cursor-pointer mr-10 md:mr-18"
         @click="selectItem(item)"
       >
@@ -47,7 +48,7 @@ SPDX-License-Identifier: EUPL-1.2+
           <img
             v-if="getItemIcon(item)"
             class="w-30 max-w-none"
-            :alt="getItemTitle(item)"
+            alt=""
             :src="getItemIcon(item)"
             width="120"
             height="120"
