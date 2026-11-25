@@ -13,24 +13,27 @@ use App\Models\Navigation;
 use App\Models\Page as PageModel;
 use App\Settings\GeneralSettings;
 use Filament\Actions\Action;
-use Filament\Actions\LocaleSwitcher;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\HasUnsavedDataChangesAlert;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\Page;
-use Filament\Resources\Concerns\Translatable;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Arr;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 
 class ManageSiteSettings extends Page implements HasForms
 {
@@ -45,11 +48,9 @@ class ManageSiteSettings extends Page implements HasForms
 
     protected ?string $oldActiveLocale = null;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     protected static ?int $navigationSort = 20;
-
-    protected static string $view = 'filament.pages.manage-site-settings';
 
     protected static ?string $slug = 'site-settings';
 
@@ -142,10 +143,10 @@ class ManageSiteSettings extends Page implements HasForms
         $this->form->fill($data);
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make(__('filament.pages.manage_site_settings.section_basic'))
                     ->schema([
                         TextInput::make('site_name')
@@ -359,7 +360,19 @@ class ManageSiteSettings extends Page implements HasForms
         ];
     }
 
-    protected function getFormActions(): array
+    public function content(Schema $schema): Schema
+    {
+        return $schema->components([
+            Form::make([EmbeddedSchema::make('form')])
+                ->id('form')
+                ->livewireSubmitHandler('save')
+                ->footer([
+                    Actions::make($this->getFormActions())->key('form-actions'),
+                ]),
+        ]);
+    }
+
+    public function getFormActions(): array
     {
         return [
             Action::make('save')

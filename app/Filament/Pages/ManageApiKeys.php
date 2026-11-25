@@ -20,7 +20,6 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Tables\Actions\Action as TableAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -32,6 +31,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 
 class ManageApiKeys extends Page implements HasForms, HasTable
 {
@@ -40,11 +40,11 @@ class ManageApiKeys extends Page implements HasForms, HasTable
 
     protected static ?string $slug = 'api-keys';
 
-    protected static ?string $navigationIcon = 'heroicon-o-command-line';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-command-line';
 
     protected static ?int $navigationSort = 25;
 
-    protected static string $view = 'filament.pages.manage-api-keys';
+    protected string $view = 'filament.pages.manage-api-keys';
 
     public static function getNavigationGroup(): ?string
     {
@@ -159,11 +159,11 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
-            ->actions([
-                TableAction::make('edit')
+            ->recordActions([
+                Action::make('edit')
                     ->label(__('filament.pages.manage_api_keys.edit'))
                     ->icon('heroicon-o-pencil-square')
-                    ->form([
+                    ->schema([
                         TextInput::make('name')
                             ->label(__('filament.pages.manage_api_keys.token_name'))
                             ->required()
@@ -203,7 +203,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                                 ->body(__('filament.pages.manage_api_keys.token_updated_body'))
                                 ->success()
                                 ->send();
-                        } catch (\InvalidArgumentException $e) {
+                        } catch (InvalidArgumentException $e) {
                             Notification::make()
                                 ->title(__('filament.pages.manage_api_keys.error'))
                                 ->body($e->getMessage())
@@ -218,7 +218,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                         }
                     })
                     ->extraModalFooterActions([
-                        TableAction::make('deleteFromEdit')
+                        Action::make('deleteFromEdit')
                             ->label(__('filament.pages.manage_api_keys.delete'))
                             ->color('danger')
                             ->requiresConfirmation()
@@ -233,7 +233,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                                         ->body(__('filament.pages.manage_api_keys.token_deleted_body'))
                                         ->success()
                                         ->send();
-                                } catch (\InvalidArgumentException $e) {
+                                } catch (InvalidArgumentException $e) {
                                     Notification::make()
                                         ->title(__('filament.pages.manage_api_keys.error'))
                                         ->body($e->getMessage())
@@ -243,7 +243,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                             }),
                     ]),
 
-                TableAction::make('delete')
+                Action::make('delete')
                     ->label(__('filament.pages.manage_api_keys.delete'))
                     ->icon('heroicon-o-trash')
                     ->color('danger')
@@ -260,7 +260,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                                 ->body(__('filament.pages.manage_api_keys.token_deleted_body'))
                                 ->success()
                                 ->send();
-                        } catch (\InvalidArgumentException $e) {
+                        } catch (InvalidArgumentException $e) {
                             Notification::make()
                                 ->title(__('filament.pages.manage_api_keys.error'))
                                 ->body($e->getMessage())
@@ -305,7 +305,7 @@ class ManageApiKeys extends Page implements HasForms, HasTable
             Action::make('create')
                 ->label(__('filament.pages.manage_api_keys.create_token'))
                 ->icon('heroicon-o-plus')
-                ->form([
+                ->schema([
                     TextInput::make('name')
                         ->label(__('filament.pages.manage_api_keys.token_name'))
                         ->placeholder(__('filament.pages.manage_api_keys.token_name_placeholder'))

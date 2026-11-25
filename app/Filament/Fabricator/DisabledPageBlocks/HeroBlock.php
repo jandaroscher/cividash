@@ -15,9 +15,11 @@ use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
 class HeroBlock extends PageBlock
 {
-    public static function getBlockSchema(): Block
+    protected static string $name = 'hero';
+
+    public static function defineBlock(Block $block): Block
     {
-        return Block::make('hero')
+        return $block
             ->label(__('filament.blocks.hero.label'))
             ->icon('heroicon-o-photo')
             ->schema([

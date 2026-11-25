@@ -7,13 +7,15 @@
 namespace App\Filament\Resources\CategoryGroupResource\Pages;
 
 use App\Filament\Resources\CategoryGroupResource;
-use Filament\Actions;
-use Filament\Pages\Actions\Action;
+use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Resources\Pages\ListRecords\Concerns\Translatable;
 
 class ListCategoryGroups extends ListRecords
 {
-    use ListRecords\Concerns\Translatable;
+    use Translatable;
 
     protected static string $resource = CategoryGroupResource::class;
 
@@ -25,8 +27,8 @@ class ListCategoryGroups extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\LocaleSwitcher::make(),
-            Actions\CreateAction::make(),
+            LocaleSwitcher::make(),
+            CreateAction::make(),
         ];
     }
 }

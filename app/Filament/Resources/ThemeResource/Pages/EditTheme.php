@@ -7,7 +7,7 @@
 namespace App\Filament\Resources\ThemeResource\Pages;
 
 use App\Filament\Resources\ThemeResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditTheme extends EditRecord
@@ -21,7 +21,7 @@ class EditTheme extends EditRecord
         $isInUse = $this->record->tenants()->exists();
 
         return [
-            Actions\DeleteAction::make()
+            DeleteAction::make()
                 ->disabled($isInUse)
                 ->tooltip($isInUse ? __('filament.resources.theme.delete_blocked_tooltip') : null),
         ];

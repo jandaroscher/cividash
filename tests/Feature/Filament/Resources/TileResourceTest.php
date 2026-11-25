@@ -67,8 +67,9 @@ class TileResourceTest extends TestCase
 
         $html = Livewire::test(ListTiles::class)->html();
 
+        // Filament sets tabindex client-side (x-bind) and handles Enter/Space on the switch.
         $this->assertMatchesRegularExpression(
-            '/role="switch"\s+aria-checked="false"[^>]*aria-label="'.preg_quote(__('filament.resources.tile.is_public'), '/').'"[^>]*tabindex="0"/s',
+            '/x-bind:tabindex="[^"]*\'0\'"[^>]*x-on:keydown\.space[^>]*role="switch"[^>]*aria-label="'.preg_quote(__('filament.resources.tile.is_public'), '/').'"/s',
             $html,
         );
     }

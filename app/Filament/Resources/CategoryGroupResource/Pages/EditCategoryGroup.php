@@ -9,15 +9,19 @@ namespace App\Filament\Resources\CategoryGroupResource\Pages;
 use App\Filament\Resources\CategoryGroupResource;
 use Filament\Actions;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Form;
+use Filament\Schemas\Schema;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable;
 
 class EditCategoryGroup extends EditRecord
 {
-    use EditRecord\Concerns\Translatable;
+    use Translatable;
 
     protected static string $resource = CategoryGroupResource::class;
-
-    protected static string $view = 'filament.pages.edit-category-group';
 
     public function mount(int|string $record): void
     {
@@ -31,6 +35,20 @@ class EditCategoryGroup extends EditRecord
     }
 
     /**
+     * Form actions go below the categories table so editors save after editing both.
+     */
+    public function content(Schema $schema): Schema
+    {
+        return $schema->components([
+            Form::make([EmbeddedSchema::make('form')])
+                ->id('form')
+                ->livewireSubmitHandler('save'),
+            $this->getRelationManagersContentComponent(),
+            $this->getFormActionsContentComponent(),
+        ]);
+    }
+
+    /**
      * Assemble the header action buttons for the edit page.
      *
      * Provides actions for switching locale, saving the record, and deleting the record.
@@ -40,8 +58,8 @@ class EditCategoryGroup extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\LocaleSwitcher::make(),
-            Actions\DeleteAction::make(),
+            LocaleSwitcher::make(),
+            DeleteAction::make(),
             Action::make('save_header')
                 ->label(__('filament.actions.save'))
                 ->action('save'),

@@ -7,10 +7,10 @@
 namespace App\Filament\Fabricator\Resources\PageResource\Pages;
 
 use App\Filament\Fabricator\Resources\PageResource;
-use Filament\Actions;
 use Filament\Actions\Action;
-use Filament\Resources\Pages\EditRecord\Concerns\Translatable;
 use Illuminate\Support\Arr;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable;
 use Z3d0X\FilamentFabricator\Resources\PageResource\Pages\EditPage as FabricatorEditPage;
 
 class EditPage extends FabricatorEditPage
@@ -56,7 +56,7 @@ class EditPage extends FabricatorEditPage
         }
 
         return [
-            Actions\LocaleSwitcher::make(),
+            LocaleSwitcher::make(),
             ...$actions,
         ];
     }

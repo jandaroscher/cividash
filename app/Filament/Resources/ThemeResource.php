@@ -6,19 +6,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ThemeResource\Pages;
+use App\Filament\Resources\ThemeResource\Pages\CreateTheme;
+use App\Filament\Resources\ThemeResource\Pages\EditTheme;
+use App\Filament\Resources\ThemeResource\Pages\ListThemes;
 use App\Models\Theme;
 use App\Settings\BrandingSettings;
 use App\Settings\ContentSettings;
 use App\Settings\DashboardSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\IntegrationSettings;
+use Closure;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Set;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
@@ -29,7 +36,7 @@ class ThemeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?string $navigationIcon = 'heroicon-o-swatch';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-swatch';
 
     protected static ?int $navigationSort = 22;
 
@@ -66,14 +73,14 @@ class ThemeResource extends Resource
         return __('filament.resources.theme.plural_model_label');
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make(__('filament.resources.theme.section_theme'))
+        return $schema
+            ->components([
+                Section::make(__('filament.resources.theme.section_theme'))
                     ->columns(1)
                     ->schema([
-                        Forms\Components\TextInput::make('name')
+                        TextInput::make('name')
                             ->label(__('filament.resources.theme.name'))
                             ->required()
                             ->maxLength(255)
@@ -83,12 +90,12 @@ class ThemeResource extends Resource
                                     $set('slug', Str::slug($state));
                                 }
                             }),
-                        Forms\Components\TextInput::make('slug')
+                        TextInput::make('slug')
                             ->label(__('filament.resources.theme.slug'))
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
-                        Forms\Components\Textarea::make('settings')
+                        Textarea::make('settings')
                             ->label(__('filament.resources.theme.settings'))
                             ->helperText(__('filament.resources.theme.settings_helper'))
                             ->rows(10)
@@ -96,7 +103,7 @@ class ThemeResource extends Resource
                             ->dehydrateStateUsing(fn (?string $state) => filled($state) ? json_decode($state, true) : null)
                             ->rule('json')
                             ->rule(function () {
-                                return function (string $attribute, $value, \Closure $fail) {
+                                return function (string $attribute, $value, Closure $fail) {
                                     if (! filled($value)) {
                                         return;
                                     }
@@ -142,29 +149,29 @@ class ThemeResource extends Resource
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->withCount('tenants'))
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label(__('filament.resources.theme.name'))
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('slug')
+                TextColumn::make('slug')
                     ->label(__('filament.resources.theme.slug'))
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('tenants_count')
+                TextColumn::make('tenants_count')
                     ->label(__('filament.resources.theme.used_by_dashboards'))
                     ->badge()
                     ->formatStateUsing(fn (int $state) => trans_choice('filament.resources.theme.used_by_dashboards_count', $state, ['count' => $state]))
                     ->color(fn (int $state) => $state > 0 ? 'success' : 'gray')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label(__('filament.resources.theme.created_at'))
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make()
                     ->disabled(fn (Theme $record) => $record->tenants_count > 0)
                     ->tooltip(fn (Theme $record) => $record->tenants_count > 0
                         ? __('filament.resources.theme.delete_blocked_tooltip')
@@ -182,9 +189,9 @@ class ThemeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListThemes::route('/'),
-            'create' => Pages\CreateTheme::route('/create'),
-            'edit' => Pages\EditTheme::route('/{record}/edit'),
+            'index' => ListThemes::route('/'),
+            'create' => CreateTheme::route('/create'),
+            'edit' => EditTheme::route('/{record}/edit'),
         ];
     }
 }

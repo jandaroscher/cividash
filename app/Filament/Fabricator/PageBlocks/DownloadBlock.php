@@ -17,11 +17,13 @@ use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
 class DownloadBlock extends PageBlock
 {
+    protected static string $name = 'download';
+
     use HasBlockActiveToggleAction;
 
-    public static function getBlockSchema(): Block
+    public static function defineBlock(Block $block): Block
     {
-        return Block::make('download')
+        return $block
             ->label(__('filament.blocks.download.label'))
             ->icon('heroicon-o-arrow-down-tray')
             ->schema([

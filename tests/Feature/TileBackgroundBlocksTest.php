@@ -11,8 +11,8 @@ use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\User;
 use Filament\Facades\Filament;
-use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Schemas\Schema;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -98,7 +98,7 @@ class TileBackgroundBlocksTest extends TestCase
             protected static string $resource = TileResource::class;
         };
 
-        $form = TileResource::form(Form::make($livewire));
+        $form = TileResource::form(Schema::make($livewire));
 
         // Check that the form schema can be retrieved (this validates the form structure)
         $components = $form->getComponents();

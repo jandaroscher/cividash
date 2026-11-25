@@ -60,6 +60,19 @@ jobs:
       - name: Node Security Audit
         run: npm audit --audit-level=high --omit=dev
 
+      # The Filament admin theme imports Filament's CSS from vendor/.
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring,intl,bcmath,gd,curl,xml,zip,pdo_pgsql,redis
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction --no-dev --no-scripts
+        env:
+          COMPOSER_PROCESS_TIMEOUT: 200
+
       - name: Build frontend assets
         run: npm run build
 

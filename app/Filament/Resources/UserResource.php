@@ -6,16 +6,29 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\UserResource\Pages\CreateUser;
+use App\Filament\Resources\UserResource\Pages\EditUser;
+use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\Tenant;
 use App\Models\User;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,7 +39,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
     protected static ?int $navigationSort = 10;
 
@@ -69,13 +82,13 @@ class UserResource extends Resource
         return (bool) Filament::auth()->user()?->is_admin;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make(__('filament.resources.user.sections.personal_data'))
+        return $schema
+            ->components([
+                Section::make(__('filament.resources.user.sections.personal_data'))
                     ->schema([
-                        Forms\Components\FileUpload::make('avatar_path')
+                        FileUpload::make('avatar_path')
                             ->label(__('filament.resources.user.fields.avatar'))
                             ->image()
                             ->avatar()
@@ -88,29 +101,29 @@ class UserResource extends Resource
                             ->maxSize(2048)
                             ->columnSpanFull(),
 
-                        Forms\Components\TextInput::make('first_name')
+                        TextInput::make('first_name')
                             ->label(__('filament.resources.user.fields.first_name'))
                             ->required()
                             ->maxLength(255),
 
-                        Forms\Components\TextInput::make('last_name')
+                        TextInput::make('last_name')
                             ->label(__('filament.resources.user.fields.last_name'))
                             ->required()
                             ->maxLength(255),
 
-                        Forms\Components\TextInput::make('email')
+                        TextInput::make('email')
                             ->label(__('filament.resources.user.fields.email'))
                             ->email()
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
 
-                        Forms\Components\TextInput::make('phone')
+                        TextInput::make('phone')
                             ->label(__('filament.resources.user.fields.phone'))
                             ->tel()
                             ->maxLength(255),
 
-                        Forms\Components\Select::make('locale')
+                        Select::make('locale')
                             ->label(__('filament.resources.user.fields.locale'))
                             ->options([
                                 'de' => 'Deutsch',
@@ -119,7 +132,7 @@ class UserResource extends Resource
                             ->default('de')
                             ->native(false),
 
-                        Forms\Components\TextInput::make('password')
+                        TextInput::make('password')
                             ->label(__('filament.resources.user.fields.password'))
                             ->password()
                             ->revealable()
@@ -130,7 +143,7 @@ class UserResource extends Resource
                             ->minLength(12)
                             ->maxLength(64),
 
-                        Forms\Components\Toggle::make('is_active')
+                        Toggle::make('is_active')
                             ->label(__('filament.resources.user.fields.is_active'))
                             ->default(true)
                             ->inline(false)
@@ -141,9 +154,9 @@ class UserResource extends Resource
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make(__('filament.resources.user.sections.role_and_access'))
+                Section::make(__('filament.resources.user.sections.role_and_access'))
                     ->schema([
-                        Forms\Components\Select::make('role')
+                        Select::make('role')
                             ->label(__('filament.resources.user.fields.role'))
                             ->options([
                                 'Admin' => __('filament.roles.Admin'),
@@ -154,7 +167,7 @@ class UserResource extends Resource
                             ->reactive()
                             ->dehydrated(false),
 
-                        Forms\Components\Select::make('dashboard_assignments')
+                        Select::make('dashboard_assignments')
                             ->label(__('filament.resources.user.fields.dashboard_assignments'))
                             ->options(fn () => Tenant::pluck('name', 'id'))
                             ->multiple()
@@ -171,22 +184,22 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('email')
+                TextColumn::make('email')
                     ->label(__('filament.resources.user.fields.email'))
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('first_name')
+                TextColumn::make('first_name')
                     ->label(__('filament.resources.user.fields.first_name'))
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('last_name')
+                TextColumn::make('last_name')
                     ->label(__('filament.resources.user.fields.last_name'))
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('dashboard_access')
+                TextColumn::make('dashboard_access')
                     ->label(__('filament.resources.user.fields.dashboard_access'))
                     ->getStateUsing(function (User $record) {
                         if ($record->is_admin) {
@@ -203,7 +216,7 @@ class UserResource extends Resource
                     })
                     ->wrap(),
 
-                Tables\Columns\ToggleColumn::make('is_active')
+                ToggleColumn::make('is_active')
                     ->label(__('filament.resources.user.fields.is_active'))
                     ->sortable()
                     ->updateStateUsing(function ($record, $state) {
@@ -233,7 +246,7 @@ class UserResource extends Resource
             ])
             ->defaultSort('last_name', 'asc')
             ->filters([
-                Tables\Filters\SelectFilter::make('role')
+                SelectFilter::make('role')
                     ->label(__('filament.resources.user.fields.role'))
                     ->options([
                         'Admin' => __('filament.roles.Admin'),
@@ -247,7 +260,7 @@ class UserResource extends Resource
                         return $query->where('is_admin', $data['value'] === 'Admin');
                     }),
 
-                Tables\Filters\SelectFilter::make('dashboard_access')
+                SelectFilter::make('dashboard_access')
                     ->label(__('filament.resources.user.fields.dashboard_access'))
                     ->options(fn () => Tenant::pluck('name', 'id'))
                     ->query(function (Builder $query, array $data) {
@@ -259,14 +272,14 @@ class UserResource extends Resource
                     })
                     ->searchable(),
 
-                Tables\Filters\TernaryFilter::make('is_active')
+                TernaryFilter::make('is_active')
                     ->label(__('filament.resources.user.fields.is_active')),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
 
-                Tables\Actions\DeleteAction::make()
-                    ->before(function (Tables\Actions\DeleteAction $action, User $record) {
+                DeleteAction::make()
+                    ->before(function (DeleteAction $action, User $record) {
                         if ($record->is_admin && ! User::where('is_admin', true)->where('is_active', true)->where('id', '!=', $record->id)->exists()) {
                             Notification::make()
                                 ->title(__('filament.resources.user.messages.cannot_delete_last_admin'))
@@ -277,10 +290,10 @@ class UserResource extends Resource
                         }
                     }),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->before(function (Tables\Actions\DeleteBulkAction $action, Collection $records) {
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->before(function (DeleteBulkAction $action, Collection $records) {
                             $adminIdsToDelete = $records->where('is_admin', true)->where('is_active', true)->pluck('id');
 
                             if ($adminIdsToDelete->isEmpty()) {
@@ -308,9 +321,9 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
+            'index' => ListUsers::route('/'),
+            'create' => CreateUser::route('/create'),
+            'edit' => EditUser::route('/{record}/edit'),
         ];
     }
 }
