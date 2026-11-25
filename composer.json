@@ -25,6 +25,7 @@
         "laravel/socialite": "^5.26",
         "laravel/tinker": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.0",
+        "openspout/openspout": "^4.28",
         "socialiteproviders/keycloak": "^5.3",
         "spatie/laravel-permission": "^6.24",
         "z3d0x/filament-fabricator": "^2.7"

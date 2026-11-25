@@ -13,7 +13,9 @@ use App\Models\MetricValue;
 use App\Models\Tenant;
 use App\Models\Tile;
 use App\Models\TimePeriod;
+use App\Services\Export\FieldWhitelist;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use OpenSpout\Reader\XLSX\Reader;
 use Tests\TestCase;
 
 class ExportTileTest extends TestCase
@@ -123,6 +125,63 @@ class ExportTileTest extends TestCase
         $this->assertStringNotContainsString('<p>', $csv);
     }
 
+    public function test_xml_export_is_schema_valid_and_keeps_rich_text_html(): void
+    {
+        $response = $this->get('/api/v1/tiles/mobilitaet/export?format=xml&locale=de');
+
+        $response->assertOk();
+        $this->assertStringContainsString('application/xml', $response->headers->get('Content-Type'));
+        $this->assertMatchesRegularExpression(
+            '/attachment; filename="tile-mobilitaet-\d{8}-\d{6}\.xml"/',
+            (string) $response->headers->get('Content-Disposition'),
+        );
+
+        $doc = new \DOMDocument;
+        $doc->loadXML($response->streamedContent());
+        $this->assertTrue($doc->schemaValidate(base_path('docs/export/schemas/v1/export.xsd')));
+
+        $xpath = new \DOMXPath($doc);
+        $xpath->registerNamespace('e', 'urn:cividash:export:1.0');
+        $this->assertSame(2.0, $xpath->evaluate('count(//e:row)'));
+        $this->assertSame('<p>Verkehr und Infrastruktur</p>', $xpath->evaluate('string(//e:row[1]/e:tile.description)'));
+        $this->assertSame('default', $xpath->evaluate('string(/e:export/e:tenant/@slug)'));
+    }
+
+    public function test_xlsx_export_streams_a_workbook_with_plain_text_and_numbers(): void
+    {
+        $response = $this->get('/api/v1/tiles/mobilitaet/export?format=xlsx&locale=de');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $this->assertMatchesRegularExpression(
+            '/attachment; filename="tile-mobilitaet-\d{8}-\d{6}\.xlsx"/',
+            (string) $response->headers->get('Content-Disposition'),
+        );
+
+        $file = tempnam(sys_get_temp_dir(), 'xlsx-feature-');
+        file_put_contents($file, $response->streamedContent());
+        $reader = new Reader;
+        $reader->open($file);
+        $fields = FieldWhitelist::all();
+        $data = [];
+        foreach ($reader->getSheetIterator() as $sheet) {
+            $this->assertSame('Daten', $sheet->getName());
+            foreach ($sheet->getRowIterator() as $row) {
+                // Trailing empty cells are not stored in the file.
+                $data[] = array_combine($fields, array_pad($row->toArray(), count($fields), null));
+            }
+            break;
+        }
+        $reader->close();
+        unlink($file);
+
+        $this->assertCount(3, $data, 'Header plus two values');
+        $this->assertSame('Kachel-ID', $data[0]['tile.id']);
+        $this->assertSame('Verkehr und Infrastruktur', $data[1]['tile.description']);
+        $this->assertSame(100.5, $data[1]['value.value']);
+        $this->assertSame(2020, $data[1]['value.year']);
+    }
+
     public function test_missing_translation_in_requested_locale_is_exported_as_null(): void
     {
         $this->tile->metricDefinitions()->first()->forgetTranslation('label', 'en')->save();
@@ -152,7 +211,7 @@ class ExportTileTest extends TestCase
 
     public function test_invalid_format_returns_422(): void
     {
-        $this->getJson('/api/v1/tiles/mobilitaet/export?format=xml')
+        $this->getJson('/api/v1/tiles/mobilitaet/export?format=pdf')
             ->assertStatus(422)
             ->assertJsonStructure(['message', 'errors' => ['format']]);
     }

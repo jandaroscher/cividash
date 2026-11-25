@@ -12,6 +12,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rule;
 
 class ExportQueryRequest extends FormRequest
 {
@@ -26,7 +27,7 @@ class ExportQueryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'format' => ['nullable', 'string', 'in:json,csv'],
+            'format' => ['nullable', 'string', Rule::in(ExportQuery::FORMATS)],
             'locale' => ['nullable', 'string', 'in:de,en'],
             'fields' => ['nullable', 'array'],
             'fields.*' => ['string'],

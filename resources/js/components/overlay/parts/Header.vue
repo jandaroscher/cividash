@@ -53,6 +53,11 @@ SPDX-License-Identifier: EUPL-1.2+
           :tile-title="title"
           @close="exportDialogOpen = false"
         />
+        <ShareButton
+          v-if="tileSlug"
+          :tile-slug="tileSlug"
+          :tile-title="title"
+        />
         <button
           v-if="tileSlug && embeddable && !embedView"
           ref="viewToggle"
@@ -213,6 +218,7 @@ import { useLocale } from '../../../composables/useLocale';
 import { useBrandingStore } from '../../../stores/branding';
 import { blockHasVisibleContent, buildVisibleJumpMarks } from '../../../utils/jumpMarks';
 import ExportDialog from '../../export/ExportDialog.vue';
+import ShareButton from './ShareButton.vue';
 import { useOverlayStore } from '../../../stores/overlay';
 import { resolveTileSlug } from '../../../utils/tileSlug';
 

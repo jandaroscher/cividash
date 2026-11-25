@@ -183,6 +183,7 @@ store absolute media URLs.
 - [Deployment](docs/deployment)
 - [Testing](docs/testing)
 - [Data upload](docs/upload)
+- [Data export](docs/export)
 - **User guide** for CMS usage ([German](docs/user-guide/de/00-einstieg.md) / [English](docs/user-guide/en/00-introduction.md))
 - [CHANGELOG.md](CHANGELOG.md)
 

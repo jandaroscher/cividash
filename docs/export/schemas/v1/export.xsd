@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+
+SPDX-License-Identifier: EUPL-1.2+
+-->
+<!--
+  Schema for the CiviDash XML export (schema_version 1.0).
+
+  Each <row> holds the selected fields in canonical order; a field that was
+  not selected is absent, a selected field without a value is xsi:nil.
+  Element names match the JSON export keys.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="urn:cividash:export:1.0"
+           targetNamespace="urn:cividash:export:1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+  <xs:element name="export">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="generated_at" type="xs:dateTime"/>
+        <xs:element name="tenant" type="Tenant" minOccurs="0"/>
+        <xs:element name="locale" type="Locale"/>
+        <xs:element name="filter" type="Filter" minOccurs="0"/>
+        <xs:element name="fields" type="Fields"/>
+        <xs:element name="rows" type="Rows"/>
+      </xs:sequence>
+      <xs:attribute name="schema_version" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="Locale">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="de"/>
+      <xs:enumeration value="en"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FieldName">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="tile.id"/>
+      <xs:enumeration value="tile.slug"/>
+      <xs:enumeration value="tile.title"/>
+      <xs:enumeration value="tile.description"/>
+      <xs:enumeration value="tile.hint"/>
+      <xs:enumeration value="tile.time_granularity"/>
+      <xs:enumeration value="category.labels"/>
+      <xs:enumeration value="category.groups"/>
+      <xs:enumeration value="metric.key"/>
+      <xs:enumeration value="metric.label"/>
+      <xs:enumeration value="metric.unit"/>
+      <xs:enumeration value="value.year"/>
+      <xs:enumeration value="value.period_key"/>
+      <xs:enumeration value="value.granularity"/>
+      <xs:enumeration value="value.value"/>
+      <xs:enumeration value="metric.source"/>
+      <xs:enumeration value="metric.source_url"/>
+      <xs:enumeration value="metric.methodology"/>
+      <xs:enumeration value="metric.formula"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="Tenant">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="id" type="xs:integer" use="required"/>
+        <xs:attribute name="slug" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="Filter">
+    <xs:sequence>
+      <xs:element name="tile_slug" type="xs:string" minOccurs="0"/>
+      <xs:element name="tile_ids" type="IntegerList" minOccurs="0"/>
+      <xs:element name="category_keys" type="StringList" minOccurs="0"/>
+      <xs:element name="year_from" type="xs:integer" minOccurs="0"/>
+      <xs:element name="year_to" type="xs:integer" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Fields">
+    <xs:sequence>
+      <xs:element name="field" type="FieldName" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Rows">
+    <xs:sequence>
+      <xs:element name="row" type="Row" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StringList">
+    <xs:sequence>
+      <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="IntegerList">
+    <xs:sequence>
+      <xs:element name="item" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Canonical column order, identical to the CSV and Excel exports. -->
+  <xs:complexType name="Row">
+    <xs:sequence>
+      <xs:element name="tile.id" type="xs:integer" minOccurs="0" nillable="true"/>
+      <xs:element name="tile.slug" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="tile.title" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="tile.description" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="tile.hint" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="tile.time_granularity" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="category.labels" type="StringList" minOccurs="0" nillable="true"/>
+      <xs:element name="category.groups" type="StringList" minOccurs="0" nillable="true"/>
+      <xs:element name="metric.key" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="metric.label" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="metric.unit" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="value.year" type="xs:integer" minOccurs="0" nillable="true"/>
+      <xs:element name="value.period_key" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="value.granularity" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="value.value" type="xs:double" minOccurs="0" nillable="true"/>
+      <xs:element name="metric.source" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="metric.source_url" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="metric.methodology" type="xs:string" minOccurs="0" nillable="true"/>
+      <xs:element name="metric.formula" type="xs:string" minOccurs="0" nillable="true"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
