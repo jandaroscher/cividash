@@ -35,6 +35,19 @@ return [
         ],
     ],
 
+    'sheets' => [
+        'data' => 'Data',
+        'info' => 'Info',
+    ],
+
+    'info' => [
+        'schema_version' => 'Schema version',
+        'generated_at' => 'Generated at',
+        'tenant' => 'Dashboard',
+        'locale' => 'Language',
+        'filter' => 'Filter',
+    ],
+
     'errors' => [
         'invalid_query' => 'Invalid export parameters.',
         'no_valid_fields' => 'No valid fields selected. Please pick at least one whitelisted field or omit the parameter to export everything.',
@@ -49,6 +62,8 @@ return [
         'format' => 'Format',
         'format_json' => 'JSON',
         'format_csv' => 'CSV (Excel-friendly)',
+        'format_xml' => 'XML',
+        'format_xlsx' => 'Excel (.xlsx)',
         'fields' => 'Fields',
         'field_groups' => [
             'tile' => 'Tile metadata',

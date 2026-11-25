@@ -13,8 +13,6 @@ use App\Services\Export\ExportQuery;
  *
  * Writers are stateful for the duration of a single export and receive a
  * PHP stream handle (typically php://output under a StreamedResponse).
- * v1.1 will add XmlExportWriter and XlsxExportWriter implementing this
- * same contract.
  */
 interface ExportWriter
 {

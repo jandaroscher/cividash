@@ -35,6 +35,19 @@ return [
         ],
     ],
 
+    'sheets' => [
+        'data' => 'Daten',
+        'info' => 'Info',
+    ],
+
+    'info' => [
+        'schema_version' => 'Schema-Version',
+        'generated_at' => 'Erstellt am',
+        'tenant' => 'Dashboard',
+        'locale' => 'Sprache',
+        'filter' => 'Filter',
+    ],
+
     'errors' => [
         'invalid_query' => 'Ungültige Export-Parameter.',
         'no_valid_fields' => 'Keine gültigen Felder ausgewählt. Bitte mindestens ein Feld aus der Feld-Whitelist angeben oder den Parameter weglassen, um alle Felder zu exportieren.',
@@ -49,6 +62,8 @@ return [
         'format' => 'Format',
         'format_json' => 'JSON',
         'format_csv' => 'CSV (Excel-kompatibel)',
+        'format_xml' => 'XML',
+        'format_xlsx' => 'Excel (.xlsx)',
         'fields' => 'Felder',
         'field_groups' => [
             'tile' => 'Kachel-Metadaten',

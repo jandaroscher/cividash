@@ -48,6 +48,7 @@ npx vitest run                     # frontend suite
   CI runs it only as a check; the output under `public/docs/` is not committed, and the
   release images do not contain it.
 - [upload/README.md](upload/README.md): JSON schemas and examples for import bundles.
+- [export/README.md](export/README.md): export formats (JSON, CSV, Excel, XML) and the XML schema.
 
 ## Commits, pull requests and DCO
 
@@ -72,5 +73,6 @@ Details are in [CONTRIBUTING.md](../CONTRIBUTING.md). In short:
 | [deployment/](deployment/README.md) | you touch Docker images, the entrypoint, seeding or scheduling |
 | [api/](api/admin-api.md) | you add or change endpoints |
 | [upload/](upload/README.md) | you change the import format |
+| [export/](export/README.md) | you change the export formats or fields |
 | [testing/](testing/README.md) | you write or run tests |
 | [user-guide/](user-guide/en/00-introduction.md) | you change admin panel behaviour that editors see; keep the German and English guides in sync |

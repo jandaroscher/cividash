@@ -10,6 +10,8 @@ use App\Models\Tenant;
 use App\Services\Export\Writers\Contracts\ExportWriter;
 use App\Services\Export\Writers\CsvExportWriter;
 use App\Services\Export\Writers\JsonExportWriter;
+use App\Services\Export\Writers\XlsxExportWriter;
+use App\Services\Export\Writers\XmlExportWriter;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -70,6 +72,8 @@ class ExportService
         return match ($format) {
             ExportQuery::FORMAT_JSON => new JsonExportWriter,
             ExportQuery::FORMAT_CSV => new CsvExportWriter,
+            ExportQuery::FORMAT_XML => new XmlExportWriter,
+            ExportQuery::FORMAT_XLSX => new XlsxExportWriter,
             default => throw new \InvalidArgumentException("Unsupported export format: {$format}"),
         };
     }
