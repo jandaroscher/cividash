@@ -38,4 +38,27 @@ describe('BlockImage', () => {
         expect(wrapper.find('figure').classes()).toContain('lg:hidden');
         expect(wrapper.find('img').classes()).toContain('w-full');
     });
+
+    it('offers downscaled copies of uploaded photos', () => {
+        const img = createWrapper({ src: '/storage/page-blocks/slide.JPG', sizes: '80vw' }).find('img');
+        expect(img.attributes('srcset')).toBe(
+            '/storage/_resized/480/page-blocks/slide.JPG 480w, '
+            + '/storage/_resized/960/page-blocks/slide.JPG 960w, '
+            + '/storage/_resized/1600/page-blocks/slide.JPG 1600w',
+        );
+        expect(img.attributes('sizes')).toBe('80vw');
+    });
+
+    it('escapes spaces and commas in file names inside the srcset', () => {
+        const img = createWrapper({ src: '/storage/slider/logo GTC, final.png' }).find('img');
+        expect(img.attributes('srcset').split(', ')[0]).toBe('/storage/_resized/480/slider/logo%20GTC%2C%20final.png 480w');
+    });
+
+    it('leaves vector graphics and external images as they are', () => {
+        for (const src of ['/storage/icons/logo.svg', 'https://example.org/pic.jpg']) {
+            const img = createWrapper({ src }).find('img');
+            expect(img.attributes('srcset')).toBeUndefined();
+            expect(img.attributes('sizes')).toBeUndefined();
+        }
+    });
 });
