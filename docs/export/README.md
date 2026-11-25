@@ -37,15 +37,15 @@ A workbook with two sheets:
 - **Daten / Data**: translated header row (bold, frozen, with an autofilter) and one row per
   value. Numbers (tile ID, year, value) are numeric cells, everything else is text. Lists
   are joined with `, `, rich text is plain text. Text is never stored as a formula, even if
-  it starts with `=`. Cells longer than Excel's limit of 32,767 characters are cut, and characters that XML
+  it starts with `=`. Cells longer than Excel's limit (32,767 UTF-16 code units) are cut, and characters that XML
   does not allow are dropped.
 - **Info**: schema version, creation time (a date cell), dashboard, language and the
   applied filter.
 
 The workbook is built in a temporary file and sent once it is complete. Memory use stays
 constant, but the download only starts when the whole workbook is written, so it has to
-finish within the PHP and proxy timeouts (60 seconds in the production image, roughly
-600,000 rows). JSON, CSV and XML stream row by row.
+finish within the PHP and proxy timeouts (60 seconds in the production image). A local
+run wrote 100,000 rows in about 9 seconds. JSON, CSV and XML stream row by row.
 
 ### XML
 

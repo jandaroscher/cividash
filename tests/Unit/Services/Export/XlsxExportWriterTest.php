@@ -156,11 +156,11 @@ class XlsxExportWriterTest extends TestCase
     {
         $query = new ExportQuery(format: ExportQuery::FORMAT_XLSX, locale: 'de', fields: [FieldWhitelist::TILE_DESCRIPTION]);
 
-        // Each emoji is two UTF-16 units: 32,767 units hold 16,383 of them.
-        $sheets = $this->export($query, [[FieldWhitelist::TILE_DESCRIPTION => 'a'.str_repeat('🌱', 20000)]]);
+        // Each emoji is two UTF-16 units: the limit of 32,767 falls inside the
+        // 16,384th one, which must be dropped whole.
+        $sheets = $this->export($query, [[FieldWhitelist::TILE_DESCRIPTION => str_repeat('🌱', 20000)]]);
 
-        $cell = $sheets['Daten'][1][0];
-        $this->assertSame('a'.str_repeat('🌱', 16383), $cell);
+        $this->assertSame(str_repeat('🌱', 16383), $sheets['Daten'][1][0]);
     }
 
     public function test_characters_xml_forbids_are_dropped_so_excel_can_open_the_file(): void
