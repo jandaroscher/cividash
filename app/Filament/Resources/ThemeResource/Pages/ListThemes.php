@@ -8,7 +8,8 @@ namespace App\Filament\Resources\ThemeResource\Pages;
 
 use App\Filament\Resources\ThemeResource;
 use App\Services\ThemeBundleImporter;
-use Filament\Actions;
+use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
@@ -22,11 +23,11 @@ class ListThemes extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
-            Actions\Action::make('importThemeBundle')
+            CreateAction::make(),
+            Action::make('importThemeBundle')
                 ->label(__('filament.resources.theme.import_action_label'))
                 ->icon('heroicon-o-arrow-up-tray')
-                ->form([
+                ->schema([
                     FileUpload::make('bundle')
                         ->label(__('filament.resources.theme.import_bundle_field'))
                         ->disk('local')

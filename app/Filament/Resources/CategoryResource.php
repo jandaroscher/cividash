@@ -7,20 +7,36 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Concerns\HasSortableTranslations;
-use App\Filament\Resources\CategoryResource\Pages;
+use App\Filament\Resources\CategoryResource\Pages\CreateCategory;
+use App\Filament\Resources\CategoryResource\Pages\EditCategory;
+use App\Filament\Resources\CategoryResource\Pages\ListCategories;
 use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Settings\BrandingSettings;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Filament\Resources\Concerns\Translatable;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 
 class CategoryResource extends Resource
 {
@@ -31,7 +47,7 @@ class CategoryResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'slug';
 
-    protected static ?string $navigationIcon = 'heroicon-o-tag';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-tag';
 
     protected static ?int $navigationSort = 10;
 
@@ -66,17 +82,17 @@ class CategoryResource extends Resource
      * Configures fields for category group selection, key, slug (title), locale-aware icon
      * upload/persistence, conditional color, is_active toggle, and position.
      *
-     * @param  Form  $form  The base Filament form instance to configure.
-     * @return Form The configured Form containing the Category resource fields.
+     * @param  Schema  $schema  The base Filament form instance to configure.
+     * @return Schema The configured Form containing the Category resource fields.
      */
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make(__('filament.resources.category.section_category'))
+        return $schema
+            ->components([
+                Section::make(__('filament.resources.category.section_category'))
                     ->columns(1)
                     ->schema([
-                        Forms\Components\Select::make('category_group_id')
+                        Select::make('category_group_id')
                             ->label(__('filament.resources.category.group'))
                             ->options(fn () => CategoryGroup::query()
                                 ->orderBy('position')
@@ -90,12 +106,12 @@ class CategoryResource extends Resource
                             ->required()
                             ->searchable()
                             ->live(),
-                        Forms\Components\TextInput::make('key')
+                        TextInput::make('key')
                             ->label(__('filament.resources.category.key'))
                             ->maxLength(255)
                             ->disabled()
                             ->dehydrated(),
-                        Forms\Components\TextInput::make('slug')
+                        TextInput::make('slug')
                             ->label(__('filament.resources.category.title'))
                             ->required()
                             ->maxLength(255)
@@ -105,7 +121,7 @@ class CategoryResource extends Resource
                                     $set('key', Str::slug($state));
                                 }
                             }),
-                        Forms\Components\FileUpload::make('icon')
+                        FileUpload::make('icon')
                             ->label(__('filament.resources.category.icon'))
                             ->disk('public')
                             ->directory('categories')
@@ -157,13 +173,13 @@ class CategoryResource extends Resource
                                 // Fallback for non-JSON existing icons
                                 return $path;
                             }),
-                        Forms\Components\ColorPicker::make('color')
+                        ColorPicker::make('color')
                             ->label(__('filament.resources.category.color'))
                             ->required(false)
                             ->hex()
                             ->visible(fn (Get $get): bool => app(BrandingSettings::class)->tile_color_source_group_id !== null
                                 && (int) $get('category_group_id') === app(BrandingSettings::class)->tile_color_source_group_id),
-                        Forms\Components\Toggle::make('is_active')
+                        Toggle::make('is_active')
                             ->label(__('filament.resources.category.is_active'))
                             ->default(true),
                     ]),
@@ -180,7 +196,7 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('slug')
+                TextColumn::make('slug')
                     ->label(__('filament.resources.category.title'))
                     ->formatStateUsing(function ($state, Category $record, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
@@ -195,7 +211,7 @@ class CategoryResource extends Resource
                         $expression = static::getSortableTranslationExpression('slug', $locale);
                         $query->orderByRaw("{$expression} {$direction}");
                     }),
-                Tables\Columns\TextColumn::make('group.title')
+                TextColumn::make('group.title')
                     ->label(__('filament.resources.category.group'))
                     ->formatStateUsing(function ($state, $record, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
@@ -210,12 +226,12 @@ class CategoryResource extends Resource
                             ->orderByRaw("{$expression} {$direction}");
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('key')
+                TextColumn::make('key')
                     ->label(__('filament.resources.category.key'))
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\ImageColumn::make('icon')
+                ImageColumn::make('icon')
                     ->label(__('filament.resources.category.icon'))
                     ->disk('public')
                     ->square()
@@ -236,32 +252,32 @@ class CategoryResource extends Resource
 
                         return $icon;
                     }),
-                Tables\Columns\ColorColumn::make('color')
+                ColorColumn::make('color')
                     ->label(__('filament.resources.category.color'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\ToggleColumn::make('is_active')
+                ToggleColumn::make('is_active')
                     ->label(__('filament.resources.category.is_active'))
                     ->sortable(),
-                Tables\Columns\TextColumn::make('position')
+                TextColumn::make('position')
                     ->label(__('filament.resources.category.position'))
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label(__('filament.resources.category.created_at'))
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label(__('filament.resources.category.updated_at'))
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_active')
+                TernaryFilter::make('is_active')
                     ->label(__('filament.resources.category.is_active')),
-                Tables\Filters\SelectFilter::make('category_group_id')
+                SelectFilter::make('category_group_id')
                     ->label(__('filament.resources.category.group'))
                     ->options(function () {
                         $locale = app()->getLocale();
@@ -276,18 +292,18 @@ class CategoryResource extends Resource
                     })
                     ->searchable(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->url(fn (Category $record, $livewire) => static::getUrl('edit', [
                         'record' => $record,
                         'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
                     ])),
-                Tables\Actions\DeleteAction::make(),
+                DeleteAction::make(),
             ])
             ->defaultSort('position')
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -302,9 +318,9 @@ class CategoryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCategories::route('/'),
-            'create' => Pages\CreateCategory::route('/create'),
-            'edit' => Pages\EditCategory::route('/{record}/edit'),
+            'index' => ListCategories::route('/'),
+            'create' => CreateCategory::route('/create'),
+            'edit' => EditCategory::route('/{record}/edit'),
         ];
     }
 

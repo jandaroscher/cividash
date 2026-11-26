@@ -26,14 +26,19 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\SpatieLaravelTranslatablePlugin;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Support\Assets\Css;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
 use Filament\Tables\Table;
+use Filament\View\PanelsIconAlias;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
+use Filament\Widgets\AccountWidget;
+use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -42,6 +47,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
 use Z3d0X\FilamentFabricator\Enums\BlockPickerStyle;
 use Z3d0X\FilamentFabricator\FilamentFabricatorPlugin;
 
@@ -87,13 +93,30 @@ class AdminPanelProvider extends PanelProvider
             'forms::components.repeater.actions.move-down' => 'heroicon-o-arrow-down',
             'forms::components.repeater.actions.move-up' => 'heroicon-o-arrow-up',
             'forms::components.repeater.actions.reorder' => 'heroicon-o-arrows-up-down',
+
+            // Panel chrome: theme switcher and dashboard (tenant) menu
+            PanelsIconAlias::THEME_SWITCHER_LIGHT_BUTTON => 'heroicon-o-sun',
+            PanelsIconAlias::THEME_SWITCHER_DARK_BUTTON => 'heroicon-o-moon',
+            PanelsIconAlias::THEME_SWITCHER_SYSTEM_BUTTON => 'heroicon-o-computer-desktop',
+            PanelsIconAlias::TENANT_MENU_TOGGLE_BUTTON => 'heroicon-o-chevron-down',
+            PanelsIconAlias::TENANT_MENU_PROFILE_BUTTON => 'heroicon-o-cog-6-tooth',
+            PanelsIconAlias::TENANT_MENU_BILLING_BUTTON => 'heroicon-o-credit-card',
+            PanelsIconAlias::TENANT_MENU_REGISTRATION_BUTTON => 'heroicon-o-plus',
         ]);
 
-        // Override filter and column toggle icons to outline
+        // Override filter and column toggle icons to outline. Filters apply on change,
+        // as before Filament 4 (it defers them behind an "apply" button by default).
         Table::configureUsing(function (Table $table): void {
             $table->filtersTriggerAction(fn ($action) => $action->icon('heroicon-o-funnel'));
             $table->toggleColumnsTriggerAction(fn ($action) => $action->icon('heroicon-o-view-columns'));
+            $table->deferFilters(false);
         });
+
+        // Filament 4 lets these layout components span one grid column; the forms were
+        // laid out for the full-width default of Filament 3.
+        Fieldset::configureUsing(fn (Fieldset $fieldset) => $fieldset->columnSpanFull());
+        Grid::configureUsing(fn (Grid $grid) => $grid->columnSpanFull());
+        Section::configureUsing(fn (Section $section) => $section->columnSpanFull());
     }
 
     /**
@@ -136,6 +159,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.settings')),
                 NavigationGroup::make(fn (): string => __('filament.navigation.groups.system')),
             ])
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->sidebarCollapsibleOnDesktop()
             // Inter is self-hosted (resources/css/admin-fonts.css, loaded below)
             // instead of Filament's Bunny Fonts CDN default (DSB requirement).
@@ -168,11 +192,11 @@ class AdminPanelProvider extends PanelProvider
                 // button text (shade 600 light, 500 dark) and light-mode links at 5.1:1;
                 // dark-mode links use shade 400 #EC640F at 5.4:1 on the dark panel.
                 // Green-700 as shade 500 puts the light-mode success action at 5.9:1.
-                'primary' => array_replace(Color::hex('#C83D10'), [
+                'primary' => array_replace(Color::generateV3Palette('#C83D10'), [
                     400 => '236, 100, 15',
                     600 => '200, 61, 16',
                 ]),
-                'success' => Color::hex('#15803d'),
+                'success' => Color::generateV3Palette('#15803d'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -194,8 +218,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                AccountWidget::class,
+                FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -211,7 +235,7 @@ class AdminPanelProvider extends PanelProvider
                 LocaleDetector::class,
             ])
             ->plugins([
-                SpatieLaravelTranslatablePlugin::make()
+                SpatieTranslatablePlugin::make()
                     ->defaultLocales(['de', 'en']),
                 FilamentFabricatorPlugin::make()
                     ->blockPickerStyle(BlockPickerStyle::Modal),

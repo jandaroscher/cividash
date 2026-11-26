@@ -26,6 +26,7 @@ export default defineConfig({
                 'resources/js/admin/dotlottie.js',
                 'resources/css/admin-fonts.css',
                 'resources/css/admin-contrast.css',
+                'resources/css/filament/admin/theme.css',
             ],
             refresh: true,
         }),

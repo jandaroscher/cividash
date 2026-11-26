@@ -7,9 +7,10 @@
 namespace App\Filament\Fabricator\Resources\PageResource\Pages;
 
 use App\Filament\Fabricator\Resources\PageResource;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Resources\Pages\ListRecords\Concerns\Translatable;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Resources\Pages\ListRecords\Concerns\Translatable;
 
 class ListPages extends ListRecords
 {
@@ -20,8 +21,8 @@ class ListPages extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\LocaleSwitcher::make(),
-            Actions\CreateAction::make(),
+            LocaleSwitcher::make(),
+            CreateAction::make(),
         ];
     }
 }

@@ -15,14 +15,16 @@ use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
 class FAQBlock extends PageBlock
 {
+    protected static string $name = 'faq';
+
     /**
      * Build the Block schema for an FAQ content block.
      *
      * @return Block A configured Block with a labeled FAQ icon, a repeater of `items` (each with `question` and `answer` fields), and a hidden `is_active` flag defaulting to `true`.
      */
-    public static function getBlockSchema(): Block
+    public static function defineBlock(Block $block): Block
     {
-        return Block::make('faq')
+        return $block
             ->label(__('filament.blocks.faq.label'))
             ->icon('heroicon-o-question-mark-circle')
             ->schema([

@@ -11,23 +11,24 @@ use App\Settings\BrandingSettings;
 use App\Settings\GeneralSettings;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
 
 class ManageBranding extends SettingsPage
 {
-    protected static string $view = 'filament.pages.manage-branding';
-
     protected static ?string $slug = 'theme';
 
-    protected static ?string $navigationIcon = 'heroicon-o-paint-brush';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-paint-brush';
 
     protected static ?int $navigationSort = 21;
 
@@ -74,19 +75,19 @@ class ManageBranding extends SettingsPage
      *
      * Organized into 4 tabs: Logo, Colors, Typography, Configuration.
      *
-     * @param  Form  $form  The form instance to configure.
-     * @return Form The configured form instance containing the Theme branding settings schema.
+     * @param  Schema  $schema  The form instance to configure.
+     * @return Schema The configured form instance containing the Theme branding settings schema.
      */
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Tabs::make('branding')
                     ->tabs([
-                        Tabs\Tab::make(__('filament.pages.manage_branding.tabs.logo'))
+                        Tab::make(__('filament.pages.manage_branding.tabs.logo'))
                             ->icon('heroicon-o-photo')
                             ->schema([
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.logo_section'))
+                                Section::make(__('filament.pages.manage_branding.logo_section'))
                                     ->schema([
                                         FileUpload::make('logo_url')
                                             ->label(__('filament.pages.manage_branding.logo'))
@@ -98,7 +99,7 @@ class ManageBranding extends SettingsPage
                                             ->required(false),
                                     ]),
 
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.favicon_section'))
+                                Section::make(__('filament.pages.manage_branding.favicon_section'))
                                     ->schema([
                                         FileUpload::make('favicon')
                                             ->label(__('filament.pages.manage_general.favicon'))
@@ -111,10 +112,10 @@ class ManageBranding extends SettingsPage
                                     ]),
                             ]),
 
-                        Tabs\Tab::make(__('filament.pages.manage_branding.tabs.colors'))
+                        Tab::make(__('filament.pages.manage_branding.tabs.colors'))
                             ->icon('heroicon-o-swatch')
                             ->schema([
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.colors_section'))
+                                Section::make(__('filament.pages.manage_branding.colors_section'))
                                     ->schema([
                                         ColorPicker::make('primary_color')
                                             ->label(__('filament.pages.manage_branding.primary_color'))
@@ -131,7 +132,7 @@ class ManageBranding extends SettingsPage
                                     ])
                                     ->columns(3),
 
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.background_colors_section'))
+                                Section::make(__('filament.pages.manage_branding.background_colors_section'))
                                     ->schema([
                                         ColorPicker::make('background_color')
                                             ->label(__('filament.pages.manage_branding.background_color'))
@@ -166,7 +167,7 @@ class ManageBranding extends SettingsPage
                                     ])
                                     ->columns(2),
 
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.text_colors_section'))
+                                Section::make(__('filament.pages.manage_branding.text_colors_section'))
                                     ->schema([
                                         ColorPicker::make('text_primary_color')
                                             ->label(__('filament.pages.manage_branding.text_primary_color'))
@@ -194,7 +195,7 @@ class ManageBranding extends SettingsPage
                                     ])
                                     ->columns(2),
 
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.navigation_colors_section'))
+                                Section::make(__('filament.pages.manage_branding.navigation_colors_section'))
                                     ->schema([
                                         ColorPicker::make('nav_text_color')
                                             ->label(__('filament.pages.manage_branding.nav_text_color'))
@@ -216,7 +217,7 @@ class ManageBranding extends SettingsPage
                                     ])
                                     ->columns(3),
 
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.border_shadow_colors_section'))
+                                Section::make(__('filament.pages.manage_branding.border_shadow_colors_section'))
                                     ->schema([
                                         ColorPicker::make('border_color')
                                             ->label(__('filament.pages.manage_branding.border_color'))
@@ -236,7 +237,7 @@ class ManageBranding extends SettingsPage
                                     ])
                                     ->columns(3),
 
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.slider_colors_section'))
+                                Section::make(__('filament.pages.manage_branding.slider_colors_section'))
                                     ->schema([
                                         ColorPicker::make('slider_colors.rail')
                                             ->label(__('filament.pages.manage_branding.slider_rail_color'))
@@ -253,10 +254,10 @@ class ManageBranding extends SettingsPage
                                     ->columns(3),
                             ]),
 
-                        Tabs\Tab::make(__('filament.pages.manage_branding.tabs.typography'))
+                        Tab::make(__('filament.pages.manage_branding.tabs.typography'))
                             ->icon('heroicon-o-language')
                             ->schema([
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.typography_section'))
+                                Section::make(__('filament.pages.manage_branding.typography_section'))
                                     ->schema([
                                         Select::make('typography_font_family')
                                             ->label(__('filament.pages.manage_branding.typography_font_family'))
@@ -333,7 +334,7 @@ class ManageBranding extends SettingsPage
                                             ->required(fn ($get) => empty($get('typography_custom_font_file')))
                                             ->hidden(fn ($get) => ! empty($get('typography_custom_font_file'))),
 
-                                        Forms\Components\Group::make([
+                                        Group::make([
                                             FileUpload::make('typography_custom_font_file')
                                                 ->label(__('filament.pages.manage_branding.custom_font_file'))
                                                 ->disk('public')
@@ -356,9 +357,9 @@ class ManageBranding extends SettingsPage
                                             ->hidden(fn ($get) => empty($get('typography_font_family')) && empty($get('typography_custom_font_file'))),
                                     ]),
 
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.font_sizes_section'))
+                                Section::make(__('filament.pages.manage_branding.font_sizes_section'))
                                     ->schema([
-                                        Forms\Components\Grid::make(3)
+                                        Grid::make(3)
                                             ->schema([
                                                 TextInput::make('typography_font_sizes.base')
                                                     ->label(__('filament.pages.manage_branding.font_size_base'))
@@ -407,7 +408,7 @@ class ManageBranding extends SettingsPage
                                             ]),
                                     ]),
 
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.font_schema_section'))
+                                Section::make(__('filament.pages.manage_branding.font_schema_section'))
                                     ->schema([
                                         TextInput::make('font_family_heading')
                                             ->label(__('filament.pages.manage_branding.font_family_heading'))
@@ -472,10 +473,10 @@ class ManageBranding extends SettingsPage
                                     ]),
                             ]),
 
-                        Tabs\Tab::make(__('filament.pages.manage_branding.tabs.configuration'))
+                        Tab::make(__('filament.pages.manage_branding.tabs.configuration'))
                             ->icon('heroicon-o-cog-6-tooth')
                             ->schema([
-                                Forms\Components\Section::make(__('filament.pages.manage_branding.tile_section'))
+                                Section::make(__('filament.pages.manage_branding.tile_section'))
                                     ->schema([
                                         Select::make('tile_color_source_group_id')
                                             ->label(__('filament.pages.manage_branding.tile_color_source_group'))

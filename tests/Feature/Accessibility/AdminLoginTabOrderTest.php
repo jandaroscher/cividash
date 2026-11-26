@@ -17,7 +17,7 @@ class AdminLoginTabOrderTest extends TestCase
     {
         $html = $this->get('/admin/login')->assertOk()->getContent();
 
-        $this->assertStringContainsString('id="data.email"', $html);
+        $this->assertStringContainsString('id="form.email"', $html);
         $this->assertDoesNotMatchRegularExpression('/tabindex="[1-9]/', $html);
     }
 }

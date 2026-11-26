@@ -7,18 +7,18 @@
 namespace App\Filament\Pages;
 
 use App\Settings\DashboardSettings;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
 
 class ManageDashboard extends SettingsPage
 {
     protected static ?int $navigationSort = 22;
 
-    protected static ?string $navigationIcon = 'heroicon-o-window';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-window';
 
     protected static string $settings = DashboardSettings::class;
 
@@ -60,13 +60,13 @@ class ManageDashboard extends SettingsPage
     /**
      * Builds the settings form schema for the dashboard management page.
      *
-     * @param  Form  $form  The form instance to configure.
-     * @return Form The configured form with sections and fields for content links, contact details, and server display options.
+     * @param  Schema  $schema  The form instance to configure.
+     * @return Schema The configured form with sections and fields for content links, contact details, and server display options.
      */
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make(__('filament.pages.manage_dashboard.content_links_section'))
                     ->schema([
                         TextInput::make('open_source_docs_url')

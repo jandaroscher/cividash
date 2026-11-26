@@ -18,6 +18,8 @@ use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
 class SliderBlock extends PageBlock
 {
+    protected static string $name = 'slider';
+
     use HasBlockActiveToggleAction;
 
     /**
@@ -33,9 +35,9 @@ class SliderBlock extends PageBlock
      *
      * @return Block The configured slider Block instance.
      */
-    public static function getBlockSchema(): Block
+    public static function defineBlock(Block $block): Block
     {
-        return Block::make('slider')
+        return $block
             ->label(__('filament.blocks.slider.label'))
             ->icon('heroicon-o-arrows-right-left')
             ->schema([

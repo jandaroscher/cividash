@@ -7,50 +7,28 @@
 namespace App\Filament\Pages\Auth;
 
 use App\Services\Integration\KeycloakSsoService;
-use Filament\Forms\Components\Component;
-use Filament\Forms\Components\TextInput;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse;
-use Filament\Pages\Auth\Login as BaseLogin;
+use Filament\Auth\Http\Responses\Contracts\LoginResponse;
+use Filament\Schemas\Schema;
 use Illuminate\Validation\ValidationException;
 
 /**
  * Admin login that hides the password form when only SSO is allowed; the
  * Keycloak button is added by a render hook in AdminPanelProvider.
  */
-class Login extends BaseLogin
+class Login extends \Filament\Auth\Pages\Login
 {
-    protected function getForms(): array
+    public function form(Schema $schema): Schema
     {
         if ($this->passwordLoginAllowed()) {
-            return parent::getForms();
+            return parent::form($schema);
         }
 
-        return [
-            'form' => $this->form($this->makeForm()->schema([])->statePath('data')),
-        ];
+        return $schema->components([]);
     }
 
     protected function getFormActions(): array
     {
         return $this->passwordLoginAllowed() ? parent::getFormActions() : [];
-    }
-
-    // Filament sets tabindex 1 and 2 on the fields; a positive tabindex pulls
-    // them out of the document tab order, which screen readers flag.
-    protected function getEmailFormComponent(): Component
-    {
-        /** @var TextInput $component */
-        $component = parent::getEmailFormComponent();
-
-        return $component->extraInputAttributes([]);
-    }
-
-    protected function getPasswordFormComponent(): Component
-    {
-        /** @var TextInput $component */
-        $component = parent::getPasswordFormComponent();
-
-        return $component->extraInputAttributes([]);
     }
 
     public function authenticate(): ?LoginResponse

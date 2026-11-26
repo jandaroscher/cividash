@@ -12,12 +12,12 @@ use App\Services\Import\ImportService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -43,11 +43,11 @@ class DataImport extends Page implements HasForms, HasTable
 
     protected static ?string $slug = 'data-import';
 
-    protected static ?string $navigationIcon = 'heroicon-o-arrow-up-tray';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-arrow-up-tray';
 
     protected static ?int $navigationSort = 40;
 
-    protected static string $view = 'filament.pages.data-import';
+    protected string $view = 'filament.pages.data-import';
 
     public ?array $data = [];
 
@@ -97,10 +97,10 @@ class DataImport extends Page implements HasForms, HasTable
         ];
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make(__('filament.pages.data_import.form.section_title'))
                     ->description(__('filament.pages.data_import.form.section_description'))
                     ->icon('heroicon-o-document-arrow-up')

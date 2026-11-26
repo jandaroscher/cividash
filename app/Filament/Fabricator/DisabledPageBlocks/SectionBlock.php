@@ -14,9 +14,11 @@ use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
 class SectionBlock extends PageBlock
 {
-    public static function getBlockSchema(): Block
+    protected static string $name = 'section';
+
+    public static function defineBlock(Block $block): Block
     {
-        return Block::make('section')
+        return $block
             ->label(__('filament.blocks.section.label'))
             ->icon('heroicon-o-rectangle-stack')
             ->schema([

@@ -13,6 +13,8 @@ use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
 class TileAppBlock extends PageBlock
 {
+    protected static string $name = 'tile-app';
+
     /**
      * Builds the Block schema for the "tile-app" page block.
      *
@@ -23,9 +25,9 @@ class TileAppBlock extends PageBlock
      *
      * @return Block The configured Block instance for the tile-app page block.
      */
-    public static function getBlockSchema(): Block
+    public static function defineBlock(Block $block): Block
     {
-        return Block::make('tile-app')
+        return $block
             ->label(__('filament.blocks.tile_app.label'))
             ->icon('heroicon-o-squares-2x2')
             ->schema([

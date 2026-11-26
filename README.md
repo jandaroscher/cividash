@@ -54,7 +54,7 @@ related CIVITAS/CORE add-on is maintained separately.
 | Layer | Technology |
 |-------|------------|
 | Backend | Laravel 12, PHP 8.4, Sanctum |
-| Admin | Filament 3.3, Filament Fabricator |
+| Admin | Filament 5, Filament Fabricator |
 | Frontend | Vue 3, Vue Router 4, Pinia |
 | Styling | Tailwind CSS 4 |
 | Build | Vite 6 |

@@ -6,15 +6,19 @@
 
 namespace App\Filament\Pages;
 
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -26,8 +30,6 @@ class EditProfile extends Page implements HasForms
     protected static ?string $slug = 'profile';
 
     protected static bool $shouldRegisterNavigation = false;
-
-    protected static string $view = 'filament.pages.edit-profile';
 
     public ?array $profileData = [];
 
@@ -62,10 +64,28 @@ class EditProfile extends Page implements HasForms
         ];
     }
 
-    public function profileForm(Form $form): Form
+    public function content(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema->components([
+            $this->formWithSubmit('profileForm', 'updateProfile', __('filament.pages.edit_profile.save_profile')),
+            $this->formWithSubmit('passwordForm', 'updatePassword', __('filament.pages.edit_profile.save_password')),
+        ]);
+    }
+
+    private function formWithSubmit(string $form, string $method, string $label): Form
+    {
+        return Form::make([EmbeddedSchema::make($form)])
+            ->id($form)
+            ->livewireSubmitHandler($method)
+            ->footer([
+                Actions::make([Action::make($method)->label($label)->submit($method)])->key("{$form}-actions"),
+            ]);
+    }
+
+    public function profileForm(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
                 Section::make(__('filament.pages.edit_profile.profile_information'))
                     ->description(__('filament.pages.edit_profile.profile_information_description'))
                     ->schema([
@@ -118,10 +138,10 @@ class EditProfile extends Page implements HasForms
             ->statePath('profileData');
     }
 
-    public function passwordForm(Form $form): Form
+    public function passwordForm(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make(__('filament.pages.edit_profile.update_password'))
                     ->description(__('filament.pages.edit_profile.update_password_description'))
                     ->schema([

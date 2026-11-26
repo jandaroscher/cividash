@@ -7,8 +7,8 @@
 namespace App\Filament\Fabricator\Resources\PageResource\Pages;
 
 use App\Filament\Fabricator\Resources\PageResource;
-use Filament\Actions;
-use Filament\Resources\Pages\CreateRecord\Concerns\Translatable;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Resources\Pages\CreateRecord\Concerns\Translatable;
 use Z3d0X\FilamentFabricator\Resources\PageResource\Pages\CreatePage as FabricatorCreatePage;
 
 class CreatePage extends FabricatorCreatePage
@@ -25,7 +25,7 @@ class CreatePage extends FabricatorCreatePage
         ));
 
         return [
-            Actions\LocaleSwitcher::make(),
+            LocaleSwitcher::make(),
             ...$actions,
         ];
     }

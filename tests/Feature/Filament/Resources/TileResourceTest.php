@@ -67,8 +67,9 @@ class TileResourceTest extends TestCase
 
         $html = Livewire::test(ListTiles::class)->html();
 
+        // Filament sets tabindex client-side (x-bind) and handles Enter/Space on the switch.
         $this->assertMatchesRegularExpression(
-            '/role="switch"\s+aria-checked="false"[^>]*aria-label="'.preg_quote(__('filament.resources.tile.is_public'), '/').'"[^>]*tabindex="0"/s',
+            '/aria-checked="(true|false)"[^>]*x-bind:tabindex="[^"]*\'0\'"[^>]*x-on:keydown\.space[^>]*role="switch"[^>]*aria-label="'.preg_quote(__('filament.resources.tile.is_public'), '/').'"/s',
             $html,
         );
     }
@@ -151,6 +152,37 @@ class TileResourceTest extends TestCase
     }
 
     // ========== Edit Page ==========
+
+    public function test_edit_page_opens_in_the_locale_from_the_link(): void
+    {
+        app()->setLocale('de');
+        $record = Tile::factory()->forTenant($this->tenant)->create(['title' => ['de' => 'Deutscher Titel', 'en' => 'English title']]);
+
+        Livewire::withQueryParams(['activeLocale' => 'en'])
+            ->test(EditTile::class, ['record' => $record->getRouteKey()])
+            ->assertSet('activeLocale', 'en')
+            ->assertSchemaStateSet(['title' => 'English title']);
+    }
+
+    public function test_switching_locale_keeps_rich_text_of_the_other_locale_as_html(): void
+    {
+        app()->setLocale('de');
+        $tile = Tile::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Titel', 'en' => 'Title'],
+            'description' => ['de' => '<p>Deutscher Text</p>', 'en' => '<p>English text</p>'],
+        ]);
+
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->set('activeLocale', 'en')
+            ->set('activeLocale', 'de')
+            ->set('activeLocale', 'en')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $tile->refresh();
+        $this->assertSame('<p>Deutscher Text</p>', $tile->getTranslation('description', 'de'));
+        $this->assertSame('<p>English text</p>', $tile->getTranslation('description', 'en'));
+    }
 
     public function test_edit_page_renders(): void
     {

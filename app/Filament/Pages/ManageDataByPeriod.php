@@ -11,23 +11,24 @@ use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Services\MetricValueBulkService;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ManageDataByPeriod extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static string $view = 'filament.pages.manage-data-by-period';
+    protected string $view = 'filament.pages.manage-data-by-period';
 
-    protected static ?string $navigationIcon = 'heroicon-o-table-cells';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-table-cells';
 
     protected static ?int $navigationSort = 3;
 
@@ -93,11 +94,11 @@ class ManageDataByPeriod extends Page implements HasForms
         $this->form->fill($this->data);
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->statePath('data')
-            ->schema($this->buildTileMatrixSchema());
+            ->components($this->buildTileMatrixSchema());
     }
 
     /**
@@ -369,7 +370,7 @@ class ManageDataByPeriod extends Page implements HasForms
                 $this->selectedPeriodKey,
                 $tiles
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('ManageDataByPeriod save failed', ['error' => $e->getMessage()]);
 
             Notification::make()
