@@ -16,6 +16,22 @@ return [
             'system' => 'System',
         ],
     ],
+    'media' => [
+        'label' => 'Media item',
+        'plural_label' => 'Media library',
+        'picker_button' => 'Choose from media library',
+        'copyright' => 'Copyright',
+        'usages' => 'Used in',
+        'no_usages' => 'Not used anywhere.',
+        'in_use' => 'This file is still in use and cannot be deleted. Remove it from the listed content first.',
+        'usage_types' => [
+            'pages' => 'Page',
+            'tiles' => 'Tile',
+            'metric_definitions' => 'Metric',
+            'footer_navigations' => 'Site settings (footer)',
+            'settings' => 'Branding',
+        ],
+    ],
     'pages' => [
         'manage_data_by_period' => [
             'title' => 'Time periods',

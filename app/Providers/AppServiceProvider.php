@@ -19,6 +19,7 @@ use App\Services\Integration\NgsiLdDataMapper;
 use App\Services\Integration\SensorThingsClient;
 use App\Services\Integration\SyncService;
 use App\Support\SvgSanitizer;
+use Awcodes\Curator\Components\Forms\Uploader;
 use BezhanSalleh\LanguageSwitch\Events\LocaleChanged;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Filament\Forms\Components\BaseFileUpload;
@@ -142,6 +143,11 @@ class AppServiceProvider extends ServiceProvider
         // public disk. `isImportant: true` runs this after Filament's own
         // setUp() sets its default saveUploadedFileUsing, so it wins.
         FileUpload::configureUsing(function (FileUpload $upload) {
+            // The media library uploader stores a library item and sanitizes SVGs itself.
+            if ($upload instanceof Uploader) {
+                return;
+            }
+
             $upload->saveUploadedFileUsing(function (BaseFileUpload $component, $file) {
                 try {
                     if (! $file->exists()) {

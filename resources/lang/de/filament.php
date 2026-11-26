@@ -16,6 +16,22 @@ return [
             'system' => 'System',
         ],
     ],
+    'media' => [
+        'label' => 'Medium',
+        'plural_label' => 'Mediathek',
+        'picker_button' => 'Aus Mediathek wählen',
+        'copyright' => 'Copyright',
+        'usages' => 'Verwendet in',
+        'no_usages' => 'Wird nirgends verwendet.',
+        'in_use' => 'Die Datei wird noch verwendet und kann nicht gelöscht werden. Entfernen Sie sie zuerst aus den aufgeführten Inhalten.',
+        'usage_types' => [
+            'pages' => 'Seite',
+            'tiles' => 'Kachel',
+            'metric_definitions' => 'Kennzahl',
+            'footer_navigations' => 'Website-Einstellungen (Footer)',
+            'settings' => 'Branding',
+        ],
+    ],
     'pages' => [
         'manage_data_by_period' => [
             'title' => 'Zeiträume',

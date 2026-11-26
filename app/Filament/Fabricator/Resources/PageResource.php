@@ -12,6 +12,7 @@ use App\Filament\Fabricator\Resources\PageResource\Pages;
 use App\Filament\Fabricator\Resources\PageResource\Pages\CreatePage;
 use App\Filament\Fabricator\Resources\PageResource\Pages\EditPage;
 use App\Filament\Fabricator\Resources\PageResource\Pages\ListPages;
+use App\Filament\Support\MediaPicker;
 use App\Models\Page;
 use Closure;
 use Filament\Actions\Action;
@@ -19,7 +20,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -237,13 +237,10 @@ class PageResource extends FabricatorPageResource
                                     Textarea::make('meta_description')
                                         ->label(__('filament.resources.page.meta_description'))
                                         ->rows(3),
-                                    FileUpload::make('meta_image')
+                                    MediaPicker::make('meta_image')
                                         ->label(__('filament.resources.page.meta_image'))
-                                        ->image()
-                                        ->disk('public')
-                                        ->directory('pages/seo')
-                                        ->maxSize(5120) // 5 MB
-                                        ->preserveFilenames(),
+                                        ->acceptedFileTypes(['image/*'])
+                                        ->maxSize(5120),
                                 ];
 
                                 foreach ($additionalComponents as $component) {

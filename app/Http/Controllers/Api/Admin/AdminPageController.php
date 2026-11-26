@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePageRequest;
 use App\Http\Requests\Admin\UpdatePageRequest;
 use App\Models\Page;
+use App\Services\Media\MediaLibrary;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -53,12 +54,12 @@ class AdminPageController extends Controller
                 'title' => $page->getTranslations('title'),
                 'slug' => $page->getTranslations('slug'),
                 'layout' => $page->layout,
-                'blocks' => $page->getTranslations('blocks'),
+                'blocks' => app(MediaLibrary::class)->resolveData($page->getTranslations('blocks')),
                 'parent_id' => $page->parent_id,
                 'is_public' => $page->is_public,
                 'meta_title' => $page->getTranslations('meta_title'),
                 'meta_description' => $page->getTranslations('meta_description'),
-                'meta_image' => $page->meta_image,
+                'meta_image' => app(MediaLibrary::class)->path($page->meta_image),
                 'tenant_id' => $page->tenant_id,
                 'created_at' => $page->created_at?->toIso8601String(),
             ],
@@ -105,12 +106,12 @@ class AdminPageController extends Controller
                 'title' => $page->getTranslations('title'),
                 'slug' => $page->getTranslations('slug'),
                 'layout' => $page->layout,
-                'blocks' => $page->getTranslations('blocks'),
+                'blocks' => app(MediaLibrary::class)->resolveData($page->getTranslations('blocks')),
                 'parent_id' => $page->parent_id,
                 'is_public' => $page->is_public,
                 'meta_title' => $page->getTranslations('meta_title'),
                 'meta_description' => $page->getTranslations('meta_description'),
-                'meta_image' => $page->meta_image,
+                'meta_image' => app(MediaLibrary::class)->path($page->meta_image),
                 'tenant_id' => $page->tenant_id,
                 'updated_at' => $page->updated_at?->toIso8601String(),
             ],

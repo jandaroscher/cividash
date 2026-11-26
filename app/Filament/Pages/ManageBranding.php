@@ -6,6 +6,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Support\MediaPicker;
 use App\Models\CategoryGroup;
 use App\Settings\BrandingSettings;
 use App\Settings\GeneralSettings;
@@ -89,23 +90,17 @@ class ManageBranding extends SettingsPage
                             ->schema([
                                 Section::make(__('filament.pages.manage_branding.logo_section'))
                                     ->schema([
-                                        FileUpload::make('logo_url')
+                                        MediaPicker::make('logo_url')
                                             ->label(__('filament.pages.manage_branding.logo'))
-                                            ->disk('public')
-                                            ->directory(fn () => 'branding/'.(Filament::getTenant()?->getKey() ?? 'default'))
-                                            ->image()
-                                            ->maxSize(2048) // 2 MB
-                                            ->preserveFilenames()
+                                            ->acceptedFileTypes(['image/*'])
+                                            ->maxSize(2048)
                                             ->required(false),
                                     ]),
 
                                 Section::make(__('filament.pages.manage_branding.favicon_section'))
                                     ->schema([
-                                        FileUpload::make('favicon')
+                                        MediaPicker::make('favicon')
                                             ->label(__('filament.pages.manage_general.favicon'))
-                                            ->disk('public')
-                                            ->directory('branding')
-                                            ->image()
                                             ->acceptedFileTypes(['image/x-icon', 'image/png', 'image/svg+xml', 'image/vnd.microsoft.icon'])
                                             ->maxSize(512)
                                             ->helperText(__('filament.pages.manage_general.favicon_helper')),

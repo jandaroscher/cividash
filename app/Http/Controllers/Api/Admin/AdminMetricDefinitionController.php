@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreMetricDefinitionRequest;
 use App\Http\Requests\Admin\UpdateMetricDefinitionRequest;
 use App\Models\MetricDefinition;
+use App\Services\Media\MediaLibrary;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -52,7 +53,7 @@ class AdminMetricDefinitionController extends Controller
                 'metric_key' => $definition->metric_key,
                 'label' => $definition->label,
                 'unit' => $definition->unit,
-                'icon' => $definition->icon,
+                'icon' => app(MediaLibrary::class)->path($definition->icon),
                 'indicator_type' => $definition->indicator_type,
                 'is_active' => $definition->is_active,
                 'tenant_id' => $definition->tenant_id,
@@ -98,7 +99,7 @@ class AdminMetricDefinitionController extends Controller
                 'metric_key' => $definition->metric_key,
                 'label' => $definition->label,
                 'unit' => $definition->unit,
-                'icon' => $definition->icon,
+                'icon' => app(MediaLibrary::class)->path($definition->icon),
                 'indicator_type' => $definition->indicator_type,
                 'is_active' => $definition->is_active,
                 'tenant_id' => $definition->tenant_id,

@@ -19,6 +19,7 @@ use App\Filament\Resources\TileResource\Pages;
 use App\Filament\Resources\TileResource\Pages\CreateTile;
 use App\Filament\Resources\TileResource\Pages\EditTile;
 use App\Filament\Resources\TileResource\Pages\ListTiles;
+use App\Filament\Support\MediaPicker;
 use App\Filament\Support\RichEditorConfig;
 use App\Models\Category;
 use App\Models\CategoryGroup;
@@ -27,6 +28,7 @@ use App\Models\MetricValue;
 use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Services\Integration\PublishService;
+use App\Services\Media\MediaLibrary;
 use App\Services\TimePeriodService;
 use Closure;
 use Filament\Actions\Action;
@@ -35,10 +37,8 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
@@ -149,18 +149,15 @@ class TileResource extends Resource
                                             // The tile shows its description as plain text, so text sizes would have no effect.
                                             ->disableToolbarButtons(['lead', 'small'])
                                             ->label(__('filament.resources.tile.description')),
-                                        FileUpload::make('icon')
+                                        MediaPicker::make('icon')
                                             ->label(__('filament.resources.tile.icon'))
-                                            ->disk('public')
-                                            ->directory('tiles')
-                                            ->preserveFilenames()
                                             ->acceptedFileTypes(['image/*', 'application/json', 'application/zip+dotlottie'])
-                                            ->maxSize(2048) // 2 MB
+                                            ->maxSize(2048)
                                             ->required(false),
                                         ViewField::make('icon_preview')
                                             ->view('filament.forms.components.lottie-preview')
                                             ->dehydrated(false)
-                                            ->afterStateHydrated(fn ($component, $record) => $component->state($record?->icon)),
+                                            ->afterStateHydrated(fn ($component, $record) => $component->state(app(MediaLibrary::class)->path($record?->icon))),
                                         Textarea::make('hint')
                                             ->label(__('filament.resources.tile.hint'))
                                             ->rows(3),
@@ -245,13 +242,10 @@ class TileResource extends Resource
                                                     ])
                                                     ->default('small')
                                                     ->required(),
-                                                FileUpload::make('icon')
+                                                MediaPicker::make('icon')
                                                     ->label(__('filament.resources.tile.icon'))
-                                                    ->disk('public')
-                                                    ->directory('metrics')
-                                                    ->image()
-                                                    ->maxSize(2048) // 2 MB
-                                                    ->preserveFilenames()
+                                                    ->acceptedFileTypes(['image/*'])
+                                                    ->maxSize(2048)
                                                     ->required(false),
                                                 Repeater::make('metricValues')
                                                     ->relationship('metricValues')
@@ -451,13 +445,10 @@ class TileResource extends Resource
                                 Textarea::make('meta_description')
                                     ->label(__('filament.resources.tile.meta_description'))
                                     ->rows(3),
-                                FileUpload::make('meta_image')
+                                MediaPicker::make('meta_image')
                                     ->label(__('filament.resources.tile.meta_image'))
-                                    ->image()
-                                    ->disk('public')
-                                    ->directory('tiles/seo')
-                                    ->maxSize(5120) // 5 MB
-                                    ->preserveFilenames(),
+                                    ->acceptedFileTypes(['image/*'])
+                                    ->maxSize(5120),
                             ])
                             ->columnSpan(['lg' => 1]),
                     ])
@@ -845,7 +836,6 @@ class TileResource extends Resource
                 $block = $blockClass::getBlockSchema();
                 $defaultLabel = $block->getLabel();
                 $existingSchema = $block->getDefaultChildComponents();
-                static::patchFileUploadsForTranslatable($existingSchema);
                 $block->schema([
                     TextInput::make('jump_mark_label')
                         ->label(__('filament.blocks.jump_mark_label'))
@@ -871,40 +861,6 @@ class TileResource extends Resource
         }
 
         return $blocks;
-    }
-
-    /**
-     * Patch FileUpload components to handle string state from translatable Builder fields.
-     *
-     * When background_blocks is translatable, the content driver may set FileUpload state
-     * as a raw string instead of an array, causing a TypeError on save. This ensures
-     * FileUpload state is always wrapped in an array before dehydration.
-     *
-     * @param  array  $components  The form components to patch (modified in place via Filament's fluent API).
-     */
-    protected static function patchFileUploadsForTranslatable(array $components): void
-    {
-        foreach ($components as $component) {
-            if ($component instanceof BaseFileUpload) {
-                $component->dehydrateStateUsing(static function (BaseFileUpload $component, string|array|null $state) {
-                    if (is_string($state)) {
-                        $state = filled($state) ? [$state] : [];
-                    }
-
-                    $files = array_values($state ?? []);
-
-                    if ($component->isMultiple()) {
-                        return $files;
-                    }
-
-                    return $files[0] ?? null;
-                });
-            }
-
-            if (method_exists($component, 'getDefaultChildComponents')) {
-                static::patchFileUploadsForTranslatable($component->getDefaultChildComponents());
-            }
-        }
     }
 
     /**

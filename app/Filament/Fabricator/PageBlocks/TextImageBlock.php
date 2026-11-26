@@ -7,9 +7,9 @@
 namespace App\Filament\Fabricator\PageBlocks;
 
 use App\Filament\Support\ImageMetadataFields;
+use App\Filament\Support\MediaPicker;
 use App\Filament\Support\RichEditorConfig;
 use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
@@ -39,12 +39,10 @@ class TextImageBlock extends PageBlock
                     ->label(__('filament.blocks.text_image.text'))
                     ->required(),
                 ImageMetadataFields::make(
-                    FileUpload::make('image')
+                    MediaPicker::make('image')
                         ->label(__('filament.blocks.text_image.image'))
-                        ->image()
-                        ->directory('text-images')
-                        ->disk('public')
-                        ->maxSize(5120), // 5 MB
+                        ->acceptedFileTypes(['image/*'])
+                        ->maxSize(5120),
                 ),
                 Radio::make('image_position')
                     ->label(__('filament.blocks.text_image.image_position'))

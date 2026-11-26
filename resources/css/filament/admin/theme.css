@@ -10,12 +10,14 @@
  * needs the Composer vendor directory (Filament and plugin sources).
  */
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import '../../../../vendor/awcodes/filament-curator/resources/css/plugin.css';
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../resources/views/vendor/**/*';
 @source '../../../../vendor/bezhansalleh/filament-language-switch/**';
 @source '../../../../vendor/codewithdennis/filament-simple-alert/resources/**/*.blade.php';
+@source '../../../../vendor/awcodes/filament-curator/resources/**/*.blade.php';
 @source inline('animate-{spin,pulse,bounce}');
 
 /* Dashboard menu with nothing to open (one dashboard, no menu items): no hover affordance. */

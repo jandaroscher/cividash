@@ -13,14 +13,14 @@ SPDX-License-Identifier: EUPL-1.2+
     if (is_array($imagePath)) {
         $imagePath = $imagePath[0] ?? null;
     }
-    $imageUrl = $imagePath ? \Illuminate\Support\Facades\Storage::disk('public')->url($imagePath) : null;
+    $imageUrl = app(\App\Services\Media\MediaLibrary::class)->url($imagePath);
     
     // Access image_secondary - try both direct variable and $attributes
     $imageSecondaryPath = $image_secondary ?? (isset($attributes) ? $attributes->get('image_secondary') : null);
     if (is_array($imageSecondaryPath)) {
         $imageSecondaryPath = $imageSecondaryPath[0] ?? null;
     }
-    $imageSecondaryUrl = $imageSecondaryPath ? \Illuminate\Support\Facades\Storage::disk('public')->url($imageSecondaryPath) : null;
+    $imageSecondaryUrl = app(\App\Services\Media\MediaLibrary::class)->url($imageSecondaryPath);
 @endphp
 
 <div class="container">

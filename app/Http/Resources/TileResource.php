@@ -7,10 +7,10 @@
 namespace App\Http\Resources;
 
 use App\Services\Content\BlockTransformer;
+use App\Services\Media\MediaLibrary;
 use App\Settings\BrandingSettings;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class TileResource extends JsonResource
 {
@@ -59,9 +59,7 @@ class TileResource extends JsonResource
                 ? $this->getTranslation('slug', $locale)
                 : $this->getTranslations('slug'),
 
-            'icon' => $this->icon
-                ? Storage::disk('public')->url($this->icon)
-                : null,
+            'icon' => app(MediaLibrary::class)->url($this->icon),
 
             'is_public' => $this->is_public,
 
@@ -72,9 +70,7 @@ class TileResource extends JsonResource
                 'description' => $locale
                     ? $this->getTranslation('meta_description', $locale)
                     : $this->getTranslations('meta_description'),
-                'image' => $this->meta_image
-                    ? Storage::disk('public')->url($this->meta_image)
-                    : null,
+                'image' => app(MediaLibrary::class)->url($this->meta_image),
             ],
 
             // Background blocks: transform from Filament Builder format to API format

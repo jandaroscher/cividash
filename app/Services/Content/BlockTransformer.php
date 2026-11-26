@@ -6,6 +6,8 @@
 
 namespace App\Services\Content;
 
+use App\Services\Media\MediaLibrary;
+
 class BlockTransformer
 {
     /**
@@ -67,7 +69,7 @@ class BlockTransformer
 
             return [
                 'type' => $type,
-                'props' => $props,
+                'props' => app(MediaLibrary::class)->resolveData($props),
             ];
         })->filter()->values()->toArray();
     }

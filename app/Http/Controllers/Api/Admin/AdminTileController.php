@@ -11,6 +11,7 @@ use App\Http\Requests\Admin\StoreTileRequest;
 use App\Http\Requests\Admin\SyncTileCategoriesRequest;
 use App\Http\Requests\Admin\UpdateTileRequest;
 use App\Models\Tile;
+use App\Services\Media\MediaLibrary;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -53,12 +54,12 @@ class AdminTileController extends Controller
                 'title' => $tile->getTranslations('title'),
                 'slug' => $tile->getTranslations('slug'),
                 'description' => $tile->getTranslations('description'),
-                'icon' => $tile->icon,
+                'icon' => app(MediaLibrary::class)->path($tile->icon),
                 'position' => $tile->position,
                 'is_public' => $tile->is_public,
                 'meta_title' => $tile->getTranslations('meta_title'),
                 'meta_description' => $tile->getTranslations('meta_description'),
-                'meta_image' => $tile->meta_image,
+                'meta_image' => app(MediaLibrary::class)->path($tile->meta_image),
                 'tenant_id' => $tile->tenant_id,
                 'created_at' => $tile->created_at?->toIso8601String(),
             ],
@@ -105,12 +106,12 @@ class AdminTileController extends Controller
                 'title' => $tile->getTranslations('title'),
                 'slug' => $tile->getTranslations('slug'),
                 'description' => $tile->getTranslations('description'),
-                'icon' => $tile->icon,
+                'icon' => app(MediaLibrary::class)->path($tile->icon),
                 'position' => $tile->position,
                 'is_public' => $tile->is_public,
                 'meta_title' => $tile->getTranslations('meta_title'),
                 'meta_description' => $tile->getTranslations('meta_description'),
-                'meta_image' => $tile->meta_image,
+                'meta_image' => app(MediaLibrary::class)->path($tile->meta_image),
                 'tenant_id' => $tile->tenant_id,
                 'updated_at' => $tile->updated_at?->toIso8601String(),
             ],

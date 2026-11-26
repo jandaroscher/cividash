@@ -9,6 +9,7 @@ namespace App\Services\Sharing;
 use App\Models\MetricValue;
 use App\Models\Tile;
 use App\Models\TimePeriod;
+use App\Services\Media\MediaLibrary;
 use App\Settings\BrandingSettings;
 use App\Settings\GeneralSettings;
 use GdImage;
@@ -72,7 +73,7 @@ class TileShareImage
                 ?: '')),
             ...$this->metrics($tile, $locale),
             'site_name' => $this->siteName(),
-            'logo' => $logo = rescue(fn () => $this->branding->logo_url, null, false),
+            'logo' => $logo = rescue(fn () => app(MediaLibrary::class)->path($this->branding->logo_url), null, false),
             // Logo uploads keep their file name, so a replaced logo only shows in its timestamp.
             'logo_modified' => $logo ? rescue(fn () => Storage::disk('public')->lastModified($logo), null, false) : null,
             'colors' => $this->colors(collect(self::BRANDING_COLORS)
