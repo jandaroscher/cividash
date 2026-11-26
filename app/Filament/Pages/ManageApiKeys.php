@@ -328,7 +328,8 @@ class ManageApiKeys extends Page implements HasForms, HasTable
                         ->helperText(__('filament.pages.manage_api_keys.expires_at_helper')),
 
                     Placeholder::make('warning')
-                        ->label('')
+                        ->label(__('filament.pages.manage_api_keys.token_warning_label'))
+                        ->hiddenLabel()
                         ->content(__('filament.pages.manage_api_keys.token_warning'))
                         ->extraAttributes(['class' => 'text-warning-600 dark:text-warning-400']),
                 ])

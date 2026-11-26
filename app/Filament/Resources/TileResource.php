@@ -10,6 +10,7 @@ use App\Enums\TimeGranularity;
 use App\Exceptions\Integration\ForeignProvenanceException;
 use App\Filament\Concerns\HasBlockActiveToggleAction;
 use App\Filament\Concerns\HasSortableTranslations;
+use App\Filament\Concerns\HasTranslatableRecordTitle;
 use App\Filament\Fabricator\PageBlocks\DownloadBlock;
 use App\Filament\Fabricator\PageBlocks\FAQBlock;
 use App\Filament\Fabricator\PageBlocks\IntroTextBlock;
@@ -75,6 +76,7 @@ class TileResource extends Resource
 {
     use HasBlockActiveToggleAction;
     use HasSortableTranslations;
+    use HasTranslatableRecordTitle;
     use Translatable;
 
     protected const CATEGORY_GROUP_FIELD_PREFIX = 'category_group_';

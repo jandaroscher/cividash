@@ -72,4 +72,20 @@ class EditProfileTest extends TestCase
 
         $this->assertTrue(Hash::check('new-Password-456!', $this->user->fresh()->password));
     }
+
+    public function test_changing_the_password_keeps_the_user_signed_in(): void
+    {
+        // AuthenticateSession signs the user out when the session's hash no longer matches the password.
+        session()->put('password_hash_web', $this->user->getAuthPassword());
+
+        Livewire::test(EditProfile::class)
+            ->fillForm([
+                'current_password' => 'old-Password-123',
+                'password' => 'new-Password-456!',
+                'password_confirmation' => 'new-Password-456!',
+            ], 'passwordForm')
+            ->call('updatePassword');
+
+        $this->assertSame($this->user->fresh()->getAuthPassword(), session('password_hash_web'));
+    }
 }

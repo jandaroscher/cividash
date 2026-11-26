@@ -32,6 +32,13 @@ class E2ESeedFullCommand extends Command
 
     public function handle(): int
     {
+        // Seeds users with known passwords, one of them a panel-wide admin.
+        if (app()->isProduction()) {
+            $this->error('e2e:seed-full must not run in production.');
+
+            return self::FAILURE;
+        }
+
         return DB::transaction(function () {
             if ($this->option('clean')) {
                 $this->cleanExistingData();
@@ -77,6 +84,19 @@ class E2ESeedFullCommand extends Command
                 $tenantB->id,
             ]);
 
+            // Panel-wide admin for the admin backend suite (sees users, themes, all tenants)
+            $admin = User::updateOrCreate(
+                ['email' => 'e2e-superadmin@example.com'],
+                [
+                    'name' => 'E2E Super Admin',
+                    'first_name' => 'E2E',
+                    'last_name' => 'Super Admin',
+                    'password' => bcrypt('e2e-superadmin-password'),
+                    'is_admin' => true,
+                    'is_active' => true,
+                ]
+            );
+
             // Revoke previous E2E full tokens
             $user->tokens()->where('name', 'like', 'e2e-full-%')->delete();
 
@@ -118,6 +138,11 @@ class E2ESeedFullCommand extends Command
                     'id' => $user->id,
                     'email' => $user->email,
                     'password' => 'e2e-admin-password',
+                ],
+                'admin' => [
+                    'id' => $admin->id,
+                    'email' => $admin->email,
+                    'password' => 'e2e-superadmin-password',
                 ],
             ];
 
@@ -214,6 +239,9 @@ class E2ESeedFullCommand extends Command
             CategoryGroup::whereIn('tenant_id', $tenantIds)->delete();
             Tenant::whereIn('id', $tenantIds)->delete();
         }
+
+        // Dashboards the admin backend suite registers
+        Tenant::where('slug', 'like', 'e2e-neu-%')->delete();
 
         // Also remove any tenants that hold the domains we need (e.g. from tenant-resolution spec)
         Tenant::whereIn('domain', [

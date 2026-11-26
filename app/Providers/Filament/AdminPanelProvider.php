@@ -12,6 +12,7 @@ use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\Tenancy\EditTenantProfile;
 use App\Filament\Pages\Tenancy\RegisterTenant;
+use App\Http\Middleware\EnsureTwoFactorAuthenticationWhereRequired;
 use App\Http\Middleware\LocaleDetector;
 use App\Http\Middleware\SetFilamentDefaultTenant;
 use App\Models\Media;
@@ -20,8 +21,10 @@ use App\Services\Media\MediaLibrary;
 use Awcodes\Curator\CuratorPlugin;
 use Awcodes\Curator\Facades\Curator;
 use Filament\Actions\Action;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Facades\Filament;
 use Filament\FontProviders\LocalFontProvider;
+use Filament\Forms\Components\Builder;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -141,6 +144,12 @@ class AdminPanelProvider extends PanelProvider
         Fieldset::configureUsing(fn (Fieldset $fieldset) => $fieldset->columnSpanFull());
         Grid::configureUsing(fn (Grid $grid) => $grid->columnSpanFull());
         Section::configureUsing(fn (Section $section) => $section->columnSpanFull());
+
+        // Filament lowercases the first letter of the builder label in "Add to …", which
+        // breaks German nouns ("Zu hero-Blöcke hinzufügen").
+        Builder::configureUsing(fn (Builder $builder) => $builder->addActionLabel(
+            fn (Builder $component): string => __('filament-forms::components.builder.actions.add.label', ['label' => $component->getLabel()]),
+        ));
     }
 
     /**
@@ -189,6 +198,12 @@ class AdminPanelProvider extends PanelProvider
             // instead of Filament's Bunny Fonts CDN default (DSB requirement).
             ->font('Inter', provider: LocalFontProvider::class)
             ->login(Login::class)
+            // "Required" registers the set-up page and route middleware; the
+            // middleware decides per user (see its class comment).
+            ->multiFactorAuthentication([
+                AppAuthentication::make()->recoverable(),
+            ], isRequired: true)
+            ->multiFactorAuthenticationRequiredMiddlewareName(EnsureTwoFactorAuthenticationWhereRequired::class)
             // Registers <dotlottie-wc> with the self-hosted WASM renderer; built by
             // Vite from npm, see resources/js/admin/dotlottie.js.
             ->renderHook(
@@ -272,7 +287,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            // Persistent, so Livewire updates on pages without a tenant in the URL (dashboard
+            // registration) restore the same tenant as the page load; Filament 4+ rejects a mismatch.
+            ->authMiddleware([
                 SetFilamentDefaultTenant::class,
-            ]);
+            ], isPersistent: true);
     }
 }

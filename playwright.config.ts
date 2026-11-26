@@ -80,6 +80,10 @@ export default defineConfig({
       testMatch: /smoke-test\.spec\.ts/,
     },
     {
+      name: 'admin-backend',
+      testMatch: /admin\/backend\.spec\.ts/,
+    },
+    {
       name: 'media-library',
       testMatch: /media-library\.spec\.ts/,
     },

@@ -9,6 +9,8 @@ namespace App\Filament\Fabricator\Resources\PageResource\Pages;
 use App\Filament\Concerns\OpensInLinkedLocale;
 use App\Filament\Fabricator\Resources\PageResource;
 use Filament\Actions\Action;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable;
 use Z3d0X\FilamentFabricator\Resources\PageResource\Pages\EditPage as FabricatorEditPage;
@@ -25,6 +27,24 @@ class EditPage extends FabricatorEditPage
         parent::mount($record);
 
         $this->openLinkedLocale();
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        // Landing pages get the slug "/" in every locale, so a locale with nothing but that slug
+        // would count as an existing translation and block saving the other locale until it is
+        // translated. Such a locale is left out of the save, but stays loaded for the switcher.
+        $slugOnlyLocales = array_filter(
+            $this->otherLocaleData,
+            fn (array $data): bool => ! collect(Arr::except($data, 'slug'))->contains(fn (mixed $value): bool => filled($value)),
+        );
+        $this->otherLocaleData = array_diff_key($this->otherLocaleData, $slugOnlyLocales);
+
+        try {
+            return parent::handleRecordUpdate($record, $data);
+        } finally {
+            $this->otherLocaleData += $slugOnlyLocales;
+        }
     }
 
     protected function getHeaderActions(): array

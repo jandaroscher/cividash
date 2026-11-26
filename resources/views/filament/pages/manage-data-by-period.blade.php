@@ -65,19 +65,25 @@ SPDX-License-Identifier: EUPL-1.2+
         </div>
     </div>
 
-    @if ($this->searchHasNoMatches())
+    @if ($this->hasNoTileSections())
         <p class="text-sm text-gray-500 dark:text-gray-400">
-            {{ __('filament.pages.manage_data_by_period.search_no_results') }}
+            {{ __('filament.pages.manage_data_by_period.empty_state') }}
         </p>
+    @else
+        @if ($this->searchHasNoMatches())
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ __('filament.pages.manage_data_by_period.search_no_results') }}
+            </p>
+        @endif
+
+        <form wire:submit="save">
+            {{ $this->form }}
+
+            <x-filament::button type="submit" class="mt-6">
+                {{ __('filament.pages.manage_data_by_period.action_save') }}
+            </x-filament::button>
+        </form>
     @endif
-
-    <form wire:submit="save">
-        {{ $this->form }}
-
-        <x-filament::button type="submit" class="mt-6">
-            {{ __('filament.pages.manage_data_by_period.action_save') }}
-        </x-filament::button>
-    </form>
 
     <x-filament-actions::modals />
 </x-filament-panels::page>
