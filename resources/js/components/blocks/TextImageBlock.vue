@@ -24,6 +24,7 @@ SPDX-License-Identifier: EUPL-1.2+
             :title="block.props.image_title"
             :copyright="block.props.image_copyright"
             img-class="w-full h-auto"
+            sizes="(min-width: 768px) 50vw, 100vw"
           />
         </div>
         <div :class="['order-2', isImageLeft ? '' : 'md:order-1']">
@@ -43,6 +44,7 @@ SPDX-License-Identifier: EUPL-1.2+
             :title="block.props.image_title"
             :copyright="block.props.image_copyright"
             img-class="w-full h-auto"
+            sizes="(min-width: 768px) 50vw, 100vw"
           />
         </div>
       </div>

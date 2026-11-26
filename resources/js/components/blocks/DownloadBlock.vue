@@ -55,7 +55,7 @@ SPDX-License-Identifier: EUPL-1.2+
             <span class="text-black transition-colors duration-200 group-hover:text-accent break-words">
               {{ item.title || getFilenameWithoutExtension(item.file) }}
             </span>
-            <span class="text-gray-400 transition-colors duration-200 group-hover:text-accent">
+            <span class="text-gray-500 transition-colors duration-200 group-hover:text-accent">
               {{ getFileExtension(item.file) }}<template v-if="fileSizes[getFileUrl(item.file)]"> | {{ fileSizes[getFileUrl(item.file)] }}</template>
             </span>
           </a>

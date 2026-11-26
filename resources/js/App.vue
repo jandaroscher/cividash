@@ -46,5 +46,8 @@ const isEmbed = computed(() =>
 
 main {
     flex: 1;
+    /* Content loads after mount; without this the footer starts in view and
+       jumps down once tiles arrive (layout shift). */
+    min-height: 100vh;
 }
 </style>
