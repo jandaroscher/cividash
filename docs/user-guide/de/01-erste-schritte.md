@@ -23,6 +23,12 @@ Mit **Anmelden** bestätigen.
 
 > **Hinweis (Single Sign-on):** Single Sign-on bedeutet Anmeldung mit dem zentralen Konto der eigenen Organisation, hier über Keycloak, den Anmeldedienst der Plattform. Ist diese Anmeldung eingerichtet, zeigt die Anmeldeseite die Schaltfläche **Mit Keycloak anmelden**; manche Installationen bieten nur diese Schaltfläche. Mit dem Keycloak-Konto der eigenen Organisation anmelden. Das CiviDash-Konto entsteht bei der ersten Anmeldung, die Rollen kommen aus Keycloak. Voraussetzung ist eine in Keycloak bestätigte E-Mail-Adresse; sonst schlägt die Anmeldung fehl. Dann die E-Mail-Adresse in Keycloak bestätigen oder an die Administration wenden.
 
+**Zwei-Faktor-Anmeldung:** Ist für das Konto eine Authenticator-App eingerichtet (siehe [Kapitel 1.4, Profil bearbeiten](01-erste-schritte.md#14-profil-bearbeiten-name-avatar-sprache-passwort)), fragt die Anmeldeseite nach dem Passwort einen 6-stelligen Code ab. Den aktuellen Code aus der App eingeben. Ist die App nicht zur Hand, **Stattdessen einen Wiederherstellungscode verwenden** wählen und einen der gespeicherten Wiederherstellungscodes eingeben. Jeder Wiederherstellungscode gilt nur einmal.
+
+Schreibt ein Dashboard die Zwei-Faktor-Anmeldung vor (siehe [Kapitel 6.1.4, Dashboard-Konfiguration](06-einstellungen.md)), erscheint nach der Anmeldung zuerst die Seite **Zwei-Faktor-Authentifizierung einrichten**. Erst nach dem Einrichten öffnet sich der Adminbereich. Bei der Anmeldung über Keycloak regelt Keycloak die Zwei-Faktor-Anmeldung; CiviDash fragt dann keinen Code ab.
+
+> **Hinweis:** Sind App und Wiederherstellungscodes verloren, setzt ein Admin die Zwei-Faktor-Anmeldung zurück (siehe [Kapitel 6.2.1, Benutzerverwaltung](06-einstellungen.md)).
+
 ### Aufbau der Oberfläche
 
 Nach der Anmeldung öffnet sich der Adminbereich. Die Oberfläche gliedert sich in drei Bereiche:
@@ -99,7 +105,7 @@ Eine übergreifende Suche über alle Bereiche gibt es nicht. Stattdessen besitzt
 
 ## 1.4 Profil bearbeiten (Name, Avatar, Sprache, Passwort)
 
-Das eigene Profil ist über das **Profilmenü** oben rechts im Header erreichbar (Eintrag **Profil**). Die Seite gliedert sich in zwei Abschnitte.
+Das eigene Profil ist über das **Profilmenü** oben rechts im Header erreichbar (Eintrag **Profil**). Die Seite gliedert sich in drei Abschnitte.
 
 <!-- Screenshot: Profilseite mit den Abschnitten „Profilinformationen" und „Passwort ändern" -->
 ![Profil bearbeiten](../assets/screenshots/de/01-profil-bearbeiten.png)
@@ -127,6 +133,28 @@ Mit **Profil speichern** bestätigen.
 | **Neues Passwort wiederholen** | Wiederholung zur Kontrolle — muss mit dem neuen Passwort übereinstimmen |
 
 Mit **Passwort speichern** bestätigen. Über das Augen-Symbol lässt sich jedes Passwortfeld zur Kontrolle einblenden.
+
+**Zwei-Faktor-Anmeldung:**
+
+Die Zwei-Faktor-Anmeldung schützt das Konto zusätzlich zum Passwort. Bei jeder Anmeldung ist dann ein Einmalcode aus einer Authenticator-App nötig, etwa einer App auf dem Smartphone, die alle 30 Sekunden einen neuen 6-stelligen Code erzeugt.
+
+1. Bei **Authenticator-App** auf **Einrichten** klicken.
+2. Den QR-Code mit der Authenticator-App scannen oder den angezeigten Code von Hand in die App eingeben.
+3. Den 6-stelligen Code aus der App und das **Aktuelle Passwort** eingeben, dann auf **Weiter** klicken.
+4. Die angezeigten Wiederherstellungscodes an einem sicheren Ort speichern. Sie werden nur einmal angezeigt und ersetzen die App, wenn sie verloren geht.
+5. Mit **Authenticator-App aktivieren** bestätigen.
+
+<!-- Screenshot: Profilseite, Dialog „Authenticator-App einrichten" mit QR-Code und Wiederherstellungscodes -->
+![Zwei-Faktor-Anmeldung einrichten](../assets/screenshots/de/01-zwei-faktor-einrichten.png)
+
+Ist die App eingerichtet, stehen im selben Abschnitt zwei weitere Aktionen bereit:
+
+| Aktion | Beschreibung |
+|--------|-------------|
+| **Wiederherstellungscodes neu generieren** | Erzeugt neue Codes. Die alten Codes werden sofort ungültig. |
+| **Ausschalten** | Entfernt die Authenticator-App vom Konto. Schreibt ein Dashboard die Zwei-Faktor-Anmeldung vor, fordert der Adminbereich danach sofort zum erneuten Einrichten auf. |
+
+> **Hinweis (Single Sign-on):** Bei der Anmeldung über Keycloak fehlt dieser Abschnitt. Die Zwei-Faktor-Anmeldung wird dann in Keycloak eingerichtet.
 
 ## 1.5 Sprache umschalten (DE/EN-Inhalte bearbeiten)
 

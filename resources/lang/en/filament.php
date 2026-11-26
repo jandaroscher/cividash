@@ -310,6 +310,8 @@ return [
         ],
         'edit_profile' => [
             'title' => 'Profile',
+            'two_factor_authentication' => 'Two-factor authentication',
+            'two_factor_authentication_description' => 'Add a second layer of protection with one-time codes from an authenticator app.',
             'profile_information' => 'Profile Information',
             'profile_information_description' => 'Update your profile information and email address (= username).',
             'first_name' => 'First Name',
@@ -336,8 +338,13 @@ return [
                     'domain_frontend' => 'Domain & Frontend',
                     'domain_frontend_description' => 'Configure how this dashboard is resolved for API requests.',
                     'theme' => 'Theme',
+                    'security' => 'Security',
                 ],
                 'fields' => [
+                    'requires_two_factor_authentication' => [
+                        'label' => 'Require two-factor authentication',
+                        'helper' => 'All users of this dashboard and all administrators must enter a one-time code from an authenticator app when signing in to the admin. Users who have not set it up yet are asked to do so the next time they open the admin. Sign-ins through Keycloak are exempt, Keycloak handles two-factor authentication there.',
+                    ],
                     'theme_id' => [
                         'label' => 'Theme',
                         'helper' => 'Assigns a theme with predefined branding values to this dashboard.',
@@ -604,6 +611,7 @@ return [
             'actions' => [
                 'activate' => 'Activate',
                 'deactivate' => 'Deactivate',
+                'reset_two_factor_authentication' => 'Reset two-factor authentication',
             ],
             'messages' => [
                 'user_activated' => 'User has been activated.',
@@ -612,6 +620,8 @@ return [
                 'cannot_deactivate_self' => 'You cannot deactivate yourself.',
                 'cannot_delete_last_admin' => 'Cannot delete the last administrator.',
                 'cannot_demote_last_admin' => 'Cannot demote the last administrator.',
+                'reset_two_factor_authentication_confirm' => 'This removes the user\'s authenticator app and recovery codes. The user then signs in with their password only and can set up two-factor authentication again in their profile.',
+                'two_factor_authentication_reset' => 'Two-factor authentication has been reset.',
             ],
             'all_dashboards' => 'all dashboards',
         ],

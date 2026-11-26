@@ -18,6 +18,7 @@ return [
 
     // Custom auth messages
     'login_success' => 'Erfolgreich angemeldet.',
+    'two_factor_admin_login_required' => 'Für dieses Konto ist die Zwei-Faktor-Anmeldung eingerichtet oder vorgeschrieben. Bitte im Admin anmelden.',
     'password_login_disabled' => 'Die Anmeldung mit Passwort ist deaktiviert. Bitte über den zentralen Login anmelden.',
     'logout_success' => 'Erfolgreich abgemeldet.',
 ];

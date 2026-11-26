@@ -11,6 +11,7 @@ use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\Tenant;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -280,6 +281,22 @@ class UserResource extends Resource
             ])
             ->recordActions([
                 EditAction::make(),
+
+                Action::make('resetTwoFactorAuthentication')
+                    ->label(__('filament.resources.user.actions.reset_two_factor_authentication'))
+                    ->icon('heroicon-o-shield-exclamation')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalDescription(__('filament.resources.user.messages.reset_two_factor_authentication_confirm'))
+                    ->visible(fn (User $record): bool => $record->hasTwoFactorAuthentication())
+                    ->action(function (User $record): void {
+                        $record->resetTwoFactorAuthentication();
+
+                        Notification::make()
+                            ->title(__('filament.resources.user.messages.two_factor_authentication_reset'))
+                            ->success()
+                            ->send();
+                    }),
 
                 DeleteAction::make()
                     ->before(function (DeleteAction $action, User $record) {

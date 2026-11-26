@@ -9,6 +9,7 @@ namespace App\Services\Integration;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\RoleService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -16,6 +17,23 @@ use Laravel\Socialite\Two\User as SocialiteUser;
 
 class KeycloakSsoService
 {
+    /**
+     * Session flag for logins through Keycloak, where Keycloak enforces two-factor
+     * authentication instead of the admin panel.
+     */
+    public const SESSION_KEY = 'auth.via_keycloak';
+
+    /**
+     * The flag holds the user's id, so it does not carry over to a password login
+     * of another account in the same session.
+     */
+    public static function signedInViaKeycloak(): bool
+    {
+        $userId = Auth::id();
+
+        return $userId !== null && session(self::SESSION_KEY) === $userId;
+    }
+
     public function __construct(
         protected RoleService $roleService,
     ) {}

@@ -87,6 +87,7 @@ class KeycloakSsoController extends Controller
         // remember_token rotates (logout) or is reset.
         Auth::login($user);
         session()->regenerate();
+        session()->put(KeycloakSsoService::SESSION_KEY, $user->getKey());
 
         return redirect()->to('/admin');
     }

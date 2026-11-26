@@ -23,6 +23,12 @@ Confirm with **Sign in**.
 
 > **Note (single sign-on):** Single sign-on means signing in with the central account of your organization, here through Keycloak, the login service of the platform. Where it is set up, the login page shows a **Sign in with Keycloak** button; some installations offer only this button. Sign in with the Keycloak account of your organization. The CiviDash account is created at the first sign-in, and the roles come from Keycloak. This requires a verified email address in Keycloak; otherwise the sign-in fails. In that case, verify the email address in Keycloak or contact the administrator.
 
+**Two-factor authentication:** If an authenticator app is set up for the account (see [Chapter 1.4, Edit Profile](01-getting-started.md#14-edit-profile-name-avatar-language-password)), the login page asks for a 6-digit code after the password. Enter the current code from the app. Without the app at hand, choose **Use a recovery code instead** and enter one of the saved recovery codes. Each recovery code works only once.
+
+If a dashboard requires two-factor authentication (see [Chapter 6.1.4, Dashboard Configuration](06-settings.md)), the page **Set up two-factor authentication** appears first after signing in. The admin panel opens only after the setup. For sign-ins through Keycloak, Keycloak handles two-factor authentication, and CiviDash asks for no code.
+
+> **Note:** If both the app and the recovery codes are lost, an admin resets two-factor authentication (see [Chapter 6.2.1, User Management](06-settings.md)).
+
 ### Interface layout
 
 After logging in, the admin panel opens. The interface is divided into three areas:
@@ -99,7 +105,7 @@ There is no cross-area global search. Instead, each overview table — such as t
 
 ## 1.4 Edit Profile (Name, Avatar, Language, Password)
 
-The own profile is reachable via the **profile menu** at the top right of the header (entry **Profile**). The page is divided into two sections.
+The own profile is reachable via the **profile menu** at the top right of the header (entry **Profile**). The page is divided into three sections.
 
 <!-- Screenshot: Profile page with the "Profile information" and "Change password" sections -->
 ![Edit profile](../assets/screenshots/en/01-edit-profile.png)
@@ -127,6 +133,28 @@ Confirm with **Save profile**.
 | **Repeat new password** | Repetition for verification — must match the new password |
 
 Confirm with **Save password**. The eye icon reveals any password field for checking.
+
+**Two-factor authentication:**
+
+Two-factor authentication protects the account in addition to the password. Every sign-in then needs a one-time code from an authenticator app, such as a smartphone app that creates a new 6-digit code every 30 seconds.
+
+1. Next to **Authenticator app**, click **Set up**.
+2. Scan the QR code with the authenticator app, or type the displayed code into the app.
+3. Enter the 6-digit code from the app and the **Current password**, then click **Next**.
+4. Save the recovery codes shown in a safe place. They are shown only once and replace the app if it is lost.
+5. Confirm with **Enable authenticator app**.
+
+<!-- Screenshot: Profile page, dialog "Set up authenticator app" with QR code and recovery codes -->
+![Set up two-factor authentication](../assets/screenshots/en/01-two-factor-setup.png)
+
+Once the app is set up, the same section offers two more actions:
+
+| Action | Description |
+|--------|-------------|
+| **Regenerate recovery codes** | Creates new codes. The old codes stop working at once. |
+| **Turn off** | Removes the authenticator app from the account. If a dashboard requires two-factor authentication, the admin panel asks to set it up again right away. |
+
+> **Note (single sign-on):** For sign-ins through Keycloak, this section is not shown. Two-factor authentication is then set up in Keycloak.
 
 ## 1.5 Switching Languages (Editing DE/EN Content)
 

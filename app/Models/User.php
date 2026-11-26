@@ -7,6 +7,10 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthentication;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthenticationRecovery;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasDefaultTenant;
@@ -24,10 +28,10 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasName, HasTenants
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasAvatar, HasDefaultTenant, HasName, HasTenants
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, InteractsWithAppAuthentication, InteractsWithAppAuthenticationRecovery, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -181,6 +185,30 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
         }
 
         return $this->tenants->contains(fn ($t) => $t->getKey() === $tenant->getKey());
+    }
+
+    /**
+     * Two-factor authentication is mandatory as soon as one dashboard the user can
+     * access requires it. Admins can access every dashboard.
+     */
+    public function requiresTwoFactorAuthentication(): bool
+    {
+        $tenants = $this->is_admin ? Tenant::query() : $this->tenants();
+
+        return $tenants->where('requires_two_factor_authentication', true)->exists();
+    }
+
+    public function hasTwoFactorAuthentication(): bool
+    {
+        return filled($this->app_authentication_secret);
+    }
+
+    public function resetTwoFactorAuthentication(): void
+    {
+        $this->forceFill([
+            'app_authentication_secret' => null,
+            'app_authentication_recovery_codes' => null,
+        ])->save();
     }
 
     /**

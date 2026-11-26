@@ -24,3 +24,4 @@ Terms and abbreviations.
 | **Slug** | Address segment of a page, tile, or dashboard that determines the URL (e.g. `?tenant=slug`); auto-suggested while typing the title. See [Chapter 2.2, Create a New Page](02-managing-pages.md). |
 | **Tenant / Dashboard** | Independent instance within the installation with its own pages, tiles, categories, and branding; switched via the dashboard selector in the sidebar. See [Chapter 1.1, Login and Interface](01-getting-started.md). |
 | **Tile** | A content element on the dashboard overview: a clickable box with a title, icon, and metrics that leads to its own background page. See [Chapter 3, Managing Tiles](03-managing-tiles.md). |
+| **Two-factor authentication** | Sign-in with a password plus a one-time code from an authenticator app. Every account can set it up in the profile; a dashboard can require it. See [Chapter 1.4, Edit Profile](01-getting-started.md#14-edit-profile-name-avatar-language-password). |
