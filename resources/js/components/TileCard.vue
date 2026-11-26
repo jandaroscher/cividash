@@ -541,9 +541,7 @@ onMounted(() => {
             let unitValue = '';
             let unitEnValue = '';
             if (Array.isArray(definition.unit)) {
-                // Empty array - no unit
-                unitValue = '';
-                unitEnValue = '';
+                // Empty array - no unit, keep the defaults
             } else if (typeof definition.unit === 'object' && definition.unit !== null) {
                 // Object with translations
                 unitValue = definition.unit[currentLocale.value] || definition.unit.de || '';
