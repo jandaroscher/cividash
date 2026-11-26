@@ -24,6 +24,7 @@ use App\Settings\GeneralSettings;
 use Awcodes\Curator\Resources\Media\Pages\ListMedia;
 use Filament\Actions\DeleteAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -265,5 +266,26 @@ class MediaPickerTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertEquals($large->id, DB::table('tiles')->where('id', $tile->id)->value('meta_image'));
+    }
+
+    public function test_the_picker_edits_alt_text_and_title_per_language_like_the_library(): void
+    {
+        $media = $this->media($this->tenant, 'uploads/lake.png');
+        $media->setTranslations('alt', ['de' => 'Ein See'])->saveQuietly();
+
+        Livewire::test('curator-panel')
+            ->mountAction('editItem', ['item' => ['id' => $media->id]])
+            ->assertSchemaStateSet(['alt.de' => 'Ein See', 'alt.en' => null], 'mountedActionSchema0')
+            // The package's single-value alt field carries the w3.org hint; ours has none and notes the fallback instead
+            ->assertSchemaComponentDoesNotExist('alt', 'mountedActionSchema0')
+            ->assertSchemaComponentExists('alt.de', 'mountedActionSchema0', fn (TextInput $field): bool => ! str_contains($field->toHtml(), 'w3.org/WAI'))
+            ->assertSchemaComponentExists('alt.en', 'mountedActionSchema0', fn (TextInput $field): bool => str_contains($field->toHtml(), e(__('filament.media.uses_default_locale', ['locale' => 'DE']))))
+            ->fillForm(['alt.en' => 'A lake', 'title.en' => 'Lake'])
+            ->callMountedAction()
+            ->assertHasNoFormErrors();
+
+        $media->refresh();
+        $this->assertSame(['de' => 'Ein See', 'en' => 'A lake'], $media->getTranslations('alt'));
+        $this->assertSame('Lake', $media->getTranslation('title', 'en', false));
     }
 }

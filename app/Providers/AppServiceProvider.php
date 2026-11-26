@@ -10,6 +10,7 @@ use App\Contracts\Integration\DataMapperInterface;
 use App\Contracts\Integration\ExternalDataSourceInterface;
 use App\Contracts\Integration\SyncServiceInterface;
 use App\Contracts\Integration\WritableDataSourceInterface;
+use App\Filament\Media\MediaPanel;
 use App\Models\Page;
 use App\Models\PersonalAccessToken;
 use App\Observers\PageObserver;
@@ -34,6 +35,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
+use Livewire\Livewire;
 use SocialiteProviders\Keycloak\KeycloakExtendSocialite;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 use Z3d0X\FilamentFabricator\Forms\Components\PageBuilder;
@@ -80,6 +82,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Replaces Curator's picker panel, registered under the same name by its own provider
+        Livewire::component('curator-panel', MediaPanel::class);
+
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 
         // Serialise an aggregate (max) read against concurrent writers. MySQL/

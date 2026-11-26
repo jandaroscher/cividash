@@ -96,7 +96,7 @@ class MediaForm extends CuratorMediaForm
 
         $fields[] = TextEntry::make('usages')
             ->label(__('filament.media.usages'))
-            ->hiddenOn('create')
+            ->hidden(fn (?Media $record): bool => $record === null) // also the picker's edit modal, which has no record
             ->state(fn (?Media $record): HtmlString => static::usageList($record));
 
         return $fields;
