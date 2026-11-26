@@ -326,8 +326,10 @@ account for a first-time login, requires the realm to send a verified `email_ver
 rejected instead of being linked or used to create an account, and linking never reactivates a
 deactivated local account.
 
-This repo has no automated test or doc confirming the Keycloak login flow end-to-end for a
-standalone (non-DDEV) install. Validate it manually (see Known limitations).
+The login uses the authorization code flow with PKCE (`S256`). Keycloak on CIVITAS/CORE 2
+requires PKCE for confidential clients; it works the same with a client that does not
+require it. `tests/e2e/admin/keycloak-sso.spec.ts` tests the login against a real Keycloak
+(see [Testing](../testing/README.md)).
 
 ## 9. Troubleshooting
 
@@ -351,5 +353,3 @@ standalone (non-DDEV) install. Validate it manually (see Known limitations).
   untested.
 - The app does not require a persistent `queue:work` process. Run one if you enable features
   that dispatch queued jobs.
-- The Keycloak OIDC login flow has no end-to-end test or guide for a standalone (non-DDEV)
-  install.

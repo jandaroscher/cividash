@@ -29,7 +29,8 @@ class KeycloakSsoController extends Controller
     {
         abort_unless($this->ssoService->isEnabled(), 403);
 
-        return Socialite::driver('keycloak')->redirect();
+        // Keycloak on CIVITAS/CORE 2 requires PKCE (S256) for confidential clients.
+        return Socialite::driver('keycloak')->enablePKCE()->redirect();
     }
 
     /**
@@ -46,7 +47,7 @@ class KeycloakSsoController extends Controller
                 config(['services.keycloak.base_url' => $internalUrl]);
             }
 
-            $socialiteUser = Socialite::driver('keycloak')->user();
+            $socialiteUser = Socialite::driver('keycloak')->enablePKCE()->user();
             $user = $this->ssoService->findOrCreateUser($socialiteUser);
 
             // Reject before syncRolesFromToken() below can mutate is_admin

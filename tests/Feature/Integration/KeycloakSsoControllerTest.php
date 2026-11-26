@@ -25,6 +25,7 @@ class KeycloakSsoControllerTest extends TestCase
         config(['integrations.keycloak_sso.enabled' => true]);
 
         $provider = Mockery::mock(AbstractProvider::class);
+        $provider->shouldReceive('enablePKCE')->andReturnSelf();
         $provider->shouldReceive('redirect')
             ->once()
             ->andReturn(redirect('http://localhost:8080/realms/civitas/protocol/openid-connect/auth'));
@@ -129,6 +130,7 @@ class KeycloakSsoControllerTest extends TestCase
         config(['integrations.keycloak_sso.enabled' => true]);
 
         $provider = Mockery::mock(AbstractProvider::class);
+        $provider->shouldReceive('enablePKCE')->andReturnSelf();
         $provider->shouldReceive('user')
             ->once()
             ->andThrow(new InvalidStateException);
@@ -271,6 +273,7 @@ class KeycloakSsoControllerTest extends TestCase
         ];
 
         $provider = Mockery::mock(AbstractProvider::class);
+        $provider->shouldReceive('enablePKCE')->andReturnSelf();
         $provider->shouldReceive('user')
             ->once()
             ->andReturn($socialiteUser);
