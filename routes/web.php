@@ -11,14 +11,14 @@ use App\Http\Controllers\ResizedMediaController;
 use App\Http\Controllers\SpaController;
 use App\Http\Controllers\TileShareImageController;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 // Public pages and tile embeds are read-only and need no session. Skipping it means
 // anonymous visitors get no cookie and no sessions row (which stores IP and user agent).
-$sessionless = [StartSession::class, ShareErrorsFromSession::class, ValidateCsrfToken::class, AddQueuedCookiesToResponse::class];
+$sessionless = [StartSession::class, ShareErrorsFromSession::class, PreventRequestForgery::class, AddQueuedCookiesToResponse::class];
 
 // Keycloak SSO routes (before SPA catch-all)
 Route::get('admin/auth/keycloak/redirect', [KeycloakSsoController::class, 'redirect'])

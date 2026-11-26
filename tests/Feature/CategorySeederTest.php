@@ -15,6 +15,7 @@ use App\Services\ParsedCategory;
 use Database\Seeders\CategorySeeder;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class CategorySeederTest extends TestCase
@@ -166,9 +167,7 @@ class CategorySeederTest extends TestCase
         $this->assertEquals(2, $third->position);
     }
 
-    /**
-     * @dataProvider iconSlugProvider
-     */
+    #[DataProvider('iconSlugProvider')]
     public function test_generate_icon_slug_transliterates_umlauts(string $title, string $expected): void
     {
         $method = new \ReflectionMethod(CategorySeeder::class, 'generateIconSlug');

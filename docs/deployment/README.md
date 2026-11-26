@@ -1,6 +1,6 @@
 # Deployment documentation
 
-CiviDash is a headless Laravel 12 + Vue 3 app. This directory covers everything needed
+CiviDash is a headless Laravel 13 + Vue 3 app. This directory covers everything needed
 to run it: local development, production deployment, CI and a few operational topics.
 
 ## Which guide do I need

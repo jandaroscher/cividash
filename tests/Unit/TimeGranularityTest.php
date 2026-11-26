@@ -7,13 +7,14 @@
 namespace Tests\Unit;
 
 use App\Enums\TimeGranularity;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class TimeGranularityTest extends TestCase
 {
     // --- periodKeyPattern validation ---
 
-    /** @dataProvider validPeriodKeysProvider */
+    #[DataProvider('validPeriodKeysProvider')]
     public function test_valid_period_key_matches_pattern(TimeGranularity $granularity, string $periodKey): void
     {
         $pattern = $granularity->periodKeyPattern();
@@ -37,7 +38,7 @@ class TimeGranularityTest extends TestCase
         ];
     }
 
-    /** @dataProvider invalidPeriodKeysProvider */
+    #[DataProvider('invalidPeriodKeysProvider')]
     public function test_invalid_period_key_rejected(TimeGranularity $granularity, string $periodKey): void
     {
         $this->assertFalse($granularity->isValidPeriodKey($periodKey));
@@ -77,7 +78,7 @@ class TimeGranularityTest extends TestCase
 
     // --- generateLabel ---
 
-    /** @dataProvider labelGenerationProvider */
+    #[DataProvider('labelGenerationProvider')]
     public function test_generate_label(TimeGranularity $granularity, string $periodKey, string $locale, string $expected): void
     {
         $this->assertEquals($expected, $granularity->generateLabel($periodKey, $locale));
@@ -104,7 +105,7 @@ class TimeGranularityTest extends TestCase
 
     // --- previousPeriodKey ---
 
-    /** @dataProvider previousPeriodKeyProvider */
+    #[DataProvider('previousPeriodKeyProvider')]
     public function test_previous_period_key(TimeGranularity $granularity, string $periodKey, ?string $expected): void
     {
         $this->assertEquals($expected, $granularity->previousPeriodKey($periodKey));
