@@ -70,6 +70,20 @@ describe('installTracking', () => {
         expect(window._paq.filter(([command]) => command === 'trackPageView')).toHaveLength(2);
     });
 
+    it('keeps counting after matomo.js has replaced the _paq queue', async () => {
+        const router = makeRouter();
+        installTracking(router, matomo);
+        await visit(router, '/');
+
+        // What the loaded matomo.js does: swap the array for an object that runs commands.
+        const executed = [];
+        window._paq = { push: (command) => executed.push(command) };
+        await visit(router, '/tiles');
+
+        expect(executed).toContainEqual(['setCustomUrl', `${window.location.origin}/tiles`]);
+        expect(executed).toContainEqual(['trackPageView']);
+    });
+
     it('does not count hash or query changes on the same page again', async () => {
         const router = makeRouter();
         installTracking(router, matomo);

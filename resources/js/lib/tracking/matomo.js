@@ -8,15 +8,15 @@
  * respected. IP anonymisation is a setting of the Matomo instance.
  */
 export function createMatomoTracker({ url, site_id: siteId }) {
-    window._paq = window._paq || [];
-    const paq = window._paq;
+    // matomo.js replaces the _paq queue with its own object once loaded, so never keep a reference.
+    const push = (...command) => (window._paq = window._paq || []).push(command);
 
-    paq.push(['disableCookies']);
-    paq.push(['disableBrowserFeatureDetection']);
-    paq.push(['setDoNotTrack', true]);
-    paq.push(['enableLinkTracking']);
-    paq.push(['setTrackerUrl', `${url}matomo.php`]);
-    paq.push(['setSiteId', siteId]);
+    push('disableCookies');
+    push('disableBrowserFeatureDetection');
+    push('setDoNotTrack', true);
+    push('enableLinkTracking');
+    push('setTrackerUrl', `${url}matomo.php`);
+    push('setSiteId', siteId);
 
     const script = document.createElement('script');
     script.async = true;
@@ -30,11 +30,11 @@ export function createMatomoTracker({ url, site_id: siteId }) {
     return {
         trackPageView(pageUrl, title) {
             if (previousUrl) {
-                paq.push(['setReferrerUrl', previousUrl]);
+                push('setReferrerUrl', previousUrl);
             }
-            paq.push(['setCustomUrl', pageUrl]);
-            paq.push(['setDocumentTitle', title]);
-            paq.push(['trackPageView']);
+            push('setCustomUrl', pageUrl);
+            push('setDocumentTitle', title);
+            push('trackPageView');
             previousUrl = pageUrl;
         },
     };
