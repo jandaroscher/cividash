@@ -61,7 +61,7 @@ The following block types are available: **Tiles**, **Downloads**, **FAQ**, **In
 
 ### 2.4.1 Intro Text (Heading, Text, Image)
 
-An introductory text block with a **heading**, an optional **subheading**, formattable **text** (bold, italic, lists, links), an **image**, and an optional **second image** — each with its own image title, alt text and copyright per language (see [Chapter 5.3, Alt Text and Accessibility](05-images-and-files.md#53-alt-text-and-accessibility)). Empty fields take the media library details, which apply to all languages; language-specific text belongs in the field in the block.
+An introductory text block with a **heading**, an optional **subheading**, formattable **text** (bold, italic, lists, links), an **image**, and an optional **second image** — each with its own image title, alt text and copyright per language (see [Chapter 5.3, Alt Text and Accessibility](05-images-and-files.md#53-alt-text-and-accessibility)). If an image title or alt text in the block is empty, the media library text in the page's language is used and, if there is none, the German one. The copyright from the media library applies to all languages.
 
 <!-- Screenshot: Intro Text block fully filled with heading, text, and image fields -->
 ![Intro Text block](../assets/screenshots/en/02-block-intro-text.png)
