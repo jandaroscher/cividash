@@ -341,7 +341,7 @@ return [
                 'fields' => [
                     'requires_two_factor_authentication' => [
                         'label' => 'Require two-factor authentication',
-                        'helper' => 'All users of this dashboard and all administrators must enter a one-time code from an authenticator app when signing in to the admin. Users who have not set it up yet are asked to do so after their next sign-in. Sign-ins through Keycloak are exempt, Keycloak handles two-factor authentication there.',
+                        'helper' => 'All users of this dashboard and all administrators must enter a one-time code from an authenticator app when signing in to the admin. Users who have not set it up yet are asked to do so the next time they open the admin. Sign-ins through Keycloak are exempt, Keycloak handles two-factor authentication there.',
                     ],
                     'theme_id' => [
                         'label' => 'Theme',

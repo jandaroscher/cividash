@@ -23,7 +23,7 @@ class EnsureTwoFactorAuthenticationWhereRequired extends EnsureMultiFactorAuthen
     {
         $user = Filament::auth()->user();
 
-        if ($request->session()->get(KeycloakSsoService::SESSION_KEY) || ! $user?->requiresTwoFactorAuthentication()) {
+        if (KeycloakSsoService::signedInViaKeycloak() || ! $user?->requiresTwoFactorAuthentication()) {
             return $next($request);
         }
 

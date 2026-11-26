@@ -258,7 +258,7 @@ Die Themes selbst werden auf der Seite **Themes** verwaltet (siehe [Abschnitt 6.
 |------|-------------|
 | **Zwei-Faktor-Anmeldung verpflichtend** | Schalter. Ist er aktiv, müssen alle Benutzer dieses Dashboards und alle Admins bei der Anmeldung einen Einmalcode aus einer Authenticator-App eingeben (siehe [Kapitel 1.4, Profil bearbeiten](01-erste-schritte.md#14-profil-bearbeiten-name-avatar-sprache-passwort)). |
 
-Wer die Zwei-Faktor-Anmeldung noch nicht eingerichtet hat, wird nach der nächsten Anmeldung dazu aufgefordert und kommt erst danach in den Adminbereich. Admins sind betroffen, sobald ein einziges Dashboard die Zwei-Faktor-Anmeldung vorschreibt, weil sie auf alle Dashboards zugreifen. Anmeldungen über Keycloak sind ausgenommen; dort regelt Keycloak die Zwei-Faktor-Anmeldung.
+Wer die Zwei-Faktor-Anmeldung noch nicht eingerichtet hat, wird beim nächsten Aufruf des Adminbereichs dazu aufgefordert und kommt erst danach in den Adminbereich. Admins sind betroffen, sobald ein einziges Dashboard die Zwei-Faktor-Anmeldung vorschreibt, weil sie auf alle Dashboards zugreifen. Anmeldungen über Keycloak sind ausgenommen; dort regelt Keycloak die Zwei-Faktor-Anmeldung.
 
 <!-- Screenshot: Dashboard-Konfiguration — Abschnitt Sicherheit mit Schalter „Zwei-Faktor-Anmeldung verpflichtend" -->
 ![Dashboard-Konfiguration: Sicherheit](../assets/screenshots/de/06-dashboard-konfig-sicherheit.png)

@@ -140,8 +140,8 @@ Two-factor authentication protects the account in addition to the password. Ever
 
 1. Next to **Authenticator app**, click **Set up**.
 2. Scan the QR code with the authenticator app, or type the displayed code into the app.
-3. Save the recovery codes in a safe place. They are shown only once and replace the app if it is lost.
-4. Enter the **Current password** and the 6-digit code from the app.
+3. Enter the 6-digit code from the app and the **Current password**, then click **Next**.
+4. Save the recovery codes shown in a safe place. They are shown only once and replace the app if it is lost.
 5. Confirm with **Enable authenticator app**.
 
 <!-- Screenshot: Profile page, dialog "Set up authenticator app" with QR code and recovery codes -->

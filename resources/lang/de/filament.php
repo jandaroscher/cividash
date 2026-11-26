@@ -448,7 +448,7 @@ return [
                 'fields' => [
                     'requires_two_factor_authentication' => [
                         'label' => 'Zwei-Faktor-Anmeldung verpflichtend',
-                        'helper' => 'Alle Benutzer dieses Dashboards und alle Administratoren müssen bei der Anmeldung im Admin einen Einmalcode aus einer Authenticator-App eingeben. Wer sie noch nicht eingerichtet hat, wird nach der nächsten Anmeldung dazu aufgefordert. Anmeldungen über Keycloak sind ausgenommen, dort regelt Keycloak die Zwei-Faktor-Anmeldung.',
+                        'helper' => 'Alle Benutzer dieses Dashboards und alle Administratoren müssen bei der Anmeldung im Admin einen Einmalcode aus einer Authenticator-App eingeben. Wer sie noch nicht eingerichtet hat, wird beim nächsten Aufruf des Adminbereichs dazu aufgefordert. Anmeldungen über Keycloak sind ausgenommen, dort regelt Keycloak die Zwei-Faktor-Anmeldung.',
                     ],
                     'theme_id' => [
                         'label' => 'Theme',

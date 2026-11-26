@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Support\Timebox;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
@@ -46,7 +47,9 @@ class FortifyServiceProvider extends ServiceProvider
 
         // The JSON login has no second-factor step, so it must not open a session for
         // users who need one. They sign in through the admin login instead.
-        Fortify::authenticateUsing(function (Request $request): ?User {
+        // The timebox keeps unknown e-mail addresses from answering faster, as the
+        // default guard attempt does.
+        Fortify::authenticateUsing(fn (Request $request): ?User => app(Timebox::class)->call(function () use ($request): ?User {
             $user = User::where(Fortify::username(), $request->input(Fortify::username()))->first();
 
             if (! $user || ! Hash::check((string) $request->input('password'), $user->password)) {
@@ -60,7 +63,7 @@ class FortifyServiceProvider extends ServiceProvider
             }
 
             return $user;
-        });
+        }, (int) config('auth.timebox_duration', 200000)));
 
         // Rate limiter for login endpoint
         RateLimiter::for('login', function (Request $request) {

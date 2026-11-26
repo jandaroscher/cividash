@@ -140,8 +140,8 @@ Die Zwei-Faktor-Anmeldung schützt das Konto zusätzlich zum Passwort. Bei jeder
 
 1. Bei **Authenticator-App** auf **Einrichten** klicken.
 2. Den QR-Code mit der Authenticator-App scannen oder den angezeigten Code von Hand in die App eingeben.
-3. Die Wiederherstellungscodes an einem sicheren Ort speichern. Sie werden nur einmal angezeigt und ersetzen die App, wenn sie verloren geht.
-4. **Aktuelles Passwort** und den 6-stelligen Code aus der App eingeben.
+3. Den 6-stelligen Code aus der App und das **Aktuelle Passwort** eingeben, dann auf **Weiter** klicken.
+4. Die angezeigten Wiederherstellungscodes an einem sicheren Ort speichern. Sie werden nur einmal angezeigt und ersetzen die App, wenn sie verloren geht.
 5. Mit **Authenticator-App aktivieren** bestätigen.
 
 <!-- Screenshot: Profilseite, Dialog „Authenticator-App einrichten" mit QR-Code und Wiederherstellungscodes -->

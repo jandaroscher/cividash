@@ -85,7 +85,7 @@ class EditProfile extends Page implements HasForms
         return Section::make(__('filament.pages.edit_profile.two_factor_authentication'))
             ->description(__('filament.pages.edit_profile.two_factor_authentication_description'))
             // Keycloak enforces its own second factor for SSO logins.
-            ->hidden(fn (): bool => (bool) session(KeycloakSsoService::SESSION_KEY))
+            ->hidden(fn (): bool => KeycloakSsoService::signedInViaKeycloak())
             ->schema(collect(Filament::getMultiFactorAuthenticationProviders())
                 ->map(fn (MultiFactorAuthenticationProvider $provider): Group => Group::make($provider->getManagementSchemaComponents())
                     ->statePath($provider->getId()))

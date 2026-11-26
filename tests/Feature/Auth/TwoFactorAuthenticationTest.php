@@ -7,11 +7,13 @@
 namespace Tests\Feature\Auth;
 
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\Tenancy\EditTenantProfile;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\Integration\KeycloakSsoService;
+use Filament\Actions\Testing\TestAction;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -105,9 +107,41 @@ class TwoFactorAuthenticationTest extends TestCase
         $user = $this->editorIn($this->createTenant(['requires_two_factor_authentication' => true]));
 
         $this->actingAs($user)
-            ->withSession([KeycloakSsoService::SESSION_KEY => true])
+            ->withSession([KeycloakSsoService::SESSION_KEY => $user->id])
             ->get($this->adminUrl())
             ->assertOk();
+    }
+
+    public function test_keycloak_flag_of_another_account_does_not_exempt(): void
+    {
+        $other = User::factory()->create();
+        $user = $this->editorIn($this->createTenant(['requires_two_factor_authentication' => true]));
+
+        $this->actingAs($user)
+            ->withSession([KeycloakSsoService::SESSION_KEY => $other->id])
+            ->get($this->adminUrl())
+            ->assertRedirect(Filament::getSetUpRequiredMultiFactorAuthenticationUrl());
+    }
+
+    public function test_user_sets_up_the_authenticator_app_in_the_profile(): void
+    {
+        $tenant = $this->createTenant();
+        $user = $this->editorIn($tenant);
+        $this->actingAs($user);
+        $this->setTenantContext($tenant);
+
+        $page = Livewire::test(EditProfile::class)
+            ->mountAction(TestAction::make('setUpAppAuthentication')->schemaComponent('app', schema: 'content'));
+        // The set-up modal carries the new secret in its encrypted action arguments.
+        $secret = decrypt($page->instance()->mountedActions[0]['arguments']['encrypted'])['secret'];
+
+        $page->fillForm(['code' => $this->app2fa()->getCurrentCode($user, $secret), 'password' => self::PASSWORD])
+            ->callMountedAction()
+            ->assertHasNoFormErrors();
+
+        $user->refresh();
+        $this->assertTrue($user->hasTwoFactorAuthentication());
+        $this->assertCount(8, $user->getAppAuthenticationRecoveryCodes());
     }
 
     public function test_password_alone_does_not_sign_in_a_user_with_two_factor(): void
@@ -256,7 +290,7 @@ class TwoFactorAuthenticationTest extends TestCase
         $user = $this->editorIn($this->createTenant());
 
         $this->actingAs($user)
-            ->withSession([KeycloakSsoService::SESSION_KEY => true])
+            ->withSession([KeycloakSsoService::SESSION_KEY => $user->id])
             ->get($this->adminUrl('profile'))
             ->assertOk()
             ->assertDontSee(__('filament.pages.edit_profile.two_factor_authentication'));

@@ -7,6 +7,7 @@
 namespace Tests\Feature\Integration;
 
 use App\Models\User;
+use App\Services\Integration\KeycloakSsoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
@@ -76,6 +77,7 @@ class KeycloakSsoControllerTest extends TestCase
         $response = $this->get(route('auth.keycloak.callback'));
 
         $response->assertRedirect('/admin');
+        $response->assertSessionHas(KeycloakSsoService::SESSION_KEY, $user->id);
         $this->assertAuthenticatedAs($user);
     }
 
