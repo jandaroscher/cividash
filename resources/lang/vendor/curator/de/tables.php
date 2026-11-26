@@ -13,5 +13,7 @@ return [
         'width' => 'Breite',
         'height' => 'Höhe',
         'dimensions' => 'Abmessungen',
+        'ext' => 'Dateiendung',
+        'disk' => 'Speicher',
     ],
 ];
