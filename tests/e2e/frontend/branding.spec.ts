@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2+
 
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+import { fetchApi, resetApiThrottle } from './helpers';
 
 /**
  * E2E Tests for Branding Configuration
@@ -14,126 +15,84 @@ import { test, expect } from '@playwright/test';
  * - Font family is applied from branding
  *
  * Prerequisites:
- * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
- * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
+ * - A running app at PLAYWRIGHT_BASE_URL, pointing at the demo-city tenant
+ * - Demo data seeded via dashboard:reset (see docs/testing/README.md)
  */
+
+type Branding = {
+  primary_color: string;
+  accent_color: string | null;
+  header_background_color: string;
+  footer_background_color: string;
+  typography_font_family: string;
+  typography_custom_font_name: string | null;
+  font_family_body: string | null;
+};
+
+async function openHomeWithBranding(page: Page): Promise<Branding> {
+  await page.goto('/');
+  return fetchApi<Branding>(page, '/api/v1/config/branding');
+}
+
+/** Any CSS colour -> the form computed styles report, e.g. 'rgb(232, 238, 243)'. */
+function toComputedColor(page: Page, color: string): Promise<string> {
+  return page.evaluate((c) => {
+    const probe = document.createElement('span');
+    probe.style.color = c;
+    document.body.append(probe);
+    const computed = getComputedStyle(probe).color;
+    probe.remove();
+    return computed;
+  }, color);
+}
+
+/** "'Source Sans 3', Arial" -> 'Source Sans 3' */
+function firstFamily(stack: string): string {
+  return stack.split(',')[0].replace(/['"]/g, '').trim();
+}
+
+function rootProperty(page: Page, name: string): Promise<string> {
+  return page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
+}
+
+test.beforeEach(resetApiThrottle);
 
 test.describe('Branding', () => {
   test.describe('CSS custom properties', () => {
     test('CSS custom properties are set on document root', async ({ page }) => {
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      const branding = await openHomeWithBranding(page);
 
-      // Check that CSS custom properties are set on :root or body
-      const primaryColor = await page.evaluate(() => {
-        return getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
-      });
-
-      // Primary color should be set (not empty)
-      expect(primaryColor.length).toBeGreaterThan(0);
-
-      // Check for other branding-related CSS variables
-      const accentColor = await page.evaluate(() => {
-        return getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
-      });
-
-      // Accent color should also be set
-      expect(accentColor.length).toBeGreaterThan(0);
+      await expect.poll(() => rootProperty(page, '--primary-color')).toBe(branding.primary_color);
+      await expect.poll(() => rootProperty(page, '--accent-color')).toBe(branding.accent_color ?? branding.primary_color);
     });
   });
 
   test.describe('Header branding', () => {
-    test('header background color matches branding config', async ({ page, request }) => {
-      // Fetch branding config from API
-      const response = await request.get('/api/v1/config/branding');
+    test('header background color matches branding config', async ({ page }) => {
+      const branding = await openHomeWithBranding(page);
 
-      if (!response.ok()) {
-        test.skip(true, 'Branding API not available');
-        return;
-      }
-
-      const json = await response.json();
-      const branding = json.data || json;
-
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
-
-      // Get the header element's computed background color
-      const headerBg = await page.evaluate(() => {
-        const header = document.querySelector('header');
-        if (!header) return '';
-        return header.style.backgroundColor || getComputedStyle(header).backgroundColor;
-      });
-
-      // Header background should be set (not default transparent)
-      expect(headerBg).toBeTruthy();
-
-      // If branding specifies a header background color, verify it matches
-      if (branding.header_background_color) {
-        // The color may be in different formats (hex vs rgb), so just verify it's applied
-        expect(headerBg.length).toBeGreaterThan(0);
-      }
+      await expect(page.locator('header')).toHaveCSS('background-color', await toComputedColor(page, branding.header_background_color));
     });
   });
 
   test.describe('Footer branding', () => {
-    test('footer background color matches branding config', async ({ page, request }) => {
-      // Fetch branding config from API
-      const response = await request.get('/api/v1/config/branding');
+    test('footer background color matches branding config', async ({ page }) => {
+      const branding = await openHomeWithBranding(page);
 
-      if (!response.ok()) {
-        test.skip(true, 'Branding API not available');
-        return;
-      }
-
-      const json = await response.json();
-      const branding = json.data || json;
-
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
-
-      // Get the footer's gray bottom area background color
-      const footerBg = await page.evaluate(() => {
-        const footer = document.querySelector('footer');
-        if (!footer) return '';
-        // The footer background is on the inner div with pt-9
-        const bgDiv = footer.querySelector('[style*="backgroundColor"]') || footer;
-        return bgDiv.getAttribute('style') || getComputedStyle(bgDiv).backgroundColor;
-      });
-
-      // Footer background should be set
-      expect(footerBg).toBeTruthy();
-
-      // If branding specifies a footer background color, verify it's applied
-      if (branding.footer_background_color) {
-        expect(footerBg.length).toBeGreaterThan(0);
-      }
+      // The footer's bottom area (navigation links, social icons) carries the colour
+      const footerBottom = page.locator('footer > div').filter({ has: page.locator('.footer-link') });
+      await expect(footerBottom).toHaveCSS('background-color', await toComputedColor(page, branding.footer_background_color));
     });
   });
 
   test.describe('Typography', () => {
-    test('font family is applied from branding', async ({ page }) => {
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
+    test('body text uses the body font from branding', async ({ page }) => {
+      const branding = await openHomeWithBranding(page);
+      const expected = firstFamily(branding.font_family_body || branding.typography_custom_font_name || branding.typography_font_family);
 
-      // Check that a font family is applied to the body
-      const fontFamily = await page.evaluate(() => {
-        return getComputedStyle(document.body).fontFamily;
-      });
-
-      // Font family should be set (not empty)
-      expect(fontFamily).toBeTruthy();
-      expect(fontFamily.length).toBeGreaterThan(0);
-
-      // Check if a custom font CSS variable is set
-      const customFont = await page.evaluate(() => {
-        return getComputedStyle(document.documentElement).getPropertyValue('--font-family').trim();
-      });
-
-      // If a custom font variable is set, it should have a value
-      if (customFont) {
-        expect(customFont.length).toBeGreaterThan(0);
-      }
+      await expect
+        .poll(() => page.evaluate(() => getComputedStyle(document.body).fontFamily).then(firstFamily))
+        .toBe(expected);
     });
   });
 });

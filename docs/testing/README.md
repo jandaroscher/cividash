@@ -7,7 +7,8 @@ below. The faster suites come first.
 | --- | --- | --- | --- |
 | Backend unit and feature tests | PHPUnit | `tests/Unit/`, `tests/Feature/` | Yes |
 | Frontend unit tests | Vitest | `tests/js/` | Yes |
-| End-to-end and accessibility tests | Playwright, axe-core | `tests/e2e/` | No |
+| Frontend end-to-end tests | Playwright | `tests/e2e/frontend/` | Yes, on frontend changes |
+| Other end-to-end and accessibility tests | Playwright, axe-core | `tests/e2e/` | No |
 
 ## PHPUnit
 
@@ -71,6 +72,13 @@ Specs that seed fixtures run `${E2E_ARTISAN_CMD} e2e:seed-full --json`.
 ```bash
 ddev exec php artisan e2e:seed-full --clean --json
 npm run test:e2e                                  # all projects
+
+# The frontend specs (the same five projects as CI) need the demo-city tenant.
+# dashboard:reset deletes the content of the default and Demo City tenants.
+ddev exec php artisan dashboard:reset --force
+PLAYWRIGHT_BASE_URL=http://demo-city.open-source-dashboard.ddev.site \
+  npx playwright test --project=dashboard-navigation --project=filter-search \
+  --project=locale-switching --project=content-pages --project=branding
 npx playwright test --project=accessibility       # accessibility audit only
 ```
 
@@ -152,11 +160,21 @@ to `main`:
 
 Both workflows skip changes that touch only `docs/**` or Markdown files.
 
-CI does not run Playwright. Run the end-to-end and accessibility tests locally before you
-open a pull request that changes the frontend, the admin panel or tenant resolution. Note
-the result in the pull request.
+`e2e-frontend.yml` runs the frontend specs (projects `dashboard-navigation`,
+`filter-search`, `locale-switching`, `content-pages` and `branding`) on pull requests and
+pushes to `main` that change the application, its data, its frontend or the specs. You can
+also start it by hand. It seeds the demo-city tenant from
+`tests/Fixtures/dashboard-full.json` on SQLite and uses the file cache and file sessions,
+because several PHP workers writing the database cache at once lock SQLite.
 
-The Playwright config has CI settings for a later CI job: with `CI` set, it forbids
+The specs clear the application cache before each test, because the public API allows
+60 requests per minute per IP and each page load makes about nine API calls.
+
+CI does not run the other Playwright projects. Run them locally before you open a pull
+request that changes the admin panel or tenant resolution. Note the result in the pull
+request.
+
+The Playwright config has CI settings: with `CI` set, it forbids
 `test.only` and retries a failed test once. It always uses one worker, because several
 specs reset the same database.
 

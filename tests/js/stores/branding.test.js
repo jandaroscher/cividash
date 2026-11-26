@@ -394,6 +394,7 @@ describe('brandingStore', () => {
             expect(store.fontScale).toBe('large');
             expect(setPropertySpy).toHaveBeenCalledWith('--font-heading', 'Montserrat, sans-serif');
             expect(setPropertySpy).toHaveBeenCalledWith('--font-body', 'Open Sans, sans-serif');
+            expect(setPropertySpy).toHaveBeenCalledWith('--font-sans', 'Open Sans, sans-serif');
             expect(setPropertySpy).toHaveBeenCalledWith('--font-size-base', '1.125rem');
         });
 

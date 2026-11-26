@@ -1,0 +1,132 @@
+# SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+#
+# SPDX-License-Identifier: EUPL-1.2+
+
+name: Frontend E2E
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths: &frontend-e2e-paths
+      - 'resources/**'
+      - 'routes/**'
+      - 'app/**'
+      - 'config/**'
+      - 'database/**'
+      - 'tests/e2e/frontend/**'
+      - 'tests/Fixtures/**'
+      - 'composer.lock'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
+      - 'playwright.config.ts'
+      - '.github/workflows/e2e-frontend.yml'
+  push:
+    branches:
+      - main
+    paths: *frontend-e2e-paths
+  workflow_dispatch:
+
+env:
+  PHP_VERSION: '8.4'
+
+concurrency:
+  group: e2e-frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  playwright:
+    name: Frontend E2E (Playwright)
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft != true
+    timeout-minutes: 25
+
+    env:
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ${{ github.workspace }}/database/e2e.sqlite
+      CACHE_STORE: file
+      SESSION_DRIVER: file
+      PHP_CLI_SERVER_WORKERS: 4
+      PLAYWRIGHT_BASE_URL: http://demo-city.localhost:8000
+      E2E_ARTISAN_CMD: php artisan
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring,intl,bcmath,gd,curl,xml,zip,pdo_sqlite
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+        env:
+          COMPOSER_PROCESS_TIMEOUT: 200
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Prepare database and demo data
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          touch "$DB_DATABASE"
+          php artisan migrate --seed --force
+          php artisan dashboard:reset --force
+        env:
+          SEED_DASHBOARD_JSON: ${{ github.workspace }}/tests/Fixtures/dashboard-full.json
+          SEED_MEDIA_DOWNLOAD: 'false'
+
+      - name: Start application
+        run: |
+          php artisan serve --port=8000 --no-reload > storage/logs/serve.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS -o /dev/null http://demo-city.localhost:8000/api/v1/config/dashboard && exit 0
+            sleep 1
+          done
+          echo "::error::The application did not start."
+          cat storage/logs/serve.log
+          exit 1
+
+      - name: Run frontend E2E specs
+        run: >-
+          npx playwright test
+          --project=dashboard-navigation
+          --project=filter-search
+          --project=locale-switching
+          --project=content-pages
+          --project=branding
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+            storage/logs/
+          retention-days: 7

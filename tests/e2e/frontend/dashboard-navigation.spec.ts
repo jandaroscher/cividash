@@ -3,142 +3,112 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 import { test, expect } from '@playwright/test';
+import { fetchApi, resetApiThrottle, escapeRegExp } from './helpers';
 
 /**
  * E2E Tests for Dashboard Navigation
  *
  * Verifies that:
  * - Home page loads and shows tiles grid
- * - Clicking a tile navigates to detail page
- * - Back button returns to tile grid
+ * - A tile's Info button opens its details (?tile= overlay), closing returns to the grid
+ * - Browser back from a tile detail page returns to the tile grid
  * - Header navigation links are visible and clickable
  * - Footer is visible with navigation items
  *
  * Prerequisites:
- * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
- * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
+ * - A running app at PLAYWRIGHT_BASE_URL, pointing at the demo-city tenant
  * - Tiles for the demo-city tenant: dashboard:reset (see docs/testing/README.md;
  *   it deletes tenant content)
  */
 
+test.beforeEach(resetApiThrottle);
+
 test.describe('Dashboard Navigation', () => {
-  test.describe('Home page', () => {
-    test('home page loads and shows tiles grid', async ({ page }) => {
+  test.describe('Tiles page', () => {
+    test('tiles page loads and shows the tile grid', async ({ page }) => {
       await page.goto('/tiles');
-      await page.waitForLoadState('networkidle');
 
-      // The tiles page should render the main content area
-      const main = page.locator('main');
-      await expect(main).toBeVisible();
-
-      // Tiles should be rendered as shadow-card elements within the waterfall grid
-      const tiles = page.locator('.shadow-card');
-      await expect(tiles.first()).toBeVisible({ timeout: 10000 });
-
-      // There should be at least one tile
-      const count = await tiles.count();
-      expect(count).toBeGreaterThan(0);
+      await expect(page.locator('main')).toBeVisible();
+      // Tiles are rendered as shadow-card elements within the waterfall grid
+      await expect(page.locator('.shadow-card').first()).toBeVisible();
     });
   });
 
   test.describe('Tile detail navigation', () => {
-    test('clicking a tile navigates to detail page', async ({ page }) => {
+    test('the Info button opens the tile details', async ({ page }) => {
       await page.goto('/tiles');
-      await page.waitForLoadState('networkidle');
 
-      // Wait for tiles to appear
       const firstTile = page.locator('.shadow-card').first();
-      await expect(firstTile).toBeVisible({ timeout: 10000 });
+      await expect(firstTile).toBeVisible();
 
-      // Click the first tile card
-      await firstTile.click();
+      // A tile opens its details in an overlay dialog via its Info button
+      await firstTile.getByRole('button', { name: 'Info' }).click();
 
-      // After clicking, the URL should change to include a tile slug or query param
-      // The overlay may open via ?tile= query param, or navigate to /tiles/:slug
-      await page.waitForLoadState('networkidle');
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      await expect(page).toHaveURL(/[?&]tile=\d+/);
 
-      const currentUrl = page.url();
-      // Either the URL has a ?tile= param (overlay) or navigated to /tiles/:slug
-      const hasTileParam = currentUrl.includes('?tile=') || currentUrl.includes('&tile=');
-      const hasTileSlug = /\/tiles\/[^/]+/.test(currentUrl);
-      expect(hasTileParam || hasTileSlug).toBeTruthy();
+      // The dialog shows the title of the tile that was clicked
+      const title = (await dialog.getByRole('heading').first().textContent())?.trim() ?? '';
+      expect(title).not.toBe('');
+      await expect(firstTile).toContainText(title);
+
+      // Closing the details returns to the plain grid
+      await dialog.getByRole('button', { name: /^(Overlay schließen|Close overlay)$/ }).click();
+      await expect(dialog).toBeHidden();
+      await expect(page).not.toHaveURL(/[?&]tile=/);
+      await expect(firstTile).toBeVisible();
     });
 
-    test('back button returns to tile grid', async ({ page }) => {
+    test('browser back from a shared tile link returns to the tile grid', async ({ page }) => {
       await page.goto('/tiles');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('.shadow-card').first()).toBeVisible();
 
-      // Wait for tiles to appear
-      const firstTile = page.locator('.shadow-card').first();
-      await expect(firstTile).toBeVisible({ timeout: 10000 });
+      // Open a tile's detail page (the URL its share button hands out)
+      const tiles = await fetchApi<{ slug: string }[]>(page, '/api/v1/tiles?locale=de');
+      await page.goto(`/tiles/${tiles[0].slug}`);
+      await expect(page.locator('.tile-detail-content h1')).toBeVisible();
 
-      // Click the first tile
-      await firstTile.click();
-      await page.waitForLoadState('networkidle');
-
-      // Go back
       await page.goBack();
-      await page.waitForLoadState('networkidle');
 
-      // Should be back on the tiles page without tile param
-      expect(page.url()).toContain('/tiles');
-
-      // Tiles should still be visible
-      await expect(page.locator('.shadow-card').first()).toBeVisible({ timeout: 10000 });
+      await expect(page).toHaveURL(/\/tiles$/);
+      await expect(page.locator('.shadow-card').first()).toBeVisible();
     });
   });
 
   test.describe('Header navigation', () => {
     test('header navigation links are visible and clickable', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
 
-      // Header should be visible
       const header = page.locator('header');
       await expect(header).toBeVisible();
 
       // Logo or site name should be present in header
-      const logoOrSiteName = header.locator('a img.logo, span.font-bold').first();
-      await expect(logoOrSiteName).toBeVisible();
+      await expect(header.locator('a img.logo, span.font-bold').first()).toBeVisible();
 
-      // Desktop navigation should contain links (nav-link class)
-      const navLinks = page.locator('.desktop-nav .nav-link');
-      const navCount = await navLinks.count();
+      // A desktop navigation link leads to its page
+      const firstNavLink = page.locator('.desktop-nav .nav-link').first();
+      await expect(firstNavLink).toBeVisible();
+      await expect(firstNavLink).not.toHaveText(/^\s*$/);
+      const href = await firstNavLink.getAttribute('href');
+      expect(href).toMatch(/^\//);
 
-      // If there are navigation items, they should be clickable
-      if (navCount > 0) {
-        const firstNavLink = navLinks.first();
-        await expect(firstNavLink).toBeVisible();
-
-        // Get the href/to before clicking
-        const linkText = await firstNavLink.textContent();
-        expect(linkText?.trim()).toBeTruthy();
-      }
+      await firstNavLink.click();
+      await expect(page).toHaveURL(new RegExp(`${escapeRegExp(href)}$`));
+      await expect(page.locator('.dynamic-page')).toBeVisible();
     });
   });
 
   test.describe('Footer', () => {
     test('footer is visible with navigation items', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
 
-      // Footer should be present
       const footer = page.locator('footer');
       await expect(footer).toBeVisible();
 
-      // Footer should contain navigation links (footer-link class)
-      const footerLinks = footer.locator('.footer-link');
-      const linkCount = await footerLinks.count();
-
-      // If footer navigation items exist, verify they are rendered
-      if (linkCount > 0) {
-        const firstLink = footerLinks.first();
-        await expect(firstLink).toBeVisible();
-
-        // Each footer link should have text content
-        const text = await firstLink.textContent();
-        expect(text?.trim()).toBeTruthy();
-      }
+      const firstLink = footer.locator('.footer-link').first();
+      await expect(firstLink).toBeVisible();
+      await expect(firstLink).not.toHaveText(/^\s*$/);
     });
   });
 });

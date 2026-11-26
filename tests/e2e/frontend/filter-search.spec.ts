@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2+
 
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+import { fetchApi, resetApiThrottle, escapeRegExp } from './helpers';
 
 /**
  * E2E Tests for Filter and Search Functionality
@@ -15,150 +16,117 @@ import { test, expect } from '@playwright/test';
  * - Filter state persists in URL query parameters
  *
  * Prerequisites:
- * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
- * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
+ * - A running app at PLAYWRIGHT_BASE_URL, pointing at the demo-city tenant
  * - Tiles for the demo-city tenant: dashboard:reset (see docs/testing/README.md;
  *   it deletes tenant content)
  */
 
+// Cards hidden by a filter or by the grid's re-layout are not :visible.
+const VISIBLE_TILES = '.shadow-card:visible';
+
+type Tile = { title: string; categories: { id: number; group?: { key: string } }[] };
+type FilterGroup = { key: string; title: string; items: { id: number; key: string | null; title: string }[] };
+
+/** Open the tiles page and wait until every tile of the tenant is shown. */
+async function openTilesPage(page: Page): Promise<Tile[]> {
+  await page.goto('/tiles');
+  const tiles = await fetchApi<Tile[]>(page, '/api/v1/tiles?locale=de');
+  expect(tiles.length).toBeGreaterThan(1);
+  await expect(page.locator(VISIBLE_TILES)).toHaveCount(tiles.length);
+  return tiles;
+}
+
+test.beforeEach(resetApiThrottle);
+
 test.describe('Filter and Search', () => {
   test.describe('Filter component', () => {
     test('filter component is visible on tiles page', async ({ page }) => {
-      await page.goto('/tiles');
-      await page.waitForLoadState('networkidle');
+      await openTilesPage(page);
 
-      // Wait for tiles to load first
-      await expect(page.locator('.shadow-card').first()).toBeVisible({ timeout: 10000 });
+      // Filter groups are tabs; the first one is selected by default
+      const tabs = page.getByRole('tab');
+      await expect(tabs.first()).toBeVisible();
+      await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
+      await expect(page.getByRole('tabpanel')).toBeVisible();
 
-      // Filter buttons should be rendered with role="tab"
-      const filterButtons = page.locator('[role="tab"]');
-      const buttonCount = await filterButtons.count();
-
-      // There should be at least one filter group tab
-      if (buttonCount > 0) {
-        await expect(filterButtons.first()).toBeVisible();
-      }
-
-      // Search input should be visible
-      const searchInput = page.locator('input[type="text"]');
-      await expect(searchInput).toBeVisible();
+      await expect(page.getByRole('textbox', { name: /^(Kacheln durchsuchen|Search tiles)$/ })).toBeVisible();
     });
 
     test('clicking a category filter button updates the displayed tiles', async ({ page }) => {
-      await page.goto('/tiles');
-      await page.waitForLoadState('networkidle');
+      const tiles = await openTilesPage(page);
 
-      // Wait for tiles to load
-      await expect(page.locator('.shadow-card').first()).toBeVisible({ timeout: 10000 });
+      // Pick a category that some, but not all, tiles carry
+      const { groups } = await fetchApi<{ groups: FilterGroup[] }>(page, '/api/v1/filters?locale=de');
+      const choice = groups
+        .flatMap((group) => group.items.map((item) => ({
+          group,
+          item,
+          count: tiles.filter((tile) => tile.categories.some((c) => c.group?.key === group.key && c.id === item.id)).length,
+        })))
+        .find(({ count }) => count > 0 && count < tiles.length);
+      expect(choice, 'a category carried by some but not all tiles').toBeDefined();
+      const { group, item, count } = choice!;
 
-      // Get initial tile count
-      const initialCount = await page.locator('.shadow-card').count();
+      const tab = page.getByRole('tab', { name: group.title, exact: true });
+      await tab.click();
+      await expect(tab).toHaveAttribute('aria-selected', 'true');
 
-      // Find filter tabs
-      const filterTabs = page.locator('[role="tab"]');
-      const tabCount = await filterTabs.count();
+      const category = page.getByRole('tabpanel').getByRole('button', { name: item.title, exact: true });
+      await category.click();
+      await expect(category).toHaveAttribute('aria-pressed', 'true');
+      await expect(page).toHaveURL(new RegExp(`[?&]filterKey=${escapeRegExp(String(item.key ?? item.id))}(&|$)`));
 
-      if (tabCount > 1) {
-        // Click the second filter tab (first might already be selected)
-        await filterTabs.nth(1).click();
-        await page.waitForLoadState('networkidle');
-
-        // Wait for the filter panel to appear
-        const filterPanel = page.locator('[role="tabpanel"]');
-        await expect(filterPanel).toBeVisible({ timeout: 5000 });
-
-        // The URL should reflect filter state or tiles should have changed
-        // This verifies the filter interaction works
-        const currentUrl = page.url();
-        const tilesStillVisible = await page.locator('.shadow-card').count();
-
-        // Verify filter interaction had an effect: either tiles changed or URL updated
-        const urlChanged = !currentUrl.endsWith('/tiles');
-        const tilesChanged = tilesStillVisible !== initialCount;
-        expect(urlChanged || tilesChanged).toBeTruthy();
-      }
+      // Only the tiles of that category remain
+      await expect(page.locator(VISIBLE_TILES)).toHaveCount(count);
     });
   });
 
   test.describe('Search functionality', () => {
     test('search input accepts text and filters tiles by title', async ({ page }) => {
-      await page.goto('/tiles');
-      await page.waitForLoadState('networkidle');
+      const tiles = await openTilesPage(page);
+      const title = tiles[0].title;
 
-      // Wait for tiles to load
-      await expect(page.locator('.shadow-card').first()).toBeVisible({ timeout: 10000 });
+      await page.getByRole('textbox', { name: /^(Kacheln durchsuchen|Search tiles)$/ }).fill(title);
 
-      // Get initial tile count
-      const initialCount = await page.locator('.shadow-card').count();
+      await expect.poll(() => page.locator(VISIBLE_TILES).count()).toBeLessThan(tiles.length);
+      await expect(page.locator(VISIBLE_TILES).first()).toContainText(title);
 
-      // Type a search query into the search input
-      const searchInput = page.locator('input[type="text"]');
-      await expect(searchInput).toBeVisible();
-      await searchInput.fill('test-query-that-likely-matches-nothing-xyz');
-
-      // Wait for debounced search to apply (300ms debounce + rendering)
-      await page.waitForTimeout(500);
-
-      // After searching for a non-matching term, either no tiles or fewer tiles should show
-      const filteredCount = await page.locator('.shadow-card:visible').count();
-      expect(filteredCount).toBeLessThanOrEqual(initialCount);
+      // A term that matches nothing leaves an empty grid with a message
+      await page.getByRole('textbox', { name: /^(Kacheln durchsuchen|Search tiles)$/ }).fill('xyz-nonexistent');
+      await expect(page.locator(VISIBLE_TILES)).toHaveCount(0);
+      await expect(page.getByText(/Keine Kacheln gefunden für Suche|No tiles found for search/)).toBeVisible();
     });
 
     test('clearing search shows all tiles again', async ({ page }) => {
-      await page.goto('/tiles');
-      await page.waitForLoadState('networkidle');
+      const tiles = await openTilesPage(page);
 
-      // Wait for tiles to load
-      await expect(page.locator('.shadow-card').first()).toBeVisible({ timeout: 10000 });
-
-      // Get initial tile count
-      const initialCount = await page.locator('.shadow-card').count();
-
-      // Type a search query
-      const searchInput = page.locator('input[type="text"]');
+      const searchInput = page.getByRole('textbox', { name: /^(Kacheln durchsuchen|Search tiles)$/ });
       await searchInput.fill('xyz-nonexistent');
-      await page.waitForTimeout(500);
+      await expect(page.locator(VISIBLE_TILES)).toHaveCount(0);
 
-      // Clear the search
-      await searchInput.fill('');
-      await page.waitForTimeout(500);
+      await page.getByRole('button', { name: /^(Suche leeren|Clear search)$/ }).click();
 
-      // All tiles should be visible again
-      const restoredCount = await page.locator('.shadow-card').count();
-      expect(restoredCount).toBe(initialCount);
+      await expect(searchInput).toHaveValue('');
+      await expect(page).not.toHaveURL(/[?&]search=/);
+      await expect(page.locator(VISIBLE_TILES)).toHaveCount(tiles.length);
     });
 
     test('filter state persists in URL query parameters', async ({ page }) => {
-      await page.goto('/tiles');
-      await page.waitForLoadState('networkidle');
+      const tiles = await openTilesPage(page);
+      const title = tiles[0].title;
 
-      // Wait for tiles to load
-      await expect(page.locator('.shadow-card').first()).toBeVisible({ timeout: 10000 });
+      const searchInput = page.getByRole('textbox', { name: /^(Kacheln durchsuchen|Search tiles)$/ });
+      await searchInput.fill(title);
+      await expect.poll(() => new URL(page.url()).searchParams.get('search')).toBe(title);
+      await expect.poll(() => page.locator(VISIBLE_TILES).count()).toBeLessThan(tiles.length);
+      const filteredCount = await page.locator(VISIBLE_TILES).count();
 
-      // Type a search query
-      const searchInput = page.locator('input[type="text"]');
-      await searchInput.fill('energy');
-      await page.waitForTimeout(500);
-
-      // Check if search query is reflected in URL
-      const url = new URL(page.url());
-      const searchParam = url.searchParams.get('search');
-
-      // The filter store persists state to URL via query params
-      // Either ?search= or the URL is updated with filter state
-      if (searchParam) {
-        expect(searchParam).toBe('energy');
-      }
-
-      // Reload the page and check if filter state is restored
+      // After a reload the search is restored from the URL
       await page.reload();
-      await page.waitForLoadState('networkidle');
 
-      // After reload, the search input should retain its value if URL param was set
-      if (searchParam) {
-        const restoredValue = await searchInput.inputValue();
-        expect(restoredValue).toBe('energy');
-      }
+      await expect(searchInput).toHaveValue(title);
+      await expect(page.locator(VISIBLE_TILES)).toHaveCount(filteredCount);
+      await expect(page.locator(VISIBLE_TILES).first()).toContainText(title);
     });
   });
 });

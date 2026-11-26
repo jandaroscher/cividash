@@ -193,11 +193,10 @@ export const useBrandingStore = defineStore('branding', {
                 document.documentElement.style.setProperty('--accent-color', effectiveAccentColor);
                 document.documentElement.style.setProperty('--accent-color-dark', this.secondaryColor || '#891F00');
 
-                // Set typography CSS variables (both --font-family and --font-sans for Tailwind compatibility)
+                // Set typography CSS variables (--font-sans is set with the body font below)
                 const effectiveFontFamily = this.customFontName || this.typographyFontFamily;
                 const fontFamilyValue = `'${effectiveFontFamily}', ui-sans-serif, system-ui, sans-serif`;
                 document.documentElement.style.setProperty('--font-family', fontFamilyValue);
-                document.documentElement.style.setProperty('--font-sans', fontFamilyValue);
 
                 // Set font size CSS variables
                 if (this.typographyFontSizes) {
@@ -211,6 +210,8 @@ export const useBrandingStore = defineStore('branding', {
                 const effectiveBodyFont = this.fontFamilyBody || fontFamilyValue;
                 document.documentElement.style.setProperty('--font-heading', effectiveHeadingFont);
                 document.documentElement.style.setProperty('--font-body', effectiveBodyFont);
+                // Body text uses --font-sans (Tailwind), so it must follow the body font
+                document.documentElement.style.setProperty('--font-sans', effectiveBodyFont);
                 document.documentElement.style.setProperty('--font-size-base', FONT_SCALE_SIZES[this.fontScale] || FONT_SCALE_SIZES.default);
 
                 // Inject @font-face rules for self-hosted font faces
