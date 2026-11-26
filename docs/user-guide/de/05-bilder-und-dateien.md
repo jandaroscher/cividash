@@ -20,7 +20,7 @@ Die Mediathek ist die zentrale Ablage für Bilder und Dateien eines Dashboards. 
 <!-- Screenshot: Seite „Medium erstellen“ mit hochgeladener Datei und ausgefüllten Feldern Alternativer Text und Copyright -->
 ![Datei in die Mediathek hochladen](../assets/screenshots/de/05-mediathek-hochladen.png)
 
-Neue Dateien landen automatisch im Ordner des Dashboards (unter **Details → Verzeichnis**, z. B. `media/2`). Einen Ordner wählen oder anlegen ist nicht nötig.
+Neue Dateien landen automatisch im Ordner des Dashboards (unter **Details → Verzeichnis**, z. B. `media/2`). Ordner lassen sich weder wählen noch anlegen.
 
 Diese Angaben gelten für alle Sprachen. Inhaltsbilder übernehmen sie überall dort, wo die Begleitfelder im Block leer bleiben (siehe [5.3](#53-alt-texte-und-barrierefreiheit)).
 
@@ -34,7 +34,7 @@ Die Mediathek nimmt Bilder, Lottie-Animationen, PDF-, Word-, Excel- und ZIP-Date
 Bild- und Dateifelder in Seiten, Kacheln, Theme und Footer zeigen die Schaltfläche **Aus Mediathek wählen**.
 
 1. Auf **Aus Mediathek wählen** klicken. Ein Auswahlfenster mit den Dateien der Mediathek öffnet sich.
-2. Datei über die Suche finden oder den Ordner öffnen und die Datei anklicken.
+2. Datei über die Suche finden und anklicken.
 3. Auf **Einfügen** klicken.
 
 <!-- Screenshot: Auswahlfenster der Mediathek aus einem Text-&-Bild-Block, eine Datei ausgewählt -->

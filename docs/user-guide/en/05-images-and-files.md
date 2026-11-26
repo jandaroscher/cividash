@@ -20,7 +20,7 @@ The media library is the central store for a dashboard's images and files. It is
 <!-- Screenshot: "Create Media Item" page with an uploaded file and filled Alt Text and Copyright fields -->
 ![Upload a file to the media library](../assets/screenshots/en/05-media-upload.png)
 
-New files go to the dashboard's folder automatically (shown under **Details → Directory**, for example `media/2`). There is no folder to choose or create.
+New files go to the dashboard's folder automatically (shown under **Details → Directory**, for example `media/2`). Folders can't be chosen or created.
 
 These details apply to all languages. Content images use them wherever the companion fields in the block stay empty (see [5.3](#53-alt-text-and-accessibility)).
 
@@ -34,7 +34,7 @@ The media library takes images, Lottie animations, PDF, Word, Excel and ZIP file
 Image and file fields in pages, tiles, theme and footer show the button **Choose from media library**.
 
 1. Click **Choose from media library**. A picker with the files of the media library opens.
-2. Find the file via search, or open the folder, and click the file.
+2. Find the file via search and click it.
 3. Click **Insert**.
 
 <!-- Screenshot: Media library picker opened from a Text & Image block, one file selected -->
