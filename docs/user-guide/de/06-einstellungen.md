@@ -308,6 +308,9 @@ Optional lassen sich die Besucherzahlen eines Dashboards mit Matomo messen, eine
 3. Unter **Site-ID** die ID der Website aus Matomo eintragen (in Matomo unter Verwaltung > Websites).
 4. **Speichern**.
 
+<!-- Screenshot: Besucherstatistik -->
+![Besucherstatistik](../assets/screenshots/de/06-besucherstatistik.png)
+
 Beide Felder gelten nur für das gerade gewählte Dashboard. Sind beide leer, lädt das Dashboard kein Tracking-Skript.
 
 Das Dashboard zählt Seitenaufrufe ohne Cookies, sendet keine Suchparameter und beachtet die Browser-Einstellung „Do Not Track“. Eingebettete Kacheln auf fremden Websites werden nicht gezählt. Die IP-Kürzung ist eine Einstellung der Matomo-Instanz und dort zu aktivieren. Die Datenschutzerklärung des Dashboards muss die Besucherstatistik nennen.

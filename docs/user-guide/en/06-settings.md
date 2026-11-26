@@ -8,7 +8,7 @@ The admin area groups configuration into two sidebar groups: everything under **
 
 ## 6.1 Settings
 
-The **Settings** group bundles the dashboard-related configuration pages: **Site Settings**, **Theme**, **Themes / Templates**, **Dashboard Configuration**, **API Keys**, **Data Import**, and **Visitor statistics**.
+The **Settings** group bundles the dashboard-related configuration pages: **Site Settings**, **Theme**, **Themes / Templates**, **Dashboard Configuration**, **API Keys**, **Data Import**, and **Visitor Statistics**.
 
 ### 6.1.1 Site Settings
 
@@ -303,10 +303,13 @@ For bulk import of tiles, categories, category groups, and metrics via JSON bund
 
 Optionally, the visitors of a dashboard can be measured with Matomo, a web analytics tool that runs on its own server. The operator usually provides the Matomo server. Visitor statistics are off by default.
 
-1. In the **Settings** group, click **Visitor statistics**.
+1. In the **Settings** group, click **Visitor Statistics**.
 2. Under **Matomo URL**, enter the address of the Matomo instance with `https://`.
 3. Under **Site ID**, enter the ID of the website in Matomo (in Matomo under Administration > Websites).
 4. **Save**.
+
+<!-- Screenshot: Visitor statistics -->
+![Visitor statistics](../assets/screenshots/en/06-visitor-statistics.png)
 
 Both fields apply only to the currently selected dashboard. If both are empty, the dashboard loads no tracking script.
 

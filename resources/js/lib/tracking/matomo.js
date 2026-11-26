@@ -3,14 +3,16 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 /**
- * Matomo adapter. Privacy defaults so no consent banner is needed: no cookies,
- * Do Not Track respected. IP anonymisation is a setting of the Matomo instance.
+ * Matomo adapter. Privacy defaults so no consent banner is needed: no cookies, no
+ * browser feature detection (device access under TTDSG/ePrivacy), Do Not Track
+ * respected. IP anonymisation is a setting of the Matomo instance.
  */
 export function createMatomoTracker({ url, site_id: siteId }) {
     window._paq = window._paq || [];
     const paq = window._paq;
 
     paq.push(['disableCookies']);
+    paq.push(['disableBrowserFeatureDetection']);
     paq.push(['setDoNotTrack', true]);
     paq.push(['enableLinkTracking']);
     paq.push(['setTrackerUrl', `${url}matomo.php`]);
@@ -21,7 +23,9 @@ export function createMatomoTracker({ url, site_id: siteId }) {
     script.src = `${url}matomo.js`;
     document.head.appendChild(script);
 
-    let previousUrl = null;
+    // On a full page load the browser referrer may be our own URL with its query string.
+    const referrer = document.referrer ? new URL(document.referrer) : null;
+    let previousUrl = referrer?.origin === window.location.origin ? referrer.origin + referrer.pathname : null;
 
     return {
         trackPageView(pageUrl, title) {

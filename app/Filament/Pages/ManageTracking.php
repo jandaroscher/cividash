@@ -21,7 +21,7 @@ class ManageTracking extends SettingsPage
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static ?int $navigationSort = 40;
+    protected static ?int $navigationSort = 41;
 
     protected static ?string $slug = 'tracking';
 
@@ -58,6 +58,8 @@ class ManageTracking extends SettingsPage
                             ->url()
                             // The URL becomes a script source on every public page, so only HTTPS.
                             ->startsWith(['https://'])
+                            // No query or fragment: the script path is appended to this URL.
+                            ->regex('/^https:\/\/[^?#\s]+$/')
                             ->maxLength(255)
                             ->requiredWith('matomo_site_id')
                             ->placeholder('https://matomo.example.org/'),

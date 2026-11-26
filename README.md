@@ -216,7 +216,7 @@ agent or referer, and `cividash-fpm` writes no access log. Error logs of nginx s
 contain the client address of the failed request.
 
 Visitor statistics are opt-in per dashboard: an admin can enter the URL and site ID of a
-Matomo instance, usually the operator's (admin page **Visitor statistics**). Without both
+Matomo instance, usually the operator's (admin page **Visitor Statistics**). Without both
 values no tracking script is loaded (`tests/Feature/Privacy/TrackingOptInTest.php`). With
 them, Matomo runs without cookies, respects Do Not Track, receives page paths without query
 strings and is not loaded on embedded tiles. IP anonymisation is configured in Matomo itself.

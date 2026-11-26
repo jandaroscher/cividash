@@ -23,8 +23,9 @@ export function installTracking(router, config = window.__TRACKING__) {
     let tracker = null;
 
     router.afterEach((to, from, failure) => {
-        // Embedded tiles run on third-party sites and are not counted.
-        if (failure || to.meta?.embed) {
+        // Embedded tiles run on third-party sites and are not counted; hash or query
+        // changes on the same page are not a new page view.
+        if (failure || to.meta?.embed || (from.matched.length && to.path === from.path)) {
             return;
         }
 

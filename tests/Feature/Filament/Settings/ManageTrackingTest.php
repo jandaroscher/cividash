@@ -73,6 +73,16 @@ class ManageTrackingTest extends TestCase
             ->assertHasFormErrors(['matomo_url']);
     }
 
+    public function test_rejects_a_matomo_url_with_query_or_fragment(): void
+    {
+        foreach (['https://matomo.example.org/#', 'https://matomo.example.org/?x=1'] as $url) {
+            Livewire::test(ManageTracking::class)
+                ->fillForm(['matomo_url' => $url, 'matomo_site_id' => '7'])
+                ->call('save')
+                ->assertHasFormErrors(['matomo_url']);
+        }
+    }
+
     public function test_requires_both_url_and_numeric_site_id(): void
     {
         Livewire::test(ManageTracking::class)
