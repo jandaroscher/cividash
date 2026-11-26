@@ -70,6 +70,10 @@ class AdminPanelProvider extends PanelProvider
             Css::make('admin-overrides', resource_path('css/filament/admin-overrides.css')),
         ]);
 
+        // Library uploads take the largest file a content field accepts (downloads, 25 MB);
+        // each picker keeps its own, smaller limit.
+        Curator::maxSize(25 * 1024);
+
         // Media still used by content can't be deleted (the model enforces it too).
         Curator::configureDeleteActionsUsing(function (Action $action): void {
             $action->before(function (Action $action): void {
