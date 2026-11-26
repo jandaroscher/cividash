@@ -21,14 +21,14 @@
         "justinrainbow/json-schema": "^6.0",
         "lara-zeus/spatie-translatable": "^2.1",
         "laravel/fortify": "^1.34",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.26",
         "laravel/tinker": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.0",
         "openspout/openspout": "^4.28",
         "socialiteproviders/keycloak": "^5.3",
-        "spatie/laravel-permission": "^6.24",
+        "spatie/laravel-permission": "^8.0",
         "z3d0x/filament-fabricator": "^4.1"
     },
     "require-dev": {
@@ -39,7 +39,7 @@
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "phpunit/phpunit": "^11.5.3"
+        "phpunit/phpunit": "^12.0"
     },
     "autoload": {
         "psr-4": {
