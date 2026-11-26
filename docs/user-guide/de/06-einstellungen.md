@@ -8,7 +8,7 @@ Der Adminbereich fasst die Konfiguration in zwei Seitenleisten-Gruppen zusammen:
 
 ## 6.1 Einstellungen
 
-Die Gruppe **Einstellungen** bündelt die dashboard-bezogenen Konfigurationsseiten: **Seiteneinstellungen**, **Theme**, **Themes / Templates**, **Dashboard-Konfiguration**, **API Keys** und **Datenimport**.
+Die Gruppe **Einstellungen** bündelt die dashboard-bezogenen Konfigurationsseiten: **Seiteneinstellungen**, **Theme**, **Themes / Templates**, **Dashboard-Konfiguration**, **API Keys**, **Datenimport** und **Besucherstatistik**.
 
 ### 6.1.1 Seiteneinstellungen
 
@@ -298,6 +298,19 @@ Für den Bulk-Import von Kacheln, Kategorien, Kategorie-Gruppen und Kennzahlen p
 
 <!-- Screenshot: Datenimport -->
 ![Datenimport](../assets/screenshots/de/06-datenimport.png)
+
+### 6.1.7 Besucherstatistik
+
+Optional lassen sich die Besucherzahlen eines Dashboards mit Matomo messen, einer Web-Analyse, die auf einem eigenen Server läuft. Den Matomo-Server stellt in der Regel der Betreiber. Ab Werk ist die Besucherstatistik aus.
+
+1. In der Gruppe **Einstellungen** auf **Besucherstatistik** klicken.
+2. Unter **Matomo-URL** die Adresse der Matomo-Instanz mit `https://` eintragen.
+3. Unter **Site-ID** die ID der Website aus Matomo eintragen (in Matomo unter Verwaltung > Websites).
+4. **Speichern**.
+
+Beide Felder gelten nur für das gerade gewählte Dashboard. Sind beide leer, lädt das Dashboard kein Tracking-Skript.
+
+Das Dashboard zählt Seitenaufrufe ohne Cookies, sendet keine Suchparameter und beachtet die Browser-Einstellung „Do Not Track“. Eingebettete Kacheln auf fremden Websites werden nicht gezählt. Die IP-Kürzung ist eine Einstellung der Matomo-Instanz und dort zu aktivieren. Die Datenschutzerklärung des Dashboards muss die Besucherstatistik nennen.
 
 ## 6.2 System
 

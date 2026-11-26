@@ -35,7 +35,7 @@ Not visible are the **Settings** and **User Management** groups:
 | Manage tiles (incl. metrics) | Yes | Yes |
 | Manage categories and category groups | Yes | Yes |
 | Manage time periods | Yes | Yes |
-| Change settings (site settings, theme, dashboard configuration, API keys, data import) | Yes | No |
+| Change settings (site settings, theme, dashboard configuration, API keys, data import, visitor statistics) | Yes | No |
 | Manage users (roles, dashboard assignments) | Yes | No |
 | Access to multiple/all dashboards | All dashboards | Assigned only |
 

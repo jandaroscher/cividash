@@ -348,6 +348,16 @@ return [
             'filter_abilities' => 'Berechtigungen',
             'never' => 'Nie',
         ],
+        'manage_tracking' => [
+            'navigation_label' => 'Besucherstatistik',
+            'title' => 'Besucherstatistik',
+            'matomo_heading' => 'Matomo',
+            'matomo_description' => 'Optional: Besucherzahlen dieses Dashboards mit einer Matomo-Instanz messen, in der Regel der des Betreibers. Ohne Eintrag lädt das Dashboard kein Tracking-Skript. Matomo läuft ohne Cookies und beachtet Do-Not-Track. Eingebettete Kacheln werden nicht gezählt.',
+            'matomo_url' => 'Matomo-URL',
+            'matomo_url_help' => 'Adresse der Matomo-Instanz mit https://, z. B. https://matomo.example.org/',
+            'matomo_site_id' => 'Site-ID',
+            'matomo_site_id_help' => 'ID der Website in Matomo (Verwaltung > Websites).',
+        ],
         'manage_integrations' => [
             'navigation_label' => 'Integrationen',
             'title' => 'Integrationen verwalten',

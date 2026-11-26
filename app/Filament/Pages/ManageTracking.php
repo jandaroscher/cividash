@@ -1,0 +1,75 @@
+<?php
+
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
+namespace App\Filament\Pages;
+
+use App\Settings\TrackingSettings;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Pages\SettingsPage;
+use Illuminate\Contracts\Support\Htmlable;
+
+class ManageTracking extends SettingsPage
+{
+    protected static string $settings = TrackingSettings::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+
+    protected static ?int $navigationSort = 40;
+
+    protected static ?string $slug = 'tracking';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.groups.settings');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.pages.manage_tracking.navigation_label');
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('filament.pages.manage_tracking.title');
+    }
+
+    public static function canAccess(): bool
+    {
+        return (bool) Filament::auth()->user()?->is_admin;
+    }
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Section::make(__('filament.pages.manage_tracking.matomo_heading'))
+                    ->description(__('filament.pages.manage_tracking.matomo_description'))
+                    ->schema([
+                        TextInput::make('matomo_url')
+                            ->label(__('filament.pages.manage_tracking.matomo_url'))
+                            ->helperText(__('filament.pages.manage_tracking.matomo_url_help'))
+                            ->url()
+                            // The URL becomes a script source on every public page, so only HTTPS.
+                            ->startsWith(['https://'])
+                            ->maxLength(255)
+                            ->requiredWith('matomo_site_id')
+                            ->placeholder('https://matomo.example.org/'),
+
+                        TextInput::make('matomo_site_id')
+                            ->label(__('filament.pages.manage_tracking.matomo_site_id'))
+                            ->helperText(__('filament.pages.manage_tracking.matomo_site_id_help'))
+                            ->regex('/^[1-9][0-9]{0,9}$/')
+                            ->required(fn (Get $get): bool => filled($get('matomo_url')))
+                            ->placeholder('1'),
+                    ])
+                    ->columns(2),
+            ]);
+    }
+}

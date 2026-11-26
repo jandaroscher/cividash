@@ -183,6 +183,16 @@ return [
             'filter_abilities' => 'Abilities',
             'never' => 'Never',
         ],
+        'manage_tracking' => [
+            'navigation_label' => 'Visitor statistics',
+            'title' => 'Visitor statistics',
+            'matomo_heading' => 'Matomo',
+            'matomo_description' => 'Optional: measure the visitors of this dashboard with a Matomo instance, usually the operator\'s. Without an entry the dashboard loads no tracking script. Matomo runs without cookies and respects Do Not Track. Embedded tiles are not counted.',
+            'matomo_url' => 'Matomo URL',
+            'matomo_url_help' => 'Address of the Matomo instance with https://, e.g. https://matomo.example.org/',
+            'matomo_site_id' => 'Site ID',
+            'matomo_site_id_help' => 'ID of the website in Matomo (Administration > Websites).',
+        ],
         'manage_integrations' => [
             'navigation_label' => 'Integrations',
             'title' => 'Manage Integrations',

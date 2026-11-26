@@ -1,6 +1,6 @@
 # User Guide
 
-**Last updated:** 2026-11-25
+**Last updated:** 2026-11-26
 
 ---
 
@@ -20,7 +20,7 @@ At a glance:
 
 CiviDash is open source and can be self-hosted by municipalities.
 
-**Privacy:** CiviDash does no tracking out of the box. There is no web analytics, no third-party embeds and no cookie banner. The public site sets only two technically necessary cookies.
+**Privacy:** CiviDash does no tracking out of the box. There is no web analytics, no third-party embeds and no cookie banner. Visitor statistics with Matomo can be switched on per dashboard, without cookies (see [section 6.1.7](06-settings.md#617-visitor-statistics)). The public site sets only two technically necessary cookies.
 
 ## About This Guide
 

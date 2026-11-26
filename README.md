@@ -213,8 +213,14 @@ uses a session cookie. The frontend uses `localStorage` for functional state (la
 help hints), so no consent banner is required. The `cividash-web` access log records time,
 method, path without query string, status, size and duration, but no IP address, user
 agent or referer, and `cividash-fpm` writes no access log. Error logs of nginx still
-contain the client address of the failed request. Adding tracking is an operator decision and
-requires a code change; it cannot be switched on by configuration.
+contain the client address of the failed request.
+
+Visitor statistics are opt-in per dashboard: an admin can enter the URL and site ID of a
+Matomo instance, usually the operator's (admin page **Visitor statistics**). Without both
+values no tracking script is loaded (`tests/Feature/Privacy/TrackingOptInTest.php`). With
+them, Matomo runs without cookies, respects Do Not Track, receives page paths without query
+strings and is not loaded on embedded tiles. IP anonymisation is configured in Matomo itself.
+Other analytics tools require a code change.
 
 ## Contact and security
 

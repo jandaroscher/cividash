@@ -74,6 +74,11 @@ Extend the policy for your deployment:
 - Keycloak single sign-on: the login is a plain redirect and needs no CSP change. If your
   browser console reports a `form-action` violation on login, add the Keycloak origin to
   `form-action`.
+- Matomo visitor statistics (admin page **Visitor statistics**): add the Matomo origin to
+  `script-src` and `img-src`, and add `connect-src 'self' https://matomo.example.org` with your
+  Matomo origin. This matches the
+  [Matomo CSP guide](https://matomo.org/faq/general/faq_20904/). Embedded tiles never load
+  Matomo, so the tile embed policy needs no change.
 
 This policy was checked against a running instance: public dashboard (German and English),
 tile embed page, a third-party page embedding a tile through `embed.js` and an iframe, the admin

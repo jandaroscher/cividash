@@ -7,6 +7,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\MetaTagService;
+use App\Settings\TrackingSettings;
 use Illuminate\Http\Request;
 
 class SpaController extends Controller
@@ -21,6 +22,7 @@ class SpaController extends Controller
             'tenant' => $tenant
                 ? ['slug' => $tenant->slug, 'name' => $tenant->name, 'theme_slug' => $tenant->theme?->slug]
                 : ['slug' => 'default', 'name' => null, 'theme_slug' => null],
+            'tracking' => app(TrackingSettings::class)->frontendConfig(),
         ]);
     }
 }
