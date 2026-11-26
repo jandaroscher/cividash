@@ -7,6 +7,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Concerns\HasSortableTranslations;
+use App\Filament\Concerns\HasTranslatableRecordTitle;
 use App\Filament\Resources\CategoryGroupResource\Pages\CreateCategoryGroup;
 use App\Filament\Resources\CategoryGroupResource\Pages\EditCategoryGroup;
 use App\Filament\Resources\CategoryGroupResource\Pages\ListCategoryGroups;
@@ -35,6 +36,7 @@ use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 class CategoryGroupResource extends Resource
 {
     use HasSortableTranslations;
+    use HasTranslatableRecordTitle;
     use Translatable;
 
     protected static ?string $model = CategoryGroup::class;

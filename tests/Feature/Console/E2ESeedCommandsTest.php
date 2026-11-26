@@ -57,6 +57,24 @@ class E2ESeedCommandsTest extends TestCase
         $this->assertGreaterThan(0, Tile::withoutGlobalScope('tenant')->where('tenant_id', $tenantA->id)->count());
     }
 
+    public function test_seed_full_refuses_to_run_in_production(): void
+    {
+        $this->app->detectEnvironment(fn () => 'production');
+
+        $this->artisan('e2e:seed-full')->assertExitCode(1);
+
+        $this->assertDatabaseMissing('users', ['email' => 'e2e-superadmin@example.com']);
+    }
+
+    public function test_seed_full_clean_removes_dashboards_registered_by_the_suite(): void
+    {
+        Tenant::create(['name' => 'E2E Neu', 'slug' => 'e2e-neu-123']);
+
+        $this->artisan('e2e:seed-full', ['--clean' => true])->assertExitCode(0);
+
+        $this->assertDatabaseMissing('tenants', ['slug' => 'e2e-neu-123']);
+    }
+
     public function test_seed_full_json_outputs_valid_json(): void
     {
         Artisan::call('e2e:seed-full', ['--json' => true]);
