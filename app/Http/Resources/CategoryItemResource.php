@@ -6,9 +6,9 @@
 
 namespace App\Http\Resources;
 
+use App\Services\Media\MediaLibrary;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class CategoryItemResource extends JsonResource
 {
@@ -83,15 +83,13 @@ class CategoryItemResource extends JsonResource
             }
         }
 
-        if (is_string($iconValue)) {
-            return $iconValue ? Storage::disk('public')->url($iconValue) : null;
+        if (! is_array($iconValue)) {
+            return app(MediaLibrary::class)->url($iconValue);
         }
 
-        if (is_array($iconValue)) {
-            foreach ($iconValue as $key => $path) {
-                if ($path) {
-                    $iconValue[$key] = Storage::disk('public')->url($path);
-                }
+        foreach ($iconValue as $key => $path) {
+            if ($path) {
+                $iconValue[$key] = app(MediaLibrary::class)->url($path);
             }
         }
 

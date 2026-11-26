@@ -1,0 +1,49 @@
+<?php
+
+// SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+//
+// SPDX-License-Identifier: EUPL-1.2+
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('curator', function (Blueprint $table) {
+            $table->id();
+            $table->string('disk');
+            $table->string('directory')->nullable();
+            $table->string('visibility')->default('public');
+            $table->string('name');
+            $table->string('path')->index();
+            $table->unsignedInteger('width')->nullable();
+            $table->unsignedInteger('height')->nullable();
+            $table->unsignedInteger('size')->nullable();
+            $table->string('type');
+            $table->string('ext');
+            $table->string('alt')->nullable();
+            $table->string('title')->nullable();
+            $table->string('copyright')->nullable();
+            $table->text('description')->nullable();
+            $table->text('caption')->nullable();
+            $table->text('pretty_name')->nullable();
+            $table->text('exif')->nullable();
+            $table->longText('curations')->nullable();
+            // The file a library item was copied from when existing content was adopted.
+            $table->string('source_path')->nullable();
+            $table->foreignId('tenant_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->timestamps();
+
+            $table->index(['tenant_id', 'path']);
+            $table->index(['tenant_id', 'source_path']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('curator');
+    }
+};

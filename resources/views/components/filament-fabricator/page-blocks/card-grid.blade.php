@@ -26,7 +26,7 @@ SPDX-License-Identifier: EUPL-1.2+
                     'id' => $tile->id,
                     'title' => $tile->getTranslation('title', $currentLocale, false),
                     'description' => $tile->getTranslation('description', $currentLocale, false),
-                    'icon' => $tile->icon,
+                    'icon' => app(\App\Services\Media\MediaLibrary::class)->url($tile->icon),
                 ];
             })
             ->toArray();
@@ -40,7 +40,7 @@ SPDX-License-Identifier: EUPL-1.2+
                     'id' => $tile->id,
                     'title' => $tile->getTranslation('title', $currentLocale, false),
                     'description' => $tile->getTranslation('description', $currentLocale, false),
-                    'icon' => $tile->icon,
+                    'icon' => app(\App\Services\Media\MediaLibrary::class)->url($tile->icon),
                 ];
             })
             ->toArray();

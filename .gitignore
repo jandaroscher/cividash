@@ -68,6 +68,8 @@ public/css/app/
 public/js/filament/
 public/css/pboivin/
 public/js/pboivin/
+public/js/awcodes/
+public/css/awcodes/
 
 # Local (scratch, planning, agent-local settings)
 .claude/settings.local.json

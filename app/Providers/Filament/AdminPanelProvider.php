@@ -15,7 +15,12 @@ use App\Filament\Pages\Tenancy\RegisterTenant;
 use App\Http\Middleware\EnsureTwoFactorAuthenticationWhereRequired;
 use App\Http\Middleware\LocaleDetector;
 use App\Http\Middleware\SetFilamentDefaultTenant;
+use App\Models\Media;
 use App\Models\Tenant;
+use App\Services\Media\MediaLibrary;
+use Awcodes\Curator\CuratorPlugin;
+use Awcodes\Curator\Facades\Curator;
+use Filament\Actions\Action;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Facades\Filament;
 use Filament\FontProviders\LocalFontProvider;
@@ -27,6 +32,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
+use Filament\Notifications\Notification;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Schemas\Components\Fieldset;
@@ -66,6 +72,25 @@ class AdminPanelProvider extends PanelProvider
             // after TrustProxies, so it keeps https behind a TLS-terminating proxy.
             Css::make('admin-overrides', resource_path('css/filament/admin-overrides.css')),
         ]);
+
+        // Library uploads take the largest file a content field accepts (downloads, 25 MB);
+        // each picker keeps its own, smaller limit.
+        Curator::maxSize(25 * 1024);
+        Curator::acceptedFileTypes(MediaLibrary::UPLOAD_TYPES);
+
+        // Media still used by content can't be deleted (the model enforces it too).
+        Curator::configureDeleteActionsUsing(function (Action $action): void {
+            $action->before(function (Action $action): void {
+                $library = app(MediaLibrary::class);
+                $records = $action->canAccessSelectedRecords() ? $action->getSelectedRecords() : [$action->getRecord()];
+                $inUse = collect($records)->filter()->contains(fn (Media $media): bool => $library->usages($media) !== []);
+
+                if ($inUse) {
+                    Notification::make()->danger()->title(__('filament.media.in_use'))->send();
+                    $action->halt();
+                }
+            });
+        });
 
         // Use outline icons consistently across all Filament components
         FilamentIcon::register([
@@ -254,6 +279,12 @@ class AdminPanelProvider extends PanelProvider
                     ->defaultLocales(['de', 'en']),
                 FilamentFabricatorPlugin::make()
                     ->blockPickerStyle(BlockPickerStyle::Modal),
+                CuratorPlugin::make()
+                    ->label(fn (): string => __('filament.media.label'))
+                    ->pluralLabel(fn (): string => __('filament.media.plural_label'))
+                    ->navigationGroup(fn (): string => __('filament.navigation.groups.content'))
+                    ->navigationIcon('heroicon-o-photo')
+                    ->navigationSort(5),
             ])
             ->authMiddleware([
                 Authenticate::class,

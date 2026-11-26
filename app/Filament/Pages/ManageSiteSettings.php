@@ -8,13 +8,13 @@ namespace App\Filament\Pages;
 
 use App\Filament\Concerns\HasBlockActiveToggleAction;
 use App\Filament\Concerns\HasNavigationItemSchema;
+use App\Filament\Support\MediaPicker;
 use App\Models\FooterNavigation;
 use App\Models\Navigation;
 use App\Models\Page as PageModel;
 use App\Settings\GeneralSettings;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -240,12 +240,10 @@ class ManageSiteSettings extends Page implements HasForms
                                     ->label(__('filament.pages.manage_footer.social_media_links'))
                                     ->addActionLabel(__('filament.actions.add_to_social_media_links'))
                                     ->schema([
-                                        FileUpload::make('icon')
+                                        MediaPicker::make('icon')
                                             ->label(__('filament.pages.manage_footer.icon'))
-                                            ->image()
-                                            ->directory('footer-social-icons')
-                                            ->disk('public')
-                                            ->maxSize(1024) // 1 MB
+                                            ->acceptedFileTypes(['image/*'])
+                                            ->maxSize(1024)
                                             ->required(),
                                         TextInput::make('link')
                                             ->label(__('filament.pages.manage_footer.profile_url'))
@@ -269,12 +267,10 @@ class ManageSiteSettings extends Page implements HasForms
                                     ->label(__('filament.pages.manage_footer.sponsors'))
                                     ->addActionLabel(__('filament.actions.add_to_sponsors'))
                                     ->schema([
-                                        FileUpload::make('image')
+                                        MediaPicker::make('image')
                                             ->label(__('filament.pages.manage_footer.sponsor_image'))
-                                            ->image()
-                                            ->directory('footer-sponsors')
-                                            ->disk('public')
-                                            ->maxSize(5120) // 5 MB
+                                            ->acceptedFileTypes(['image/*'])
+                                            ->maxSize(5120)
                                             ->required(),
                                         TextInput::make('url')
                                             ->label(__('filament.pages.manage_footer.sponsor_url'))

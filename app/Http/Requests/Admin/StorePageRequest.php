@@ -6,6 +6,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaReference;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -32,7 +33,7 @@ class StorePageRequest extends FormRequest
             'slug.de' => ['required', 'string', 'max:255'],
             'slug.en' => ['nullable', 'string', 'max:255'],
             'layout' => ['nullable', 'string', 'max:255'],
-            'blocks' => ['nullable', 'array'],
+            'blocks' => ['nullable', 'array', new MediaReference],
             'blocks.de' => ['nullable', 'array'],
             'blocks.en' => ['nullable', 'array'],
             'parent_id' => [
@@ -47,7 +48,7 @@ class StorePageRequest extends FormRequest
             'meta_description' => ['nullable', 'array'],
             'meta_description.de' => ['nullable', 'string'],
             'meta_description.en' => ['nullable', 'string'],
-            'meta_image' => ['nullable', 'string', 'max:255'],
+            'meta_image' => ['nullable', 'string', 'max:255', new MediaReference],
             // tenant_id is explicitly NOT allowed - it comes from context
         ];
     }

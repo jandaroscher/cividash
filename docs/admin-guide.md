@@ -87,6 +87,13 @@ publishes `cividash-app` and `cividash-web` with the tags `X.Y.Z`, `X.Y` and `la
 - Migrations run before the new version starts: the `cividash-migrate` Helm hook on CORE,
   the one-shot migrate service with Compose, or `php artisan migrate --force` in the
   [standalone update procedure](deployment/installation-standalone.md#6-update-procedure).
+- The media library release copies files that content references by path into each
+  dashboard's library (`media:adopt-existing`). The migration runs it, and so does the
+  app container's entrypoint at every start, because the migrate job may run without the
+  media volume (the Helm hook on CORE). The command is idempotent and only handles references
+  that are still paths. Where it cannot reach the files it logs
+  `Media library: none of the referenced files were found`; content keeps working with
+  paths until it has run where the uploads are mounted.
 - After a configuration change, recreate the app, queue and scheduler containers (with
   Compose `docker compose up -d`; `restart` keeps the old environment): the entrypoint
   caches the configuration at start.

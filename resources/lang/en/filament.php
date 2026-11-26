@@ -16,6 +16,29 @@ return [
             'system' => 'System',
         ],
     ],
+    'media' => [
+        'label' => 'Media item',
+        'plural_label' => 'Media library',
+        'picker_button' => 'Choose from media library',
+        'copyright' => 'Copyright',
+        'usages' => 'Used in',
+        'no_usages' => 'Not used anywhere.',
+        'in_use' => 'This file is still in use and cannot be deleted. Remove it from the listed content first.',
+        'usage_types' => [
+            'pages' => 'Page',
+            'tiles' => 'Tile',
+            'metric_definitions' => 'Metric',
+            'footer_navigations' => 'Site settings (footer)',
+            'categories' => 'Category',
+            'settings' => 'Settings',
+        ],
+        'usage_settings' => [
+            'branding' => ['logo_url' => 'Logo'],
+            'general' => ['favicon' => 'Favicon'],
+        ],
+        'too_large' => 'The file is larger than the :max this field allows.',
+        'unknown_reference' => "The file is not in this dashboard's media library.",
+    ],
     'pages' => [
         'manage_data_by_period' => [
             'title' => 'Time periods',

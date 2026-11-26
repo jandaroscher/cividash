@@ -16,6 +16,7 @@
 #   - Optional caches are best-effort: a failure is logged and tolerated so a
 #     single bad cache does not crash an otherwise healthy container.
 #   - Does NOT run database migrations — that is the dedicated cividash-migrate job.
+#     It does run media:adopt-existing (idempotent) for uploads the migrate job missed.
 #
 set -e
 
@@ -41,6 +42,11 @@ try_cache php artisan config:cache
 try_cache php artisan route:cache
 try_cache php artisan view:cache
 try_cache php artisan filament:cache-components
+
+# Move uploads that content still references by path into the media library. The
+# migrate job may run without the media volume (e.g. a Helm hook); this container
+# has it. Idempotent and best-effort, like the caches above.
+try_cache php artisan media:adopt-existing
 
 log "cache warmup complete; starting: $*"
 

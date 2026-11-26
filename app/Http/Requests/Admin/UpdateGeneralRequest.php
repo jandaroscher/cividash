@@ -6,6 +6,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaReference;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateGeneralRequest extends FormRequest
@@ -20,7 +21,7 @@ class UpdateGeneralRequest extends FormRequest
         return [
             'site_name' => ['sometimes', 'string', 'max:255'],
             'site_active' => ['sometimes', 'boolean'],
-            'favicon' => ['sometimes', 'nullable', 'string', 'max:500'],
+            'favicon' => ['sometimes', 'nullable', 'string', 'max:500', new MediaReference],
         ];
     }
 }

@@ -6,9 +6,7 @@ SPDX-License-Identifier: EUPL-1.2+
 
 @php
     $generalSettings = app(\App\Settings\GeneralSettings::class);
-    $faviconUrl = $generalSettings->favicon
-        ? \Illuminate\Support\Facades\Storage::disk('public')->url($generalSettings->favicon)
-        : null;
+    $faviconUrl = app(\App\Services\Media\MediaLibrary::class)->url($generalSettings->favicon);
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">

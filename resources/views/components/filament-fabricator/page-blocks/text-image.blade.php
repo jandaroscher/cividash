@@ -7,7 +7,7 @@ SPDX-License-Identifier: EUPL-1.2+
 @aware(['page'])
 
 @php
-    $imageUrl = $image ? \Illuminate\Support\Facades\Storage::disk('public')->url($image) : null;
+    $imageUrl = app(\App\Services\Media\MediaLibrary::class)->url($image);
     $imagePosition = $image_position ?? 'left';
     $isImageLeft = $imagePosition === 'left';
 @endphp

@@ -106,6 +106,9 @@ services:
     # Bypass the cache-warmer entrypoint; run migrations once, then exit.
     entrypoint: ["php", "artisan"]
     command: ["migrate", "--force"]
+    # The media library migration copies existing uploads, so it needs the media volume.
+    volumes:
+      - public-media:/var/www/html/storage/app/public
     depends_on:
       cividash-db:
         condition: service_healthy

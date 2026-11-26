@@ -37,7 +37,7 @@ Der Reiter **Kachel** enthält folgende Felder:
 | **Titel** | Name der Kachel, erscheint auch im Frontend (oberhalb der Reiter) |
 | **Kategorie-Auswahl** (je Kategoriegruppe) | Eine Mehrfachauswahl pro angelegter Kategoriegruppe (z. B. „Handlungsfelder", „Handlungsdimensionen", „SDG-Ziele" — siehe [Kapitel 4, Kategorien](04-kategorien.md)) |
 | **Beschreibung** | Formatierbarer Text (Fett, Kursiv, Listen, Links) |
-| **Icon** | Bild- oder Lottie-Animations-Upload für die Kachel-Darstellung |
+| **Icon** | Bild oder Lottie-Animation aus der Mediathek für die Kachel-Darstellung |
 | **Hinweis** | Freitext, intern für die Redaktion (kein Pflichtfeld) |
 
 Für jede angelegte Kategoriegruppe erscheint ein eigenes Auswahlfeld mit den zugehörigen Kategorien als Mehrfachauswahl:
@@ -102,7 +102,7 @@ Zuerst die **Zeitgranularität** wählen: `Jahr`, `Quartal`, `Monat`, `Woche` od
 | **Metric Key** | Technischer Schlüssel, wird aus dem Label automatisch abgeleitet (schreibgeschützt) |
 | **Einheit** | Freitext, z. B. „km", „t CO₂", „%" |
 | **Indikatortyp** | `Klein` oder `Groß` — steuert die Darstellungsgröße der Kennzahl auf der Kachel |
-| **Icon** | Optionaler Bild-Upload für die Kennzahl |
+| **Icon** | Optionales Bild aus der Mediathek für die Kennzahl |
 
 Innerhalb jeder Kennzahl folgt eine zweite Ebene **Zeitraumwerte**: die eigentlichen Messwerte je Zeitraum. Über **Zu Zeitraumwerten hinzufügen** einen Wert ergänzen:
 

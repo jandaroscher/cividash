@@ -2,7 +2,7 @@
 
 namespace App\Filament\Support;
 
-use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 
@@ -15,8 +15,9 @@ class ImageMetadataFields
      * `image_alt`, `image_copyright`), so existing `*_alt` values keep working.
      * The fieldset is layout only and does not nest the state. It carries the
      * upload's label; the upload hides its own but keeps it for validation messages.
+     * Empty fields fall back to the values kept in the media library.
      */
-    public static function make(FileUpload $upload): Fieldset
+    public static function make(Field $upload): Fieldset
     {
         $name = $upload->getName();
 

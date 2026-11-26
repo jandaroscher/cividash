@@ -7,9 +7,9 @@
 namespace App\Filament\Fabricator\PageBlocks;
 
 use App\Filament\Concerns\HasBlockActiveToggleAction;
+use App\Filament\Support\MediaPicker;
 use App\Filament\Support\RichEditorConfig;
 use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
@@ -43,11 +43,8 @@ class DownloadBlock extends PageBlock
                             ->label(__('filament.blocks.download.title'))
                             ->maxLength(255)
                             ->helperText(__('filament.blocks.download.title_helper')),
-                        FileUpload::make('file')
+                        MediaPicker::make('file')
                             ->label(__('filament.blocks.download.file'))
-                            ->disk('public')
-                            ->directory('downloads')
-                            ->preserveFilenames()
                             ->acceptedFileTypes([
                                 'application/pdf',
                                 'application/msword',

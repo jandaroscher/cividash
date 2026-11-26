@@ -53,6 +53,13 @@ Route::get('/storage/{path}', PublicMediaController::class)
     ->withoutMiddleware($sessionless)
     ->name('media.public');
 
+// The media library's own image route (Glide) is unused: images are served and resized
+// above. Registered after the package route, so it replaces it with a 404 instead of a
+// server error and keeps Glide from writing a cache outside the media volume.
+Route::get('/curator/{path}', fn () => abort(404))
+    ->where('path', '.*')
+    ->withoutMiddleware($sessionless);
+
 // Open Graph preview image of a public tile, referenced by its og:image tag.
 Route::get('/share/tiles/{tile}.png', TileShareImageController::class)
     ->whereNumber('tile')

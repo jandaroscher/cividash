@@ -7,11 +7,11 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
+use App\Services\Media\MediaLibrary;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 use Z3d0X\FilamentFabricator\Facades\FilamentFabricator;
@@ -255,11 +255,7 @@ class Page extends FabricatorPage implements PageContract
      */
     public function getOgImageUrlAttribute(): ?string
     {
-        if (empty($this->meta_image)) {
-            return null;
-        }
-
-        return Storage::disk('public')->url($this->meta_image);
+        return app(MediaLibrary::class)->url($this->meta_image);
     }
 
     /**

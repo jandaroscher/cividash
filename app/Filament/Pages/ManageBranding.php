@@ -6,9 +6,11 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Support\MediaPicker;
 use App\Models\CategoryGroup;
 use App\Settings\BrandingSettings;
 use App\Settings\GeneralSettings;
+use App\Settings\TenantAwareDatabaseSettingsRepository;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\ColorPicker;
@@ -89,25 +91,21 @@ class ManageBranding extends SettingsPage
                             ->schema([
                                 Section::make(__('filament.pages.manage_branding.logo_section'))
                                     ->schema([
-                                        FileUpload::make('logo_url')
+                                        MediaPicker::make('logo_url')
                                             ->label(__('filament.pages.manage_branding.logo'))
-                                            ->disk('public')
-                                            ->directory(fn () => 'branding/'.(Filament::getTenant()?->getKey() ?? 'default'))
-                                            ->image()
-                                            ->maxSize(2048) // 2 MB
-                                            ->preserveFilenames()
+                                            ->acceptedFileTypes(['image/*'])
+                                            ->maxSize(2048)
+                                            ->inheritedValue(fn () => static::inheritedSetting('branding', 'logo_url'))
                                             ->required(false),
                                     ]),
 
                                 Section::make(__('filament.pages.manage_branding.favicon_section'))
                                     ->schema([
-                                        FileUpload::make('favicon')
+                                        MediaPicker::make('favicon')
                                             ->label(__('filament.pages.manage_general.favicon'))
-                                            ->disk('public')
-                                            ->directory('branding')
-                                            ->image()
                                             ->acceptedFileTypes(['image/x-icon', 'image/png', 'image/svg+xml', 'image/vnd.microsoft.icon'])
                                             ->maxSize(512)
+                                            ->inheritedValue(fn () => static::inheritedSetting('general', 'favicon'))
                                             ->helperText(__('filament.pages.manage_general.favicon_helper')),
                                     ]),
                             ]),
@@ -520,6 +518,14 @@ class ManageBranding extends SettingsPage
         }
 
         return $data;
+    }
+
+    /** The value of a setting the dashboard inherits from its theme or the global defaults. */
+    private static function inheritedSetting(string $group, string $name): mixed
+    {
+        $repository = new TenantAwareDatabaseSettingsRepository(config('settings.repositories.database'));
+
+        return $repository->getInheritedPropertiesInGroup($group)[$name] ?? null;
     }
 
     private function getActiveCategoryGroupOptions(): array

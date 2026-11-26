@@ -30,7 +30,7 @@ SPDX-License-Identifier: EUPL-1.2+
                             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                                 @if(isset($item['image']) && $item['image'])
                                     @php
-                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($item['image']);
+                                        $imageUrl = app(\App\Services\Media\MediaLibrary::class)->url($item['image']);
                                     @endphp
                                     <img src="{{ $imageUrl }}" alt="{{ $item['title'] ?? '' }}" class="w-full h-48 object-cover">
                                 @endif

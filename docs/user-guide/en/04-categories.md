@@ -100,7 +100,7 @@ Use **Create** to add a new category (when created from within a category group,
 | **Category group** | Required field, searchable select — determines which group (see [Chapter 4.1, Category Groups](04-categories.md#41-category-groups-structural-level)) the category belongs to |
 | **Key** | Suggested automatically while typing the title, read-only |
 | **Title** | Name of the category, shown in the frontend filter and in the category selection on tiles (see [Chapter 3.2, Create a New Tile](03-managing-tiles.md#32-create-a-new-tile)) |
-| **Icon** | Image upload (PNG, JPEG, GIF, WebP, SVG) for the filter display |
+| **Icon** | Image from the media library (PNG, JPEG, GIF, WebP, SVG, max 1 MB) for the filter display |
 | **Color** | Only visible if the parent group is set as the tile color source (see [Chapter 4.1.3, Edit a Category Group](04-categories.md#413-edit-a-category-group)); hex color value via color picker or direct input |
 | **Active** | Toggle for frontend visibility |
 

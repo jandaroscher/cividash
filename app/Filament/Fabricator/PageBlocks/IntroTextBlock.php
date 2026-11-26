@@ -7,9 +7,9 @@
 namespace App\Filament\Fabricator\PageBlocks;
 
 use App\Filament\Support\ImageMetadataFields;
+use App\Filament\Support\MediaPicker;
 use App\Filament\Support\RichEditorConfig;
 use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
@@ -48,20 +48,16 @@ class IntroTextBlock extends PageBlock
                     ->label(__('filament.blocks.intro_text.text'))
                     ->required(),
                 ImageMetadataFields::make(
-                    FileUpload::make('image')
+                    MediaPicker::make('image')
                         ->label(__('filament.blocks.intro_text.image'))
-                        ->image()
-                        ->directory('intro-images')
-                        ->disk('public')
-                        ->maxSize(5120), // 5 MB
+                        ->acceptedFileTypes(['image/*'])
+                        ->maxSize(5120),
                 ),
                 ImageMetadataFields::make(
-                    FileUpload::make('image_secondary')
+                    MediaPicker::make('image_secondary')
                         ->label(__('filament.blocks.intro_text.image_secondary'))
-                        ->image()
-                        ->directory('intro-images')
-                        ->disk('public')
-                        ->maxSize(5120), // 5 MB
+                        ->acceptedFileTypes(['image/*'])
+                        ->maxSize(5120),
                 ),
                 Hidden::make('is_active')
                     ->default(true)

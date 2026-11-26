@@ -6,8 +6,8 @@
 
 namespace App\Http\Resources;
 
+use App\Services\Media\MediaLibrary;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class MetricDefinitionResource extends JsonResource
 {
@@ -24,9 +24,7 @@ class MetricDefinitionResource extends JsonResource
             'unit' => $locale
                 ? ($this->unit ? $this->getTranslation('unit', $locale) : null)
                 : ($this->unit ? $this->getTranslations('unit') : null),
-            'icon' => $this->icon
-                ? Storage::disk('public')->url($this->icon)
-                : null,
+            'icon' => app(MediaLibrary::class)->url($this->icon),
             'indicator_type' => $this->indicator_type ?? 'small',
             'values' => MetricValueResource::collection(
                 $this->whenLoaded('metricValues', function () {

@@ -12,6 +12,7 @@
     },
     "require": {
         "php": "^8.4",
+        "awcodes/filament-curator": "^5.6",
         "aws/aws-sdk-php": "^3.0",
         "bezhansalleh/filament-language-switch": "^5.1",
         "codewithdennis/filament-simple-alert": "^4.0",

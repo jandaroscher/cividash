@@ -8,9 +8,9 @@ namespace App\Filament\Fabricator\PageBlocks;
 
 use App\Filament\Concerns\HasBlockActiveToggleAction;
 use App\Filament\Support\ImageMetadataFields;
+use App\Filament\Support\MediaPicker;
 use App\Filament\Support\RichEditorConfig;
 use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
@@ -57,12 +57,10 @@ class SliderBlock extends PageBlock
                         RichEditorConfig::make('description')
                             ->label(__('filament.blocks.slider.description')),
                         ImageMetadataFields::make(
-                            FileUpload::make('image')
+                            MediaPicker::make('image')
                                 ->label(__('filament.blocks.slider.image'))
-                                ->image()
-                                ->directory('slider-images')
-                                ->disk('public')
-                                ->maxSize(5120), // 5 MB
+                                ->acceptedFileTypes(['image/*'])
+                                ->maxSize(5120),
                         ),
                         TextInput::make('link_url')
                             ->label(__('filament.blocks.slider.link_url'))

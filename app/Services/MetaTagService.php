@@ -8,9 +8,9 @@ namespace App\Services;
 
 use App\Models\Page;
 use App\Models\Tile;
+use App\Services\Media\MediaLibrary;
 use App\Services\Sharing\TileShareImage;
 use App\Settings\GeneralSettings;
-use Illuminate\Support\Facades\Storage;
 
 class MetaTagService
 {
@@ -187,7 +187,7 @@ class MetaTagService
         $imageWidth = null;
         $imageHeight = null;
         if ($tile->meta_image) {
-            $image = Storage::disk('public')->url($tile->meta_image);
+            $image = app(MediaLibrary::class)->url($tile->meta_image);
         } else {
             $content = $this->shareImage->content($tile, $locale);
             $image = $this->buildCanonicalUrl(

@@ -6,6 +6,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaReference;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateFooterRequest extends FormRequest
@@ -21,7 +22,7 @@ class UpdateFooterRequest extends FormRequest
             'footer_navigation_items' => ['sometimes', 'array'],
             'footer_navigation_items.de' => ['sometimes', 'nullable', 'array'],
             'footer_navigation_items.en' => ['sometimes', 'nullable', 'array'],
-            'social_links' => ['sometimes', 'array'],
+            'social_links' => ['sometimes', 'array', new MediaReference],
             'social_links.de' => ['sometimes', 'nullable', 'array'],
             'social_links.en' => ['sometimes', 'nullable', 'array'],
             'layout_type' => ['sometimes', 'string', 'in:single-row,multi-column,grid'],
@@ -30,7 +31,7 @@ class UpdateFooterRequest extends FormRequest
             'copyright_text' => ['sometimes', 'array'],
             'copyright_text.de' => ['sometimes', 'nullable', 'string'],
             'copyright_text.en' => ['sometimes', 'nullable', 'string'],
-            'sponsors' => ['sometimes', 'array'],
+            'sponsors' => ['sometimes', 'array', new MediaReference],
             'sponsors.de' => ['sometimes', 'nullable', 'array'],
             'sponsors.de.*.image' => ['required', 'string'],
             'sponsors.de.*.url' => ['nullable', 'string'],

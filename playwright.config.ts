@@ -84,6 +84,10 @@ export default defineConfig({
       testMatch: /admin\/backend\.spec\.ts/,
     },
     {
+      name: 'media-library',
+      testMatch: /media-library\.spec\.ts/,
+    },
+    {
       name: 'admin-keycloak-sso',
       testMatch: /admin\/keycloak-sso\.spec\.ts/,
     },

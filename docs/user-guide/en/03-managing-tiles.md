@@ -37,7 +37,7 @@ The **Tile** tab contains the following fields:
 | **Title** | Name of the tile, also shown on the frontend (above the tabs) |
 | **Category selection** (per category group) | A multi-select for each existing category group (e.g. "Action Fields", "Action Dimensions", "SDG Goals" — see [Chapter 4, Categories](04-categories.md)) |
 | **Description** | Formattable text (bold, italic, lists, links) |
-| **Icon** | Image or Lottie animation upload for the tile's visual |
+| **Icon** | Image or Lottie animation from the media library for the tile's visual |
 | **Hint** | Free text, internal to the editorial team (not required) |
 
 Every existing category group gets its own select field with the group's categories as a multi-select:
@@ -102,7 +102,7 @@ Use **Add to Metrics** to create a new metric:
 | **Metric key** | Technical key, automatically derived from the label (read-only) |
 | **Unit** | Free text, e.g. "km", "t CO2", "%" |
 | **Indicator type** | `Small` or `Big` — controls the display size of the metric on the tile |
-| **Icon** | Optional image upload for the metric |
+| **Icon** | Optional image from the media library for the metric |
 
 Inside each metric follows a second level, **Metric values**: the actual measurements per period. Use **Add to Period Values** to add a value:
 

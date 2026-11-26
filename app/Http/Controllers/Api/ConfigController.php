@@ -18,6 +18,7 @@ use App\Models\FooterNavigation;
 use App\Models\Navigation;
 use App\Models\Page;
 use App\Models\Tenant;
+use App\Services\Media\MediaLibrary;
 use App\Settings\BrandingSettings;
 use App\Settings\ContentSettings;
 use App\Settings\DashboardSettings;
@@ -57,9 +58,7 @@ class ConfigController extends Controller
             'primary_color' => $settings->primary_color,
             'secondary_color' => $settings->secondary_color,
             // Convert the stored path into a public URL:
-            'logo_url' => $settings->logo_url
-                ? Storage::disk('public')->url($settings->logo_url)
-                : null,
+            'logo_url' => app(MediaLibrary::class)->url($settings->logo_url),
             'accent_color' => $settings->accent_color,
             'typography_font_family' => $settings->typography_font_family,
             'typography_font_weights' => $settings->typography_font_weights,
@@ -157,9 +156,7 @@ class ConfigController extends Controller
         return new JsonResource([
             'site_name' => $settings->site_name,
             'site_active' => $settings->site_active,
-            'favicon_url' => $settings->favicon
-                ? Storage::disk('public')->url($settings->favicon)
-                : null,
+            'favicon_url' => app(MediaLibrary::class)->url($settings->favicon),
         ]);
     }
 
@@ -278,12 +275,12 @@ class ConfigController extends Controller
 
         return new JsonResource([
             'footer_navigation_items' => $filteredFooterItems,
-            'social_links' => $filteredSocialLinks,
+            'social_links' => app(MediaLibrary::class)->resolveData($filteredSocialLinks),
             'layout_type' => $footer->layout_type,
             'columns' => $footer->columns,
             'social_links_enabled' => $footer->social_links_enabled,
             'copyright_text' => $footer->getTranslatedCopyrightText($locale),
-            'sponsors' => $sponsors,
+            'sponsors' => app(MediaLibrary::class)->resolveData($sponsors),
         ]);
     }
 
@@ -599,12 +596,12 @@ class ConfigController extends Controller
 
         return new JsonResource([
             'footer_navigation_items' => $footer->getTranslations('footer_navigation_items'),
-            'social_links' => $footer->getTranslations('social_links'),
+            'social_links' => app(MediaLibrary::class)->resolveData($footer->getTranslations('social_links')),
             'layout_type' => $footer->layout_type,
             'columns' => $footer->columns,
             'social_links_enabled' => $footer->social_links_enabled,
             'copyright_text' => $footer->getTranslations('copyright_text'),
-            'sponsors' => $footer->getTranslations('sponsors'),
+            'sponsors' => app(MediaLibrary::class)->resolveData($footer->getTranslations('sponsors')),
         ]);
     }
 
@@ -642,9 +639,7 @@ class ConfigController extends Controller
         return new JsonResource([
             'site_name' => $settings->site_name,
             'site_active' => $settings->site_active,
-            'favicon_url' => $settings->favicon
-                ? Storage::disk('public')->url($settings->favicon)
-                : null,
+            'favicon_url' => app(MediaLibrary::class)->url($settings->favicon),
         ]);
     }
 
@@ -795,9 +790,7 @@ class ConfigController extends Controller
         return new JsonResource([
             'primary_color' => $settings->primary_color,
             'secondary_color' => $settings->secondary_color,
-            'logo_url' => $settings->logo_url
-                ? Storage::disk('public')->url($settings->logo_url)
-                : null,
+            'logo_url' => app(MediaLibrary::class)->url($settings->logo_url),
             'accent_color' => $settings->accent_color,
             'typography_font_family' => $settings->typography_font_family,
             'typography_font_weights' => $settings->typography_font_weights,

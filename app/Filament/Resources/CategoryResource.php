@@ -10,15 +10,16 @@ use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Resources\CategoryResource\Pages\CreateCategory;
 use App\Filament\Resources\CategoryResource\Pages\EditCategory;
 use App\Filament\Resources\CategoryResource\Pages\ListCategories;
+use App\Filament\Support\MediaPicker;
 use App\Models\Category;
 use App\Models\CategoryGroup;
+use App\Services\Media\MediaLibrary;
 use App\Settings\BrandingSettings;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\ColorPicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -121,58 +122,11 @@ class CategoryResource extends Resource
                                     $set('key', Str::slug($state));
                                 }
                             }),
-                        FileUpload::make('icon')
+                        MediaPicker::make('icon')
                             ->label(__('filament.resources.category.icon'))
-                            ->disk('public')
-                            ->directory('categories')
                             ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'])
                             ->maxSize(1024) // 1 MB
-                            ->preserveFilenames()
-                            ->required(false)
-                            ->formatStateUsing(function ($state) {
-                                $iconPath = null;
-
-                                if (is_array($state)) {
-                                    if (array_is_list($state)) {
-                                        $iconPath = $state[0] ?? null;
-                                    } else {
-                                        $iconPath = $state[app()->getLocale()] ?? $state['de'] ?? $state['en'] ?? null;
-                                    }
-                                } elseif (is_string($state)) {
-                                    $decoded = json_decode($state, true);
-                                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                                        $iconPath = $decoded[app()->getLocale()] ?? $decoded['de'] ?? $decoded['en'] ?? null;
-                                    } else {
-                                        $iconPath = $state;
-                                    }
-                                }
-
-                                return $iconPath ? [$iconPath] : [];
-                            })
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                $path = is_array($state) ? (array_values($state)[0] ?? null) : $state;
-
-                                if (! $path) {
-                                    return null;
-                                }
-
-                                // New record - create JSON structure with current locale
-                                if (! $record || ! is_string($record->icon)) {
-                                    return json_encode([app()->getLocale() => $path], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                                }
-
-                                // Existing record with JSON icon - update locale
-                                $decoded = json_decode($record->icon, true);
-                                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                                    $locale = app()->getLocale();
-                                    $decoded[$locale] = $path;
-
-                                    return json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                                }
-
-                                // Fallback for non-JSON existing icons
-                                return $path;
-                            }),
+                            ->localized(),
                         ColorPicker::make('color')
                             ->label(__('filament.resources.category.color'))
                             ->required(false)
@@ -247,10 +201,10 @@ class CategoryResource extends Resource
                         if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                             $locale = $livewire->activeLocale ?? app()->getLocale();
 
-                            return $decoded[$locale] ?? $decoded['de'] ?? $decoded['en'] ?? null;
+                            return app(MediaLibrary::class)->path($decoded[$locale] ?? $decoded['de'] ?? $decoded['en'] ?? null);
                         }
 
-                        return $icon;
+                        return app(MediaLibrary::class)->path($icon);
                     }),
                 ColorColumn::make('color')
                     ->label(__('filament.resources.category.color'))

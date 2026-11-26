@@ -2,18 +2,51 @@
 
 Medienhandling im Adminbereich.
 
-## 5.1 Bilder hochladen und zuschneiden
+## 5.1 Mediathek
 
-Bild- und Datei-Uploads laufen im gesamten Adminbereich über dasselbe Upload-Feld: eine Fläche zum Ablegen einer Datei per Drag & Drop oder zum Auswählen über den Link **auswählen**. Nach dem Hochladen zeigt das Feld eine Vorschau (bei Bildern ein Thumbnail, bei anderen Dateien Dateiname und Größe) sowie eine Schaltfläche zum Entfernen. Eine neue Datei ersetzt die vorhandene automatisch — ein Zurückgreifen auf bereits hochgeladene Dateien aus einer zentralen Mediathek gibt es nicht, jedes Feld verwaltet seine eigene Datei unabhängig.
+Die Mediathek ist die zentrale Ablage für Bilder und Dateien eines Dashboards. Sie liegt in der Navigation unter **Inhalte → Mediathek**. Jedes Dashboard hat eine eigene Mediathek; Dateien anderer Dashboards sind dort nicht sichtbar.
 
-<!-- Screenshot: Icon-Upload-Feld einer Kachel mit hochgeladener Datei, Fortschrittsbalken "Upload abgeschlossen" -->
-![Datei-Upload-Feld](../assets/screenshots/de/05-icon-lottie-upload.png)
+### Datei hochladen
 
-> **Hinweis:** Ein interaktives Zuschneiden-Werkzeug beim Hochladen gibt es nur für das Profilbild (siehe [Kapitel 1.4, Profil bearbeiten](01-erste-schritte.md)): Es wird automatisch auf ein quadratisches Format zugeschnitten und auf 256×256 Pixel skaliert, ohne dass ein Zuschnitt-Dialog erscheint. Alle anderen Bild-Felder (Kachel-Icons, Kategorie-Icons, Inhaltsbilder, Logo) übernehmen die hochgeladene Datei unverändert in Originalgröße.
+1. **Inhalte → Mediathek** öffnen und auf **Erstellen** klicken. Mehrere Dateien auf einmal lassen sich über **Mehrere hochladen** übernehmen.
+2. Datei in die Fläche ziehen oder über **auswählen** wählen.
+3. Warten, bis „Upload abgeschlossen“ erscheint.
+4. Optional **Alternativer Text**, **Titel** und **Copyright** ausfüllen.
+5. Auf **Erstellen** klicken.
+
+Die Mediathek nimmt Bilder, Lottie-Animationen, PDF-, Word-, Excel- und ZIP-Dateien bis 25 MB an. Das Feld, in dem die Datei später verwendet wird, kann ein kleineres Limit haben (siehe [5.2](#52-unterstützte-formate-und-größen)).
+
+<!-- Screenshot: Mediathek, Seite „Medium bearbeiten“ mit Vorschau, Details, Meta-Feldern und „Verwendet in“ -->
+
+### Datei in einem Feld verwenden
+
+Bild- und Dateifelder in Seiten, Kacheln, Theme und Footer zeigen die Schaltfläche **Aus Mediathek wählen**.
+
+1. Auf **Aus Mediathek wählen** klicken. Ein Auswahlfenster mit den Dateien der Mediathek öffnet sich.
+2. Datei über die Suche oder die Ordner finden und anklicken.
+3. Auf **Einfügen** klicken.
+
+Eine neue Datei lässt sich auch direkt im Auswahlfenster unter **Dateien hinzufügen** hochladen. Sie landet dabei in der Mediathek und steht danach auch anderen Feldern zur Verfügung.
+
+Dieselbe Datei kann in beliebig vielen Feldern verwendet werden. Eine Datei lässt sich nicht austauschen: Für eine neue Fassung die neue Datei hochladen und in den Feldern auswählen.
+
+### Verwendung prüfen und Dateien löschen
+
+Die Seite **Medium bearbeiten** listet unter **Verwendet in** alle Seiten, Kacheln und Einstellungen, die die Datei nutzen, jeweils mit Link.
+
+Eine Datei, die noch verwendet wird, lässt sich nicht löschen. Der Adminbereich meldet dann, dass die Datei noch verwendet wird. Zuerst die Datei an allen aufgeführten Stellen entfernen oder ersetzen, danach löschen.
+
+### Bestehende Dateien
+
+Dateien, die vor Einführung der Mediathek hochgeladen wurden, übernimmt CiviDash bei der Aktualisierung als Kopie in die Mediathek des jeweiligen Dashboards. Die ursprüngliche Datei bleibt erhalten, die Inhalte ändern sich nicht. Ein Feld, dessen Datei nicht mehr vorhanden ist, zeigt weiterhin den gespeicherten Pfad und behält ihn beim Speichern.
+
+> **Hinweis:** Ein Zuschneide-Werkzeug gibt es nur für das Profilbild (siehe [Kapitel 1.4, Profil bearbeiten](01-erste-schritte.md)). Es wird automatisch quadratisch auf 256×256 Pixel zugeschnitten. Dateien der Mediathek bleiben in Originalgröße gespeichert; das Frontend lädt bei großen Bildern automatisch eine verkleinerte Fassung.
+
+> **Hinweis:** Schriftart-Dateien, Theme-Import, Datenimport und Profilbild nutzen weiterhin ein eigenes Upload-Feld und erscheinen nicht in der Mediathek. Das gilt auch für die Bild-Blöcke unter „Inhalte verwalten“.
 
 ## 5.2 Unterstützte Formate und Größen
 
-Welche Dateiformate und Größenbeschränkungen gelten, hängt vom jeweiligen Feld ab:
+Welche Dateiformate und Größenbeschränkungen gelten, hängt vom jeweiligen Feld ab. Für Felder mit **Aus Mediathek wählen** gilt das Limit beim Hochladen im Auswahlfenster:
 
 | Bereich | Erlaubte Formate | Größenlimit |
 |---------|-------------------|-------------|
@@ -39,7 +72,9 @@ Welche Dateiformate und Größenbeschränkungen gelten, hängt vom jeweiligen Fe
 
 ## 5.3 Alt-Texte und Barrierefreiheit
 
-Jedes Inhaltsbild in den Blöcken **Intro-Text** (Haupt- und zweites Bild), **Text & Bild** und **Slider** hat drei Begleitfelder. Sie stehen zusammen mit dem Upload-Feld in einem eigenen Rahmen.
+Jedes Inhaltsbild in den Blöcken **Intro-Text** (Haupt- und zweites Bild), **Text & Bild** und **Slider** hat drei Begleitfelder. Sie stehen zusammen mit dem Bildfeld in einem eigenen Rahmen.
+
+Ein leeres Begleitfeld übernimmt den Wert aus der Mediathek (**Alternativer Text**, **Titel**, **Copyright** der Datei). Ein im Block ausgefülltes Feld hat Vorrang. So genügt es, Alt-Text und Copyright einmal in der Mediathek zu pflegen.
 
 <!-- Screenshot: Text-&-Bild-Block mit hochgeladenem Bild und ausgefüllten Feldern Bildtitel, Alt-Text und Copyright -->
 ![Bild mit Bildtitel, Alt-Text und Copyright](../assets/screenshots/de/05-block-bild-alt-text.png)

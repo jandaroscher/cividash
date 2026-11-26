@@ -5,9 +5,10 @@ SPDX-License-Identifier: EUPL-1.2+
 --}}
 
 @php
+    use App\Services\Media\MediaLibrary;
     use Illuminate\Support\Facades\Storage;
 
-    $state = $getState();
+    $state = app(MediaLibrary::class)->path($getState());
     $isLottie = $state && (str_ends_with($state, '.lottie') || str_ends_with($state, '.json'));
     $url = $state ? Storage::disk('public')->url($state) : null;
 @endphp
