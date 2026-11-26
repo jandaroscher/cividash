@@ -5,7 +5,7 @@ This document describes the headless architecture of CiviDash.
 ## Overview
 
 - **Backend (Laravel)**: Provides REST API endpoints for all data (tiles, pages, config, filters)
-- **Frontend (Vue 3 SPA)**: Handles all routing and rendering via Vue Router 4
+- **Frontend (Vue 3 SPA)**: Handles all routing and rendering via Vue Router 5
 - **Entry Point**: `resources/views/app.blade.php` serves the Vue app for all public routes
 - **No Server-Side Rendering**: Pages are rendered client-side via API calls; only meta tags are rendered on the server
 
