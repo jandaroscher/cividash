@@ -42,14 +42,24 @@ class Media extends CuratorMedia
         'file',
     ];
 
-    /** A file that content still uses is never deleted, so no page loses its image. */
     protected static function booted(): void
     {
+        // Every upload path (create page, multi upload, picker) creates the model, so this covers them all
+        static::creating(function (Media $media) {
+            $media->uploaded_by ??= auth()->id();
+        });
+
+        // A file that content still uses is never deleted, so no page loses its image
         static::deleting(function (Media $media) {
             if (app(MediaLibrary::class)->usages($media) !== []) {
                 throw new MediaInUseException;
             }
         });
+    }
+
+    public function uploader(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
     }
 
     public function tenant(): BelongsTo

@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Media\EditMedia;
 use App\Filament\Media\MediaForm;
 use App\Models\Media;
 use App\Support\Media\ResizedUrlProvider;
@@ -7,7 +8,6 @@ use App\Support\Media\TenantPathGenerator;
 use Awcodes\Curator\Enums\CurationFormats;
 use Awcodes\Curator\Resources\Media\MediaResource;
 use Awcodes\Curator\Resources\Media\Pages\CreateMedia;
-use Awcodes\Curator\Resources\Media\Pages\EditMedia;
 use Awcodes\Curator\Resources\Media\Pages\ListMedia;
 use Awcodes\Curator\Resources\Media\Tables\MediaTable;
 

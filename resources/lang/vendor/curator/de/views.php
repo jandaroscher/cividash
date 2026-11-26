@@ -9,6 +9,7 @@
 return [
     'details' => [
         'mime_type' => 'Dateityp',
+        'file_url' => 'Datei-URL',
     ],
     'picker' => [
         'unavailable' => 'Das ausgewählte Medium ist für dieses Feld nicht verfügbar.',
@@ -19,11 +20,13 @@ return [
     ],
     'curation' => [
         'heading' => 'Zuschnitt',
+        'key' => 'Schlüssel',
         'preset' => 'Vorgabe',
         'crop_out_of_bounds' => 'Der Zuschnitt muss das Bild überlappen.',
     ],
     'attach_curator_media' => [
         'modal' => [
+            'heading' => 'Dateien aus der Mediathek wählen',
             'selected_files' => 'Ausgewählte Dateien',
         ],
     ],

@@ -16,4 +16,8 @@ return [
         'ext' => 'Dateiendung',
         'disk' => 'Speicher',
     ],
+    'actions' => [
+        'toggle_table_grid' => 'Rasteransicht',
+        'toggle_table_list' => 'Listenansicht',
+    ],
 ];

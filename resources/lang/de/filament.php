@@ -23,6 +23,7 @@ return [
         'copyright' => 'Copyright',
         'usages' => 'Verwendet in',
         'no_usages' => 'Wird nirgends verwendet.',
+        'uploaded_by' => 'Hochgeladen von',
         'in_use' => 'Die Datei wird noch verwendet und kann nicht gelöscht werden. Entfernen Sie sie zuerst aus den aufgeführten Inhalten.',
         'usage_types' => [
             'pages' => 'Seite',
