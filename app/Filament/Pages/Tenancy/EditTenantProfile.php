@@ -12,6 +12,7 @@ use Closure;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Pages\Tenancy\EditTenantProfile as BaseEditTenantProfile;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -125,6 +126,13 @@ class EditTenantProfile extends BaseEditTenantProfile
                         ->searchable()
                         ->nullable()
                         ->exists(Theme::class, 'id'),
+                ]),
+
+            Section::make(__('filament.pages.edit_dashboard_config.form.sections.security'))
+                ->schema([
+                    Toggle::make('requires_two_factor_authentication')
+                        ->label(__('filament.pages.edit_dashboard_config.form.fields.requires_two_factor_authentication.label'))
+                        ->helperText(__('filament.pages.edit_dashboard_config.form.fields.requires_two_factor_authentication.helper')),
                 ]),
         ]);
     }

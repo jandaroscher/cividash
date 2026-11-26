@@ -8,12 +8,15 @@ namespace App\Providers;
 
 use App\Actions\Fortify\ResetUserPassword;
 use App\Http\Requests\Auth\PasswordLoginRequest;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
 use Laravel\Fortify\Contracts\PasswordResetResponse as PasswordResetResponseContract;
@@ -40,6 +43,24 @@ class FortifyServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+
+        // The JSON login has no second-factor step, so it must not open a session for
+        // users who need one. They sign in through the admin login instead.
+        Fortify::authenticateUsing(function (Request $request): ?User {
+            $user = User::where(Fortify::username(), $request->input(Fortify::username()))->first();
+
+            if (! $user || ! Hash::check((string) $request->input('password'), $user->password)) {
+                return null;
+            }
+
+            if ($user->hasTwoFactorAuthentication() || $user->requiresTwoFactorAuthentication()) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => __('auth.two_factor_admin_login_required'),
+                ]);
+            }
+
+            return $user;
+        });
 
         // Rate limiter for login endpoint
         RateLimiter::for('login', function (Request $request) {

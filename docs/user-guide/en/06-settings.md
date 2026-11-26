@@ -252,6 +252,17 @@ The themes themselves are managed on the **Themes** page (see [Section 6.1.3, Th
 <!-- Screenshot: Dashboard Configuration — Theme section with theme select field -->
 ![Dashboard Configuration: Theme](../assets/screenshots/en/06-dashboard-config-theme.png)
 
+#### 6.1.4.4 Security
+
+| Field | Description |
+|------|-------------|
+| **Require two-factor authentication** | Toggle. When on, all users of this dashboard and all admins must enter a one-time code from an authenticator app when signing in (see [Chapter 1.4, Edit Profile](01-getting-started.md#14-edit-profile-name-avatar-language-password)). |
+
+Users who have not set up two-factor authentication yet are asked to do so after their next sign-in and reach the admin panel only afterwards. Admins are affected as soon as a single dashboard requires two-factor authentication, because they access all dashboards. Sign-ins through Keycloak are exempt; Keycloak handles two-factor authentication there.
+
+<!-- Screenshot: Dashboard Configuration — Security section with toggle "Require two-factor authentication" -->
+![Dashboard Configuration: Security](../assets/screenshots/en/06-dashboard-config-security.png)
+
 ### 6.1.5 Manage API Keys
 
 The **API Keys** page manages access tokens for this tenant's dashboard API.
@@ -357,3 +368,7 @@ The row action **Delete** (with a confirmation prompt) permanently removes a use
 
 <!-- Screenshot: Delete a user -->
 ![Delete a user](../assets/screenshots/en/07-user-delete.png)
+
+#### 6.2.1.5 Reset Two-Factor Authentication
+
+If a user has lost both the authenticator app and the recovery codes, choose the row action **Reset two-factor authentication** in the overview and confirm. The action appears only for accounts with two-factor authentication set up. The user then signs in with the password only and sets up two-factor authentication again in the profile. If one of their dashboards requires it, the admin panel asks for the setup right after sign-in.

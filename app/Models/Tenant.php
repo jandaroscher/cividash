@@ -30,7 +30,15 @@ class Tenant extends Model implements HasAvatar
         'domain',
         'frontend_base_url',
         'theme_id',
+        'requires_two_factor_authentication',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'requires_two_factor_authentication' => 'boolean',
+        ];
+    }
 
     /**
      * Bootstrap model events.

@@ -252,6 +252,17 @@ Die Themes selbst werden auf der Seite **Themes** verwaltet (siehe [Abschnitt 6.
 <!-- Screenshot: Dashboard-Konfiguration — Abschnitt Theme mit Theme-Auswahlfeld -->
 ![Dashboard-Konfiguration: Theme](../assets/screenshots/de/06-dashboard-konfig-theme.png)
 
+#### 6.1.4.4 Sicherheit
+
+| Feld | Beschreibung |
+|------|-------------|
+| **Zwei-Faktor-Anmeldung verpflichtend** | Schalter. Ist er aktiv, müssen alle Benutzer dieses Dashboards und alle Admins bei der Anmeldung einen Einmalcode aus einer Authenticator-App eingeben (siehe [Kapitel 1.4, Profil bearbeiten](01-erste-schritte.md#14-profil-bearbeiten-name-avatar-sprache-passwort)). |
+
+Wer die Zwei-Faktor-Anmeldung noch nicht eingerichtet hat, wird nach der nächsten Anmeldung dazu aufgefordert und kommt erst danach in den Adminbereich. Admins sind betroffen, sobald ein einziges Dashboard die Zwei-Faktor-Anmeldung vorschreibt, weil sie auf alle Dashboards zugreifen. Anmeldungen über Keycloak sind ausgenommen; dort regelt Keycloak die Zwei-Faktor-Anmeldung.
+
+<!-- Screenshot: Dashboard-Konfiguration — Abschnitt Sicherheit mit Schalter „Zwei-Faktor-Anmeldung verpflichtend" -->
+![Dashboard-Konfiguration: Sicherheit](../assets/screenshots/de/06-dashboard-konfig-sicherheit.png)
+
 ### 6.1.5 API-Schlüssel verwalten
 
 Die Seite **API Keys** verwaltet Zugriffstoken für die Dashboard-API dieses Tenants.
@@ -357,3 +368,7 @@ Ein Klick auf einen Account öffnet dasselbe Formular wie beim Anlegen. Dort las
 
 <!-- Screenshot: Benutzer löschen -->
 ![Benutzer löschen](../assets/screenshots/de/07-benutzer-loeschen.png)
+
+#### 6.2.1.5 Zwei-Faktor-Anmeldung zurücksetzen
+
+Hat ein Benutzer die Authenticator-App und die Wiederherstellungscodes verloren, in der Übersicht die Zeilenaktion **Zwei-Faktor-Anmeldung zurücksetzen** wählen und bestätigen. Die Aktion erscheint nur bei Konten mit eingerichteter Zwei-Faktor-Anmeldung. Danach meldet sich der Benutzer nur mit Passwort an und richtet die Zwei-Faktor-Anmeldung im Profil neu ein. Schreibt eines seiner Dashboards sie vor, fordert der Adminbereich direkt nach der Anmeldung dazu auf.

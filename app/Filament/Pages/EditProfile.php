@@ -6,7 +6,10 @@
 
 namespace App\Filament\Pages;
 
+use App\Services\Integration\KeycloakSsoService;
 use Filament\Actions\Action;
+use Filament\Auth\MultiFactor\Contracts\MultiFactorAuthenticationProvider;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -17,6 +20,7 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
@@ -69,7 +73,23 @@ class EditProfile extends Page implements HasForms
         return $schema->components([
             $this->formWithSubmit('profileForm', 'updateProfile', __('filament.pages.edit_profile.save_profile')),
             $this->formWithSubmit('passwordForm', 'updatePassword', __('filament.pages.edit_profile.save_password')),
+            $this->twoFactorAuthenticationSection(),
         ]);
+    }
+
+    /**
+     * Same management UI as Filament's built-in profile page, which this page replaces.
+     */
+    private function twoFactorAuthenticationSection(): Section
+    {
+        return Section::make(__('filament.pages.edit_profile.two_factor_authentication'))
+            ->description(__('filament.pages.edit_profile.two_factor_authentication_description'))
+            // Keycloak enforces its own second factor for SSO logins.
+            ->hidden(fn (): bool => (bool) session(KeycloakSsoService::SESSION_KEY))
+            ->schema(collect(Filament::getMultiFactorAuthenticationProviders())
+                ->map(fn (MultiFactorAuthenticationProvider $provider): Group => Group::make($provider->getManagementSchemaComponents())
+                    ->statePath($provider->getId()))
+                ->all());
     }
 
     private function formWithSubmit(string $form, string $method, string $label): Form

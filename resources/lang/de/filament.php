@@ -415,6 +415,8 @@ return [
         ],
         'edit_profile' => [
             'title' => 'Profil',
+            'two_factor_authentication' => 'Zwei-Faktor-Anmeldung',
+            'two_factor_authentication_description' => 'Schützen Sie Ihr Konto zusätzlich mit Einmalcodes aus einer Authenticator-App.',
             'profile_information' => 'Profilinformationen',
             'profile_information_description' => 'Aktualisieren Sie Ihre Profilinformationen und E-Mail-Adresse (= Benutzername).',
             'first_name' => 'Vorname',
@@ -441,8 +443,13 @@ return [
                     'domain_frontend' => 'Domain & Frontend',
                     'domain_frontend_description' => 'Konfigurieren Sie, wie dieses Dashboard für API-Anfragen aufgelöst wird.',
                     'theme' => 'Theme',
+                    'security' => 'Sicherheit',
                 ],
                 'fields' => [
+                    'requires_two_factor_authentication' => [
+                        'label' => 'Zwei-Faktor-Anmeldung verpflichtend',
+                        'helper' => 'Alle Benutzer dieses Dashboards und alle Administratoren müssen bei der Anmeldung im Admin einen Einmalcode aus einer Authenticator-App eingeben. Wer sie noch nicht eingerichtet hat, wird nach der nächsten Anmeldung dazu aufgefordert. Anmeldungen über Keycloak sind ausgenommen, dort regelt Keycloak die Zwei-Faktor-Anmeldung.',
+                    ],
                     'theme_id' => [
                         'label' => 'Theme',
                         'helper' => 'Weist diesem Dashboard ein Theme mit vordefinierten Branding-Werten zu.',
@@ -576,6 +583,7 @@ return [
             'actions' => [
                 'activate' => 'Aktivieren',
                 'deactivate' => 'Deaktivieren',
+                'reset_two_factor_authentication' => 'Zwei-Faktor-Anmeldung zurücksetzen',
             ],
             'messages' => [
                 'user_activated' => 'Benutzer wurde aktiviert.',
@@ -584,6 +592,8 @@ return [
                 'cannot_deactivate_self' => 'Sie können sich nicht selbst deaktivieren.',
                 'cannot_delete_last_admin' => 'Der letzte Administrator kann nicht gelöscht werden.',
                 'cannot_demote_last_admin' => 'Der letzte Administrator kann nicht degradiert werden.',
+                'reset_two_factor_authentication_confirm' => 'Die Authenticator-App und die Wiederherstellungscodes dieses Benutzers werden entfernt. Der Benutzer meldet sich danach nur mit Passwort an und kann die Zwei-Faktor-Anmeldung im Profil neu einrichten.',
+                'two_factor_authentication_reset' => 'Zwei-Faktor-Anmeldung wurde zurückgesetzt.',
             ],
             'all_dashboards' => 'alle Dashboards',
         ],

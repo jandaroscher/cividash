@@ -16,6 +16,12 @@ use Laravel\Socialite\Two\User as SocialiteUser;
 
 class KeycloakSsoService
 {
+    /**
+     * Session flag for logins through Keycloak, where Keycloak enforces two-factor
+     * authentication instead of the admin panel.
+     */
+    public const SESSION_KEY = 'auth.via_keycloak';
+
     public function __construct(
         protected RoleService $roleService,
     ) {}

@@ -18,6 +18,7 @@ return [
 
     // Custom auth messages
     'login_success' => 'Successfully logged in.',
+    'two_factor_admin_login_required' => 'Two-factor authentication is set up or required for this account. Please sign in through the admin.',
     'password_login_disabled' => 'Password login is disabled. Please sign in via the central login.',
     'logout_success' => 'Successfully logged out.',
 ];
