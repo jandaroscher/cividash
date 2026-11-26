@@ -98,6 +98,7 @@ class MediaTranslationTest extends TestCase
     public function test_the_migration_moves_existing_texts_into_the_default_language_and_back(): void
     {
         $migration = require database_path('migrations/2026_11_27_100001_translate_media_alt_and_title.php');
+        $migration->down(); // back to the schema the legacy texts were written to
         $id = DB::table('curator')->insertGetId([
             'tenant_id' => $this->tenant->id, 'disk' => 'public', 'name' => 'lake', 'path' => 'media/1/lake.png',
             'type' => 'image/png', 'ext' => 'png', 'alt' => 'Ein See im Abendlicht', 'title' => 'Seeblick', 'copyright' => 'Stadtwerke',
@@ -120,6 +121,7 @@ class MediaTranslationTest extends TestCase
     public function test_the_migration_keeps_a_legacy_text_that_looks_like_json_as_the_default_language_text(): void
     {
         $migration = require database_path('migrations/2026_11_27_100001_translate_media_alt_and_title.php');
+        $migration->down(); // back to the schema the legacy texts were written to
         $id = DB::table('curator')->insertGetId([
             'tenant_id' => $this->tenant->id, 'disk' => 'public', 'name' => 'lake', 'path' => 'media/1/lake.png',
             'type' => 'image/png', 'ext' => 'png', 'title' => '{"subject":"Lake"}',
