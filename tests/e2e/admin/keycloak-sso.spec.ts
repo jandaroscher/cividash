@@ -20,7 +20,7 @@ const username = process.env.E2E_KEYCLOAK_USER ?? 'sso-demo';
 test.describe('Admin login through Keycloak', () => {
   test.skip(!password, 'E2E_KEYCLOAK_PASSWORD is not set');
 
-  test('signs in an admin through Keycloak with PKCE', async ({ page }) => {
+  test('signs in to the admin panel through Keycloak with PKCE', async ({ page }) => {
     await page.goto('/admin/login');
     await page.locator('a[href$="/admin/auth/keycloak/redirect"]').click();
 

@@ -114,7 +114,8 @@ PKCE for the client `cividash-dashboard`:
 ```bash
 docker build -t cividash-keycloak docker/keycloak
 docker run -d --network host -e CLIENT_SECRET=<secret> -e DEMO_PASSWORD=<password> \
-  -e DASHBOARD_URL=http://localhost:8000 -e KC_HTTP_ENABLED=true cividash-keycloak
+  -e DASHBOARD_URL=http://localhost:8000 -e KC_HTTP_ENABLED=true -e KC_HOSTNAME_STRICT=false \
+  cividash-keycloak
 ```
 
 Start the app with `KEYCLOAK_SSO_ENABLED=true`, `KEYCLOAK_BASE_URL=http://localhost:8080`,

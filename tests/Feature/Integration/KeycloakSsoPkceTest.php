@@ -73,11 +73,16 @@ class KeycloakSsoPkceTest extends TestCase
         $stack->push(Middleware::history($requests));
         // The provider keeps the request it was built with, so build it fresh
         // inside the callback request and hand it the faked Keycloak client.
+        // It is built before callback() applies base_url_internal, which this
+        // test leaves unset.
         Socialite::forgetDrivers();
         Event::listen(RouteMatched::class, fn () => Socialite::driver('keycloak')
             ->setHttpClient(new Client(['handler' => $stack])));
 
-        $this->get(route('auth.keycloak.callback', ['code' => 'auth-code', 'state' => $query['state']]));
+        $response = $this->get(route('auth.keycloak.callback', ['code' => 'auth-code', 'state' => $query['state']]));
+
+        $response->assertRedirect('/admin');
+        $this->assertAuthenticated();
 
         parse_str((string) $requests[0]['request']->getBody(), $tokenRequest);
         $verifier = $tokenRequest['code_verifier'] ?? '';

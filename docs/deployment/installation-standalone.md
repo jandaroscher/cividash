@@ -353,3 +353,5 @@ require it. `tests/e2e/admin/keycloak-sso.spec.ts` tests the login against a rea
   untested.
 - The app does not require a persistent `queue:work` process. Run one if you enable features
   that dispatch queued jobs.
+- The Keycloak end-to-end test is opt-in and does not run in CI; run it before you change the
+  login flow.
