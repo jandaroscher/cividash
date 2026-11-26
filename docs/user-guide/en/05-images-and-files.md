@@ -14,7 +14,7 @@ The media library is the central store for a dashboard's images and files. It is
 4. Optionally fill in **Alt Text**, **Title** and **Copyright**.
 5. Click **Create**.
 
-A file in the media library can be up to 25 MB. The field that later uses the file can have a smaller limit (see [5.2](#52-supported-formats-and-sizes)).
+The media library takes images, Lottie animations, PDF, Word, Excel and ZIP files up to 25 MB. The field that later uses the file can have a smaller limit (see [5.2](#52-supported-formats-and-sizes)).
 
 <!-- Screenshot: Media library, "Edit media" page with preview, details, meta fields and "Used in" -->
 
@@ -28,7 +28,7 @@ Image and file fields in pages, tiles, theme and footer show the button **Choose
 
 A new file can also be uploaded directly in the picker under **Add Files**. It is stored in the media library and is then available to other fields too.
 
-The same file can be used in any number of fields. When a file is replaced in the media library, every place shows the new version.
+The same file can be used in any number of fields. A file cannot be swapped: for a new version, upload the new file and pick it in the fields.
 
 ### Check Usage and Delete Files
 
@@ -38,11 +38,11 @@ A file that is still in use cannot be deleted. The admin area then reports that 
 
 ### Existing Files
 
-Files uploaded before the media library existed are moved into the media library of their dashboard automatically during the update. Content does not change.
+Files uploaded before the media library existed are copied into the media library of their dashboard during the update. The original file stays in place and content does not change. A field whose file no longer exists keeps showing the stored path and keeps it when saved.
 
 > **Note:** A cropping tool exists only for the avatar (see [Chapter 1.4, Edit Profile](01-getting-started.md)). It is cropped to a square and resized to 256×256 pixels automatically. Files in the media library are stored at their original size; for large images the frontend loads a smaller version automatically.
 
-> **Note:** Font files, theme import, data import and avatar keep their own upload field and do not appear in the media library.
+> **Note:** Font files, theme import, data import and avatar keep their own upload field and do not appear in the media library. The same applies to the image blocks under "Manage Content".
 
 ## 5.2 Supported Formats and Sizes
 

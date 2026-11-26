@@ -281,6 +281,10 @@ php artisan queue:restart
 `queue:restart` signals the persistent queue worker to finish its current job and exit; the
 process manager (systemd/Supervisor) must then start it again so it loads the deployed code.
 
+Content that references uploads by path is moved into the media library by the migration
+(`php artisan media:adopt-existing`). Run the migration as a user who can read and write
+`storage/app/public`; the command can be run again at any time.
+
 This mirrors the post-deploy steps in section 2 minus the first-install-only `key:generate` step. Always back up the PostgreSQL database before running migrations on an
 existing production install.
 

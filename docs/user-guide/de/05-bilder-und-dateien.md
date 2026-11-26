@@ -14,7 +14,7 @@ Die Mediathek ist die zentrale Ablage für Bilder und Dateien eines Dashboards. 
 4. Optional **Alternativer Text**, **Titel** und **Copyright** ausfüllen.
 5. Auf **Erstellen** klicken.
 
-Eine Datei darf in der Mediathek bis zu 25 MB groß sein. Das Feld, in dem die Datei später verwendet wird, kann ein kleineres Limit haben (siehe [5.2](#52-unterstützte-formate-und-größen)).
+Die Mediathek nimmt Bilder, Lottie-Animationen, PDF-, Word-, Excel- und ZIP-Dateien bis 25 MB an. Das Feld, in dem die Datei später verwendet wird, kann ein kleineres Limit haben (siehe [5.2](#52-unterstützte-formate-und-größen)).
 
 <!-- Screenshot: Mediathek, Seite „Medium bearbeiten“ mit Vorschau, Details, Meta-Feldern und „Verwendet in“ -->
 
@@ -28,7 +28,7 @@ Bild- und Dateifelder in Seiten, Kacheln, Theme und Footer zeigen die Schaltflä
 
 Eine neue Datei lässt sich auch direkt im Auswahlfenster unter **Dateien hinzufügen** hochladen. Sie landet dabei in der Mediathek und steht danach auch anderen Feldern zur Verfügung.
 
-Dieselbe Datei kann in beliebig vielen Feldern verwendet werden. Wird eine Datei in der Mediathek ersetzt, zeigen alle Stellen die neue Fassung.
+Dieselbe Datei kann in beliebig vielen Feldern verwendet werden. Eine Datei lässt sich nicht austauschen: Für eine neue Fassung die neue Datei hochladen und in den Feldern auswählen.
 
 ### Verwendung prüfen und Dateien löschen
 
@@ -38,11 +38,11 @@ Eine Datei, die noch verwendet wird, lässt sich nicht löschen. Der Adminbereic
 
 ### Bestehende Dateien
 
-Dateien, die vor Einführung der Mediathek hochgeladen wurden, übernimmt CiviDash bei der Aktualisierung automatisch in die Mediathek des jeweiligen Dashboards. Inhalte ändern sich dabei nicht.
+Dateien, die vor Einführung der Mediathek hochgeladen wurden, übernimmt CiviDash bei der Aktualisierung als Kopie in die Mediathek des jeweiligen Dashboards. Die ursprüngliche Datei bleibt erhalten, die Inhalte ändern sich nicht. Ein Feld, dessen Datei nicht mehr vorhanden ist, zeigt weiterhin den gespeicherten Pfad und behält ihn beim Speichern.
 
 > **Hinweis:** Ein Zuschneide-Werkzeug gibt es nur für das Profilbild (siehe [Kapitel 1.4, Profil bearbeiten](01-erste-schritte.md)). Es wird automatisch quadratisch auf 256×256 Pixel zugeschnitten. Dateien der Mediathek bleiben in Originalgröße gespeichert; das Frontend lädt bei großen Bildern automatisch eine verkleinerte Fassung.
 
-> **Hinweis:** Schriftart-Dateien, Theme-Import, Datenimport und Profilbild nutzen weiterhin ein eigenes Upload-Feld und erscheinen nicht in der Mediathek.
+> **Hinweis:** Schriftart-Dateien, Theme-Import, Datenimport und Profilbild nutzen weiterhin ein eigenes Upload-Feld und erscheinen nicht in der Mediathek. Das gilt auch für die Bild-Blöcke unter „Inhalte verwalten“.
 
 ## 5.2 Unterstützte Formate und Größen
 

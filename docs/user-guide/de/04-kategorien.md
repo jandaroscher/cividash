@@ -100,7 +100,7 @@ Mit **Erstellen** eine neue Kategorie anlegen (aus einer Kategorie-Gruppe heraus
 | **Kategorie-Gruppe** | Pflichtfeld, durchsuchbare Auswahl — legt fest, zu welcher Gruppe (siehe [Kapitel 4.1, Kategorie-Gruppen](04-kategorien.md#41-kategorie-gruppen-strukturebene)) die Kategorie gehört |
 | **Schlüssel** | Wird beim Tippen des Titels automatisch vorgeschlagen, schreibgeschützt |
 | **Titel** | Name der Kategorie, erscheint im Frontend-Filter und bei der Kategorie-Auswahl an Kacheln (siehe [Kapitel 3.2, Neue Kachel anlegen](03-kacheln-verwalten.md#32-neue-kachel-anlegen)) |
-| **Icon** | Bild-Upload (PNG, JPEG, GIF, WebP, SVG) für die Filterdarstellung |
+| **Icon** | Bild aus der Mediathek (PNG, JPEG, GIF, WebP, SVG, max. 1 MB) für die Filterdarstellung |
 | **Farbe** | Nur sichtbar, wenn die übergeordnete Gruppe als Farbquelle für Kacheln hinterlegt ist (siehe [Kapitel 4.1.3, Kategorie-Gruppe bearbeiten](04-kategorien.md#413-kategorie-gruppe-bearbeiten)); Hex-Farbwert über Farbwähler oder direkte Eingabe |
 | **Aktiv** | Schalter für die Sichtbarkeit im Frontend |
 

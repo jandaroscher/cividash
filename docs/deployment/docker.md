@@ -48,7 +48,8 @@ Then check `http://localhost:8088/up` (Laravel health check), `/` (SPA) and `/ad
 Services defined there:
 
 - `cividash-db`: `postgres:16`, health-gated so dependants wait for readiness.
-- `cividash-migrate`: one-shot `php artisan migrate --force`, exits after running.
+- `cividash-migrate`: one-shot `php artisan migrate --force`, exits after running. It mounts the
+  `public-media` volume, because the media library migration copies existing uploads.
 - `cividash-fpm`: the app image, depends on `cividash-db` (healthy) and `cividash-migrate` (completed).
 - `cividash-web`: nginx front on container port 8080, published on host port 8088.
 
