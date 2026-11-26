@@ -59,8 +59,12 @@ test.describe('Media library', () => {
 
     // Describe it once in the library
     await page.goto(media.url);
-    await page.getByLabel('Alternativer Text').fill('Ein See im Abendlicht');
-    await page.getByLabel('Titel', { exact: true }).fill(title);
+    // German first, then English; the empty English field points to the German text
+    await page.getByLabel('Alternativer Text').first().fill('Ein See im Abendlicht');
+    await page.getByLabel('Titel', { exact: true }).first().fill(title);
+    await page.getByRole('tab', { name: 'EN', exact: true }).click();
+    await expect(page.getByText('Leer – es wird der Text aus DE verwendet.').first()).toBeVisible();
+    await page.getByLabel('Alternativer Text').last().fill('A lake in the evening light');
     await page.getByLabel('Copyright').fill('© Stadtwerke');
     await page.getByRole('button', { name: 'Speichern', exact: true }).first().click();
     await expect(page.getByText('Gespeichert')).toBeVisible();
@@ -85,6 +89,11 @@ test.describe('Media library', () => {
     // The library lists the page as a usage
     await page.goto(media.url);
     await expect(page.getByRole('link', { name: `Seite: Seeblick ${name}` })).toBeVisible();
+
+    // Both languages were saved
+    await page.getByRole('tab', { name: 'EN', exact: true }).click();
+    await expect(page.getByLabel('Alternativer Text').last()).toHaveValue('A lake in the evening light');
+    await expect(page.getByLabel('Alternativer Text').first()).toHaveValue('Ein See im Abendlicht');
   });
 
   test('an image in use cannot be deleted, an unused one can', async ({ page }) => {

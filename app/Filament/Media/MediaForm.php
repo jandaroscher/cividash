@@ -21,6 +21,8 @@ use Filament\Forms\Components\ViewField;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
 
@@ -79,11 +81,14 @@ class MediaForm extends CuratorMediaForm
 
     public static function getAdditionalInformationFormSchema(): array
     {
-        $fields = parent::getAdditionalInformationFormSchema();
-        // The package links an English-only external guide next to the alt text
-        collect($fields)->first(fn ($field) => $field->getName() === 'alt')->hint(null);
+        // The package's own alt text and title fields are single-value; ours are per language
+        $fields = array_values(array_filter(
+            parent::getAdditionalInformationFormSchema(),
+            fn ($field) => ! in_array($field->getName(), ['alt', 'title'], true),
+        ));
 
-        array_splice($fields, 3, 0, [
+        array_splice($fields, 1, 0, [
+            static::translatedFields(),
             TextInput::make('copyright')
                 ->label(__('filament.media.copyright'))
                 ->maxLength(255),
@@ -95,6 +100,30 @@ class MediaForm extends CuratorMediaForm
             ->state(fn (?Media $record): HtmlString => static::usageList($record));
 
         return $fields;
+    }
+
+    /** Alt text and title, one tab per content language. Empty values fall back to the default language. */
+    protected static function translatedFields(): Tabs
+    {
+        $default = config('app.default_content_locale');
+        $locales = collect(config('app.available_locales'))->sortBy(fn (string $locale) => $locale !== $default)->values();
+        $fallbackHint = fn (string $locale) => fn (?string $state): ?string => $locale !== $default && blank($state)
+            ? __('filament.media.uses_default_locale', ['locale' => strtoupper($default)])
+            : null;
+
+        return Tabs::make('translations')
+            ->tabs($locales->map(fn (string $locale) => Tab::make(strtoupper($locale))->schema([
+                TextInput::make("alt.{$locale}")
+                    ->label(trans('curator::forms.fields.alt'))
+                    ->maxLength(255)
+                    ->live(onBlur: true)
+                    ->helperText($fallbackHint($locale)),
+                TextInput::make("title.{$locale}")
+                    ->label(trans('curator::forms.fields.title'))
+                    ->maxLength(255)
+                    ->live(onBlur: true)
+                    ->helperText($fallbackHint($locale)),
+            ]))->all());
     }
 
     protected static function usageList(?Media $record): HtmlString

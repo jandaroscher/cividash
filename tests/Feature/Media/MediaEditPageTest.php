@@ -6,17 +6,19 @@
 
 namespace Tests\Feature\Media;
 
+use App\Filament\Media\CreateMedia;
+use App\Filament\Media\EditMedia;
 use App\Models\Media;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\Media\MediaLibrary;
-use Awcodes\Curator\Resources\Media\Pages\CreateMedia;
 use Awcodes\Curator\Resources\Media\Pages\ListMedia;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Testing\TestResponse;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -51,7 +53,7 @@ class MediaEditPageTest extends TestCase
         return app(MediaLibrary::class)->adopt('uploads/lake.png', $this->tenant->id);
     }
 
-    private function editPage(Media $media): \Illuminate\Testing\TestResponse
+    private function editPage(Media $media): TestResponse
     {
         return $this->get("/admin/{$this->tenant->id}/media/{$media->id}/edit")->assertOk();
     }
@@ -119,9 +121,43 @@ class MediaEditPageTest extends TestCase
 
     public function test_the_preview_is_a_section_without_tabs_or_external_alt_text_link(): void
     {
-        $this->editPage($this->adopted())
-            ->assertSee('Vorschau')
-            ->assertDontSee('role="tablist"', false)
-            ->assertDontSee('w3.org/WAI', false);
+        $html = $this->editPage($this->adopted())->assertDontSee('w3.org/WAI', false)->getContent();
+
+        $this->assertMatchesRegularExpression('/class="fi-section-header-heading"[^>]*>\s*Vorschau/', $html);
+        $this->assertDoesNotMatchRegularExpression('/role="tab"[^>]*>(?:(?!<\/button>).)*Vorschau/s', $html);
+    }
+
+    public function test_alt_text_and_title_are_edited_per_language_and_an_empty_language_shows_the_fallback(): void
+    {
+        $media = $this->adopted();
+        $media->setTranslation('alt', 'de', 'Ein See')->saveQuietly();
+
+        $this->editPage($media)->assertSee(__('filament.media.uses_default_locale', ['locale' => 'DE']));
+
+        Livewire::test(EditMedia::class, ['record' => $media->getKey()])
+            ->assertSet('data.alt.de', 'Ein See')
+            ->set('data.alt.en', 'A lake')
+            ->set('data.title.en', 'Lake')
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $media->refresh();
+        $this->assertSame(['de' => 'Ein See', 'en' => 'A lake'], array_filter($media->getTranslations('alt')));
+        $this->assertSame('Lake', $media->getTranslation('title', 'en'));
+        $this->assertSame('lake', $media->getTranslation('title', 'de'), 'the adopted file name stays the German title');
+    }
+
+    public function test_a_new_upload_takes_its_file_name_as_title_in_the_default_language(): void
+    {
+        Livewire::test(CreateMedia::class)
+            ->set('data.file', UploadedFile::fake()->image('Hafen am Morgen.png'))
+            ->set('data.alt.en', 'Harbour in the morning')
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $media = Media::sole();
+        $this->assertSame('Hafen am Morgen', $media->getTranslation('title', 'de'));
+        $this->assertSame('Harbour in the morning', $media->getTranslation('alt', 'en'));
+        $this->assertSame('Hafen am Morgen', $media->toArray()['title'], 'the package reads a string');
     }
 }

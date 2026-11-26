@@ -14,15 +14,15 @@ Die Mediathek ist die zentrale Ablage für Bilder und Dateien eines Dashboards. 
 1. **Inhalte → Mediathek** öffnen und auf **Erstellen** klicken. Mehrere Dateien auf einmal lassen sich über **Mehrere hochladen** übernehmen.
 2. Datei in die Fläche ziehen oder über **auswählen** wählen.
 3. Warten, bis „Upload abgeschlossen“ erscheint.
-4. Optional **Alternativer Text**, **Titel** und **Copyright** ausfüllen.
+4. Optional **Alternativer Text** und **Titel** je Sprache (Reiter **DE** und **EN**) sowie **Copyright** ausfüllen.
 5. Auf **Erstellen** klicken.
 
 <!-- Screenshot: Seite „Medium erstellen“ mit hochgeladener Datei und ausgefüllten Feldern Alternativer Text und Copyright -->
 ![Datei in die Mediathek hochladen](../assets/screenshots/de/05-mediathek-hochladen.png)
 
-Neue Dateien landen automatisch im Ordner des Dashboards (unter **Details → Verzeichnis**, z. B. `media/2`). Ordner lassen sich weder wählen noch anlegen.
+Neue Dateien landen automatisch im Ordner des Dashboards; unter **Details → Dashboard** steht, zu welchem Dashboard die Datei gehört. Ordner lassen sich weder wählen noch anlegen.
 
-Diese Angaben gelten für alle Sprachen. Inhaltsbilder übernehmen sie überall dort, wo die Begleitfelder im Block leer bleiben (siehe [5.3](#53-alt-texte-und-barrierefreiheit)).
+Alternativer Text und Titel gibt es je Sprache. Bleibt eine Sprache leer, gilt dort der deutsche Text; das Feld zeigt dann einen Hinweis. Copyright, Unterschrift und Beschreibung gelten für alle Sprachen. Inhaltsbilder übernehmen diese Angaben überall dort, wo die Begleitfelder im Block leer bleiben (siehe [5.3](#53-alt-texte-und-barrierefreiheit)).
 
 Die Mediathek nimmt Bilder, Lottie-Animationen, PDF-, Word-, Excel- und ZIP-Dateien bis 25 MB an. Das Feld, in dem die Datei später verwendet wird, kann ein kleineres Limit haben (siehe [5.2](#52-unterstützte-formate-und-größen)).
 
@@ -91,9 +91,9 @@ Welche Dateiformate und Größenbeschränkungen gelten, hängt vom jeweiligen Fe
 
 Jedes Inhaltsbild in den Blöcken **Intro-Text** (Haupt- und zweites Bild), **Text & Bild** und **Slider** hat drei Begleitfelder. Sie stehen zusammen mit dem Bildfeld in einem eigenen Rahmen.
 
-Ein leeres Begleitfeld übernimmt den Wert aus der Mediathek (**Alternativer Text**, **Titel**, **Copyright** der Datei). Ein im Block ausgefülltes Feld hat Vorrang. Das gilt für jeden Block und jede Sprache einzeln.
+Ein leeres Begleitfeld übernimmt den Wert aus der Mediathek (**Alternativer Text**, **Titel**, **Copyright** der Datei), bei Alt-Text und Titel in der Sprache der Seite, ersatzweise den deutschen. Ein im Block ausgefülltes Feld hat Vorrang. Das gilt für jeden Block und jede Sprache einzeln.
 
-Die Angaben in der Mediathek gibt es nur einmal, sie gelten für alle Sprachen. Sprachabhängige Texte, etwa ein englischer Alt-Text, gehören deshalb in das Begleitfeld im Block, in der jeweiligen Sprache. Sprachneutrale Angaben wie das Copyright genügt es, einmal in der Mediathek zu pflegen.
+Alt-Text und Titel lassen sich in der Mediathek je Sprache pflegen, dann gelten sie für jede Verwendung der Datei. Das Begleitfeld im Block ist für Fälle gedacht, in denen ein Bild an einer Stelle anders beschrieben werden soll. Das Copyright gilt für alle Sprachen und genügt einmal in der Mediathek.
 
 <!-- Screenshot: Text-&-Bild-Block mit hochgeladenem Bild und ausgefüllten Feldern Bildtitel, Alt-Text und Copyright -->
 ![Bild mit Bildtitel, Alt-Text und Copyright](../assets/screenshots/de/05-block-bild-alt-text.png)
@@ -107,7 +107,7 @@ Die Angaben in der Mediathek gibt es nur einmal, sie gelten für alle Sprachen. 
 - Alt-Text knapp halten und beschreiben, was auf dem Bild zu sehen ist, nicht „Bild von …“.
 - Alt-Text leer lassen, wenn das Bild rein dekorativ ist, im Block und in der Mediathek. Screenreader überspringen es dann.
 - Das Zeichen „©“ muss nicht eingegeben werden, es wird automatisch ergänzt.
-- Die drei Begleitfelder im Block sind pro Sprache getrennt, wie die übrigen Blockinhalte. Ein leeres Feld zeigt in jeder Sprache denselben Wert aus der Mediathek.
+- Die drei Begleitfelder im Block sind pro Sprache getrennt, wie die übrigen Blockinhalte. Ein leeres Feld zeigt den Wert aus der Mediathek in derselben Sprache, ersatzweise den deutschen.
 
 **Wirkung im Frontend:** Der Copyright-Hinweis liegt als kleine Einblendung mit dunklem, halbtransparentem Hintergrund unten rechts auf dem Bild. Ist das Feld leer, erscheint keine Einblendung.
 

@@ -6,6 +6,8 @@
 
 namespace Tests\Feature\Media;
 
+use App\Filament\Media\CreateMedia;
+use App\Filament\Media\EditMedia;
 use App\Filament\Pages\ManageBranding;
 use App\Filament\Resources\CategoryResource\Pages\EditCategory;
 use App\Filament\Resources\TileResource\Pages\EditTile;
@@ -19,8 +21,6 @@ use App\Models\User;
 use App\Services\Media\MediaLibrary;
 use App\Settings\BrandingSettings;
 use App\Settings\GeneralSettings;
-use Awcodes\Curator\Resources\Media\Pages\CreateMedia;
-use Awcodes\Curator\Resources\Media\Pages\EditMedia;
 use Awcodes\Curator\Resources\Media\Pages\ListMedia;
 use Filament\Actions\DeleteAction;
 use Filament\Facades\Filament;
@@ -196,7 +196,7 @@ class MediaPickerTest extends TestCase
     {
         Livewire::test(CreateMedia::class)
             ->set('data.file', UploadedFile::fake()->image('lake.png', 64, 48))
-            ->set('data.alt', 'A lake')
+            ->set('data.alt.de', 'A lake')
             ->call('create')
             ->assertHasNoFormErrors();
 

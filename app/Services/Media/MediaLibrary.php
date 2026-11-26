@@ -147,13 +147,17 @@ class MediaLibrary
 
     /**
      * Resolves media references in block or repeater data to paths. Empty title, alt
-     * text and copyright of an image fall back to the values kept in the library.
+     * text and copyright of an image fall back to the values kept in the library: title
+     * and alt text in the requested language, else in the default content language.
+     * Data keyed by language (all translations of a field) uses each key's language.
      */
-    public function resolveData(array $data): array
+    public function resolveData(array $data, ?string $locale = null): array
     {
+        $locale ??= app()->getLocale();
+
         foreach ($data as $key => $value) {
             if (is_array($value)) {
-                $data[$key] = $this->resolveData($value);
+                $data[$key] = $this->resolveData($value, in_array($key, config('app.available_locales'), true) ? $key : $locale);
 
                 continue;
             }
@@ -167,8 +171,11 @@ class MediaLibrary
 
             if ($media && in_array($key, self::METADATA_KEYS, true)) {
                 foreach (['title', 'alt', 'copyright'] as $field) {
-                    if (blank($data["{$key}_{$field}"] ?? null) && filled($media->{$field})) {
-                        $data["{$key}_{$field}"] = $media->{$field};
+                    $library = $media->isTranslatableAttribute($field)
+                        ? ($media->getTranslation($field, $locale, false) ?: $media->getTranslation($field, $media->getLocale(), false))
+                        : $media->{$field};
+                    if (blank($data["{$key}_{$field}"] ?? null) && filled($library)) {
+                        $data["{$key}_{$field}"] = $library;
                     }
                 }
             }

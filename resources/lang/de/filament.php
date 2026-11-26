@@ -24,6 +24,7 @@ return [
         'usages' => 'Verwendet in',
         'no_usages' => 'Wird nirgends verwendet.',
         'dashboard' => 'Dashboard',
+        'uses_default_locale' => 'Leer – es wird der Text aus :locale verwendet.',
         'uploaded_by' => 'Hochgeladen von',
         'in_use' => 'Die Datei wird noch verwendet und kann nicht gelöscht werden. Entfernen Sie sie zuerst aus den aufgeführten Inhalten.',
         'usage_types' => [

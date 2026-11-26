@@ -121,8 +121,9 @@ export async function upload(
   // FilePond's own input exists only once it is ready; a file set earlier is dropped
   await page.locator('input.filepond--browser').setInputFiles(file);
   await expect(page.getByRole('alert').filter({ hasText: 'Upload abgeschlossen' })).toBeVisible();
-  if (meta.alt) await page.getByLabel('Alternativer Text').fill(meta.alt);
-  if (meta.title) await page.getByLabel('Titel', { exact: true }).fill(meta.title);
+  // Alt text and title have one tab per language; the German tab is open first
+  if (meta.alt) await page.getByLabel('Alternativer Text').first().fill(meta.alt);
+  if (meta.title) await page.getByLabel('Titel', { exact: true }).first().fill(meta.title);
   if (meta.copyright) await page.getByLabel('Copyright').fill(meta.copyright);
   await page.getByRole('button', { name: 'Erstellen', exact: true }).click();
   await page.waitForURL(/\/media\/\d+\/edit/);
