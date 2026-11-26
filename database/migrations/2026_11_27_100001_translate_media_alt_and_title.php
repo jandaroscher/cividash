@@ -48,12 +48,17 @@ return new class extends Migration
         });
     }
 
-    /** Already converted: a JSON object keyed by language, so running up twice changes nothing. */
+    /**
+     * Already converted: a JSON object keyed only by content languages with text values,
+     * so running up twice changes nothing. Any other text, JSON or not, is a legacy value.
+     */
     private function isTranslated(string $value): bool
     {
         $decoded = json_decode($value, true);
 
-        return is_array($decoded) && $decoded !== [] && ! array_is_list($decoded);
+        return is_array($decoded) && $decoded !== [] && ! array_is_list($decoded)
+            && array_diff(array_keys($decoded), config('app.available_locales')) === []
+            && collect($decoded)->every(fn ($text) => $text === null || is_string($text));
     }
 
     /** @param  Closure(string): string  $convert */

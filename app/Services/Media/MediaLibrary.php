@@ -171,9 +171,13 @@ class MediaLibrary
 
             if ($media && in_array($key, self::METADATA_KEYS, true)) {
                 foreach (['title', 'alt', 'copyright'] as $field) {
-                    $library = $media->isTranslatableAttribute($field)
-                        ? ($media->getTranslation($field, $locale, false) ?: $media->getTranslation($field, $media->getLocale(), false))
-                        : $media->{$field};
+                    $library = $media->{$field};
+                    if ($media->isTranslatableAttribute($field)) {
+                        $library = $media->getTranslation($field, $locale, false);
+                        if (blank($library)) {
+                            $library = $media->getTranslation($field, $media->getLocale(), false);
+                        }
+                    }
                     if (blank($data["{$key}_{$field}"] ?? null) && filled($library)) {
                         $data["{$key}_{$field}"] = $library;
                     }

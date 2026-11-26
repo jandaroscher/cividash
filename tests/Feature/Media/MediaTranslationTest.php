@@ -68,6 +68,12 @@ class MediaTranslationTest extends TestCase
         $this->assertNull($this->alt($this->media(['en' => 'A lake']), 'de'), 'English never stands in for the default language');
     }
 
+    public function test_a_blank_library_text_falls_back_to_the_default_language_and_zero_counts_as_text(): void
+    {
+        $this->assertSame('Ein See', $this->alt($this->media(['de' => 'Ein See', 'en' => '   ']), 'en'));
+        $this->assertSame('0', $this->alt($this->media(['de' => 'Ein See', 'en' => '0']), 'en'));
+    }
+
     public function test_an_english_page_shows_the_german_library_alt_text_until_an_english_one_exists(): void
     {
         $media = $this->media(['de' => 'Ein See']);
@@ -109,5 +115,18 @@ class MediaTranslationTest extends TestCase
         $this->assertSame('Seeblick', $row()->title);
 
         $migration->up();
+    }
+
+    public function test_the_migration_keeps_a_legacy_text_that_looks_like_json_as_the_default_language_text(): void
+    {
+        $migration = require database_path('migrations/2026_11_27_100001_translate_media_alt_and_title.php');
+        $id = DB::table('curator')->insertGetId([
+            'tenant_id' => $this->tenant->id, 'disk' => 'public', 'name' => 'lake', 'path' => 'media/1/lake.png',
+            'type' => 'image/png', 'ext' => 'png', 'title' => '{"subject":"Lake"}',
+        ]);
+
+        $migration->up();
+
+        $this->assertSame(['de' => '{"subject":"Lake"}'], json_decode(DB::table('curator')->find($id)->title, true));
     }
 }
