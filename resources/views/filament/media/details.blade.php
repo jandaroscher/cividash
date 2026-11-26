@@ -1,4 +1,4 @@
-{{-- Curator's details panel with the upload time and the uploader. --}}
+{{-- Curator's details panel with the upload time, the uploader and the dashboard instead of the storage folder. --}}
 @php
     $record = $getRecord();
     $labelClasses = 'text-sm font-medium leading-4 text-gray-700 dark:text-gray-300';
@@ -61,10 +61,10 @@
         </div>
         <div>
             <dt class="{{ $labelClasses }}">
-                {{ trans('curator::views.details.directory') }}
+                {{ __('filament.media.dashboard') }}
             </dt>
             <dd class="{{ $dataClasses }}">
-                {{ filled($record) ? $record->directory : '-' }}
+                {{ $record?->tenant?->name ?? '-' }}
             </dd>
         </div>
         <div class="md:col-span-3">

@@ -49,7 +49,7 @@ test.describe('Media library', () => {
     // Upload: the file lands in the dashboard's own folder
     const media = await upload(page, panel, image(name));
     expect(media.file).not.toContain(name);
-    await expect(page.getByText(`media/${fixtures.defaultTenant}`, { exact: true })).toBeVisible();
+    await expect(page.getByText(new RegExp(`^/storage/media/${fixtures.defaultTenant}/`))).toBeVisible();
     await expect(page.getByText('Wird nirgends verwendet.')).toBeVisible();
 
     // Search finds it in the library

@@ -8,6 +8,7 @@ namespace App\Services\Media;
 
 use App\Models\Media;
 use App\Models\Page;
+use App\Support\Media\TenantPathGenerator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -207,7 +208,7 @@ class MediaLibrary
         }
 
         // Keep the copy's path within the 255 characters of the column.
-        $directory = 'media/'.$tenantId;
+        $directory = TenantPathGenerator::directory($tenantId);
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         $suffix = $extension === '' ? '' : '.'.$extension;
         $name = mb_strcut(pathinfo($path, PATHINFO_FILENAME), 0, 255 - strlen($directory.'/12345678-'.$suffix));

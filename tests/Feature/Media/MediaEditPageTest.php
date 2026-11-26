@@ -102,7 +102,8 @@ class MediaEditPageTest extends TestCase
         $media->forceFill(['uploaded_by' => $this->user->id, 'created_at' => Carbon::parse('2026-11-26 15:33', 'Europe/Berlin')])->saveQuietly();
 
         $this->editPage($media)
-            ->assertSeeInOrder(['Hochgeladen am', '26.11.2026, 15:33', 'Hochgeladen von', 'Erika Muster']);
+            ->assertSeeInOrder(['Hochgeladen am', '26.11.2026, 15:33', 'Hochgeladen von', 'Erika Muster', 'Dashboard', 'Test Tenant'])
+            ->assertDontSee('Verzeichnis');
 
         $this->user->update(['locale' => 'en']);
         $this->editPage($media)->assertSee('11/26/2026, 3:33 PM');

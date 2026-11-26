@@ -14,8 +14,12 @@ class TenantPathGenerator implements PathGenerator
 {
     public function getPath(?string $baseDir = null): string
     {
-        $tenant = Filament::getTenant()?->getKey() ?? 'default';
+        return trim(($baseDir ? $baseDir.'/' : '').static::directory(Filament::getTenant()?->getKey() ?? 'default'), '/');
+    }
 
-        return trim(($baseDir ? $baseDir.'/' : '').'media/'.$tenant, '/');
+    /** The folder of a dashboard's files; uploads and adopted files both go here. */
+    public static function directory(int|string $tenantId): string
+    {
+        return 'media/'.$tenantId;
     }
 }
