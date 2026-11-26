@@ -47,6 +47,7 @@ return [
     |
     */
 
-    'public_api_rate_limit' => (int) env('PUBLIC_API_RATE_LIMIT', 300),
+    // An empty or zero value would reject every public request, so fall back to the default.
+    'public_api_rate_limit' => (int) env('PUBLIC_API_RATE_LIMIT') ?: 300,
 
 ];

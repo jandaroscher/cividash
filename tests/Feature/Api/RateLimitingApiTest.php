@@ -49,6 +49,18 @@ class RateLimitingApiTest extends TestCase
         $response->assertHeader('X-RateLimit-Remaining');
     }
 
+    public function test_empty_rate_limit_env_falls_back_to_default(): void
+    {
+        $this->setRateLimitEnv('');
+        $this->refreshApplication();
+
+        try {
+            $this->assertSame(300, config('dashboard.public_api_rate_limit'));
+        } finally {
+            $this->setRateLimitEnv('300');
+        }
+    }
+
     public function test_public_rate_limit_is_counted_per_ip(): void
     {
         config(['dashboard.public_api_rate_limit' => 2]);
@@ -82,5 +94,12 @@ class RateLimitingApiTest extends TestCase
             in_array($response->status(), [201, 422]),
             "Expected 201 or 422, got {$response->status()}"
         );
+    }
+
+    private function setRateLimitEnv(string $value): void
+    {
+        putenv("PUBLIC_API_RATE_LIMIT={$value}");
+        $_ENV['PUBLIC_API_RATE_LIMIT'] = $value;
+        $_SERVER['PUBLIC_API_RATE_LIMIT'] = $value;
     }
 }
