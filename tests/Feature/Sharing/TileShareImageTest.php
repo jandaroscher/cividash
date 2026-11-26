@@ -236,8 +236,11 @@ class TileShareImageTest extends TestCase
             'headline' => ['value' => '12', 'unit' => 't', 'label' => 'Gesamt', 'period' => '2024'],
             'more' => [['value' => '1', 'unit' => 't', 'label' => 'Kurz']],
         ];
-        $panelTop = fn (string $png) => collect(range(20, TileShareImage::HEIGHT - 1))
-            ->first(fn ($y) => (imagecolorat(imagecreatefromstring($png), 600, $y) & 0xFFFFFF) === 0x0D47A1);
+        $panelTop = function (string $png) {
+            $gd = imagecreatefromstring($png);
+
+            return collect(range(20, TileShareImage::HEIGHT - 1))->first(fn ($y) => (imagecolorat($gd, 600, $y) & 0xFFFFFF) === 0x0D47A1);
+        };
 
         $this->assertSame(292, $panelTop($image->render($content)));
 
