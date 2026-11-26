@@ -24,9 +24,14 @@ let appended;
 const matomoScripts = () => appended.filter((el) => el.src === 'https://matomo.example.org/matomo.js');
 const commands = (name) => window._paq.filter(([command]) => command === name).map(([, value]) => value);
 
-// Pages set their title after their data has loaded; the tracker waits for that.
+const SERVER_TITLE = 'Server title';
+
+// Pages set their title after their data has loaded. Until then unhead shows the title the
+// server rendered on first load; the tracker has to wait past that.
 async function visit(router, path, title = `Title of ${path}`) {
     await router.push(path);
+    document.title = SERVER_TITLE;
+    await new Promise((resolve) => setTimeout(resolve, 0));
     document.title = title;
     await new Promise((resolve) => setTimeout(resolve, 0));
 }
@@ -34,6 +39,7 @@ async function visit(router, path, title = `Title of ${path}`) {
 describe('installTracking', () => {
     beforeEach(() => {
         delete window._paq;
+        document.title = SERVER_TITLE;
         // Capture the script element instead of letting happy-dom fetch it.
         appended = [];
         const appendChild = document.head.appendChild.bind(document.head);
@@ -123,6 +129,17 @@ describe('installTracking', () => {
 
         expect(commands('setCustomUrl')).toEqual([`${window.location.origin}/`, `${window.location.origin}/tiles`]);
         expect(commands('setDocumentTitle')).toEqual(['Dashboard', 'Kacheln']);
+    });
+
+    it('sends a waiting view when the visitor leaves the page', async () => {
+        const router = makeRouter();
+        installTracking(router, matomo);
+
+        await router.push('/tiles');
+        expect(commands('trackPageView')).toHaveLength(0);
+        window.dispatchEvent(new Event('pagehide'));
+
+        expect(commands('setCustomUrl')).toEqual([`${window.location.origin}/tiles`]);
     });
 
     it('does not count hash or query changes on the same page again', async () => {

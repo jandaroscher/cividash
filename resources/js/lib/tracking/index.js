@@ -21,6 +21,11 @@ export function installTracking(router, config = window.__TRACKING__) {
 
     let tracker = null;
     let flushPending = null;
+    // While a page loads its data, unhead shows the title the server rendered on first load.
+    const fallbackTitle = document.title;
+
+    // Send a view still waiting for its title when the visitor leaves.
+    window.addEventListener('pagehide', () => flushPending?.());
 
     router.afterEach((to, from, failure) => {
         // Embedded tiles run on third-party sites and are not counted; hash or query
@@ -37,18 +42,19 @@ export function installTracking(router, config = window.__TRACKING__) {
 
         // Path only: query strings and hashes are not sent, like the access log.
         const url = window.location.origin + to.path;
-        flushPending = afterTitleChange(() => tracker.trackPageView(url, document.title));
+        flushPending = afterTitleChange(fallbackTitle, () => tracker.trackPageView(url, document.title));
     });
 }
 
 /**
- * Pages set their title once their API data has arrived, so wait for the title to change
- * (or at most TITLE_WAIT_MS for pages that keep it) before reading it. Returns a function
- * that runs the callback at once if it has not run yet.
+ * Pages set their title once their API data has arrived, so wait for a title other than the
+ * previous page's and the loading fallback (or at most TITLE_WAIT_MS for pages whose title is
+ * one of those) before reading it. Returns a function that runs the callback at once if it
+ * has not run yet.
  */
 const TITLE_WAIT_MS = 1500;
 
-function afterTitleChange(callback) {
+function afterTitleChange(fallbackTitle, callback) {
     const initialTitle = document.title;
     let done = false;
     const finish = () => {
@@ -61,7 +67,7 @@ function afterTitleChange(callback) {
         callback();
     };
     const observer = new MutationObserver(() => {
-        if (document.title !== initialTitle) {
+        if (document.title !== initialTitle && document.title !== fallbackTitle) {
             finish();
         }
     });

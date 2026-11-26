@@ -8,18 +8,18 @@ namespace App\Filament\Pages;
 
 use App\Settings\TrackingSettings;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
 
 class ManageTracking extends SettingsPage
 {
     protected static string $settings = TrackingSettings::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar';
 
     protected static ?int $navigationSort = 41;
 
@@ -45,10 +45,10 @@ class ManageTracking extends SettingsPage
         return (bool) Filament::auth()->user()?->is_admin;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make(__('filament.pages.manage_tracking.matomo_heading'))
                     ->description(__('filament.pages.manage_tracking.matomo_description'))
                     ->schema([
