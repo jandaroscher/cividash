@@ -119,6 +119,7 @@ jobs:
           --project=locale-switching
           --project=content-pages
           --project=branding
+          --project=rate-limit
 
       - name: Upload Playwright report
         if: failure()

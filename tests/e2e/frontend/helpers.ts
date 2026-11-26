@@ -6,10 +6,10 @@ import { execSync } from 'node:child_process';
 import type { Page } from '@playwright/test';
 
 /**
- * Reset the public API rate limiter (60 requests/min per IP, routes/api.php).
- * Every SPA page load makes about nine API calls, so a test run that loads
- * pages back to back trips it within a minute and the app renders an empty
- * tile grid. The limiter lives in the application cache.
+ * Reset the public API rate limiter (PUBLIC_API_RATE_LIMIT requests/min per IP,
+ * default 300). Every SPA page load makes about ten API calls, and the whole
+ * suite loads pages back to back from one IP, so each spec starts with an empty
+ * bucket. The limiter lives in the application cache.
  */
 export function resetApiThrottle(): void {
   const artisan = process.env.E2E_ARTISAN_CMD ?? 'ddev exec php artisan';

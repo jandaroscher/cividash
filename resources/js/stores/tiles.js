@@ -30,6 +30,9 @@ export const useTilesStore = defineStore('tiles', {
                 // Use provided locale, store locale, or default to 'de'
                 const requestLocale = locale || this.locale || 'de';
                 const res = await fetch(`${apiUrl}/api/v1/tiles?locale=${requestLocale}`);
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch tiles: ${res.status} ${res.statusText}`);
+                }
                 const json = await res.json();
                 // ResourceCollection comes back as { data: [ … ] }
                 this.tiles = json.data;

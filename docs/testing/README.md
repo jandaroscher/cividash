@@ -161,14 +161,15 @@ to `main`:
 Both workflows skip changes that touch only `docs/**` or Markdown files.
 
 `e2e-frontend.yml` runs the frontend specs (projects `dashboard-navigation`,
-`filter-search`, `locale-switching`, `content-pages` and `branding`) on pull requests and
+`filter-search`, `locale-switching`, `content-pages`, `branding` and `rate-limit`) on pull requests and
 pushes to `main` that change the application, its data, its frontend or the specs. You can
 also start it by hand. It seeds the demo-city tenant from
 `tests/Fixtures/dashboard-full.json` on SQLite and uses the file cache and file sessions,
 because several PHP workers writing the database cache at once lock SQLite.
 
 The specs clear the application cache before each test, because the public API allows
-60 requests per minute per IP and each page load makes about nine API calls.
+`PUBLIC_API_RATE_LIMIT` requests per minute per IP (default 300), each page load makes
+about ten API calls, and the whole suite runs from one IP.
 
 CI does not run the other Playwright projects. Run them locally before you open a pull
 request that changes the admin panel or tenant resolution. Note the result in the pull

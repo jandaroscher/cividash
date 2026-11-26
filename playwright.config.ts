@@ -112,6 +112,10 @@ export default defineConfig({
       testMatch: /branding\.spec\.ts/,
     },
     {
+      name: 'rate-limit',
+      testMatch: /rate-limit\.spec\.ts/,
+    },
+    {
       name: 'accessibility',
       testMatch: /a11y-audit\.spec\.ts/,
     },    {
