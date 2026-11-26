@@ -5,6 +5,44 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/jandaroscher/cividash/compare/v1.2.1...v1.3.0) (2026-11-26)
+
+
+### Features
+
+* **admin:** offer lead and small text in the rich text editor ([#123](https://github.com/jandaroscher/cividash/issues/123)) ([fd9a22a](https://github.com/jandaroscher/cividash/commit/fd9a22ac379cc8d0d96037f1cd5404f1ec89de3a))
+* **admin:** upgrade the admin panel to Filament 5 ([#116](https://github.com/jandaroscher/cividash/issues/116)) ([9d38803](https://github.com/jandaroscher/cividash/commit/9d388032ce834315450c784e5fbeea829242c7e9))
+* **auth:** two-factor authentication for admin password logins ([#125](https://github.com/jandaroscher/cividash/issues/125)) ([fe64f65](https://github.com/jandaroscher/cividash/commit/fe64f650846640b7b4eb802d1fd551da0484a8c2))
+* **export:** add Excel and XML export formats ([#111](https://github.com/jandaroscher/cividash/issues/111)) ([e2930a7](https://github.com/jandaroscher/cividash/commit/e2930a7f40403a649edda287d1da55d514706cd2))
+* **media:** add central media library ([#126](https://github.com/jandaroscher/cividash/issues/126)) ([59f3edc](https://github.com/jandaroscher/cividash/commit/59f3edc817c6d417575f1173f13e12aa929ad2b6))
+* **media:** keep alt text per language and polish the media library ([#132](https://github.com/jandaroscher/cividash/issues/132)) ([4f441b4](https://github.com/jandaroscher/cividash/commit/4f441b4e2955285d638b2501dccedd2a04d5ed44))
+* require PHP 8.4 (image, standalone installs, CI) ([#106](https://github.com/jandaroscher/cividash/issues/106)) ([59c7fd3](https://github.com/jandaroscher/cividash/commit/59c7fd35c477b86b1d90c727d69373fbca5ce75e))
+* **sharing:** apply the final design to the tile preview image ([#119](https://github.com/jandaroscher/cividash/issues/119)) ([3e8d018](https://github.com/jandaroscher/cividash/commit/3e8d018e1bc29c23c3c5888139727c1bb7aa51eb))
+* **sharing:** share single tiles with a generated preview image ([#110](https://github.com/jandaroscher/cividash/issues/110)) ([c381732](https://github.com/jandaroscher/cividash/commit/c381732dd5bc9ffc5130dea055d3eed37fa4e815))
+* **tracking:** optional cookieless Matomo visitor statistics per dashboard ([#121](https://github.com/jandaroscher/cividash/issues/121)) ([8e86988](https://github.com/jandaroscher/cividash/commit/8e86988ade725ee0f0802290e75ae2e84968030c))
+
+
+### Bug Fixes
+
+* accessibility and loading performance of public pages ([#115](https://github.com/jandaroscher/cividash/issues/115)) ([d916c18](https://github.com/jandaroscher/cividash/commit/d916c188cd7fffca9f512a2ec866aaeb260ac1d9))
+* **admin:** repair admin flows broken by the Filament 5 upgrade ([#124](https://github.com/jandaroscher/cividash/issues/124)) ([645cace](https://github.com/jandaroscher/cividash/commit/645cacecd577fbf983dca6332c559245cfffaa49))
+* **api:** raise public API rate limit and show an error when tiles fail to load ([#135](https://github.com/jandaroscher/cividash/issues/135)) ([313a4bd](https://github.com/jandaroscher/cividash/commit/313a4bd0edf4c65e6001e41884d5c2b82104834b))
+* **auth:** send PKCE with the Keycloak admin login ([#128](https://github.com/jandaroscher/cividash/issues/128)) ([8aea177](https://github.com/jandaroscher/cividash/commit/8aea1770b2e4922df25694777984200e2b94c024))
+* break long words in titles and explain where the page title appears ([#122](https://github.com/jandaroscher/cividash/issues/122)) ([39cdc6b](https://github.com/jandaroscher/cividash/commit/39cdc6bf27a7bfe44befb7e09f3afd492255a0ca))
+* **deps:** update league/csv to 9.29.1 ([#114](https://github.com/jandaroscher/cividash/issues/114)) ([2542ea4](https://github.com/jandaroscher/cividash/commit/2542ea486ef5f5cf9af6b75fe47e5b21276b059b))
+* **deps:** update symfony packages for new security advisories ([#120](https://github.com/jandaroscher/cividash/issues/120)) ([38c8111](https://github.com/jandaroscher/cividash/commit/38c8111de59edf37ae3f1fba2040f1ef4f498396))
+* **deps:** update web-auth/webauthn-lib to 5.3.17 ([#112](https://github.com/jandaroscher/cividash/issues/112)) ([eb99303](https://github.com/jandaroscher/cividash/commit/eb993033fbfca7baf398a775bd66968f9120ca2f))
+
+
+### Performance Improvements
+
+* serve content images in fitting sizes ([#117](https://github.com/jandaroscher/cividash/issues/117)) ([912471c](https://github.com/jandaroscher/cividash/commit/912471cc1462d62f521adbc57908ef9069681966))
+
+
+### Documentation
+
+* **deployment:** add hardware requirements for standalone installs ([#107](https://github.com/jandaroscher/cividash/issues/107)) ([2a82e4f](https://github.com/jandaroscher/cividash/commit/2a82e4faf1a9777854d1e17474d330fc1eb20fe5))
+
 ## [1.2.1](https://github.com/jandaroscher/cividash/compare/v1.2.0...v1.2.1) (2026-11-23)
 
 
