@@ -31,7 +31,7 @@ class LocaleDetector
             $locale = session('locale')
                 ?? request()->cookie('filament_language_switch_locale')
                 ?? $user?->locale
-                ?? 'de';
+                ?? config('app.default_content_locale');
             App::setLocale($locale);
 
             return $next($request);
@@ -41,8 +41,7 @@ class LocaleDetector
         if ($path === 'en' || str_starts_with($path, 'en/')) {
             App::setLocale('en');
         } else {
-            // Default to German (de)
-            App::setLocale('de');
+            App::setLocale(config('app.default_content_locale'));
         }
 
         return $next($request);

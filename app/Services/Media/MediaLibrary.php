@@ -8,6 +8,7 @@ namespace App\Services\Media;
 
 use App\Models\Media;
 use App\Models\Page;
+use App\Support\Media\TenantPathGenerator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -146,13 +147,17 @@ class MediaLibrary
 
     /**
      * Resolves media references in block or repeater data to paths. Empty title, alt
-     * text and copyright of an image fall back to the values kept in the library.
+     * text and copyright of an image fall back to the values kept in the library: title
+     * and alt text in the requested language, else in the default content language.
+     * Data keyed by language (all translations of a field) uses each key's language.
      */
-    public function resolveData(array $data): array
+    public function resolveData(array $data, ?string $locale = null): array
     {
+        $locale ??= app()->getLocale();
+
         foreach ($data as $key => $value) {
             if (is_array($value)) {
-                $data[$key] = $this->resolveData($value);
+                $data[$key] = $this->resolveData($value, in_array($key, config('app.available_locales'), true) ? $key : $locale);
 
                 continue;
             }
@@ -166,8 +171,15 @@ class MediaLibrary
 
             if ($media && in_array($key, self::METADATA_KEYS, true)) {
                 foreach (['title', 'alt', 'copyright'] as $field) {
-                    if (blank($data["{$key}_{$field}"] ?? null) && filled($media->{$field})) {
-                        $data["{$key}_{$field}"] = $media->{$field};
+                    $library = $media->{$field};
+                    if ($media->isTranslatableAttribute($field)) {
+                        $library = $media->getTranslation($field, $locale, false);
+                        if (blank($library)) {
+                            $library = $media->getTranslation($field, $media->getLocale(), false);
+                        }
+                    }
+                    if (blank($data["{$key}_{$field}"] ?? null) && filled($library)) {
+                        $data["{$key}_{$field}"] = $library;
                     }
                 }
             }
@@ -207,7 +219,7 @@ class MediaLibrary
         }
 
         // Keep the copy's path within the 255 characters of the column.
-        $directory = 'media/'.$tenantId;
+        $directory = TenantPathGenerator::directory($tenantId);
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         $suffix = $extension === '' ? '' : '.'.$extension;
         $name = mb_strcut(pathinfo($path, PATHINFO_FILENAME), 0, 255 - strlen($directory.'/12345678-'.$suffix));

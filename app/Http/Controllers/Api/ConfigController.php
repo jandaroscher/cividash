@@ -275,12 +275,12 @@ class ConfigController extends Controller
 
         return new JsonResource([
             'footer_navigation_items' => $filteredFooterItems,
-            'social_links' => app(MediaLibrary::class)->resolveData($filteredSocialLinks),
+            'social_links' => app(MediaLibrary::class)->resolveData($filteredSocialLinks, $locale),
             'layout_type' => $footer->layout_type,
             'columns' => $footer->columns,
             'social_links_enabled' => $footer->social_links_enabled,
             'copyright_text' => $footer->getTranslatedCopyrightText($locale),
-            'sponsors' => app(MediaLibrary::class)->resolveData($sponsors),
+            'sponsors' => app(MediaLibrary::class)->resolveData($sponsors, $locale),
         ]);
     }
 

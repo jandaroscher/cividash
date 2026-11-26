@@ -6,6 +6,8 @@
 
 namespace Tests\Feature\Media;
 
+use App\Filament\Media\CreateMedia;
+use App\Filament\Media\EditMedia;
 use App\Filament\Pages\ManageBranding;
 use App\Filament\Resources\CategoryResource\Pages\EditCategory;
 use App\Filament\Resources\TileResource\Pages\EditTile;
@@ -19,11 +21,10 @@ use App\Models\User;
 use App\Services\Media\MediaLibrary;
 use App\Settings\BrandingSettings;
 use App\Settings\GeneralSettings;
-use Awcodes\Curator\Resources\Media\Pages\CreateMedia;
-use Awcodes\Curator\Resources\Media\Pages\EditMedia;
 use Awcodes\Curator\Resources\Media\Pages\ListMedia;
 use Filament\Actions\DeleteAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -196,7 +197,7 @@ class MediaPickerTest extends TestCase
     {
         Livewire::test(CreateMedia::class)
             ->set('data.file', UploadedFile::fake()->image('lake.png', 64, 48))
-            ->set('data.alt', 'A lake')
+            ->set('data.alt.de', 'A lake')
             ->call('create')
             ->assertHasNoFormErrors();
 
@@ -265,5 +266,45 @@ class MediaPickerTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertEquals($large->id, DB::table('tiles')->where('id', $tile->id)->value('meta_image'));
+    }
+
+    public function test_the_picker_edits_alt_text_and_title_per_language_like_the_library(): void
+    {
+        $media = $this->media($this->tenant, 'uploads/lake.png');
+        $media->setTranslations('alt', ['de' => 'Ein See'])->saveQuietly();
+
+        Livewire::test('curator-panel')
+            ->mountAction('editItem', ['item' => ['id' => $media->id]])
+            ->assertSchemaStateSet(['alt.de' => 'Ein See', 'alt.en' => null], 'mountedActionSchema0')
+            // The package's single-value alt field carries the w3.org hint; ours has none and notes the fallback instead
+            ->assertSchemaComponentDoesNotExist('alt', 'mountedActionSchema0')
+            ->assertSchemaComponentExists('alt.de', 'mountedActionSchema0', fn (TextInput $field): bool => ! str_contains($field->toHtml(), 'w3.org/WAI'))
+            ->assertSchemaComponentExists('alt.en', 'mountedActionSchema0', fn (TextInput $field): bool => str_contains($field->toHtml(), e(__('filament.media.uses_default_locale', ['locale' => 'DE']))))
+            ->fillForm(['alt.en' => 'A lake', 'title.en' => 'Lake'])
+            ->callMountedAction()
+            ->assertHasNoFormErrors();
+
+        $media->refresh();
+        $this->assertSame(['de' => 'Ein See', 'en' => 'A lake'], $media->getTranslations('alt'));
+        $this->assertSame('Lake', $media->getTranslation('title', 'en', false));
+    }
+
+    public function test_searching_the_picker_and_the_library_matches_texts_not_their_stored_language_keys(): void
+    {
+        $media = $this->media($this->tenant, 'uploads/lake.png');
+        $media->setTranslations('alt', ['de' => 'Ein See', 'en' => 'A lake'])->setTranslations('title', ['de' => 'Seeblick', 'en' => 'Lake view'])->forceFill(['name' => 'lake'])->saveQuietly();
+        $panel = Livewire::test('curator-panel');
+        $found = fn (string $search) => collect($panel->set('search', $search)->get('files'))->pluck('id')->all();
+
+        foreach (['de', 'en', '"', ':'] as $search) {
+            $this->assertSame([], $found($search), "Searching for {$search}");
+        }
+        // The table reads a lone quote as an empty phrase search, so it lists everything for that one
+        foreach (['de', 'en', ':'] as $search) {
+            Livewire::test(ListMedia::class)->searchTable($search)->assertCanNotSeeTableRecords([$media]);
+        }
+        $this->assertSame([$media->id], $found('view'));
+        $this->assertSame([$media->id], $found('Seeblick'));
+        Livewire::test(ListMedia::class)->searchTable('view')->assertCanSeeTableRecords([$media]);
     }
 }

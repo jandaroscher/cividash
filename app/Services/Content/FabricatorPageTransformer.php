@@ -42,7 +42,7 @@ class FabricatorPageTransformer
         $metaTitle = $page->getTranslation('meta_title', $locale, false);
         $metaDescription = $page->getTranslation('meta_description', $locale, false);
         $blocks = $page->getTranslation('blocks', $locale, false);
-        $transformedBlocks = $this->blockTransformer->transform(is_array($blocks) ? $blocks : []);
+        $transformedBlocks = $this->blockTransformer->transform(is_array($blocks) ? $blocks : [], $locale);
 
         return [
             'id' => $page->id,
@@ -102,7 +102,7 @@ class FabricatorPageTransformer
             $metaTitle = $page->getTranslation('meta_title', $locale, false);
             $metaDescription = $page->getTranslation('meta_description', $locale, false);
             $blocks = $page->getTranslation('blocks', $locale, false);
-            $transformedBlocks = $this->blockTransformer->transform(is_array($blocks) ? $blocks : []);
+            $transformedBlocks = $this->blockTransformer->transform(is_array($blocks) ? $blocks : [], $locale);
 
             $result[$locale] = [
                 'slug' => $slug,

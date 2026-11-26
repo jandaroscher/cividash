@@ -24,3 +24,8 @@
 .fi-tenant-menu-trigger.cd-tenant-menu-trigger-static {
     @apply cursor-default hover:bg-transparent focus-visible:bg-transparent dark:hover:bg-transparent dark:focus-visible:bg-transparent;
 }
+
+/* Media grid: the package paints item checkboxes black; match the "select all" checkbox instead. */
+.fi-resource-media .fi-ta .fi-ta-record:has(.curator-grid-column) .fi-ta-record-checkbox:not(:checked) {
+    @apply bg-white dark:bg-gray-900;
+}

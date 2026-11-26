@@ -61,7 +61,7 @@ Folgende Blocktypen stehen zur Verfügung: **Kacheln**, **Downloads**, **FAQ**, 
 
 ### 2.4.1 Intro-Text (Überschrift, Text, Bild)
 
-Einleitender Textblock mit **Überschrift**, optionaler **Unterüberschrift**, formatierbarem **Text** (Fett, Kursiv, Listen, Links) sowie einem **Bild** und optional einem **zweiten Bild** — jeweils mit eigenem Bildtitel, Alt-Text und Copyright (siehe [Kapitel 5.3, Alt-Texte und Barrierefreiheit](05-bilder-und-dateien.md#53-alt-texte-und-barrierefreiheit)).
+Einleitender Textblock mit **Überschrift**, optionaler **Unterüberschrift**, formatierbarem **Text** (Fett, Kursiv, Listen, Links) sowie einem **Bild** und optional einem **zweiten Bild** — jeweils mit eigenem Bildtitel, Alt-Text und Copyright pro Sprache (siehe [Kapitel 5.3, Alt-Texte und Barrierefreiheit](05-bilder-und-dateien.md#53-alt-texte-und-barrierefreiheit)). Ist ein Bildtitel oder Alt-Text im Block leer, gilt der Text aus der Mediathek in der Sprache der Seite und, falls dort keiner hinterlegt ist, der deutsche. Das Copyright aus der Mediathek gilt für alle Sprachen.
 
 <!-- Screenshot: Intro-Text-Block vollständig ausgefüllt mit Überschrift, Text und Bildfeldern -->
 ![Intro-Text-Block](../assets/screenshots/de/02-block-intro-text.png)

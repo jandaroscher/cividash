@@ -23,6 +23,9 @@ return [
         'copyright' => 'Copyright',
         'usages' => 'Used in',
         'no_usages' => 'Not used anywhere.',
+        'dashboard' => 'Dashboard',
+        'uses_default_locale' => 'Empty – the :locale text is used.',
+        'uploaded_by' => 'Uploaded By',
         'in_use' => 'This file is still in use and cannot be deleted. Remove it from the listed content first.',
         'usage_types' => [
             'pages' => 'Page',

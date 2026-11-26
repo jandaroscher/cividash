@@ -86,6 +86,10 @@ return [
 
     'available_locales' => ['en', 'de'],
 
+    // Language of public URLs without a language prefix, and the fallback for content
+    // that has no value in the requested language
+    'default_content_locale' => 'de',
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key

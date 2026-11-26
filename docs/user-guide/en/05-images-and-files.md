@@ -4,27 +4,41 @@ Media handling in the admin panel.
 
 ## 5.1 Media Library
 
-The media library is the central store for a dashboard's images and files. It is in the navigation under **Content → Media library**. Each dashboard has its own media library; files of other dashboards are not visible there.
+The media library is the central store for a dashboard's images and files. It is in the navigation under **Content → Media Library**. Each dashboard has its own media library; files of other dashboards are not visible there.
+
+<!-- Screenshot: Media library grid with thumbnails, search and the "Upload Multiple" and "New Media item" buttons -->
+![Media library grid](../assets/screenshots/en/05-media-library-grid.png)
 
 ### Upload a File
 
-1. Open **Content → Media library** and click **Create**. Several files at once can be added via **Upload Multiple**.
+1. Open **Content → Media Library** and click **New Media item**. Several files at once can be added via **Upload Multiple**.
 2. Drop the file onto the area or pick it via **Browse**.
 3. Wait until "Upload complete" appears.
-4. Optionally fill in **Alt Text**, **Title** and **Copyright**.
+4. Optionally fill in **Alt Text** and **Title** per language (tabs **DE** and **EN**) and **Copyright**.
 5. Click **Create**.
+
+<!-- Screenshot: "Create Media Item" page with an uploaded file and filled Alt Text and Copyright fields -->
+![Upload a file to the media library](../assets/screenshots/en/05-media-upload.png)
+
+New files go to the dashboard's folder automatically; **Details → Dashboard** shows which dashboard the file belongs to. Folders can't be chosen or created.
+
+Alt text and title exist per language. If a language stays empty, the German text applies there, and the field shows a hint. Copyright, caption and description apply to all languages. Content images use these details wherever the companion fields in the block stay empty (see [5.3](#53-alt-text-and-accessibility)).
 
 The media library takes images, Lottie animations, PDF, Word, Excel and ZIP files up to 25 MB. The field that later uses the file can have a smaller limit (see [5.2](#52-supported-formats-and-sizes)).
 
-<!-- Screenshot: Media library, "Edit media" page with preview, details, meta fields and "Used in" -->
+<!-- Screenshot: Media library, "Edit Media Item" page with preview, details, meta fields and "Used in" -->
+!["Edit Media Item" page with "Used in"](../assets/screenshots/en/05-edit-media.png)
 
 ### Use a File in a Field
 
 Image and file fields in pages, tiles, theme and footer show the button **Choose from media library**.
 
 1. Click **Choose from media library**. A picker with the files of the media library opens.
-2. Find the file via search or the folders and click it.
+2. Find the file via search and click it.
 3. Click **Insert**.
+
+<!-- Screenshot: Media library picker opened from a Text & Image block, one file selected -->
+![Media library picker](../assets/screenshots/en/05-media-picker.png)
 
 A new file can also be uploaded directly in the picker under **Add Files**. It is stored in the media library and is then available to other fields too.
 
@@ -32,9 +46,12 @@ The same file can be used in any number of fields. A file cannot be swapped: for
 
 ### Check Usage and Delete Files
 
-The **Edit media** page lists under **Used in** all pages, tiles and settings that use the file, each with a link.
+The **Edit Media Item** page lists under **Used in** all pages, tiles and settings that use the file, each with a link.
 
 A file that is still in use cannot be deleted. The admin area then reports that the file is still in use. First remove or replace the file in every listed place, then delete it.
+
+<!-- Screenshot: Notice "This file is still in use …" after a delete attempt -->
+![Deleting a file in use is refused](../assets/screenshots/en/05-delete-refused.png)
 
 ### Existing Files
 
@@ -74,7 +91,9 @@ Which file formats and size limits apply depends on the specific field. For fiel
 
 Every content image in the **Intro Text** (main and second image), **Text & Image** and **Slider** blocks has three companion fields. They sit in their own frame together with the image field.
 
-An empty companion field takes the value from the media library (the file's **Alt Text**, **Title** and **Copyright**). A field filled in the block takes precedence. This way alt text and copyright only need to be maintained once in the media library.
+An empty companion field takes the value from the media library (the file's **Alt Text**, **Title** and **Copyright**); for alt text and title in the page's language, otherwise the German one. A field filled in the block takes precedence. This applies to each block and each language separately.
+
+Alt text and title can be maintained per language in the media library; they then apply wherever the file is used. The companion field in the block is for cases where one use of an image needs a different description. The copyright applies to all languages and only needs to be entered once in the media library.
 
 <!-- Screenshot: Text & Image block with an uploaded image and filled image title, alt text and copyright fields -->
 ![Image with image title, alt text and copyright](../assets/screenshots/en/05-block-image-alt-text.png)
@@ -86,9 +105,9 @@ An empty companion field takes the value from the media library (the file's **Al
 | **Copyright** | Author or rights holder, e.g. “Jane Doe / Sample City” | Shown as a small notice in the bottom right corner of the image, prefixed with “©” |
 
 - Keep alt text short and describe what the image shows, not “image of …”.
-- Leave alt text empty if the image is purely decorative. Screen readers then skip it.
+- Leave alt text empty if the image is purely decorative, both in the block and in the media library. Screen readers then skip it.
 - There is no need to type “©”, it is added automatically.
-- All three fields are separate per language, like the rest of the block content.
+- The three companion fields in the block are separate per language, like the rest of the block content. An empty field shows the media library value in the same language, otherwise the German one.
 
 **Effect on the frontend:** The copyright notice sits as a small overlay with a dark, semi-transparent background in the bottom right corner of the image. If the field is empty, no overlay is shown.
 

@@ -49,6 +49,16 @@ class LocaleDetectorTest extends TestCase
         $this->assertEquals('de', App::getLocale());
     }
 
+    public function test_paths_without_prefix_use_the_configured_default_content_locale(): void
+    {
+        config(['app.default_content_locale' => 'en']);
+        App::setLocale('de');
+
+        $this->middleware->handle(Request::create('/some-page', 'GET'), fn () => response('ok'));
+
+        $this->assertEquals('en', App::getLocale());
+    }
+
     public function test_root_path_sets_german_locale(): void
     {
         $request = Request::create('/', 'GET');

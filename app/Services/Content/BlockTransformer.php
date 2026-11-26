@@ -24,9 +24,10 @@ class BlockTransformer
      *               - 'type' => string
      *               - 'props' => array
      */
-    public function transform(array $blocks): array
+    /** @param  string|null  $locale  language of the blocks, for image texts taken from the media library */
+    public function transform(array $blocks, ?string $locale = null): array
     {
-        return collect($blocks)->map(function (array $block): ?array {
+        return collect($blocks)->map(function (array $block) use ($locale): ?array {
             $type = $block['type'] ?? $block['handle'] ?? null;
 
             // Defensively normalize the type: legacy/imported data can contain
@@ -69,7 +70,7 @@ class BlockTransformer
 
             return [
                 'type' => $type,
-                'props' => app(MediaLibrary::class)->resolveData($props),
+                'props' => app(MediaLibrary::class)->resolveData($props, $locale),
             ];
         })->filter()->values()->toArray();
     }
