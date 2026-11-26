@@ -52,6 +52,16 @@ class ManageDataByPeriodTest extends TestCase
             ->assertSuccessful();
     }
 
+    public function test_a_period_without_tiles_with_active_metrics_shows_an_empty_state(): void
+    {
+        $tile = Tile::factory()->create(['tenant_id' => $this->tenant->id, 'time_granularity' => 'year']);
+        TimePeriod::factory()->forTile($tile)->year(2024)->create();
+
+        Livewire::test(ManageDataByPeriod::class)
+            ->assertSee(__('filament.pages.manage_data_by_period.empty_state'))
+            ->assertDontSeeHtml('wire:submit="save"');
+    }
+
     // ========== Selectors: distinct period_keys ==========
 
     public function test_period_selector_lists_distinct_period_keys_without_duplicates(): void

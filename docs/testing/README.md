@@ -89,6 +89,21 @@ export PLAYWRIGHT_BASE_URL=http://localhost:8000 E2E_ARTISAN_CMD="php artisan"
 npx playwright test --project=accessibility
 ```
 
+### Admin backend walk-through
+
+`tests/e2e/admin/backend.spec.ts` (project `admin-backend`) uses the admin panel like an
+editor: it logs in, opens every page, creates, edits and deletes each resource, saves the
+settings pages with uploads, translates a tile and a page, imports the example bundle and
+registers a new dashboard. Each test fails on a 5xx response or a JavaScript error and
+leaves a screenshot in `test-results/admin-backend` (`E2E_SCREENSHOT_DIR` overrides it).
+It writes data, so run it only against a local or test instance:
+
+```bash
+npx playwright test --project=admin-backend
+```
+
+Start the app with `CIVITAS_ENABLED=true` to include the integrations page.
+
 ### Accessibility audit
 
 `tests/e2e/accessibility/a11y-audit.spec.ts` runs axe-core with the tags `wcag2a` and

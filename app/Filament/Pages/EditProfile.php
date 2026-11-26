@@ -216,6 +216,9 @@ class EditProfile extends Page implements HasForms
             'password' => $data['password'],
         ]);
 
+        // Keep this session valid: AuthenticateSession signs out sessions whose stored hash is outdated.
+        session()->put('password_hash_'.Filament::getAuthGuard(), $user->getAuthPassword());
+
         $this->passwordForm->fill();
 
         Notification::make()

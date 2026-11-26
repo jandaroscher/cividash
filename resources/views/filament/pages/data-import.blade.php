@@ -19,7 +19,7 @@ SPDX-License-Identifier: EUPL-1.2+
             </x-filament::button>
 
             <x-filament::button
-                wire:click="commit"
+                wire:click="commitImport"
                 wire:loading.attr="disabled"
                 color="primary"
                 icon="heroicon-o-check"

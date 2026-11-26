@@ -80,6 +80,10 @@ export default defineConfig({
       testMatch: /smoke-test\.spec\.ts/,
     },
     {
+      name: 'admin-backend',
+      testMatch: /admin\/backend\.spec\.ts/,
+    },
+    {
       name: 'dashboard-navigation',
       testMatch: /dashboard-navigation\.spec\.ts/,
     },
