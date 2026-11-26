@@ -185,20 +185,67 @@ class TileShareImageTest extends TestCase
     {
         $image = app(TileShareImage::class);
         $png = $image->render([
-            'layout' => 1, 'locale' => 'de', 'logo' => null, 'site_name' => 'Dashboard', 'color' => '#0d47a1',
+            'layout' => 1, 'locale' => 'de', 'logo' => null, 'site_name' => 'Dashboard', 'colors' => $image->colors([]),
             'title' => str_repeat('Donaudampfschifffahrt', 6).' Ende',
             'description' => '',
             'headline' => ['value' => '1.000.000.000.000.000,25', 'unit' => 't CO₂-Äquivalent', 'label' => 'Gesamt', 'period' => '2024'],
             'more' => array_fill(0, 3, ['value' => '999.999.999.999,99', 'unit' => 'kWh pro Einwohner', 'label' => str_repeat('Lange Bezeichnung ', 4)]),
         ]);
 
-        // The right margin (last 40px) must stay blank.
+        // Text keeps its 64px side padding: right of the head text only the surface shows,
+        // right of the panel text only the panel.
         $gd = imagecreatefromstring($png);
-        for ($x = TileShareImage::WIDTH - 40; $x < TileShareImage::WIDTH; $x++) {
-            for ($y = 0; $y < TileShareImage::HEIGHT; $y++) {
-                $this->assertSame(0xFFFFFF, imagecolorat($gd, $x, $y) & 0xFFFFFF, "ink at {$x},{$y}");
+        for ($x = TileShareImage::WIDTH - 94; $x < TileShareImage::WIDTH; $x++) {
+            for ($y = 20; $y < TileShareImage::HEIGHT; $y++) {
+                // The further metrics are too wide for their columns, so the panel keeps its small height.
+                $inPanel = $x >= 30 && $x < TileShareImage::WIDTH - 30 && $y >= 360 && $y < 600;
+                if (! $inPanel && $y < 360 && $x < TileShareImage::WIDTH - 64) {
+                    continue;
+                }
+                $expected = $inPanel ? 0x0D47A1 : 0xFFFFFF;
+                $this->assertSame($expected, imagecolorat($gd, $x, $y) & 0xFFFFFF, "ink at {$x},{$y}");
             }
         }
+    }
+
+    public function test_further_metrics_are_left_out_when_one_is_too_wide(): void
+    {
+        $image = app(TileShareImage::class);
+        $content = [
+            'layout' => 1, 'locale' => 'de', 'logo' => null, 'site_name' => 'Dashboard', 'colors' => $image->colors([]),
+            'title' => 'Titel', 'description' => '',
+            'headline' => ['value' => '12', 'unit' => 't', 'label' => 'Gesamt', 'period' => '2024'],
+            'more' => [['value' => '1', 'unit' => 't', 'label' => 'Kurz']],
+        ];
+        $panelTop = fn (string $png) => collect(range(20, TileShareImage::HEIGHT - 1))
+            ->first(fn ($y) => (imagecolorat(imagecreatefromstring($png), 600, $y) & 0xFFFFFF) === 0x0D47A1);
+
+        $this->assertSame(292, $panelTop($image->render($content)));
+
+        $content['more'][] = ['value' => '999.999.999,99', 'unit' => 'kWh pro Kopf', 'label' => 'Zu breit'];
+        $this->assertSame(360, $panelTop($image->render($content)));
+    }
+
+    public function test_colours_follow_the_branding_and_stay_readable(): void
+    {
+        $image = app(TileShareImage::class);
+
+        $this->assertSame([
+            'surface' => '#ffffff', 'accent' => '#1976d2', 'panel' => '#e30613',
+            'panel_text' => '#ffffff', 'title' => '#000000', 'sender' => '#4b5563',
+        ], $image->colors(['primary_color' => '#E30613', 'secondary_color' => '#1976d2']));
+
+        // Light primary: white text fails, so the primary text colour is used.
+        $this->assertSame('#222222', $image->colors(['primary_color' => '#ffd500', 'text_primary_color' => '#222'])['panel_text']);
+
+        // Dark card surface: black title fails, white is used; a weak secondary falls back to the title colour.
+        $dark = $image->colors(['card_background_color' => '#111111', 'text_secondary_color' => '#333333']);
+        $this->assertSame('#ffffff', $dark['title']);
+        $this->assertSame('#ffffff', $dark['sender']);
+
+        // Accent falls back to the secondary colour, invalid values are ignored.
+        $this->assertSame('#0d47a1', $image->colors(['accent_color' => 'rgba(0,0,0,1)'])['panel']);
+        $this->assertSame('#abcdef', $image->colors(['accent_color' => null, 'secondary_color' => '#ABCDEF'])['accent']);
     }
 
     private function png(int $width, int $height): string
@@ -233,12 +280,13 @@ class TileShareImageTest extends TestCase
         Storage::disk('public')->put('branding/wide.png', $this->png(1000, 100));
 
         $gd = imagecreatefromstring(app(TileShareImage::class)->render([
-            'layout' => 1, 'locale' => 'de', 'logo' => 'branding/wide.png', 'site_name' => 'Dashboard', 'color' => '#0d47a1',
-            'title' => 'Titel', 'description' => '', 'headline' => null,
+            'layout' => 1, 'locale' => 'de', 'logo' => 'branding/wide.png', 'site_name' => 'Dashboard',
+            'colors' => app(TileShareImage::class)->colors([]), 'title' => 'Titel', 'description' => '', 'headline' => null,
         ]));
 
-        // 1000x100 scaled into 480x72 is 480x48, drawn from (80, 56).
-        $this->assertSame(0xFF0000, imagecolorat($gd, 300, 56 + 24) & 0xFFFFFF);
-        $this->assertSame(0xFFFFFF, imagecolorat($gd, 300, 56 + 60) & 0xFFFFFF);
+        // 1000x100 scaled into 360x80 is 360x36, centred in the 80px logo box.
+        $red = collect(range(20, 360))->filter(fn ($y) => (imagecolorat($gd, 200, $y) & 0xFFFFFF) === 0xFF0000);
+        $this->assertCount(36, $red);
+        $this->assertSame(0xFFFFFF, imagecolorat($gd, 64 + 361, $red->first()) & 0xFFFFFF);
     }
 }
