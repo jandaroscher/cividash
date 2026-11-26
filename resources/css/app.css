@@ -250,9 +250,10 @@
     /* Lead and small text from the rich text editor. They sit in the
        utilities layer so blocks that size their paragraphs with utility
        classes (e.g. the intro text) do not override them. The editor wraps
-       a lead in <div class="lead">; it takes the theme's h4 size, which stays
-       above every block's body text. Small text scales with its paragraph. */
-    .prose .lead > * {
+       a lead in <div class="lead">, which may also hold headings; only its
+       paragraphs and list items take the theme's h4 size. Small text scales
+       with its paragraph. */
+    .prose .lead :is(p, li) {
         font-size: var(--font-size-h4, 1.5rem);
         line-height: 1.4;
     }

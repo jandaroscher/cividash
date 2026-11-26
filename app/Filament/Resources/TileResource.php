@@ -146,6 +146,8 @@ class TileResource extends Resource
                                     ->schema([
                                         ...static::getCategoryGroupFields(),
                                         RichEditorConfig::make('description')
+                                            // The tile shows its description as plain text, so text sizes would have no effect.
+                                            ->disableToolbarButtons(['lead', 'small'])
                                             ->label(__('filament.resources.tile.description')),
                                         FileUpload::make('icon')
                                             ->label(__('filament.resources.tile.icon'))

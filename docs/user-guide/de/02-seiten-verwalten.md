@@ -57,7 +57,7 @@ Der Inhalt einer Seite besteht aus **Blöcken** — einzelnen Inhaltselementen, 
 
 Folgende Blocktypen stehen zur Verfügung: **Kacheln**, **Downloads**, **FAQ**, **Intro-Text**, **Slider** und **Text & Bild**.
 
-**Formatierbarer Text:** Die Textfelder der Blöcke bieten Fett, Kursiv, Unterstrichen, Durchgestrichen, Links, zwei Überschriftenebenen, Listen sowie zwei Textgrößen: **Einleitungstext** für einen hervorgehobenen ersten Absatz und **Kleiner Text** für Hinweise oder Quellenangaben. Eine freie Schriftgröße gibt es nicht. Alle Größen kommen aus dem Theme, damit die Seiten einheitlich und gut lesbar bleiben.
+**Formatierbarer Text:** Die Textfelder der Blöcke bieten Fett, Kursiv, Unterstrichen, Durchgestrichen, Links, zwei Überschriftenebenen, Listen sowie zwei Textgrößen: **Einleitungstext** für einen hervorgehobenen ersten Absatz und **Kleiner Text** für Hinweise oder Quellenangaben. Eine freie Schriftgröße gibt es nicht. Die Größen sind feste Stufen, damit die Seiten einheitlich und gut lesbar bleiben.
 
 ### 2.4.1 Intro-Text (Überschrift, Text, Bild)
 

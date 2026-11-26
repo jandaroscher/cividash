@@ -7,6 +7,7 @@
 namespace Tests\Unit\Support;
 
 use App\Filament\Support\RichEditorConfig;
+use Filament\Forms\Components\RichEditor\RichContentRenderer;
 use Tests\TestCase;
 
 class RichEditorConfigTest extends TestCase
@@ -19,5 +20,15 @@ class RichEditorConfigTest extends TestCase
         $this->assertContains('lead', $buttons);
         $this->assertContains('small', $buttons);
         $this->assertNotContains('textColor', $buttons);
+    }
+
+    public function test_lead_and_small_text_survive_the_editor_round_trip(): void
+    {
+        $html = '<div class="lead"><p>Intro</p></div><p>Body <small>Note</small></p>';
+
+        $rendered = RichContentRenderer::make($html)->toHtml();
+
+        $this->assertStringContainsString('<div class="lead"><p>Intro</p></div>', $rendered);
+        $this->assertStringContainsString('<small>Note</small>', $rendered);
     }
 }
