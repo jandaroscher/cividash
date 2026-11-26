@@ -103,6 +103,8 @@ test.describe('Media library', () => {
     await picker.getByRole('button', { name: 'Einfügen' }).click();
     await expect(picker).toBeHidden();
 
+    // A dashboard without pages suggests a landing page, which has no slug
+    await page.getByRole('combobox', { name: /^Layout/ }).selectOption('subpage');
     // The slug follows the title until it is set, so set it last
     await page.getByLabel('URL-Slug').fill(name);
 
