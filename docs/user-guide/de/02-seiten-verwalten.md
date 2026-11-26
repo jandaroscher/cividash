@@ -77,7 +77,7 @@ Kombiniert eine **Überschrift**, formatierbaren **Text** und ein **Bild** (mit 
 <!-- Screenshot: Text-Bild-Block mit Überschrift, Text, Bild-Upload und Bildposition-Auswahl -->
 ![Text-Bild-Block](../assets/screenshots/de/02-block-text-bild.png)
 
-**Wirkung im Frontend:** Das Bild erscheint je nach gewählter Position links oder rechts neben dem Text. Details zum Bild-Upload: siehe [Kapitel 5, Bilder und Dateien](05-bilder-und-dateien.md).
+**Wirkung im Frontend:** Das Bild erscheint je nach gewählter Position links oder rechts neben dem Text. Das Bild wird über **Aus Mediathek wählen** ausgewählt. Details: siehe [Kapitel 5, Bilder und Dateien](05-bilder-und-dateien.md).
 
 ![Text-Bild-Block im Frontend](../assets/screenshots/de/02-frontend-text-bild.png)
 

@@ -65,13 +65,13 @@ Ebenfalls auf der Seite **Seiteneinstellungen**, im Abschnitt **Footer**, geglie
 | Feld | Beschreibung |
 |------|-------------|
 | **Social Media Links anzeigen** | Schalter, blendet den gesamten Social-Media-Bereich im Frontend-Footer ein oder aus. |
-| **Icon** | Bild-Upload für das Plattform-Icon. |
+| **Icon** | Bild aus der Mediathek für das Plattform-Icon. |
 | **Profil-URL** | Ziel-Link des Icons. |
 | **Tooltip-Text** | Optionaler Text, der beim Überfahren des Icons angezeigt wird. |
 
 Ein neues Dashboard startet ohne Social-Media-Links und mit ausgeschaltetem Schalter. Nach dem Anlegen der Links **Social Media Links anzeigen** einschalten, damit sie im Footer erscheinen.
 
-**Förderer** — Liste für Sponsoren-Logos, zu der sich beliebig viele Einträge hinzufügen lassen: **Sponsor-Bild** (Upload, Pflichtfeld), **Sponsor-URL** (optional) und **Sponsor-Name** (optional, dient als Alt-Text-Ersatz in der Liste).
+**Förderer** — Liste für Sponsoren-Logos, zu der sich beliebig viele Einträge hinzufügen lassen: **Sponsor-Bild** (aus der Mediathek, Pflichtfeld), **Sponsor-URL** (optional) und **Sponsor-Name** (optional, dient als Alt-Text-Ersatz in der Liste).
 
 > **Hinweis:** Ein Feld für den Copyright-Text ist im Datenmodell vorhanden, taucht in der aktuellen Formularoberfläche jedoch nicht auf — der Copyright-Text lässt sich über dieses Formular derzeit nicht bearbeiten. Das weicht vom Struktur-Entwurf ab („Footer (Links, Social Media, **Copyright**, Layout)").
 
@@ -85,8 +85,8 @@ Die Seite **Theme** gliedert sich in vier Reiter: **Logo**, **Farben**, **Schrif
 
 | Feld | Beschreibung |
 |------|-------------|
-| **Logo** | Bild-Upload, erscheint im Header des Frontends. |
-| **Favicon** | Bild-Upload. Empfohlen: ICO, PNG oder SVG, max. 512 KB (siehe auch die Formatübersicht in [Kapitel 5.2, Unterstützte Formate und Größen](05-bilder-und-dateien.md)). |
+| **Logo** | Bild aus der Mediathek, erscheint im Header des Frontends. |
+| **Favicon** | Bild aus der Mediathek. Empfohlen: ICO, PNG oder SVG, max. 512 KB (siehe auch die Formatübersicht in [Kapitel 5.2, Unterstützte Formate und Größen](05-bilder-und-dateien.md)). |
 
 <!-- Screenshot: Theme — Reiter Logo mit Logo- und Favicon-Upload-Feldern -->
 ![Theme: Logo](../assets/screenshots/de/06-theme-logo.png)

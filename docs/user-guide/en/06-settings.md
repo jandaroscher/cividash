@@ -65,13 +65,13 @@ Also on the **Site Settings** page, in the **Footer** section, organized into th
 | Field | Description |
 |------|-------------|
 | **Show Social Media Links** | Toggle that shows or hides the entire social media area in the frontend footer. |
-| **Icon** | Image upload for the platform icon. |
+| **Icon** | Image from the media library for the platform icon. |
 | **Profile URL** | Target link for the icon. |
 | **Tooltip text** | Optional text shown when hovering over the icon. |
 
 A new dashboard starts without social media links and with the toggle off. After adding links, switch on **Show Social Media Links** so they appear in the footer.
 
-**Sponsors** — List for sponsor logos, to which any number of entries can be added: **sponsor image** (upload, required), **sponsor URL** (optional), and **sponsor name** (optional, serves as an alt-text substitute in the list).
+**Sponsors** — List for sponsor logos, to which any number of entries can be added: **sponsor image** (from the media library, required), **sponsor URL** (optional), and **sponsor name** (optional, serves as an alt-text substitute in the list).
 
 > **Note:** A copyright text field exists in the data model but does not appear in the current form UI — the copyright text cannot currently be edited through this form. This differs from the structure proposal ("Footer (Links, Social Media, **Copyright**, Layout)").
 
@@ -85,8 +85,8 @@ The **Theme** page is organized into four tabs: **Logo**, **Colors**, **Typograp
 
 | Field | Description |
 |------|-------------|
-| **Logo** | Image upload, appears in the frontend header. |
-| **Favicon** | Image upload. Recommended: ICO, PNG, or SVG, max 512 KB (see also the format overview in [Chapter 5.2, Supported Formats and Sizes](05-images-and-files.md)). |
+| **Logo** | Image from the media library, appears in the frontend header. |
+| **Favicon** | Image from the media library. Recommended: ICO, PNG, or SVG, max 512 KB (see also the format overview in [Chapter 5.2, Supported Formats and Sizes](05-images-and-files.md)). |
 
 <!-- Screenshot: Theme — Logo tab with logo and favicon upload fields -->
 ![Theme: Logo](../assets/screenshots/en/06-theme-logo.png)

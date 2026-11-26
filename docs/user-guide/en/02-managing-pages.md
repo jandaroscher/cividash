@@ -77,7 +77,7 @@ Combines a **heading**, formattable **text**, and an **image** (with image title
 <!-- Screenshot: Text & Image block with heading, text, image upload, and image position selector -->
 ![Text & Image block](../assets/screenshots/en/02-block-text-image.png)
 
-**Effect on the frontend:** The image appears to the left or right of the text depending on the chosen position. For details on image uploads, see [Chapter 5, Images and Files](05-images-and-files.md).
+**Effect on the frontend:** The image appears to the left or right of the text depending on the chosen position. The image is chosen via **Choose from media library**. For details, see [Chapter 5, Images and Files](05-images-and-files.md).
 
 ![Text & Image block on the frontend](../assets/screenshots/en/02-frontend-text-image.png)
 
