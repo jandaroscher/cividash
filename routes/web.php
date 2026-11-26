@@ -7,6 +7,7 @@
 use App\Http\Controllers\Auth\KeycloakSsoController;
 use App\Http\Controllers\Auth\PasswordResetRedirectController;
 use App\Http\Controllers\PublicMediaController;
+use App\Http\Controllers\ResizedMediaController;
 use App\Http\Controllers\SpaController;
 use App\Http\Controllers\TileShareImageController;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -38,6 +39,13 @@ Route::get('/.well-known/security.txt', fn () => response(
     200,
     ['Content-Type' => 'text/plain']
 ))->withoutMiddleware($sessionless)->name('security.txt');
+
+// Content images scaled down to a fixed width, for srcset. Before the catch-all below.
+Route::get('/storage/_resized/{width}/{path}', ResizedMediaController::class)
+    ->whereNumber('width')
+    ->where('path', '.*')
+    ->withoutMiddleware($sessionless)
+    ->name('media.resized');
 
 // Public media (uploads on the 'public' disk), whatever driver backs the disk.
 Route::get('/storage/{path}', PublicMediaController::class)
