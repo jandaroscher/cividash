@@ -81,7 +81,7 @@ SPDX-License-Identifier: EUPL-1.2+
           height="216"
           width="363"
           :src="imageUrl"
-          :alt="header"
+          alt=""
           loading="lazy"
           @error="onImageError"
         >
@@ -146,7 +146,7 @@ SPDX-License-Identifier: EUPL-1.2+
                 v-model="currentYear"
                 :data="years"
                 :tooltip="'none'"
-                :dot-attrs="{ 'aria-label': 'Select year' }"
+                :dot-attrs="sliderDotAttrs"
               />
             </div>
           </Tooltip>
@@ -163,7 +163,7 @@ SPDX-License-Identifier: EUPL-1.2+
         <slot name="trend">
           <p
             v-if="years.length > 1 && currentYear !== years[0]"
-            class="text-theme-base text-gray-400 font-semibold flex flex-row items-center gap-2 justify-end text-sm"
+            class="text-theme-base text-gray-500 font-semibold flex flex-row items-center gap-2 justify-end text-sm"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -204,14 +204,14 @@ SPDX-License-Identifier: EUPL-1.2+
 
         <div
           v-if="hint"
-          class="text-sm italic text-gray-400 mt-2.5"
+          class="text-sm italic text-gray-500 mt-2.5"
         >
           {{ hint }}
         </div>
 
         <div
           v-if="footnote"
-          class="text-sm text-gray-300"
+          class="text-sm text-gray-500"
         >
           {{ footnote }}
         </div>
@@ -300,7 +300,8 @@ SPDX-License-Identifier: EUPL-1.2+
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import '../lib/dotlottie';
+import { loadDotlottie } from '../lib/dotlottie';
+import { logError } from '../lib/log.js';
 import VueSlider from 'vue-slider-component/lib/vue-slider.vue';
 import 'vue-slider-component/theme/default.css';
 import IndicatorBig from './cards/indicators/IndicatorBig.vue';
@@ -475,6 +476,16 @@ const indicators = ref([]);
 const years = ref([]);
 const currentYear = ref(null);
 const periodLabelMap = ref({});
+
+// Announce the selected period instead of vue-slider's raw value (a period key).
+const sliderDotAttrs = computed(() => ({
+    role: 'slider',
+    'aria-label': currentLocale.value === 'en' ? 'Select period' : 'Zeitraum auswählen',
+    'aria-valuemin': 0,
+    'aria-valuemax': Math.max(years.value.length - 1, 0),
+    'aria-valuenow': Math.max(years.value.indexOf(currentYear.value), 0),
+    'aria-valuetext': String(periodLabelMap.value[currentYear.value] || currentYear.value || ''),
+}));
 const imageUrl = ref(null);
 const lottieUrl = ref(null);
 const intersected = ref(false);
@@ -609,7 +620,7 @@ function onImageError() {
 
 function onIntersectionObserver([{ isIntersecting }]) {
     if (isIntersecting && !intersected.value) {
-        intersected.value = true;
+        loadDotlottie().then(() => { intersected.value = true; }, logError);
     }
 }
 

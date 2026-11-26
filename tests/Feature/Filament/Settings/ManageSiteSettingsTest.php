@@ -12,6 +12,7 @@ use App\Models\Navigation;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Settings\GeneralSettings;
+use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -102,6 +103,28 @@ class ManageSiteSettingsTest extends TestCase
         app()->forgetInstance(GeneralSettings::class);
         $settings = app(GeneralSettings::class);
         $this->assertFalse($settings->english_translation_active);
+    }
+
+    public function test_block_toggle_switches_a_social_link_off_and_on(): void
+    {
+        $page = Livewire::test(ManageSiteSettings::class)
+            ->fillForm(['social_links' => ['item-a' => ['link' => 'https://example.org/profile', 'title' => 'Profile']]]);
+
+        $itemKey = array_key_first($page->get('data.social_links'));
+        $toggle = TestAction::make('toggle_block_active')
+            ->schemaComponent('social_links', 'form')
+            ->arguments(['item' => $itemKey]);
+
+        $html = $page->html();
+        $this->assertMatchesRegularExpression('/role="switch"[^>]*aria-checked="true"|aria-checked="true"[^>]*role="switch"/s', $html);
+        // The switch must only show a loading state for its own request, not for every Livewire round trip.
+        $this->assertMatchesRegularExpression('/wire:loading\.attr="disabled"[^>]*wire:target="[^"]*toggle_block_active/s', $html);
+
+        $page->callAction($toggle);
+        $this->assertFalse($page->get("data.social_links.{$itemKey}.is_active"));
+
+        $page->callAction($toggle);
+        $this->assertTrue($page->get("data.social_links.{$itemKey}.is_active"));
     }
 
     public function test_no_dropdown_enabled_toggle_in_form(): void

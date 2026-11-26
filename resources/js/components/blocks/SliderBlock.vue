@@ -51,6 +51,7 @@ SPDX-License-Identifier: EUPL-1.2+
                     :title="slide.imageTitle"
                     :copyright="slide.imageCopyright"
                     img-class="aspect-[3/2] w-full object-cover slide-image"
+                    sizes="(min-width: 1024px) 600px, 80vw"
                   />
                 </div>
 

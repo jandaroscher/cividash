@@ -3,8 +3,8 @@
 # CiviDash application image (cividash-app).
 #
 # Multi-stage build:
-#   1. assets  — node:22-alpine  -> compiles the Vue/Tailwind frontend (public/build)
-#   2. vendor  — composer:2       -> installs production PHP deps + optimized autoloader
+#   1. vendor  — composer:2       -> installs production PHP deps + optimized autoloader
+#   2. assets  — node:22-alpine  -> compiles the Vue/Tailwind frontend and the admin theme (public/build)
 #   3. runtime — php:8.4.28-fpm-alpine -> final image: app code + vendor + built assets
 #
 # The image runs PHP-FPM on tcp 9000 as the non-root www-data user. It is the
@@ -16,32 +16,10 @@
 #   docker build -f docker/production/Dockerfile -t cividash-app:dev .
 
 # ---------------------------------------------------------------------------
-# Stage 1: assets — build the frontend bundle with Vite into public/build.
+# Stage 1: vendor — install production-only Composer dependencies.
 # ---------------------------------------------------------------------------
-# Assets and vendor/ are architecture-independent, so these two stages run on
+# vendor/ and assets are architecture-independent, so these two stages run on
 # the build host and are shared by every target platform.
-FROM --platform=$BUILDPLATFORM node:22-alpine AS assets
-
-WORKDIR /app
-
-# Install JS deps from the lockfile first so this layer caches across source
-# edits. npm ci requires both package.json and package-lock.json.
-COPY package.json package-lock.json ./
-RUN npm ci
-
-# Copy only the inputs Vite needs to produce public/build.
-COPY vite.config.js ./
-COPY resources ./resources
-# public/ is the Vite outDir parent; copying it keeps any committed static
-# assets (favicon, robots.txt, etc.) referenced during the build.
-COPY public ./public
-
-# Produces public/build (manifest.json + hashed assets).
-RUN npm run build
-
-# ---------------------------------------------------------------------------
-# Stage 2: vendor — install production-only Composer dependencies.
-# ---------------------------------------------------------------------------
 FROM --platform=$BUILDPLATFORM composer:2 AS vendor
 
 WORKDIR /app
@@ -66,6 +44,32 @@ RUN composer install \
 # production-only classmap now that all source is present.
 COPY . .
 RUN composer dump-autoload --optimize --no-dev --no-interaction --ignore-platform-reqs
+
+# ---------------------------------------------------------------------------
+# Stage 2: assets — build the frontend bundle with Vite into public/build.
+# ---------------------------------------------------------------------------
+FROM --platform=$BUILDPLATFORM node:22-alpine AS assets
+
+WORKDIR /app
+
+# Install JS deps from the lockfile first so this layer caches across source
+# edits. npm ci requires both package.json and package-lock.json.
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Copy only the inputs Vite needs to produce public/build.
+COPY vite.config.js ./
+COPY resources ./resources
+# public/ is the Vite outDir parent; copying it keeps any committed static
+# assets (favicon, robots.txt, etc.) referenced during the build.
+COPY public ./public
+# The Filament admin theme imports Filament's CSS from vendor/ and scans app/Filament
+# for Tailwind classes.
+COPY --from=vendor /app/vendor ./vendor
+COPY app ./app
+
+# Produces public/build (manifest.json + hashed assets).
+RUN npm run build
 
 # ---------------------------------------------------------------------------
 # Stage 3: runtime — the final PHP-FPM image.

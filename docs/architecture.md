@@ -1,7 +1,7 @@
 # Architecture overview
 
 CiviDash is a headless Laravel 12 application with a Vue 3 single-page frontend and a
-Filament 3.3 admin panel. This page gives the big picture and links the detailed
+Filament 5 admin panel. This page gives the big picture and links the detailed
 documents.
 
 ## Components

@@ -61,7 +61,7 @@ class SetFilamentDefaultTenant
 
             // Priority 3: User's configured default tenant
             if (! $tenant && $user instanceof HasDefaultTenantContract) {
-                $panel = Filament::getCurrentPanel();
+                $panel = Filament::getCurrentOrDefaultPanel();
                 $tenant = $user->getDefaultTenant($panel);
             }
 

@@ -16,6 +16,9 @@ use App\Filament\Fabricator\PageBlocks\IntroTextBlock;
 use App\Filament\Fabricator\PageBlocks\SliderBlock;
 use App\Filament\Fabricator\PageBlocks\TextImageBlock;
 use App\Filament\Resources\TileResource\Pages;
+use App\Filament\Resources\TileResource\Pages\CreateTile;
+use App\Filament\Resources\TileResource\Pages\EditTile;
+use App\Filament\Resources\TileResource\Pages\ListTiles;
 use App\Filament\Support\RichEditorConfig;
 use App\Models\Category;
 use App\Models\CategoryGroup;
@@ -26,28 +29,38 @@ use App\Models\TimePeriod;
 use App\Services\Integration\PublishService;
 use App\Services\TimePeriodService;
 use Closure;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ViewField;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Notifications\Notification;
-use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -55,6 +68,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
+use Throwable;
 
 class TileResource extends Resource
 {
@@ -72,7 +87,7 @@ class TileResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-group';
 
     protected static ?int $navigationSort = 2;
 
@@ -104,14 +119,14 @@ class TileResource extends Resource
     /**
      * Builds the form schema for the Tile resource, composed of three tabs: Tile, Background Page, and Metrics.
      *
-     * @param  Form  $form  The form instance to configure.
-     * @return Form The configured form instance.
+     * @param  Schema  $schema  The form instance to configure.
+     * @return Schema The configured form instance.
      */
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->columns(1)
-            ->schema([
+            ->components([
                 Section::make()
                     ->columnSpanFull()
                     ->schema([
@@ -127,7 +142,7 @@ class TileResource extends Resource
                             ->columnSpanFull()
                             ->tabs([
                                 // Tab 1: tile
-                                Tabs\Tab::make(__('filament.tabs.tile'))
+                                Tab::make(__('filament.tabs.tile'))
                                     ->schema([
                                         ...static::getCategoryGroupFields(),
                                         RichEditorConfig::make('description')
@@ -150,7 +165,7 @@ class TileResource extends Resource
                                     ]),
 
                                 // Tab 2: background page
-                                Tabs\Tab::make(__('filament.tabs.background_page'))
+                                Tab::make(__('filament.tabs.background_page'))
                                     ->schema([
                                         Builder::make('background_blocks')
                                             ->label(__('filament.resources.tile.background_blocks'))
@@ -165,7 +180,7 @@ class TileResource extends Resource
                                     ]),
 
                                 // Tab 3: metrics
-                                Tabs\Tab::make(__('filament.tabs.metrics'))
+                                Tab::make(__('filament.tabs.metrics'))
                                     ->schema([
                                         Select::make('time_granularity')
                                             ->label(__('filament.resources.tile.time_granularity'))
@@ -462,7 +477,7 @@ class TileResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')
+                TextColumn::make('title')
                     ->label(__('filament.resources.tile.title'))
                     ->formatStateUsing(function ($state, Tile $record, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
@@ -477,7 +492,7 @@ class TileResource extends Resource
                         $expression = static::getSortableTranslationExpression('title', $locale);
                         $query->orderByRaw("{$expression} {$direction}");
                     }),
-                Tables\Columns\TextColumn::make('slug')
+                TextColumn::make('slug')
                     ->label(__('filament.resources.tile.slug'))
                     ->formatStateUsing(function ($state, Tile $record, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
@@ -493,32 +508,32 @@ class TileResource extends Resource
                         $query->orderByRaw("{$expression} {$direction}");
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\ViewColumn::make('icon')
+                ViewColumn::make('icon')
                     ->label(__('filament.resources.tile.icon'))
                     ->view('filament.tables.columns.icon-column')
                     // An icon-only cell would be a record link without a name.
                     ->disabledClick()
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('position')
+                TextColumn::make('position')
                     ->label(__('filament.resources.tile.position'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\ToggleColumn::make('is_public')
+                ToggleColumn::make('is_public')
                     ->label(__('filament.resources.tile.is_public'))
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label(__('filament.resources.tile.created_at'))
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label(__('filament.resources.tile.updated_at'))
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('handlungsfelder')
+                SelectFilter::make('handlungsfelder')
                     ->label(__('filament.resources.tile.categories'))
                     ->options(function () {
                         $locale = app()->getLocale();
@@ -537,20 +552,20 @@ class TileResource extends Resource
                     ))
                     ->searchable()
                     ->multiple(),
-                Tables\Filters\TernaryFilter::make('is_public')
+                TernaryFilter::make('is_public')
                     ->label(__('filament.resources.tile.is_public')),
             ])
             ->recordUrl(fn (Tile $record, $livewire) => static::getUrl('edit', [
                 'record' => $record,
                 'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
             ]))
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->url(fn (Tile $record, $livewire) => static::getUrl('edit', [
                         'record' => $record,
                         'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
                     ])),
-                Tables\Actions\Action::make('view_frontend')
+                Action::make('view_frontend')
                     ->label(__('filament.resources.tile.actions.view_frontend'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('success')
@@ -560,7 +575,7 @@ class TileResource extends Resource
                         return $record->getFrontendUrl(['locale' => $locale]);
                     })
                     ->openUrlInNewTab(),
-                Tables\Actions\Action::make('publishToCore')
+                Action::make('publishToCore')
                     ->label(__('filament.resources.tile.actions.publish'))
                     ->icon('heroicon-o-cloud-arrow-up')
                     ->color('primary')
@@ -573,19 +588,19 @@ class TileResource extends Resource
                     ->modalDescription(__('filament.resources.tile.actions.publish_confirm_description'))
                     ->modalSubmitActionLabel(__('filament.resources.tile.actions.publish_confirm_submit'))
                     ->action(fn (Tile $record) => static::handlePublishToCore($record)),
-                Tables\Actions\DeleteAction::make(),
+                DeleteAction::make(),
             ])
             ->reorderable('position')
             ->defaultSort('position')
             ->reorderRecordsTriggerAction(
-                fn (Tables\Actions\Action $action, bool $isReordering) => $action
+                fn (Action $action, bool $isReordering) => $action
                     ->link()
                     ->label($isReordering ? __('filament.actions.stop_sorting') : __('filament.actions.start_sorting'))
                     ->color('primary')
             )
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('publishToCore')
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('publishToCore')
                         ->label(__('filament.resources.tile.actions.publish_bulk'))
                         ->icon('heroicon-o-cloud-arrow-up')
                         ->color('primary')
@@ -599,7 +614,7 @@ class TileResource extends Resource
                         ->modalSubmitActionLabel(__('filament.resources.tile.actions.publish_confirm_submit'))
                         ->deselectRecordsAfterCompletion()
                         ->action(fn (EloquentCollection $records) => static::handleBulkPublishToCore($records)),
-                    Tables\Actions\DeleteBulkAction::make(),
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -795,9 +810,9 @@ class TileResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTiles::route('/'),
-            'create' => Pages\CreateTile::route('/create'),
-            'edit' => Pages\EditTile::route('/{record}/edit'),
+            'index' => ListTiles::route('/'),
+            'create' => CreateTile::route('/create'),
+            'edit' => EditTile::route('/{record}/edit'),
         ];
     }
 
@@ -827,7 +842,7 @@ class TileResource extends Resource
             if (class_exists($blockClass) && method_exists($blockClass, 'getBlockSchema')) {
                 $block = $blockClass::getBlockSchema();
                 $defaultLabel = $block->getLabel();
-                $existingSchema = $block->getChildComponents();
+                $existingSchema = $block->getDefaultChildComponents();
                 static::patchFileUploadsForTranslatable($existingSchema);
                 $block->schema([
                     TextInput::make('jump_mark_label')
@@ -884,8 +899,8 @@ class TileResource extends Resource
                 });
             }
 
-            if (method_exists($component, 'getChildComponents')) {
-                static::patchFileUploadsForTranslatable($component->getChildComponents());
+            if (method_exists($component, 'getDefaultChildComponents')) {
+                static::patchFileUploadsForTranslatable($component->getDefaultChildComponents());
             }
         }
     }
@@ -1014,7 +1029,7 @@ class TileResource extends Resource
                 ->body(__('filament.resources.tile.actions.publish_error_body', ['status' => $e->response?->status() ?? '—']))
                 ->danger()
                 ->send();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Connection failures and any other error: never surface the raw
             // message (it may carry the broker/IdP URL). Log it, show a generic
             // notification.

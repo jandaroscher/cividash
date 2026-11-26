@@ -35,7 +35,7 @@ SPDX-License-Identifier: EUPL-1.2+
            footer in the default TileCard) - "Wert/Trend umsortiert". -->
       <p
         v-if="years.length > 1 && currentYear !== years[0]"
-        class="text-theme-base text-gray-400 font-semibold flex flex-row items-center gap-2 px-4 mb-2"
+        class="text-theme-base text-gray-500 font-semibold flex flex-row items-center gap-2 px-4 mb-2"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

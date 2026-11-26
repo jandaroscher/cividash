@@ -20,7 +20,7 @@ class SliderBlockTest extends TestCase
     public function test_slider_block_schema_has_required_fields(): void
     {
         $schema = SliderBlock::getBlockSchema();
-        $fields = $schema->getChildComponents();
+        $fields = $schema->getDefaultChildComponents();
 
         $fieldNames = array_map(fn ($field) => $field->getName(), $fields);
 

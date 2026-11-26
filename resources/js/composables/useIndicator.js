@@ -4,6 +4,8 @@
 
 import { ref, computed, watch, onMounted } from 'vue';
 import { useLocale } from './useLocale';
+import { loadDotlottie } from '../lib/dotlottie';
+import { logError } from '../lib/log.js';
 
 /**
  * Composable for shared indicator logic used by IndicatorBig and IndicatorSmall components.
@@ -152,7 +154,7 @@ export function useIndicator(indicator, currentYear) {
 
     function onIntersectionObserver([{ isIntersecting }]) {
         if (isIntersecting && !intersected.value) {
-            intersected.value = true;
+            loadDotlottie().then(() => { intersected.value = true; }, logError);
         }
     }
 

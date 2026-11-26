@@ -9,7 +9,7 @@ import { config } from '@vue/test-utils';
 window.APP_URL = 'http://localhost';
 
 // Mock modules that require browser APIs not available in happy-dom
-vi.mock('@/lib/dotlottie', () => ({}));
+vi.mock('@/lib/dotlottie', () => ({ loadDotlottie: () => Promise.resolve() }));
 
 vi.mock('vue-slider-component/lib/vue-slider.vue', () => ({
     default: {

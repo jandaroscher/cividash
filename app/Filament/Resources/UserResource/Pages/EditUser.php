@@ -10,7 +10,7 @@ use App\Filament\Resources\UserResource;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\RoleService;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
@@ -21,8 +21,8 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make()
-                ->before(function (Actions\DeleteAction $action) {
+            DeleteAction::make()
+                ->before(function (DeleteAction $action) {
                     if ($this->record->is_admin && ! User::where('is_admin', true)->where('is_active', true)->where('id', '!=', $this->record->id)->exists()) {
                         Notification::make()
                             ->title(__('filament.resources.user.messages.cannot_delete_last_admin'))

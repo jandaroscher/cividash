@@ -7,21 +7,18 @@ SPDX-License-Identifier: EUPL-1.2+
 <x-filament-panels::page>
     {{-- Selectors live outside the Filament form to prevent updatedInteractsWithForms
          from firing fillFormFromDatabase() when tile metric inputs change.
-         Markup mirrors Filament's own table toolbar (x-filament-tables::container
-         + header-toolbar row) so this page's filter/search bar looks like every
+         Markup mirrors Filament's own table toolbar (fi-ta-ctn container
+         + header-toolbar row; w-full because fi-ta-ctn is a flex row) so this page's filter/search bar looks like every
          other list in the admin, even though it isn't a real Table. --}}
-    <x-filament-tables::container>
-        <div class="fi-ta-header-toolbar flex flex-col gap-4 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-x-4 sm:px-6">
+    <div class="fi-ta-ctn">
+        <div class="fi-ta-header-toolbar w-full flex flex-col gap-4 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-x-4 sm:px-6">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                {{-- Explicit min-width (not a Tailwind class): the panel ships
-                     Filament's precompiled CSS, not a custom build that scans
-                     this view, so arbitrary utility classes we invent here
-                     silently do nothing. Without a width floor, this wrapper's
-                     flex-basis:0 child collapses to its padding-only min-content
-                     and the selected option text disappears entirely. --}}
+                {{-- Without a width floor, this wrapper's flex-basis:0 child collapses
+                     to its padding-only min-content and the selected option text
+                     disappears entirely. --}}
                 <x-filament::input.wrapper
                     :prefix="__('filament.pages.manage_data_by_period.granularity_label')"
-                    style="min-width: 12rem"
+                    class="min-w-48"
                 >
                     <x-filament::input.select wire:model.live="selectedGranularity">
                         @foreach ($this->getGranularityOptionsPublic() as $value => $label)
@@ -34,7 +31,7 @@ SPDX-License-Identifier: EUPL-1.2+
 
                 <x-filament::input.wrapper
                     :prefix="__('filament.pages.manage_data_by_period.period_label')"
-                    style="min-width: 12rem"
+                    class="min-w-48"
                 >
                     <x-filament::input.select wire:model.live="selectedPeriodKey">
                         @foreach ($this->getPeriodKeyOptionsPublic() as $value => $label)
@@ -47,10 +44,8 @@ SPDX-License-Identifier: EUPL-1.2+
             </div>
 
             {{-- Fixed width (not max-width): as a flex item with no flex-grow,
-                 this div otherwise shrinks to its collapsed content size (see
-                 the min-width note above) instead of actually filling up to a
-                 cap. --}}
-            <div class="ms-auto" style="width: 20rem">
+                 this div otherwise shrinks to its collapsed content size. --}}
+            <div class="ms-auto w-80">
                 <label class="sr-only">
                     {{ __('filament.pages.manage_data_by_period.search_label') }}
                 </label>
@@ -68,7 +63,7 @@ SPDX-License-Identifier: EUPL-1.2+
                 </x-filament::input.wrapper>
             </div>
         </div>
-    </x-filament-tables::container>
+    </div>
 
     @if ($this->searchHasNoMatches())
         <p class="text-sm text-gray-500 dark:text-gray-400">

@@ -15,23 +15,24 @@ use App\Services\Integration\SyncResult;
 use App\Settings\IntegrationSettings;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
+use Throwable;
 
 class ManageIntegrations extends SettingsPage
 {
     protected static string $settings = IntegrationSettings::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-arrow-path-rounded-square';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-arrow-path-rounded-square';
 
     protected static ?int $navigationSort = 30;
 
-    protected static string $view = 'filament.pages.manage-integrations';
+    protected string $view = 'filament.pages.manage-integrations';
 
     protected static ?string $slug = 'integrations';
 
@@ -102,10 +103,10 @@ class ManageIntegrations extends SettingsPage
             : NgsiLdClient::fromConfig($overrides);
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make(__('filament.pages.manage_integrations.config_heading'))
                     ->description(__('filament.pages.manage_integrations.config_description'))
                     ->schema([
@@ -195,7 +196,7 @@ class ManageIntegrations extends SettingsPage
                                 ->danger()
                                 ->send();
                         }
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         Notification::make()
                             ->title(__('filament.pages.manage_integrations.test_connection_failed'))
                             ->body($e->getMessage())
@@ -217,7 +218,7 @@ class ManageIntegrations extends SettingsPage
                         $result = $this->getSyncService()->syncAll($this->getTenant());
 
                         $this->sendSyncResultNotification($result);
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         Notification::make()
                             ->title(__('filament.pages.manage_integrations.sync_error'))
                             ->body(__('filament.pages.manage_integrations.sync_error_body', ['error' => $e->getMessage()]))

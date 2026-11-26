@@ -16,6 +16,8 @@ use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
 class IntroTextBlock extends PageBlock
 {
+    protected static string $name = 'intro-text';
+
     /**
      * Build the Filament builder Block schema for the "Intro Text" page block.
      *
@@ -29,9 +31,9 @@ class IntroTextBlock extends PageBlock
      *
      * @return Block The configured block schema for the `intro-text` block.
      */
-    public static function getBlockSchema(): Block
+    public static function defineBlock(Block $block): Block
     {
-        return Block::make('intro-text')
+        return $block
             ->label(__('filament.blocks.intro_text.label'))
             ->icon('heroicon-o-document-text')
             ->schema([

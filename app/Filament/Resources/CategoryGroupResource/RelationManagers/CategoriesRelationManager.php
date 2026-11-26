@@ -10,12 +10,21 @@ use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Resources\CategoryResource;
 use App\Models\Category;
 use App\Settings\BrandingSettings;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Set;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
-use Filament\Tables\Actions\Action;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -49,19 +58,19 @@ class CategoriesRelationManager extends RelationManager
      *
      * The form defines inputs for `key`, `slug`, `icon` (image upload stored on the `public` disk under `categories`, supporting per-locale JSON or plain path values), `color` (visible only when the owner CategoryGroup is the color source), `is_active`, and numeric `position`.
      *
-     * @return Form The configured form instance.
+     * @return Schema The configured form instance.
      */
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('key')
+        return $schema
+            ->components([
+                TextInput::make('key')
                     ->label(__('filament.resources.category_group.items.key'))
                     ->maxLength(255)
                     ->nullable()
                     ->disabled()
                     ->dehydrated(),
-                Forms\Components\TextInput::make('slug')
+                TextInput::make('slug')
                     ->label(__('filament.resources.category_group.items.title'))
                     ->required()
                     ->maxLength(255)
@@ -71,7 +80,7 @@ class CategoriesRelationManager extends RelationManager
                             $set('key', Str::slug($state));
                         }
                     }),
-                Forms\Components\FileUpload::make('icon')
+                FileUpload::make('icon')
                     ->label(__('filament.resources.category_group.items.icon'))
                     ->disk('public')
                     ->directory('categories')
@@ -123,12 +132,12 @@ class CategoriesRelationManager extends RelationManager
                         // Fallback for non-JSON existing icons
                         return $path;
                     }),
-                Forms\Components\ColorPicker::make('color')
+                ColorPicker::make('color')
                     ->label(__('filament.resources.category_group.items.color'))
                     ->required(false)
                     ->hex()
                     ->visible(fn (RelationManager $livewire): bool => app(BrandingSettings::class)->tile_color_source_group_id === $livewire->getOwnerRecord()?->id),
-                Forms\Components\Toggle::make('is_active')
+                Toggle::make('is_active')
                     ->label(__('filament.resources.category_group.items.is_active'))
                     ->default(true),
             ]);
@@ -143,11 +152,11 @@ class CategoriesRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('key')
+                TextColumn::make('key')
                     ->label(__('filament.resources.category_group.items.key'))
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('slug')
+                TextColumn::make('slug')
                     ->label(__('filament.resources.category_group.items.title'))
                     ->formatStateUsing(function ($state, Category $record) {
                         return $record->getTranslation('slug', app()->getLocale(), false)
@@ -159,7 +168,7 @@ class CategoriesRelationManager extends RelationManager
                         $expression = static::getSortableTranslationExpression('slug', app()->getLocale());
                         $query->orderByRaw("{$expression} {$direction}");
                     }),
-                Tables\Columns\ImageColumn::make('icon')
+                ImageColumn::make('icon')
                     ->label(__('filament.resources.category_group.items.icon'))
                     ->disk('public')
                     ->square()
@@ -178,30 +187,30 @@ class CategoriesRelationManager extends RelationManager
 
                         return $icon;
                     }),
-                Tables\Columns\ColorColumn::make('color')
+                ColorColumn::make('color')
                     ->label(__('filament.resources.category_group.items.color'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\ToggleColumn::make('is_active')
+                ToggleColumn::make('is_active')
                     ->label(__('filament.resources.category_group.items.is_active'))
                     ->sortable(),
-                Tables\Columns\TextColumn::make('position')
+                TextColumn::make('position')
                     ->label(__('filament.resources.category_group.items.position'))
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label(__('filament.resources.category_group.items.created_at'))
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label(__('filament.resources.category_group.items.updated_at'))
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_active')
+                TernaryFilter::make('is_active')
                     ->label(__('filament.resources.category_group.items.is_active')),
             ])
             ->headerActions([
@@ -213,7 +222,7 @@ class CategoriesRelationManager extends RelationManager
                     ])),
             ])
             ->recordUrl(fn ($record) => CategoryResource::getUrl('edit', ['record' => $record]))
-            ->actions([
+            ->recordActions([
                 Action::make('edit_child')
                     ->label(__('filament.actions.edit'))
                     ->icon('heroicon-o-pencil-square')
@@ -227,9 +236,9 @@ class CategoriesRelationManager extends RelationManager
                     ->label($isReordering ? __('filament.actions.stop_sorting') : __('filament.actions.start_sorting'))
                     ->color('primary')
             )
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

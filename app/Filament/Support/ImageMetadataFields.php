@@ -2,9 +2,9 @@
 
 namespace App\Filament\Support;
 
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Fieldset;
 
 class ImageMetadataFields
 {

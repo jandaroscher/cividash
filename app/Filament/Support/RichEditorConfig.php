@@ -38,7 +38,7 @@ class RichEditorConfig
     {
         return RichEditor::make($name)
             ->toolbarButtons(self::STANDARD_TOOLBAR)
-            // Trix only names the editor from a matching <label>; there is none here.
+            // No matching <label> here, so name the editor explicitly.
             ->extraInputAttributes(fn (RichEditor $component): array => [
                 'aria-label' => $component->getLabel(),
             ]);
