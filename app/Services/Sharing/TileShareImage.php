@@ -233,11 +233,12 @@ class TileShareImage
                 break;
             }
         }
-        $value = $this->fit($headline['value'], $size, max(1, self::PANEL_WIDTH - $unitWidth), true);
+        // The number is never cut while it fits on its own; the unit gives way at a word end.
+        $value = $this->fit($headline['value'], $size, self::PANEL_WIDTH, true);
         $valueWidth = $this->line($img, $size, 104, $x, $y, $ink, $value, true);
-        if ($headline['unit'] !== '') {
+        if ($headline['unit'] !== '' && self::PANEL_WIDTH - $valueWidth - 16 > 0) {
             $this->onBaseline($img, 40, $x + $valueWidth + 16, $this->baseline($y, $size, 104), $ink,
-                $this->fit($headline['unit'], 40, max(1, self::PANEL_WIDTH - $valueWidth - 16), true), true);
+                $this->fitWords($headline['unit'], 40, self::PANEL_WIDTH - $valueWidth - 16, true), true);
         }
     }
 
@@ -330,6 +331,7 @@ class TileShareImage
         return $name ?: (string) config('app.name', 'Dashboard');
     }
 
+    /** Only #rgb/#rrggbb; rgb()/rgba() set via the API fall back to the next colour role, since alpha has no meaning on the image. */
     protected function hex(mixed $value): ?string
     {
         if (! is_string($value) || ! preg_match('/^#([0-9a-f]{3}|[0-9a-f]{6})$/i', trim($value))) {
@@ -456,7 +458,7 @@ class TileShareImage
         $words = preg_split('/\s+/u', trim($text), -1, PREG_SPLIT_NO_EMPTY);
         while (count($words) > 1) {
             array_pop($words);
-            $candidate = rtrim(implode(' ', $words), ' .,;:–-').'…';
+            $candidate = rtrim(implode(' ', $words), ' .,;:·–-').'…';
             if ($this->width($candidate, $px, $bold) <= $maxWidth) {
                 return $candidate;
             }

@@ -208,6 +208,25 @@ class TileShareImageTest extends TestCase
         }
     }
 
+    public function test_a_long_unit_is_cut_and_the_value_stays_whole(): void
+    {
+        $image = app(TileShareImage::class);
+        $render = fn (string $unit) => imagecreatefromstring($image->render([
+            'layout' => 1, 'locale' => 'de', 'logo' => null, 'site_name' => 'Dashboard', 'colors' => $image->colors([]),
+            'title' => 'Titel', 'description' => '', 'more' => [],
+            'headline' => ['value' => '1.298.450.000.000.000,25', 'unit' => $unit, 'label' => 'Gesamt', 'period' => '2024'],
+        ]));
+        $short = $render('kWh pro Einwohnerin und Einwohner');
+        $long = $render('kWh pro Einwohnerin und Einwohner im Jahresmittel der Region');
+
+        // Both units are too long for the panel; how much of them is cut must not change the number.
+        for ($x = 0; $x < 820; $x++) {
+            for ($y = 20; $y < TileShareImage::HEIGHT; $y++) {
+                $this->assertSame(imagecolorat($short, $x, $y), imagecolorat($long, $x, $y), "value differs at {$x},{$y}");
+            }
+        }
+    }
+
     public function test_further_metrics_are_left_out_when_one_is_too_wide(): void
     {
         $image = app(TileShareImage::class);
