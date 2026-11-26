@@ -9,11 +9,15 @@ SPDX-License-Identifier: EUPL-1.2+
     <aside
       id="default-sidebar"
       ref="sidebar"
-      tabindex="0"
+      tabindex="-1"
+      role="dialog"
+      aria-modal="true"
+      :inert="!overlayStore.open"
+      :aria-hidden="overlayStore.open ? undefined : 'true'"
       class="fixed z-40 w-full top-0 left-0 h-dvh transition-all"
       :style="{ backgroundColor: 'var(--overlay-background-color, rgba(0,0,0,0.4))' }"
       :class="{ 'opacity-0 !-z-[1]': !overlayStore.open }"
-      aria-label="Sidebar"
+      :aria-label="embedTitle || (currentLocale === 'en' ? 'Tile details' : 'Kacheldetails')"
       @keydown.esc="closeOverlay"
       @click.self="closeOverlay"
     >

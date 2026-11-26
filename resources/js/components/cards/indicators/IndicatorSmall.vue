@@ -12,7 +12,7 @@ SPDX-License-Identifier: EUPL-1.2+
       width="80"
       height="80"
       :src="imageUrl"
-      :alt="title"
+      alt=""
       loading="lazy"
     >
 
@@ -81,7 +81,6 @@ SPDX-License-Identifier: EUPL-1.2+
 
 <script setup>
 import { computed } from 'vue';
-import '../../../lib/dotlottie';
 import { useIndicator } from '../../../composables/useIndicator';
 
 const props = defineProps({

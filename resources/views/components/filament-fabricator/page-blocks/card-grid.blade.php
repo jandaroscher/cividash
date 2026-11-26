@@ -57,7 +57,7 @@ SPDX-License-Identifier: EUPL-1.2+
                             @if(isset($tile['icon']) && $tile['icon'])
                                 <img
                                     src="{{ $tile['icon'] }}"
-                                    alt="{{ isset($tile['title']) ? $tile['title'] . ' icon' : 'Icon' }}"
+                                    alt=""
                                     class="w-8 h-8 absolute top-4 right-4"
                                 />
                             @endif
@@ -67,7 +67,7 @@ SPDX-License-Identifier: EUPL-1.2+
                         </div>
                         <div class="bg-white py-6 px-4">
                             @if(isset($tile['description']) && $tile['description'])
-                                <p class="text-sm text-gray-300 hyphens-auto">{{ $tile['description'] }}</p>
+                                <p class="text-sm text-gray-500 hyphens-auto">{{ $tile['description'] }}</p>
                             @endif
                         </div>
                     </div>

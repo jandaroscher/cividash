@@ -37,7 +37,7 @@ SPDX-License-Identifier: EUPL-1.2+
             <button
               v-if="dismissible"
               type="button"
-              class="ml-4 text-gray-400 hover:text-gray-600 transition-colors"
+              class="ml-4 text-gray-500 hover:text-gray-600 transition-colors"
               aria-label="Close help"
               @click="closeOverlay"
             >
