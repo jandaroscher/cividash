@@ -8,6 +8,11 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
+    build: {
+        // Keep the browser support of Vite 6 (Safari 14, Chrome 87). Vite 7+ defaults to
+        // Baseline Widely Available, which drops Safari and iOS before 16.4.
+        target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+    },
     server: {
         cors: {
             origin: [
