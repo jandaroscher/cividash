@@ -9,7 +9,7 @@ SPDX-License-Identifier: EUPL-1.2+
     <div>
       <h2
         :id="headingId"
-        class="content-heading mb-6 hyphens-auto"
+        class="content-heading mb-6 hyphens-auto wrap-anywhere"
       >
         {{ labels.title }}
       </h2>

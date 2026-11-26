@@ -12,7 +12,7 @@ SPDX-License-Identifier: EUPL-1.2+
     >
       <h2
         v-if="effectiveHeading"
-        class="content-heading text-theme-h3 hyphens-auto order-1 xl:order-1 mb-0"
+        class="content-heading text-theme-h3 hyphens-auto wrap-anywhere order-1 xl:order-1 mb-0"
       >
         {{ effectiveHeading }}
       </h2>

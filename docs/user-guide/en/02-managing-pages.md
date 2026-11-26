@@ -28,7 +28,7 @@ Use **New Page** at the top right to create a page. The form is split into the c
 
 | Field | Description |
 |-------|-------------|
-| **Title** | Name of the page, also shown on the frontend |
+| **Title** | Name of the page. Shown on the frontend in the browser tab and, unless an SEO title is set, in search engines and when sharing. The visible page heading comes from the Intro Text block (see [Chapter 2.4.1](#241-intro-text-heading-text-image)). |
 | **URL Slug** | The page's address segment, auto-suggested while typing the title |
 | **Layout** | `Landingpage`, `Subpage`, or `default` |
 | **Parent Page** | Optional parent page for a hierarchical URL structure |
@@ -66,6 +66,8 @@ An introductory text block with a **heading**, an optional **subheading**, forma
 
 **Effect on the frontend:** Heading, subheading, and text appear as the page's header section. If no image is uploaded, the image area stays empty; the rest of the content is shown regardless.
 
+![Intro Text block on the frontend](../assets/screenshots/en/02-frontend-intro-text.png)
+
 ### 2.4.2 Text-Image Block (Text with Positioned Image)
 
 Combines a **heading**, formattable **text**, and an **image** (with image title, alt text and copyright, see [Chapter 5.3](05-images-and-files.md#53-alt-text-and-accessibility)) with a selectable **image position** (left/right).
@@ -74,6 +76,8 @@ Combines a **heading**, formattable **text**, and an **image** (with image title
 ![Text & Image block](../assets/screenshots/en/02-block-text-image.png)
 
 **Effect on the frontend:** The image appears to the left or right of the text depending on the chosen position. For details on image uploads, see [Chapter 5, Images and Files](05-images-and-files.md).
+
+![Text & Image block on the frontend](../assets/screenshots/en/02-frontend-text-image.png)
 
 ### 2.4.3 Slider (Image Carousel with Links)
 
@@ -84,6 +88,8 @@ A slider consists of an optional **heading** and any number of **slider items**.
 
 **Effect on the frontend:** Each slider item appears as its own card with an image, title, description, and a link button (labeled with **Link Text**).
 
+![Slider on the frontend](../assets/screenshots/en/02-frontend-slider.png)
+
 ### 2.4.4 FAQ Block (Question-Answer Pairs)
 
 A collection of **FAQ entries**, each with a **question** and a formattable **answer**. Use **Add to FAQ Entries** to add more entries.
@@ -92,6 +98,8 @@ A collection of **FAQ entries**, each with a **question** and a formattable **an
 ![FAQ block](../assets/screenshots/en/02-block-faq.png)
 
 **Effect on the frontend:** Each entry appears as a collapsible element (accordion) — the answer is only visible after clicking the question.
+
+![FAQ block on the frontend, first question expanded](../assets/screenshots/en/02-frontend-faq.png)
 
 ### 2.4.5 Tiles (Embed Dashboard Tiles)
 
@@ -104,6 +112,8 @@ Embeds dashboard tiles (see [Chapter 3, Managing Tiles](03-managing-tiles.md)) d
 
 **Effect on the frontend:** The block renders a searchable tile grid with a search field. Without any tiles created, the grid stays empty but the search field is still shown.
 
+![Tiles block on the frontend](../assets/screenshots/en/02-frontend-tiles.png)
+
 ### 2.4.6 Downloads (Offer Files for Download)
 
 Provides files for download. A downloads block has an optional **heading**, formattable **text**, and any number of **file** entries with an optional **title** (the filename is shown if left empty) and a required **file**.
@@ -112,6 +122,8 @@ Provides files for download. A downloads block has an optional **heading**, form
 ![Downloads block](../assets/screenshots/en/02-block-downloads.png)
 
 **Effect on the frontend:** Each file appears as a clickable download link with a file type label (e.g. "PDF").
+
+![Downloads block on the frontend](../assets/screenshots/en/02-frontend-downloads.png)
 
 ## 2.5 Sort, Enable and Disable Blocks
 

@@ -22,7 +22,7 @@ SPDX-License-Identifier: EUPL-1.2+
   >
     <template #header="{ header }">
       <div class="demo-city-title-bar">
-        <span class="demo-city-title-text hyphens-auto">{{ header }}</span>
+        <span class="demo-city-title-text min-w-0 hyphens-auto wrap-anywhere">{{ header }}</span>
         <span
           v-if="tenantStore.name"
           class="demo-city-badge shrink-0"
