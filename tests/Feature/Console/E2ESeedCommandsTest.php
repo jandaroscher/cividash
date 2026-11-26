@@ -14,6 +14,8 @@ use App\Models\TimePeriod;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class E2ESeedCommandsTest extends TestCase
@@ -190,5 +192,29 @@ class E2ESeedCommandsTest extends TestCase
         // Verify tokens were actually regenerated (no overlap in IDs)
         $overlap = array_intersect($tokenIdsBefore, $tokenIdsAfter);
         $this->assertEmpty($overlap, 'Token IDs should not overlap after --clean regeneration');
+    }
+
+    public function test_seed_media_clean_puts_back_the_logo_and_favicon_settings_the_legacy_content_replaced(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+        $this->artisan('e2e:seed-full')->assertSuccessful();
+        $default = Tenant::where('slug', 'default')->firstOrFail();
+        $setting = fn (int $tenant, string $group, string $name) => DB::table('settings')->where(['tenant_id' => $tenant, 'group' => $group, 'name' => $name]);
+        $setting(0, 'branding', 'logo_url')->delete();
+        $setting($default->id, 'general', 'favicon')->delete();
+        DB::table('settings')->insert([
+            ['tenant_id' => 0, 'group' => 'branding', 'name' => 'logo_url', 'payload' => json_encode('branding/city-logo.svg'), 'locked' => false],
+            ['tenant_id' => $default->id, 'group' => 'branding', 'name' => 'logo_url', 'payload' => json_encode('branding/dashboard-logo.svg'), 'locked' => false],
+        ]);
+
+        $this->artisan('e2e:seed-media --legacy')->assertSuccessful();
+        $this->artisan('e2e:seed-media --legacy')->assertSuccessful();
+        $this->assertTrue($setting($default->id, 'general', 'favicon')->exists());
+        $this->artisan('e2e:seed-media --clean')->assertSuccessful();
+
+        $this->assertSame('branding/city-logo.svg', json_decode($setting(0, 'branding', 'logo_url')->value('payload')));
+        $this->assertSame('branding/dashboard-logo.svg', json_decode($setting($default->id, 'branding', 'logo_url')->value('payload')));
+        $this->assertFalse($setting($default->id, 'general', 'favicon')->exists());
     }
 }

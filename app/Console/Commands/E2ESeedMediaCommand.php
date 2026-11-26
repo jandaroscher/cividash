@@ -33,6 +33,8 @@ class E2ESeedMediaCommand extends Command
 {
     public const MARKER = 'e2e-media';
 
+    private const SETTINGS_BACKUP = 'e2e-media-settings.json';
+
     protected $signature = 'e2e:seed-media
                             {--legacy : Add content that references files by path}
                             {--clean : Remove what the media library tests created}';
@@ -121,6 +123,7 @@ class E2ESeedMediaCommand extends Command
             'is_public' => true,
         ]);
 
+        $this->backUpSettings([[$tenant->id, 'general', 'favicon'], [$tenant->id, 'branding', 'logo_url'], [0, 'branding', 'logo_url']]);
         $this->setting($tenant->id, 'general', 'favicon', $files['favicon']);
         // The dashboard's own logo would hide the inherited one
         DB::table('settings')->where(['tenant_id' => $tenant->id, 'group' => 'branding', 'name' => 'logo_url'])->delete();
@@ -141,6 +144,8 @@ class E2ESeedMediaCommand extends Command
 
             return str_contains($value, self::MARKER) || (ctype_digit($value) && $media->contains('id', (int) $value));
         };
+
+        $this->restoreSettings();
 
         // Logos and favicons point at test files only if a test set them
         DB::table('settings')->whereIn('tenant_id', [0, ...$tenants])->whereIn('name', ['logo_url', 'favicon'])->get()
@@ -167,6 +172,41 @@ class E2ESeedMediaCommand extends Command
         // Deleting through the model also removes the stored file
         $media->each->delete();
         Storage::disk('public')->deleteDirectory('legacy-e2e');
+    }
+
+    /**
+     * Keeps the settings rows the legacy content overwrites, so --clean can put them back.
+     * A second seed keeps the first backup, which still holds the values from before the tests.
+     *
+     * @param  list<array{int, string, string}>  $keys  tenant id, group and name
+     */
+    private function backUpSettings(array $keys): void
+    {
+        if (Storage::disk('local')->exists(self::SETTINGS_BACKUP)) {
+            return;
+        }
+
+        Storage::disk('local')->put(self::SETTINGS_BACKUP, json_encode(array_map(function (array $key) {
+            $where = array_combine(['tenant_id', 'group', 'name'], $key);
+            $row = DB::table('settings')->where($where)->first(['payload', 'locked']);
+
+            return ['where' => $where, 'row' => $row ? (array) $row : null];
+        }, $keys)));
+    }
+
+    /** Puts back the settings rows from before the seed, and removes those that did not exist. */
+    private function restoreSettings(): void
+    {
+        if (! Storage::disk('local')->exists(self::SETTINGS_BACKUP)) {
+            return;
+        }
+
+        foreach (json_decode(Storage::disk('local')->get(self::SETTINGS_BACKUP), true) as ['where' => $where, 'row' => $row]) {
+            $row === null
+                ? DB::table('settings')->where($where)->delete()
+                : DB::table('settings')->updateOrInsert($where, [...$row, 'updated_at' => now()]);
+        }
+        Storage::disk('local')->delete(self::SETTINGS_BACKUP);
     }
 
     private function setting(int $tenantId, string $group, string $name, ?string $value): void
