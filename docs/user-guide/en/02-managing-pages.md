@@ -28,7 +28,7 @@ Use **New Page** at the top right to create a page. The form is split into the c
 
 | Field | Description |
 |-------|-------------|
-| **Title** | Name of the page. Shown on the frontend in the browser tab and, unless an SEO title is set, in search engines and when sharing. The visible page heading comes from the Intro Text block (see [Chapter 2.4.1](#241-intro-text-heading-text-image)). |
+| **Title** | Name of the page. Unless an SEO title is set, it is shown in the browser tab, in search engines and when sharing. When the page is picked in the navigation, the menu item takes the title as its link text. The visible page heading comes from the Intro Text block (see [Chapter 2.4.1](#241-intro-text-heading-text-image)). |
 | **URL Slug** | The page's address segment, auto-suggested while typing the title |
 | **Layout** | `Landingpage`, `Subpage`, or `default` |
 | **Parent Page** | Optional parent page for a hierarchical URL structure |

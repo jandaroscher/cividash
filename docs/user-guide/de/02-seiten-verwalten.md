@@ -28,7 +28,7 @@ Mit **Erstellen** oben rechts eine neue Seite anlegen. Das Formular gliedert sic
 
 | Feld | Beschreibung |
 |------|-------------|
-| **Titel** | Name der Seite. Erscheint im Frontend im Browser-Tab und, solange kein SEO-Titel gesetzt ist, in Suchmaschinen und beim Teilen. Die sichtbare Überschrift der Seite kommt aus dem Intro-Text-Block (siehe [Kapitel 2.4.1](#241-intro-text-überschrift-text-bild)). |
+| **Titel** | Name der Seite. Erscheint, solange kein SEO-Titel gesetzt ist, im Browser-Tab, in Suchmaschinen und beim Teilen. Wird die Seite in der Navigation ausgewählt, übernimmt der Menüpunkt den Titel als Linktext. Die sichtbare Überschrift der Seite kommt aus dem Intro-Text-Block (siehe [Kapitel 2.4.1](#241-intro-text-überschrift-text-bild)). |
 | **URL-Slug** | Adressteil der Seite, wird beim Tippen des Titels automatisch vorgeschlagen |
 | **Layout** | `Landingpage`, `Subpage` oder `default` |
 | **Übergeordnete Seite** | Optionale Elternseite für eine hierarchische URL-Struktur |

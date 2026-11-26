@@ -12,7 +12,7 @@ SPDX-License-Identifier: EUPL-1.2+
     <div class="container">
       <h1
         id="not-found-title"
-        class="content-heading mb-6 hyphens-auto"
+        class="content-heading mb-6 hyphens-auto wrap-anywhere"
       >
         404 - {{ messages.title }}
       </h1>
