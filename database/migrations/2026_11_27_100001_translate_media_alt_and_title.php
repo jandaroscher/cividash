@@ -28,10 +28,22 @@ return new class extends Migration
         $this->rewrite(fn (string $value) => $this->isTranslated($value)
             ? $value
             : json_encode([$locale => $value], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+        // A JSON column lets search read the text of each language instead of the raw JSON
+        Schema::table('curator', function (Blueprint $table) {
+            foreach (self::COLUMNS as $column) {
+                $table->json($column)->nullable()->using("\"{$column}\"::json")->change();
+            }
+        });
     }
 
     public function down(): void
     {
+        Schema::table('curator', function (Blueprint $table) {
+            $table->text('alt')->nullable()->change();
+            $table->text('title')->nullable()->change();
+        });
+
         $locale = config('app.default_content_locale');
         $this->rewrite(function (string $value) use ($locale) {
             if (! $this->isTranslated($value)) {
@@ -67,7 +79,9 @@ return new class extends Migration
         DB::table('curator')->select(['id', ...self::COLUMNS])->orderBy('id')->each(function ($row) use ($convert) {
             $values = [];
             foreach (self::COLUMNS as $column) {
-                if ($row->{$column} !== null && $row->{$column} !== '') {
+                if ($row->{$column} === '') {
+                    $values[$column] = null; // not valid JSON
+                } elseif ($row->{$column} !== null) {
                     $values[$column] = $convert($row->{$column});
                 }
             }

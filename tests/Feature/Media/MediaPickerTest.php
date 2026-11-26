@@ -288,4 +288,23 @@ class MediaPickerTest extends TestCase
         $this->assertSame(['de' => 'Ein See', 'en' => 'A lake'], $media->getTranslations('alt'));
         $this->assertSame('Lake', $media->getTranslation('title', 'en', false));
     }
+
+    public function test_searching_the_picker_and_the_library_matches_texts_not_their_stored_language_keys(): void
+    {
+        $media = $this->media($this->tenant, 'uploads/lake.png');
+        $media->setTranslations('alt', ['de' => 'Ein See', 'en' => 'A lake'])->setTranslations('title', ['de' => 'Seeblick', 'en' => 'Lake view'])->forceFill(['name' => 'lake'])->saveQuietly();
+        $panel = Livewire::test('curator-panel');
+        $found = fn (string $search) => collect($panel->set('search', $search)->get('files'))->pluck('id')->all();
+
+        foreach (['de', 'en', '"', ':'] as $search) {
+            $this->assertSame([], $found($search), "Searching for {$search}");
+        }
+        // The table reads a lone quote as an empty phrase search, so it lists everything for that one
+        foreach (['de', 'en', ':'] as $search) {
+            Livewire::test(ListMedia::class)->searchTable($search)->assertCanNotSeeTableRecords([$media]);
+        }
+        $this->assertSame([$media->id], $found('view'));
+        $this->assertSame([$media->id], $found('Seeblick'));
+        Livewire::test(ListMedia::class)->searchTable('view')->assertCanSeeTableRecords([$media]);
+    }
 }
