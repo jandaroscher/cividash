@@ -18,6 +18,7 @@ use App\Services\Integration\NgsiLdClient;
 use App\Services\Integration\NgsiLdDataMapper;
 use App\Services\Integration\SensorThingsClient;
 use App\Services\Integration\SyncService;
+use App\Services\Media\MediaLibrary;
 use App\Support\SvgSanitizer;
 use Awcodes\Curator\Components\Forms\Uploader;
 use BezhanSalleh\LanguageSwitch\Events\LocaleChanged;
@@ -44,6 +45,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // One per request, so each library item is loaded once however often content refers to it.
+        $this->app->scoped(MediaLibrary::class);
+
         $this->app->bind(ExternalDataSourceInterface::class, fn () => config('integrations.civitas.driver') === 'sensorthings'
             ? SensorThingsClient::fromConfig()
             : NgsiLdClient::fromConfig());

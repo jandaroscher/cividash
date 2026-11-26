@@ -6,6 +6,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaReference;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -34,7 +35,7 @@ class StoreCategoryRequest extends FormRequest
             'slug.de' => ['required', 'string', 'max:255'],
             'slug.en' => ['nullable', 'string', 'max:255'],
             'key' => ['nullable', 'string', 'max:255'],
-            'icon' => ['nullable', 'string', 'max:255'],
+            'icon' => ['nullable', 'string', 'max:255', new MediaReference],
             'color' => ['nullable', 'string', 'max:50'],
             'is_active' => ['nullable', 'boolean'],
             'position' => ['nullable', 'integer', 'min:0'],

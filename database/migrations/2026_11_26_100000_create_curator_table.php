@@ -32,10 +32,13 @@ return new class extends Migration
             $table->text('pretty_name')->nullable();
             $table->text('exif')->nullable();
             $table->longText('curations')->nullable();
+            // The file a library item was copied from when existing content was adopted.
+            $table->string('source_path')->nullable();
             $table->foreignId('tenant_id')->nullable()->constrained()->cascadeOnDelete();
             $table->timestamps();
 
             $table->index(['tenant_id', 'path']);
+            $table->index(['tenant_id', 'source_path']);
         });
     }
 

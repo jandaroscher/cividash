@@ -6,6 +6,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaReference;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -42,9 +43,9 @@ class UpdateTileRequest extends FormRequest
             'description' => ['sometimes', 'array'],
             'description.de' => ['nullable', 'string'],
             'description.en' => ['nullable', 'string'],
-            'icon' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'icon' => ['sometimes', 'nullable', 'string', 'max:255', new MediaReference],
             'position' => ['sometimes', 'nullable', 'integer', 'min:0'],
-            'background_blocks' => ['sometimes', 'nullable', 'array'],
+            'background_blocks' => ['sometimes', 'nullable', 'array', new MediaReference],
             'is_public' => ['sometimes', 'boolean'],
             'meta_title' => ['sometimes', 'nullable', 'array'],
             'meta_title.de' => ['nullable', 'string', 'max:255'],
@@ -52,7 +53,7 @@ class UpdateTileRequest extends FormRequest
             'meta_description' => ['sometimes', 'nullable', 'array'],
             'meta_description.de' => ['nullable', 'string'],
             'meta_description.en' => ['nullable', 'string'],
-            'meta_image' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'meta_image' => ['sometimes', 'nullable', 'string', 'max:255', new MediaReference],
             'handlungsdimension_id' => [
                 'sometimes',
                 'nullable',

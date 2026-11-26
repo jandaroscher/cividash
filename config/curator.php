@@ -25,7 +25,7 @@ return [
     'default_visibility' => 'public',
     'features' => [
         'curations' => false,
-        'file_swap' => true,
+        'file_swap' => false,
         'directory_restriction' => false,
         'preserve_file_names' => false,
         'tenancy' => [

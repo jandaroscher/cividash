@@ -6,6 +6,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\MediaReference;
 use App\Settings\BrandingSettings;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -34,7 +35,7 @@ class UpdateBrandingRequest extends FormRequest
             'primary_color' => ['sometimes', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'secondary_color' => ['sometimes', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'accent_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-            'logo_url' => ['nullable', 'string', 'max:500', 'regex:/^(?!.*\.\.)[\w\-\/.:%?&=+~#@]+$/'],
+            'logo_url' => ['nullable', 'string', 'max:500', 'regex:/^(?!.*\.\.)[\w\-\/.:%?&=+~#@]+$/', new MediaReference],
             'typography_font_family' => ['sometimes', 'string', 'max:255'],
             'typography_font_weights' => ['sometimes', 'array'],
             'typography_font_weights.*' => ['integer', 'min:100', 'max:900'],

@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCategoryRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
 use App\Models\Category;
+use App\Services\Media\MediaLibrary;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -51,7 +52,7 @@ class AdminCategoryController extends Controller
                 'category_group_id' => $category->category_group_id,
                 'slug' => $category->getTranslations('slug'),
                 'key' => $category->key,
-                'icon' => $category->icon,
+                'icon' => app(MediaLibrary::class)->localizedPath($category->icon),
                 'color' => $category->color,
                 'is_active' => $category->is_active,
                 'position' => $category->position,
@@ -99,7 +100,7 @@ class AdminCategoryController extends Controller
                 'category_group_id' => $category->category_group_id,
                 'slug' => $category->getTranslations('slug'),
                 'key' => $category->key,
-                'icon' => $category->icon,
+                'icon' => app(MediaLibrary::class)->localizedPath($category->icon),
                 'color' => $category->color,
                 'is_active' => $category->is_active,
                 'position' => $category->position,

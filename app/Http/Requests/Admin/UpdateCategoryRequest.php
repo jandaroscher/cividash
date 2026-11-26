@@ -6,6 +6,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaReference;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -34,7 +35,7 @@ class UpdateCategoryRequest extends FormRequest
             'slug.de' => ['sometimes', 'string', 'max:255'],
             'slug.en' => ['nullable', 'string', 'max:255'],
             'key' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'icon' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'icon' => ['sometimes', 'nullable', 'string', 'max:255', new MediaReference],
             'color' => ['sometimes', 'nullable', 'string', 'max:50'],
             'is_active' => ['sometimes', 'boolean'],
             'position' => ['sometimes', 'nullable', 'integer', 'min:0'],

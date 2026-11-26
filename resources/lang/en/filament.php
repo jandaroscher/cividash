@@ -29,8 +29,15 @@ return [
             'tiles' => 'Tile',
             'metric_definitions' => 'Metric',
             'footer_navigations' => 'Site settings (footer)',
-            'settings' => 'Branding',
+            'categories' => 'Category',
+            'settings' => 'Settings',
         ],
+        'usage_settings' => [
+            'branding' => ['logo_url' => 'Logo'],
+            'general' => ['favicon' => 'Favicon'],
+        ],
+        'too_large' => 'The file is larger than the :max this field allows.',
+        'unknown_reference' => "The file is not in this dashboard's media library.",
     ],
     'pages' => [
         'manage_data_by_period' => [

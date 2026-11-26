@@ -7,16 +7,20 @@
 namespace App\Models;
 
 use App\Exceptions\MediaInUseException;
+use App\Models\Concerns\BelongsToTenant;
 use App\Services\Media\MediaLibrary;
 use Awcodes\Curator\Models\Media as CuratorMedia;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * A file in the media library. Content fields store its id; the API resolves the id
- * to the stored path (see App\Services\Media\MediaLibrary).
+ * to the stored path (see App\Services\Media\MediaLibrary). Queries only see the
+ * current dashboard's files.
  */
 class Media extends CuratorMedia
 {
+    use BelongsToTenant;
+
     protected $fillable = [
         'disk',
         'directory',

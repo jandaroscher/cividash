@@ -6,6 +6,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaReference;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -41,9 +42,9 @@ class StoreTileRequest extends FormRequest
             'description' => ['nullable', 'array'],
             'description.de' => ['nullable', 'string'],
             'description.en' => ['nullable', 'string'],
-            'icon' => ['nullable', 'string', 'max:255'],
+            'icon' => ['nullable', 'string', 'max:255', new MediaReference],
             'position' => ['nullable', 'integer', 'min:0'],
-            'background_blocks' => ['nullable', 'array'],
+            'background_blocks' => ['nullable', 'array', new MediaReference],
             'is_public' => ['nullable', 'boolean'],
             'meta_title' => ['nullable', 'array'],
             'meta_title.de' => ['nullable', 'string', 'max:255'],
@@ -51,7 +52,7 @@ class StoreTileRequest extends FormRequest
             'meta_description' => ['nullable', 'array'],
             'meta_description.de' => ['nullable', 'string'],
             'meta_description.en' => ['nullable', 'string'],
-            'meta_image' => ['nullable', 'string', 'max:255'],
+            'meta_image' => ['nullable', 'string', 'max:255', new MediaReference],
             'handlungsdimension_id' => [
                 'nullable',
                 'integer',

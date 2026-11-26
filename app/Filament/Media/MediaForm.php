@@ -9,6 +9,7 @@ namespace App\Filament\Media;
 use App\Filament\Fabricator\Resources\PageResource;
 use App\Filament\Pages\ManageBranding;
 use App\Filament\Pages\ManageSiteSettings;
+use App\Filament\Resources\CategoryResource;
 use App\Filament\Resources\TileResource;
 use App\Models\Media;
 use App\Models\MetricDefinition;
@@ -64,6 +65,7 @@ class MediaForm extends CuratorMediaForm
             'pages' => PageResource::getUrl('edit', ['record' => $usage['id']]),
             'tiles' => TileResource::getUrl('edit', ['record' => $usage['id']]),
             'metric_definitions' => TileResource::getUrl('edit', ['record' => MetricDefinition::withoutGlobalScopes()->find($usage['id'])?->tile_id]),
+            'categories' => CategoryResource::getUrl('edit', ['record' => $usage['id']]),
             'footer_navigations' => ManageSiteSettings::getUrl(),
             'settings' => ManageBranding::getUrl(),
             default => null,

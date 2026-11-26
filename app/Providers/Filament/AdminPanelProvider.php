@@ -76,6 +76,7 @@ class AdminPanelProvider extends PanelProvider
         // Library uploads take the largest file a content field accepts (downloads, 25 MB);
         // each picker keeps its own, smaller limit.
         Curator::maxSize(25 * 1024);
+        Curator::acceptedFileTypes(MediaLibrary::UPLOAD_TYPES);
 
         // Media still used by content can't be deleted (the model enforces it too).
         Curator::configureDeleteActionsUsing(function (Action $action): void {

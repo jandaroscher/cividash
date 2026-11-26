@@ -7,7 +7,10 @@
 namespace Tests\Feature\Media;
 
 use App\Filament\Pages\ManageBranding;
+use App\Filament\Resources\CategoryResource\Pages\EditCategory;
 use App\Filament\Resources\TileResource\Pages\EditTile;
+use App\Models\Category;
+use App\Models\CategoryGroup;
 use App\Models\Media;
 use App\Models\Tenant;
 use App\Models\Tile;
@@ -51,16 +54,28 @@ class MediaPickerTest extends TestCase
         parent::tearDown();
     }
 
-    private function media(Tenant $tenant, string $path): Media
+    private function media(Tenant $tenant, string $path, int $size = 100): Media
     {
         Storage::disk('public')->put($path, UploadedFile::fake()->image(basename($path))->getContent());
+        $media = app(MediaLibrary::class)->adopt($path, $tenant->id);
+        $media->forceFill(['size' => $size])->saveQuietly();
 
-        return app(MediaLibrary::class)->adopt($path, $tenant->id);
+        return $media;
+    }
+
+    private function tile(array $attributes): Tile
+    {
+        return Tile::create([
+            'title' => ['de' => 'Wasser', 'en' => 'Water'],
+            'slug' => ['de' => 'wasser', 'en' => 'water'],
+            'tenant_id' => $this->tenant->id,
+            ...$attributes,
+        ]);
     }
 
     public function test_picking_a_logo_stores_its_id_and_the_api_returns_its_url(): void
     {
-        $logo = $this->media($this->tenant, 'media/1/logo.png');
+        $logo = $this->media($this->tenant, 'uploads/logo.png');
 
         Livewire::test(ManageBranding::class)
             ->set('data.logo_url', [(string) Str::uuid() => $logo->toArray()])
@@ -68,12 +83,23 @@ class MediaPickerTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertEquals($logo->id, app(BrandingSettings::class)->logo_url);
-        $this->assertSame(Storage::disk('public')->url('media/1/logo.png'), app(MediaLibrary::class)->url(app(BrandingSettings::class)->logo_url));
+        $this->assertSame(Storage::disk('public')->url($logo->path), app(MediaLibrary::class)->url(app(BrandingSettings::class)->logo_url));
+    }
+
+    public function test_a_logo_larger_than_the_field_allows_is_refused(): void
+    {
+        // The logo field takes 2 MB; the library itself takes larger files.
+        $logo = $this->media($this->tenant, 'uploads/large-logo.png', 2049 * 1024);
+
+        Livewire::test(ManageBranding::class)
+            ->set('data.logo_url', [(string) Str::uuid() => $logo->toArray()])
+            ->call('save')
+            ->assertHasFormErrors(['logo_url']);
     }
 
     public function test_media_of_another_dashboard_cannot_be_picked(): void
     {
-        $foreign = $this->media($this->other, 'media/2/foreign.png');
+        $foreign = $this->media($this->other, 'uploads/foreign.png');
 
         Livewire::test(ManageBranding::class)
             ->set('data.logo_url', [(string) Str::uuid() => $foreign->toArray()])
@@ -81,29 +107,60 @@ class MediaPickerTest extends TestCase
             ->assertHasFormErrors(['logo_url']);
     }
 
-    public function test_a_stored_path_is_added_to_the_library_when_the_form_loads(): void
+    public function test_a_stored_path_is_copied_into_the_library_once_and_saved_as_its_id(): void
     {
         Storage::disk('public')->put('tiles/seo/old.png', UploadedFile::fake()->image('old.png')->getContent());
-        $tile = Tile::create([
-            'title' => ['de' => 'Wasser', 'en' => 'Water'],
-            'slug' => ['de' => 'wasser', 'en' => 'water'],
-            'meta_image' => 'tiles/seo/old.png',
-            'tenant_id' => $this->tenant->id,
-        ]);
+        $tile = $this->tile(['meta_image' => 'tiles/seo/old.png']);
 
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()]);
         Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
             ->call('save')
             ->assertHasNoFormErrors();
 
-        $media = Media::where('tenant_id', $this->tenant->id)->sole();
-        $this->assertSame('tiles/seo/old.png', $media->path);
+        $media = Media::sole();
+        $this->assertSame('tiles/seo/old.png', $media->source_path);
         $this->assertEquals($media->id, DB::table('tiles')->where('id', $tile->id)->value('meta_image'));
+        Storage::disk('public')->assertExists(['tiles/seo/old.png', $media->path]);
+    }
+
+    public function test_a_stored_path_whose_file_is_missing_survives_saving(): void
+    {
+        $tile = $this->tile(['meta_image' => 'tiles/seo/gone.png']);
+
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->assertOk()
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('tiles/seo/gone.png', DB::table('tiles')->where('id', $tile->id)->value('meta_image'));
+        $this->assertSame(0, Media::count());
+    }
+
+    public function test_a_category_icon_is_picked_per_locale(): void
+    {
+        $icon = $this->media($this->tenant, 'uploads/water.png');
+        $group = CategoryGroup::create(['title' => ['de' => 'Themen', 'en' => 'Topics'], 'key' => 'topics', 'tenant_id' => $this->tenant->id]);
+        $category = Category::create([
+            'category_group_id' => $group->id,
+            'slug' => ['de' => 'Wasser', 'en' => 'Water'],
+            'key' => 'water',
+            'icon' => json_encode(['en' => 'categories/old-en.png']),
+            'tenant_id' => $this->tenant->id,
+        ]);
+        app()->setLocale('de');
+
+        Livewire::test(EditCategory::class, ['record' => $category->getRouteKey()])
+            ->set('data.icon', [(string) Str::uuid() => $icon->toArray()])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(['en' => 'categories/old-en.png', 'de' => $icon->id], json_decode(DB::table('categories')->where('id', $category->id)->value('icon'), true));
     }
 
     public function test_media_library_lists_only_the_current_dashboard(): void
     {
-        $own = $this->media($this->tenant, 'media/1/own.png');
-        $foreign = $this->media($this->other, 'media/2/foreign.png');
+        $own = $this->media($this->tenant, 'uploads/own.png');
+        $foreign = $this->media($this->other, 'uploads/foreign.png');
         // Livewire tests skip the panel middleware that applies the tenant scope.
         Filament::setCurrentPanel(Filament::getPanel('admin'));
         Filament::getPanel('admin')->bootTenancy();
@@ -113,22 +170,24 @@ class MediaPickerTest extends TestCase
             ->assertCanNotSeeTableRecords([$foreign]);
     }
 
+    public function test_media_of_another_dashboard_cannot_be_opened(): void
+    {
+        $foreign = $this->media($this->other, 'uploads/foreign.png');
+
+        $this->get("/admin/{$this->tenant->id}/media/{$foreign->id}/edit")->assertNotFound();
+    }
+
     public function test_deleting_media_in_use_is_refused_with_a_message(): void
     {
-        $media = $this->media($this->tenant, 'media/1/used.png');
-        Tile::create([
-            'title' => ['de' => 'Luft', 'en' => 'Air'],
-            'slug' => ['de' => 'luft', 'en' => 'air'],
-            'icon' => $media->id,
-            'tenant_id' => $this->tenant->id,
-        ]);
+        $media = $this->media($this->tenant, 'uploads/used.png');
+        $this->tile(['icon' => $media->id]);
 
         Livewire::test(EditMedia::class, ['record' => $media->getKey()])
             ->callAction(DeleteAction::class)
             ->assertNotified(__('filament.media.in_use'));
 
         $this->assertModelExists($media);
-        Storage::disk('public')->assertExists('media/1/used.png');
+        Storage::disk('public')->assertExists($media->path);
     }
 
     public function test_an_upload_lands_in_the_folder_of_the_current_dashboard(): void
@@ -144,5 +203,32 @@ class MediaPickerTest extends TestCase
         $this->assertStringStartsWith('media/'.$this->tenant->id.'/', $media->path);
         $this->assertSame([64, 48], [$media->width, $media->height]);
         Storage::disk('public')->assertExists($media->path);
+    }
+
+    public function test_the_library_refuses_files_no_content_field_accepts(): void
+    {
+        Livewire::test(CreateMedia::class)
+            ->set('data.file', UploadedFile::fake()->create('notes.txt', 1, 'text/plain'))
+            ->call('create')
+            ->assertHasFormErrors(['file']);
+
+        $this->assertSame(0, Media::count());
+    }
+
+    public function test_an_uploaded_svg_is_sanitized_on_disk(): void
+    {
+        // Category icons and other fields take SVGs, which now arrive through the library.
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><script>alert(document.cookie)</script><circle r="1"/></svg>';
+
+        Livewire::test(CreateMedia::class)
+            ->set('data.file', UploadedFile::fake()->createWithContent('malicious.svg', $svg))
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $stored = Storage::disk('public')->get(Media::sole()->path);
+        $this->assertStringNotContainsString('<script', $stored);
+        $this->assertStringNotContainsString('onload', $stored);
+        $this->assertStringNotContainsString('alert', $stored);
+        $this->assertStringContainsString('<circle', $stored);
     }
 }

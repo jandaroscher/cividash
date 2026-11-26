@@ -29,8 +29,15 @@ return [
             'tiles' => 'Kachel',
             'metric_definitions' => 'Kennzahl',
             'footer_navigations' => 'Website-Einstellungen (Footer)',
-            'settings' => 'Branding',
+            'categories' => 'Kategorie',
+            'settings' => 'Einstellungen',
         ],
+        'usage_settings' => [
+            'branding' => ['logo_url' => 'Logo'],
+            'general' => ['favicon' => 'Favicon'],
+        ],
+        'too_large' => 'Die Datei ist größer als :max, die dieses Feld erlaubt.',
+        'unknown_reference' => 'Die Datei gehört nicht zur Mediathek dieses Dashboards.',
     ],
     'pages' => [
         'manage_data_by_period' => [

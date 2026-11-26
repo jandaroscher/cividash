@@ -6,6 +6,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaReference;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -45,7 +46,7 @@ class UpdateMetricDefinitionRequest extends FormRequest
             'unit' => ['sometimes', 'array'],
             'unit.de' => ['nullable', 'string', 'max:50'],
             'unit.en' => ['nullable', 'string', 'max:50'],
-            'icon' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'icon' => ['sometimes', 'nullable', 'string', 'max:255', new MediaReference],
             'indicator_type' => ['sometimes', 'nullable', 'string', 'max:50'],
             'is_active' => ['sometimes', 'boolean'],
             // tenant_id is explicitly NOT allowed - it comes from context and cannot be changed

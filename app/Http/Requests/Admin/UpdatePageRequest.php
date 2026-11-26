@@ -6,6 +6,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\MediaReference;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -32,7 +33,7 @@ class UpdatePageRequest extends FormRequest
             'slug.de' => ['sometimes', 'string', 'max:255'],
             'slug.en' => ['nullable', 'string', 'max:255'],
             'layout' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'blocks' => ['sometimes', 'nullable', 'array'],
+            'blocks' => ['sometimes', 'nullable', 'array', new MediaReference],
             'blocks.de' => ['nullable', 'array'],
             'blocks.en' => ['nullable', 'array'],
             'parent_id' => [
@@ -48,7 +49,7 @@ class UpdatePageRequest extends FormRequest
             'meta_description' => ['sometimes', 'nullable', 'array'],
             'meta_description.de' => ['nullable', 'string'],
             'meta_description.en' => ['nullable', 'string'],
-            'meta_image' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'meta_image' => ['sometimes', 'nullable', 'string', 'max:255', new MediaReference],
             // tenant_id is explicitly NOT allowed - it comes from context and cannot be changed
         ];
     }
