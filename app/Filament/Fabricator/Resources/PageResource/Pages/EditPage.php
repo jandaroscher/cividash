@@ -6,15 +6,16 @@
 
 namespace App\Filament\Fabricator\Resources\PageResource\Pages;
 
+use App\Filament\Concerns\OpensInLinkedLocale;
 use App\Filament\Fabricator\Resources\PageResource;
-use Filament\Actions;
 use Filament\Actions\Action;
-use Filament\Resources\Pages\EditRecord\Concerns\Translatable;
-use Illuminate\Support\Arr;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable;
 use Z3d0X\FilamentFabricator\Resources\PageResource\Pages\EditPage as FabricatorEditPage;
 
 class EditPage extends FabricatorEditPage
 {
+    use OpensInLinkedLocale;
     use Translatable;
 
     protected static string $resource = PageResource::class;
@@ -23,11 +24,7 @@ class EditPage extends FabricatorEditPage
     {
         parent::mount($record);
 
-        $locale = request()->query('activeLocale');
-
-        if ($locale && in_array($locale, $this->getTranslatableLocales()) && $locale !== $this->activeLocale) {
-            $this->setActiveLocale($locale);
-        }
+        $this->openLinkedLocale();
     }
 
     protected function getHeaderActions(): array
@@ -56,31 +53,9 @@ class EditPage extends FabricatorEditPage
         }
 
         return [
-            Actions\LocaleSwitcher::make(),
+            LocaleSwitcher::make(),
             ...$actions,
         ];
-    }
-
-    public function updatedActiveLocale(): void
-    {
-        if (blank($this->oldActiveLocale)) {
-            return;
-        }
-
-        $this->resetValidation();
-
-        $translatableAttributes = static::getResource()::getTranslatableAttributes();
-
-        $this->otherLocaleData[$this->oldActiveLocale] = Arr::only($this->data, $translatableAttributes);
-
-        // Fix repeater does not work with translations - see: https://github.com/filamentphp/filament/issues/8328#issuecomment-2060787867
-        $this->form->fill([
-            ...Arr::except($this->data, $translatableAttributes),
-            ...$this->otherLocaleData[$this->activeLocale] ?? [],
-        ]);
-        // Fix repeater does not work with translations - End
-
-        unset($this->otherLocaleData[$this->activeLocale]);
     }
 
     protected function getFormActions(): array

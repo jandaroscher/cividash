@@ -9,10 +9,12 @@ namespace App\Filament\Resources\TileResource\Pages;
 use App\Filament\Resources\TileResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Resources\Pages\CreateRecord\Concerns\Translatable;
 
 class CreateTile extends CreateRecord
 {
-    use CreateRecord\Concerns\Translatable;
+    use Translatable;
 
     protected static string $resource = TileResource::class;
 
@@ -26,7 +28,7 @@ class CreateTile extends CreateRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\LocaleSwitcher::make(),
+            LocaleSwitcher::make(),
         ];
     }
 

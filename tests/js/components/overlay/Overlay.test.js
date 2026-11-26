@@ -38,6 +38,20 @@ describe('Overlay', () => {
         expect(useOverlayStore().open).toBe(false);
     });
 
+    it('is announced as a modal dialog named after the tile', () => {
+        const dialog = wrapper.find('aside');
+
+        expect(dialog.attributes()).toMatchObject({ role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Radwege' });
+    });
+
+    it('takes the closed overlay out of the tab order', async () => {
+        useOverlayStore().closeOverlay();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('aside').attributes('inert')).toBeDefined();
+        expect(wrapper.find('aside').attributes('aria-hidden')).toBe('true');
+    });
+
     it('keeps keyboard focus inside the open overlay', () => {
         document.getElementById('last').focus();
 

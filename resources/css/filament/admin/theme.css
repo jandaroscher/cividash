@@ -1,0 +1,24 @@
+/*
+ * SPDX-FileCopyrightText: 2025-2026 JANDA+ROSCHER GmbH & Co. KG
+ *
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+/*
+ * Admin panel theme. Since Filament 4 the precompiled panel CSS no longer carries the
+ * Tailwind utilities used in our own views, so they are compiled here. Building it
+ * needs the Composer vendor directory (Filament and plugin sources).
+ */
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/vendor/**/*';
+@source '../../../../vendor/bezhansalleh/filament-language-switch/**';
+@source '../../../../vendor/codewithdennis/filament-simple-alert/resources/**/*.blade.php';
+@source inline('animate-{spin,pulse,bounce}');
+
+/* Dashboard menu with nothing to open (one dashboard, no menu items): no hover affordance. */
+.fi-tenant-menu-trigger.cd-tenant-menu-trigger-static {
+    @apply cursor-default hover:bg-transparent focus-visible:bg-transparent dark:hover:bg-transparent dark:focus-visible:bg-transparent;
+}

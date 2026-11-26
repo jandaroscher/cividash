@@ -9,17 +9,18 @@ namespace App\Filament\Pages;
 use App\Filament\Support\RichEditorConfig;
 use App\Settings\ContentSettings;
 use Filament\Forms\Components\Builder;
+use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Schema;
 
 class ManageContent extends SettingsPage
 {
     protected static string $settings = ContentSettings::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-window';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-window';
 
     public function getTitle(): string
     {
@@ -40,15 +41,15 @@ class ManageContent extends SettingsPage
      * Builds the settings page form schema with a `hero_content` builder containing
      * `heading`, `paragraph`, `image`, and `text_image` blocks for managing hero section content.
      *
-     * @return Form The configured form instance.
+     * @return Schema The configured form instance.
      */
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->components([
             Builder::make('hero_content')
                 ->label(__('filament.pages.manage_content.hero_blocks'))
                 ->blocks([
-                    Builder\Block::make('heading')
+                    Block::make('heading')
                         ->label(__('filament.pages.manage_content.heading'))
                         ->schema([
                             TextInput::make('content')
@@ -59,7 +60,7 @@ class ManageContent extends SettingsPage
                                 ->required(),
                         ]),
 
-                    Builder\Block::make('paragraph')
+                    Block::make('paragraph')
                         ->label(__('filament.pages.manage_content.paragraph'))
                         ->schema([
                             RichEditorConfig::make('content')
@@ -67,7 +68,7 @@ class ManageContent extends SettingsPage
                                 ->required(),
                         ]),
 
-                    Builder\Block::make('image')
+                    Block::make('image')
                         ->label(__('filament.pages.manage_content.image'))
                         ->schema([
                             FileUpload::make('url')
@@ -79,7 +80,7 @@ class ManageContent extends SettingsPage
                                 ->label(__('filament.pages.manage_content.alt_text'))
                                 ->required(),
                         ]),
-                    Builder\Block::make('text_image')
+                    Block::make('text_image')
                         ->label(__('filament.pages.manage_content.text_image'))
                         ->schema([
                             Grid::make()

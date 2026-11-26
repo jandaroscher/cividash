@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import TileCard from '@/components/TileCard.vue';
 import { useBrandingStore } from '@/stores/branding';
@@ -239,6 +239,31 @@ describe('TileCard', () => {
         expect(wrapper.find('.tile-waterfall-item').element.style.display).not.toBe('none');
     });
 
+    it('announces the selected period on the year slider to screen readers', async () => {
+        const tile = createTile({
+            metric_definitions: [{
+                label: { de: 'Wert' },
+                unit: '',
+                values: [
+                    { period_key: '2023', value: 1 },
+                    { period_key: '2024', value: 2, label: 'Jahr 2024' },
+                ],
+            }],
+        });
+        const wrapper = createWrapper(tile);
+        await flushPromises();
+
+        const slider = wrapper.findComponent({ name: 'VueSlider' });
+        expect(slider.props('dotAttrs')).toEqual({
+            role: 'slider',
+            'aria-label': 'Zeitraum auswählen',
+            'aria-valuemin': 0,
+            'aria-valuemax': 1,
+            'aria-valuenow': 1,
+            'aria-valuetext': 'Jahr 2024',
+        });
+    });
+
     it('creates the dotlottie-wc with its src only after the tile intersects the viewport (lazy load)', async () => {
         const tile = createTile({ icon: 'https://example.com/animation.lottie' });
         // Render the real <dotlottie-wc> element (not stubbed) so its `src`
@@ -270,7 +295,7 @@ describe('TileCard', () => {
 
         // Simulate the IntersectionObserver reporting the tile as visible
         wrapper.find('[class="text-center"]').element.__intersectionCallback([{ isIntersecting: true }]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('dotlottie-wc').attributes('src')).toBe(tile.icon);
     });

@@ -10,12 +10,13 @@ SPDX-License-Identifier: EUPL-1.2+
     :style="{ backgroundColor: 'var(--card-background-color, #FFFFFF)' }"
   >
     <div class="flex flex-row justify-between space-x-4">
-      <div
+      <component
+        :is="headingLevel"
         v-if="tile"
-        class="text-theme-primary font-bold text-theme-h1 hyphens-auto min-w-0"
+        class="text-theme-primary font-bold text-theme-h1 hyphens-auto wrap-anywhere min-w-0"
       >
         {{ title }}
-      </div>
+      </component>
       <div class="flex items-center gap-3 shrink-0">
         <button
           v-if="tileSlug"
@@ -234,6 +235,12 @@ const props = defineProps({
     embeddable: {
         type: Boolean,
         default: false,
+    },
+    // h1 on the standalone tile page, h2 inside the overlay on a list page.
+    headingLevel: {
+        type: String,
+        default: 'h2',
+        validator: (value) => ['h1', 'h2'].includes(value),
     },
 });
 

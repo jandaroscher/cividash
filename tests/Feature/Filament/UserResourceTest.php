@@ -86,6 +86,20 @@ class UserResourceTest extends TestCase
             ->assertSuccessful();
     }
 
+    public function test_user_list_page_shows_users_from_other_tenants(): void
+    {
+        $otherTenant = $this->createTenantWithRoles([
+            'name' => 'Other Tenant',
+            'slug' => 'other-tenant',
+        ]);
+        $otherUser = $this->createUserWithRoleInTenant($otherTenant, 'Redakteur');
+
+        // Through the real panel route, where Filament's tenancy scope is active.
+        $this->get("/admin/{$this->tenant->id}/users")
+            ->assertOk()
+            ->assertSee($otherUser->email);
+    }
+
     public function test_can_search_users_by_email(): void
     {
         $redakteur = $this->createUserWithRoleInTenant($this->tenant, 'Redakteur');

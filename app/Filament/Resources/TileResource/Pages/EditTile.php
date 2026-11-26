@@ -6,17 +6,21 @@
 
 namespace App\Filament\Resources\TileResource\Pages;
 
+use App\Filament\Concerns\OpensInLinkedLocale;
 use App\Filament\Resources\TileResource;
 use Filament\Actions;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable;
 
 class EditTile extends EditRecord
 {
-    use EditRecord\Concerns\Translatable;
+    use OpensInLinkedLocale;
+    use Translatable;
 
     protected static string $resource = TileResource::class;
 
@@ -26,11 +30,7 @@ class EditTile extends EditRecord
     {
         parent::mount($record);
 
-        $locale = request()->query('activeLocale');
-
-        if ($locale && in_array($locale, $this->getTranslatableLocales()) && $locale !== $this->activeLocale) {
-            $this->setActiveLocale($locale);
-        }
+        $this->openLinkedLocale();
     }
 
     /****
@@ -44,8 +44,8 @@ class EditTile extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\LocaleSwitcher::make(),
-            Actions\DeleteAction::make(),
+            LocaleSwitcher::make(),
+            DeleteAction::make(),
             Action::make('view_frontend')
                 ->label(__('filament.resources.tile.actions.view_frontend'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
@@ -78,28 +78,6 @@ class EditTile extends EditRecord
     public function getFormMaxWidth(): ?string
     {
         return '7xl';
-    }
-
-    public function updatedActiveLocale(): void
-    {
-        if (blank($this->oldActiveLocale)) {
-            return;
-        }
-
-        $this->resetValidation();
-
-        $translatableAttributes = static::getResource()::getTranslatableAttributes();
-
-        $this->otherLocaleData[$this->oldActiveLocale] = Arr::only($this->data, $translatableAttributes);
-
-        // Fix repeater does not work with translations - see: https://github.com/filamentphp/filament/issues/8328#issuecomment-2060787867
-        $this->form->fill([
-            ...Arr::except($this->data, $translatableAttributes),
-            ...$this->otherLocaleData[$this->activeLocale] ?? [],
-        ]);
-        // Fix repeater does not work with translations - End
-
-        unset($this->otherLocaleData[$this->activeLocale]);
     }
 
     /**

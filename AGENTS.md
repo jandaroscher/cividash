@@ -76,8 +76,8 @@ Write tests first (TDD).
 - Use outline icons (`heroicon-o-*`) everywhere: navigation, table actions, form actions
   (Builder/Repeater delete) and custom actions. Never use solid (`heroicon-s-*`) or mini
   (`heroicon-m-*`).
-- Global outline overrides live in `AdminPanelProvider::boot()`; theme switcher icons in
-  `resources/views/vendor/filament-panels/components/theme-switcher/`.
+- Global outline overrides (including the theme switcher and dashboard menu) are icon
+  aliases in `AdminPanelProvider::boot()`.
 
 ## Localization
 
@@ -114,5 +114,5 @@ Follow [CONTRIBUTING.md](CONTRIBUTING.md). In short:
 
 ## Tech stack
 
-Laravel 12 (PHP 8.4, Sanctum), Filament 3.3 with Filament Fabricator, Vue 3 with Vue
+Laravel 12 (PHP 8.4, Sanctum), Filament 5 with Filament Fabricator, Vue 3 with Vue
 Router 4 and Pinia, Tailwind CSS 4, Vite 6, PostgreSQL 16, PHPUnit, Vitest, Playwright.

@@ -33,6 +33,7 @@ SPDX-License-Identifier: EUPL-1.2+
     >
       <OverlayHeader
         :tile="tile"
+        heading-level="h1"
         @close="navigateBack"
       />
       <OverlayContent :tile="tile" />

@@ -9,9 +9,10 @@ namespace App\Filament\Pages\Tenancy;
 use App\Models\Page;
 use App\Models\Tenant;
 use Filament\Facades\Filament;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Forms\Components\TextInput;
 use Filament\Pages\Tenancy\RegisterTenant as BaseRegisterTenant;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -49,24 +50,24 @@ class RegisterTenant extends BaseRegisterTenant
      * - `name`: text input labeled "Tenant name", required, maximum length 255, validates on blur, and updates the `slug` field with a slugified value when changed.
      * - `slug`: text input labeled "Slug", required, maximum length 255, unique against the Tenant model (ignores the current record).
      *
-     * @param  Form  $form  The form instance to configure.
-     * @return Form The configured form instance.
+     * @param  Schema  $schema  The form instance to configure.
+     * @return Schema The configured form instance.
      */
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\TextInput::make('name')
+        return $schema->components([
+            TextInput::make('name')
                 ->label(__('filament.pages.register_dashboard.fields.name.label'))
                 ->required()
                 ->maxLength(255)
                 ->live(onBlur: true)
-                ->afterStateUpdated(function (Forms\Set $set, ?string $state) {
+                ->afterStateUpdated(function (Set $set, ?string $state) {
                     if (! $state) {
                         return;
                     }
                     $set('slug', Str::slug($state));
                 }),
-            Forms\Components\TextInput::make('slug')
+            TextInput::make('slug')
                 ->label(__('Slug'))
                 ->required()
                 ->unique(Tenant::class, ignoreRecord: true)

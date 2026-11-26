@@ -115,6 +115,8 @@ SPDX-License-Identifier: EUPL-1.2+
                     :src="resolveStorageUrl(social.icon)"
                     :alt="social.title || social.platform || ''"
                     class="h-8 w-auto"
+                    width="32"
+                    height="32"
                   >
                   <SocialIcon
                     v-else

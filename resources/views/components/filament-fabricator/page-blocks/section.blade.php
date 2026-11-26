@@ -19,7 +19,7 @@ SPDX-License-Identifier: EUPL-1.2+
 >
     <div class="container">
         @if($hasTitle)
-            <h2 class="text-3xl text-black font-bold mb-6 lg:mb-12 hyphens-auto">{{ $title }}</h2>
+            <h2 class="text-3xl text-black font-bold mb-6 lg:mb-12 hyphens-auto wrap-anywhere">{{ $title }}</h2>
         @endif
         <div>
             {{ $slot }}

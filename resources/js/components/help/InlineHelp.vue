@@ -51,7 +51,7 @@ SPDX-License-Identifier: EUPL-1.2+
         <button
           v-if="collapsible"
           type="button"
-          class="ml-3 flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+          class="ml-3 flex-shrink-0 text-gray-500 hover:text-gray-600 transition-colors"
           :aria-label="isExpanded ? 'Collapse help' : 'Expand help'"
           :aria-expanded="isExpanded"
           @click="toggle"

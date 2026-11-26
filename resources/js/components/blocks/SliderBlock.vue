@@ -39,7 +39,7 @@ SPDX-License-Identifier: EUPL-1.2+
             v-for="(slide, index) in slides"
             :key="index"
           >
-            <div class="block hyphens-auto mr-10 min-h-full">
+            <div class="block hyphens-auto wrap-anywhere mr-10 min-h-full">
               <div class="shadow-card h-full flex flex-col">
                 <div
                   v-if="slide.image"
@@ -51,6 +51,7 @@ SPDX-License-Identifier: EUPL-1.2+
                     :title="slide.imageTitle"
                     :copyright="slide.imageCopyright"
                     img-class="aspect-[3/2] w-full object-cover slide-image"
+                    sizes="(min-width: 1024px) 600px, 80vw"
                   />
                 </div>
 

@@ -25,13 +25,13 @@ SPDX-License-Identifier: EUPL-1.2+
 
 <div class="container">
     @if(isset($heading) && $heading)
-        <h1 class="text-4xl lg:text-5xl text-black font-bold mb-6 hyphens-auto">{{ $heading }}</h1>
+        <h1 class="text-4xl lg:text-5xl text-black font-bold mb-6 hyphens-auto wrap-anywhere">{{ $heading }}</h1>
     @endif
 
     <div class="lg:grid lg:grid-cols-3 lg:gap-10 mb-10 lg:mb-14">
         <div class="col-span-2">
             @if(isset($subheading) && $subheading)
-                <h2 class="text-3xl text-black font-bold mb-6 lg:mb-12 hyphens-auto">{{ $subheading }}</h2>
+                <h2 class="text-3xl text-black font-bold mb-6 lg:mb-12 hyphens-auto wrap-anywhere">{{ $subheading }}</h2>
             @endif
             
             @if($imageUrl)

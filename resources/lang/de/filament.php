@@ -680,6 +680,7 @@ return [
             'plural_model_label' => 'Seiten',
             'sidebar_title' => 'Seiteneigenschaften',
             'title' => 'Titel',
+            'title_helper' => 'Erscheint im Browser-Tab sowie in Suchmaschinen und beim Teilen, solange kein SEO-Titel gesetzt ist, und als Linktext, wenn die Seite in der Navigation ausgewählt wird. Die sichtbare Überschrift der Seite wird im Intro-Text-Block gepflegt.',
             'slug' => 'URL-Slug',
             'slug_validation' => 'Der Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten (keine Schrägstriche oder Sonderzeichen).',
             'slug_unique' => 'Dieser Slug wird bereits von einer anderen Seite mit derselben übergeordneten Seite verwendet. Bitte wähle einen anderen Slug.',

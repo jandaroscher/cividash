@@ -9,23 +9,35 @@ namespace App\Filament\Fabricator\Resources;
 use App\Filament\Concerns\HasBlockActiveToggleAction;
 use App\Filament\Concerns\HasSortableTranslations;
 use App\Filament\Fabricator\Resources\PageResource\Pages;
+use App\Filament\Fabricator\Resources\PageResource\Pages\CreatePage;
+use App\Filament\Fabricator\Resources\PageResource\Pages\EditPage;
+use App\Filament\Fabricator\Resources\PageResource\Pages\ListPages;
 use App\Models\Page;
-use Filament\Forms\Components\Component;
+use Closure;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Filament\Resources\Concerns\Translatable;
-use Filament\Tables;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 use Z3d0X\FilamentFabricator\Forms\Components\PageBuilder;
 use Z3d0X\FilamentFabricator\Resources\PageResource as FabricatorPageResource;
 
@@ -65,42 +77,42 @@ class PageResource extends FabricatorPageResource
     /**
      * Customize the parent form to replace the sidebar's `page_url` placeholder with a locale-aware placeholder.
      *
-     * Replaces any `Placeholder` named `page_url` inside sidebar sections with a `Placeholder` that:
+     * Replaces the `page_url` entry inside sidebar sections with a `TextEntry` that:
      * - is labeled with the translated URL label,
      * - is visible only when Fabricator routing is enabled and a record exists,
      * - displays `'-'` when no record is present,
      * - otherwise returns the record URL for the active locale (from the Livewire component's `activeLocale` property or `app()->getLocale()`).
      *
-     * @param  Form  $form  The base form to modify.
-     * @return Form The modified form instance.
+     * @param  Schema  $schema  The base form to modify.
+     * @return Schema The modified form instance.
      */
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
         // Get the base form structure from parent
-        $form = parent::form($form);
+        $schema = parent::form($schema);
 
         // We need to customize the sidebar schema to make the URL field locale-aware
-        // The parent uses a Section with page_url Placeholder, we need to override it
+        // The parent uses a Section with a page_url TextEntry, we need to override it
 
         // Get all components
-        $components = $form->getComponents();
+        $components = $schema->getComponents();
 
-        // Find the right sidebar column and replace the page_url Placeholder
+        // Find the right sidebar column and replace the page_url entry
         foreach ($components as $columnKey => $column) {
-            if (method_exists($column, 'getChildComponents')) {
-                $childComponents = $column->getChildComponents();
+            if (method_exists($column, 'getDefaultChildComponents')) {
+                $childComponents = $column->getDefaultChildComponents();
 
                 foreach ($childComponents as $sectionKey => $section) {
-                    if ($section instanceof Section && method_exists($section, 'getChildComponents')) {
-                        $sectionChildren = $section->getChildComponents();
+                    if ($section instanceof Section && method_exists($section, 'getDefaultChildComponents')) {
+                        $sectionChildren = $section->getDefaultChildComponents();
 
                         foreach ($sectionChildren as $placeholderKey => $placeholder) {
-                            if ($placeholder instanceof Placeholder && $placeholder->getName() === 'page_url') {
+                            if ($placeholder instanceof TextEntry && $placeholder->getName() === 'page_url') {
                                 // Replace with our custom locale-aware version
-                                $sectionChildren[$placeholderKey] = Placeholder::make('page_url')
+                                $sectionChildren[$placeholderKey] = TextEntry::make('page_url')
                                     ->label(__('filament.resources.page.url_preview'))
                                     ->visible(fn (?Page $record) => config('filament-fabricator.routing.enabled') && filled($record))
-                                    ->content(function (?Page $record, $livewire) {
+                                    ->state(function (?Page $record, $livewire) {
                                         if (! $record) {
                                             return '-';
                                         }
@@ -150,7 +162,7 @@ class PageResource extends FabricatorPageResource
                                             'regex' => __('filament.resources.page.slug_validation'),
                                         ])
                                         ->rule(function (Get $get, ?Page $record, $livewire) {
-                                            return function (string $attribute, $value, \Closure $fail) use ($get, $record, $livewire) {
+                                            return function (string $attribute, $value, Closure $fail) use ($get, $record, $livewire) {
                                                 if (blank($value) || $get('layout') === 'landingpage') {
                                                     return;
                                                 }
@@ -269,8 +281,8 @@ class PageResource extends FabricatorPageResource
 
         // Wrap the PageBuilder in a Section for a white card background (matching TileResource)
         foreach ($components as $column) {
-            if (method_exists($column, 'getChildComponents')) {
-                $children = $column->getChildComponents();
+            if (method_exists($column, 'getDefaultChildComponents')) {
+                $children = $column->getDefaultChildComponents();
 
                 foreach ($children as $key => $child) {
                     if ($child instanceof PageBuilder) {
@@ -293,6 +305,7 @@ class PageResource extends FabricatorPageResource
             ->schema([
                 TextInput::make('title')
                     ->label(__('filament.resources.page.title'))
+                    ->helperText(__('filament.resources.page.title_helper'))
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull()
@@ -306,9 +319,9 @@ class PageResource extends FabricatorPageResource
                     }),
             ]);
 
-        $form->schema([$titleSection, ...$components]);
+        $schema->components([$titleSection, ...$components]);
 
-        return $form;
+        return $schema;
     }
 
     /**
@@ -321,7 +334,7 @@ class PageResource extends FabricatorPageResource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')
+                TextColumn::make('title')
                     ->label(__('filament.resources.page.title'))
                     ->formatStateUsing(function ($state, Page $record, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
@@ -337,7 +350,7 @@ class PageResource extends FabricatorPageResource
 
                         $query->orderByRaw("{$expression} {$direction}");
                     }),
-                Tables\Columns\TextColumn::make('slug')
+                TextColumn::make('slug')
                     ->label(__('filament.resources.page.slug'))
                     ->formatStateUsing(function ($state, Page $record, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
@@ -354,41 +367,41 @@ class PageResource extends FabricatorPageResource
                         $query->orderByRaw("{$expression} {$direction}");
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('layout')
+                TextColumn::make('layout')
                     ->label(__('filament.resources.page.layout'))
                     ->sortable(),
-                Tables\Columns\ToggleColumn::make('is_public')
+                ToggleColumn::make('is_public')
                     ->label(__('filament.resources.page.is_public'))
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label(__('filament.resources.page.created_at'))
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label(__('filament.resources.page.updated_at'))
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('layout')
+                SelectFilter::make('layout')
                     ->label(__('filament.resources.page.layout'))
                     ->options(static::getLayoutOptions()),
-                Tables\Filters\TernaryFilter::make('is_public')
+                TernaryFilter::make('is_public')
                     ->label(__('filament.resources.page.is_public')),
             ])
             ->recordUrl(fn (Page $record, $livewire) => static::getUrl('edit', [
                 'record' => $record,
                 'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
             ]))
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->url(fn (Page $record, $livewire) => static::getUrl('edit', [
                         'record' => $record,
                         'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
                     ])),
-                Tables\Actions\Action::make('view_frontend')
+                Action::make('view_frontend')
                     ->label(__('filament.resources.page.actions.view_frontend'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('success')
@@ -398,11 +411,11 @@ class PageResource extends FabricatorPageResource
                         return $record->getFrontendUrl(['locale' => $locale]);
                     })
                     ->openUrlInNewTab(),
-                Tables\Actions\DeleteAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -424,8 +437,8 @@ class PageResource extends FabricatorPageResource
                 continue;
             }
 
-            if (method_exists($component, 'getChildComponents')) {
-                static::applyBlockToggleActionToComponents($component->getChildComponents());
+            if (method_exists($component, 'getDefaultChildComponents')) {
+                static::applyBlockToggleActionToComponents($component->getDefaultChildComponents());
             }
         }
     }
@@ -433,9 +446,9 @@ class PageResource extends FabricatorPageResource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPages::route('/'),
-            'create' => Pages\CreatePage::route('/create'),
-            'edit' => Pages\EditPage::route('/{record}/edit'),
+            'index' => ListPages::route('/'),
+            'create' => CreatePage::route('/create'),
+            'edit' => EditPage::route('/{record}/edit'),
         ];
     }
 

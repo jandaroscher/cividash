@@ -2,11 +2,20 @@
 //
 // SPDX-License-Identifier: EUPL-1.2+
 
-// Registers the <dotlottie-wc> custom element and points its WASM renderer
-// at our self-hosted copy instead of the jsdelivr/unpkg CDN default
+// Loads the <dotlottie-wc> custom element on first use and points its WASM
+// renderer at our self-hosted copy instead of the jsdelivr/unpkg CDN default
 // (no third-party hosts at runtime, see tests/Feature/Privacy/NoThirdPartyHostsTest.php).
-import '@lottiefiles/dotlottie-wc';
-import { setWasmUrl } from '@lottiefiles/dotlottie-wc';
+// Loaded lazily so pages without animations skip the player bundle. Render a
+// <dotlottie-wc> only after the returned promise resolves: the import defines
+// the element, and an element already in the DOM would upgrade and fetch the
+// CDN WASM before setWasmUrl() runs.
 import dotlottieWasmUrl from '@lottiefiles/dotlottie-web/dotlottie-player.wasm?url';
 
-setWasmUrl(dotlottieWasmUrl);
+let loading;
+
+export function loadDotlottie() {
+    loading ??= import('@lottiefiles/dotlottie-wc').then(({ setWasmUrl }) => {
+        setWasmUrl(dotlottieWasmUrl);
+    });
+    return loading;
+}

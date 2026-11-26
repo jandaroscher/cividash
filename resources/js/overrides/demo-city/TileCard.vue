@@ -22,7 +22,7 @@ SPDX-License-Identifier: EUPL-1.2+
   >
     <template #header="{ header }">
       <div class="demo-city-title-bar">
-        <span class="demo-city-title-text hyphens-auto">{{ header }}</span>
+        <span class="demo-city-title-text min-w-0 hyphens-auto wrap-anywhere">{{ header }}</span>
         <span
           v-if="tenantStore.name"
           class="demo-city-badge shrink-0"
@@ -35,7 +35,7 @@ SPDX-License-Identifier: EUPL-1.2+
            footer in the default TileCard) - "Wert/Trend umsortiert". -->
       <p
         v-if="years.length > 1 && currentYear !== years[0]"
-        class="text-theme-base text-gray-400 font-semibold flex flex-row items-center gap-2 px-4 mb-2"
+        class="text-theme-base text-gray-500 font-semibold flex flex-row items-center gap-2 px-4 mb-2"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

@@ -7,19 +7,30 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Concerns\HasSortableTranslations;
-use App\Filament\Resources\CategoryGroupResource\Pages;
-use App\Filament\Resources\CategoryGroupResource\RelationManagers;
+use App\Filament\Resources\CategoryGroupResource\Pages\CreateCategoryGroup;
+use App\Filament\Resources\CategoryGroupResource\Pages\EditCategoryGroup;
+use App\Filament\Resources\CategoryGroupResource\Pages\ListCategoryGroups;
+use App\Filament\Resources\CategoryGroupResource\RelationManagers\CategoriesRelationManager;
 use App\Models\CategoryGroup;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Set;
-use Filament\Resources\Concerns\Translatable;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 
 class CategoryGroupResource extends Resource
 {
@@ -30,7 +41,7 @@ class CategoryGroupResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static ?string $navigationIcon = 'heroicon-o-folder';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-folder';
 
     protected static ?int $navigationSort = 9;
 
@@ -74,16 +85,16 @@ class CategoryGroupResource extends Resource
      *
      * Contains fields for `key`, `title`, `is_active`, and `position`.
      *
-     * @return Form The configured form instance with the resource's schema.
+     * @return Schema The configured form instance with the resource's schema.
      */
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make(__('filament.resources.category_group.section_group'))
+        return $schema
+            ->components([
+                Section::make(__('filament.resources.category_group.section_group'))
                     ->columns(1)
                     ->schema([
-                        Forms\Components\TextInput::make('title')
+                        TextInput::make('title')
                             ->label(__('filament.resources.category_group.title'))
                             ->required()
                             ->live(onBlur: true)
@@ -92,7 +103,7 @@ class CategoryGroupResource extends Resource
                                     $set('key', Str::slug($state));
                                 }
                             }),
-                        Forms\Components\TextInput::make('key')
+                        TextInput::make('key')
                             ->label(__('filament.resources.category_group.key'))
                             ->required()
                             ->maxLength(255)
@@ -104,7 +115,7 @@ class CategoryGroupResource extends Resource
                                 ignorable: fn ($record) => $record,
                                 modifyRuleUsing: fn ($rule) => $rule->where('tenant_id', Filament::getTenant()?->id),
                             ),
-                        Forms\Components\Toggle::make('is_active')
+                        Toggle::make('is_active')
                             ->label(__('filament.resources.category_group.is_active'))
                             ->default(true),
                     ]),
@@ -121,11 +132,11 @@ class CategoryGroupResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('key')
+                TextColumn::make('key')
                     ->label(__('filament.resources.category_group.key'))
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('title')
+                TextColumn::make('title')
                     ->label(__('filament.resources.category_group.title'))
                     ->formatStateUsing(function ($state, CategoryGroup $record, $livewire) {
                         $locale = $livewire->activeLocale ?? app()->getLocale();
@@ -140,47 +151,47 @@ class CategoryGroupResource extends Resource
                         $expression = static::getSortableTranslationExpression('title', $locale);
                         $query->orderByRaw("{$expression} {$direction}");
                     }),
-                Tables\Columns\ToggleColumn::make('is_active')
+                ToggleColumn::make('is_active')
                     ->label(__('filament.resources.category_group.is_active'))
                     ->sortable(),
-                Tables\Columns\TextColumn::make('position')
+                TextColumn::make('position')
                     ->label(__('filament.resources.category_group.position'))
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label(__('filament.resources.category_group.created_at'))
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label(__('filament.resources.category_group.updated_at'))
                     ->dateTime(__('filament.date_time_format'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_active')
+                TernaryFilter::make('is_active')
                     ->label(__('filament.resources.category_group.is_active')),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->url(fn (CategoryGroup $record, $livewire) => static::getUrl('edit', [
                         'record' => $record,
                         'activeLocale' => $livewire->activeLocale ?? app()->getLocale(),
                     ])),
-                Tables\Actions\DeleteAction::make(),
+                DeleteAction::make(),
             ])
             ->reorderable('position')
             ->defaultSort('position')
             ->reorderRecordsTriggerAction(
-                fn (Tables\Actions\Action $action, bool $isReordering) => $action
+                fn (Action $action, bool $isReordering) => $action
                     ->link()
                     ->label($isReordering ? __('filament.actions.stop_sorting') : __('filament.actions.start_sorting'))
                     ->color('primary')
             )
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -193,7 +204,7 @@ class CategoryGroupResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\CategoriesRelationManager::class,
+            CategoriesRelationManager::class,
         ];
     }
 
@@ -205,9 +216,9 @@ class CategoryGroupResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCategoryGroups::route('/'),
-            'create' => Pages\CreateCategoryGroup::route('/create'),
-            'edit' => Pages\EditCategoryGroup::route('/{record}/edit'),
+            'index' => ListCategoryGroups::route('/'),
+            'create' => CreateCategoryGroup::route('/create'),
+            'edit' => EditCategoryGroup::route('/{record}/edit'),
         ];
     }
 }

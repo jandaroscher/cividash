@@ -14,9 +14,11 @@ use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
 class LinkBlock extends PageBlock
 {
-    public static function getBlockSchema(): Block
+    protected static string $name = 'link';
+
+    public static function defineBlock(Block $block): Block
     {
-        return Block::make('link')
+        return $block
             ->label(__('filament.blocks.link.label'))
             ->icon('heroicon-o-link')
             ->schema([

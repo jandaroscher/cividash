@@ -17,6 +17,8 @@ use Z3d0X\FilamentFabricator\PageBlocks\PageBlock;
 
 class TextImageBlock extends PageBlock
 {
+    protected static string $name = 'text-image';
+
     /**
      * Create and return the Block definition for the "text-image" fabricator block.
      *
@@ -24,9 +26,9 @@ class TextImageBlock extends PageBlock
      *
      * @return Block The configured Block instance for the `text-image` block.
      */
-    public static function getBlockSchema(): Block
+    public static function defineBlock(Block $block): Block
     {
-        return Block::make('text-image')
+        return $block
             ->label(__('filament.blocks.text_image.label'))
             ->icon('heroicon-o-photo')
             ->schema([

@@ -531,6 +531,7 @@ return [
             'plural_model_label' => 'Pages',
             'sidebar_title' => 'Page properties',
             'title' => 'Title',
+            'title_helper' => 'Shown in the browser tab, in search engines and when sharing, unless an SEO title is set, and as the link text when the page is picked in the navigation. Edit the visible page heading in the intro text block.',
             'slug' => 'Slug',
             'slug_validation' => 'The slug may only contain lowercase letters, numbers and hyphens (no slashes or special characters).',
             'slug_unique' => 'This slug is already in use by another page with the same parent. Please choose a different slug.',

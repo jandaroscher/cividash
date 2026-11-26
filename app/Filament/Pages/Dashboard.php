@@ -10,15 +10,16 @@ use App\Models\Category;
 use App\Models\Tile;
 use App\Models\TimePeriod;
 use App\Settings\DashboardSettings;
+use BackedEnum;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Illuminate\Support\Facades\DB;
 use PDO;
 
 class Dashboard extends BaseDashboard
 {
-    protected static string $view = 'filament.pages.dashboard';
+    protected string $view = 'filament.pages.dashboard';
 
-    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
 
     public function getTitle(): string
     {

@@ -6,7 +6,7 @@
 
 namespace App\Filament\Concerns;
 
-use Filament\Forms\Components\Actions\Action;
+use Filament\Actions\Action;
 
 trait HasBlockActiveToggleAction
 {

@@ -10,9 +10,11 @@ use App\Models\Tenant;
 use App\Models\Theme;
 use Closure;
 use Filament\Facades\Filament;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Pages\Tenancy\EditTenantProfile as BaseEditTenantProfile;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class EditTenantProfile extends BaseEditTenantProfile
 {
@@ -49,33 +51,33 @@ class EditTenantProfile extends BaseEditTenantProfile
      * The schema contains sections for basic information (name, slug) and domain/frontend settings
      * (domain, frontend_base_url). The domain field is normalized and validated for format and uniqueness.
      *
-     * @param  Form  $form  The form instance to configure.
-     * @return Form The configured form instance.
+     * @param  Schema  $schema  The form instance to configure.
+     * @return Schema The configured form instance.
      */
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form->schema([
-            Forms\Components\Section::make(__('filament.pages.edit_dashboard_config.form.sections.basic_information'))
+        return $schema->components([
+            Section::make(__('filament.pages.edit_dashboard_config.form.sections.basic_information'))
                 ->schema([
-                    Forms\Components\TextInput::make('name')
+                    TextInput::make('name')
                         ->label(__('filament.pages.edit_dashboard_config.form.fields.name.label'))
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\TextInput::make('description')
+                    TextInput::make('description')
                         ->label(__('filament.pages.edit_dashboard_config.form.fields.description.label'))
                         ->helperText(__('filament.pages.edit_dashboard_config.form.fields.description.helper'))
                         ->maxLength(255),
-                    Forms\Components\TextInput::make('slug')
+                    TextInput::make('slug')
                         ->label(__('filament.pages.edit_dashboard_config.form.fields.slug.label'))
                         ->helperText(__('filament.pages.edit_dashboard_config.form.fields.slug.helper'))
                         ->disabled()
                         ->dehydrated(false),
                 ]),
 
-            Forms\Components\Section::make(__('filament.pages.edit_dashboard_config.form.sections.domain_frontend'))
+            Section::make(__('filament.pages.edit_dashboard_config.form.sections.domain_frontend'))
                 ->description(__('filament.pages.edit_dashboard_config.form.sections.domain_frontend_description'))
                 ->schema([
-                    Forms\Components\TextInput::make('domain')
+                    TextInput::make('domain')
                         ->label(__('filament.pages.edit_dashboard_config.form.fields.domain.label'))
                         ->helperText(__('filament.pages.edit_dashboard_config.form.fields.domain.helper'))
                         ->placeholder(__('filament.pages.edit_dashboard_config.form.fields.domain.placeholder'))
@@ -105,7 +107,7 @@ class EditTenantProfile extends BaseEditTenantProfile
                                 }
                             },
                         ]),
-                    Forms\Components\TextInput::make('frontend_base_url')
+                    TextInput::make('frontend_base_url')
                         ->label(__('filament.pages.edit_dashboard_config.form.fields.frontend_base_url.label'))
                         ->helperText(__('filament.pages.edit_dashboard_config.form.fields.frontend_base_url.helper'))
                         ->placeholder(__('filament.pages.edit_dashboard_config.form.fields.frontend_base_url.placeholder'))
@@ -114,9 +116,9 @@ class EditTenantProfile extends BaseEditTenantProfile
                         ->url(),
                 ]),
 
-            Forms\Components\Section::make(__('filament.pages.edit_dashboard_config.form.sections.theme'))
+            Section::make(__('filament.pages.edit_dashboard_config.form.sections.theme'))
                 ->schema([
-                    Forms\Components\Select::make('theme_id')
+                    Select::make('theme_id')
                         ->label(__('filament.pages.edit_dashboard_config.form.fields.theme_id.label'))
                         ->helperText(__('filament.pages.edit_dashboard_config.form.fields.theme_id.helper'))
                         ->options(fn () => Theme::query()->pluck('name', 'id'))
