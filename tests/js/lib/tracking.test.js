@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { nextTick } from 'vue';
 import { createRouter, createMemoryHistory } from 'vue-router';
 import { installTracking } from '@/lib/tracking/index.js';
 
@@ -25,9 +24,11 @@ let appended;
 const matomoScripts = () => appended.filter((el) => el.src === 'https://matomo.example.org/matomo.js');
 const commands = (name) => window._paq.filter(([command]) => command === name).map(([, value]) => value);
 
-async function visit(router, path) {
+// Pages set their title after their data has loaded; the tracker waits for that.
+async function visit(router, path, title = `Title of ${path}`) {
     await router.push(path);
-    await nextTick();
+    document.title = title;
+    await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 describe('installTracking', () => {
@@ -35,10 +36,14 @@ describe('installTracking', () => {
         delete window._paq;
         // Capture the script element instead of letting happy-dom fetch it.
         appended = [];
-        vi.spyOn(document.head, 'appendChild').mockImplementation((el) => appended.push(el) && el);
+        const appendChild = document.head.appendChild.bind(document.head);
+        vi.spyOn(document.head, 'appendChild').mockImplementation((el) =>
+            el.tagName === 'SCRIPT' ? (appended.push(el), el) : appendChild(el),
+        );
     });
 
     afterEach(() => {
+        vi.useRealTimers();
         vi.restoreAllMocks();
     });
 
@@ -67,7 +72,7 @@ describe('installTracking', () => {
         expect(window._paq).toContainEqual(['setSiteId', '7']);
         expect(commands('setCustomUrl')).toEqual([`${window.location.origin}/`, `${window.location.origin}/tiles`]);
         expect(commands('setReferrerUrl')).toEqual([`${window.location.origin}/`]);
-        expect(window._paq.filter(([command]) => command === 'trackPageView')).toHaveLength(2);
+        expect(commands('trackPageView')).toHaveLength(2);
     });
 
     it('keeps counting after matomo.js has replaced the _paq queue', async () => {
@@ -82,6 +87,42 @@ describe('installTracking', () => {
 
         expect(executed).toContainEqual(['setCustomUrl', `${window.location.origin}/tiles`]);
         expect(executed).toContainEqual(['trackPageView']);
+    });
+
+    it('sends the title the new page sets, not the previous one', async () => {
+        const router = makeRouter();
+        installTracking(router, matomo);
+
+        await visit(router, '/', 'Dashboard');
+        await visit(router, '/tiles', 'Kacheln');
+
+        expect(commands('setDocumentTitle')).toEqual(['Dashboard', 'Kacheln']);
+    });
+
+    it('still counts a page that keeps its title, after a short wait', async () => {
+        vi.useFakeTimers();
+        const router = makeRouter();
+        installTracking(router, matomo);
+        document.title = 'Same';
+
+        await router.push('/tiles');
+        expect(commands('trackPageView')).toHaveLength(0);
+        await vi.advanceTimersByTimeAsync(1500);
+
+        expect(commands('setCustomUrl')).toEqual([`${window.location.origin}/tiles`]);
+        expect(commands('setDocumentTitle')).toEqual(['Same']);
+    });
+
+    it('sends a waiting view with its own title when the visitor moves on quickly', async () => {
+        const router = makeRouter();
+        installTracking(router, matomo);
+        document.title = 'Dashboard';
+
+        await router.push('/');
+        await visit(router, '/tiles', 'Kacheln');
+
+        expect(commands('setCustomUrl')).toEqual([`${window.location.origin}/`, `${window.location.origin}/tiles`]);
+        expect(commands('setDocumentTitle')).toEqual(['Dashboard', 'Kacheln']);
     });
 
     it('does not count hash or query changes on the same page again', async () => {
