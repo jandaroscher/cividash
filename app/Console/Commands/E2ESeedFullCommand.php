@@ -77,6 +77,18 @@ class E2ESeedFullCommand extends Command
                 $tenantB->id,
             ]);
 
+            // Panel-wide admin for the admin backend suite (sees users, themes, all tenants)
+            $admin = User::updateOrCreate(
+                ['email' => 'e2e-superadmin@example.com'],
+                [
+                    'name' => 'E2E Super Admin',
+                    'first_name' => 'E2E',
+                    'last_name' => 'Super Admin',
+                    'password' => bcrypt('e2e-superadmin-password'),
+                    'is_admin' => true,
+                ]
+            );
+
             // Revoke previous E2E full tokens
             $user->tokens()->where('name', 'like', 'e2e-full-%')->delete();
 
@@ -118,6 +130,11 @@ class E2ESeedFullCommand extends Command
                     'id' => $user->id,
                     'email' => $user->email,
                     'password' => 'e2e-admin-password',
+                ],
+                'admin' => [
+                    'id' => $admin->id,
+                    'email' => $admin->email,
+                    'password' => 'e2e-superadmin-password',
                 ],
             ];
 

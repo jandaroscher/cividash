@@ -131,6 +131,7 @@ return [
             'ability_public_read_short' => 'Read',
             'ability_admin_api' => 'Read and Write (full CRUD access to admin endpoints)',
             'ability_admin_api_short' => 'Read and Write',
+            'token_warning_label' => 'Note',
             'token_warning' => 'Important: The token will only be shown once after creation. Make sure to copy it and store it securely.',
             'create_modal_title' => 'Create API Token',
             'create_modal_submit' => 'Create Token',

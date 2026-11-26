@@ -124,7 +124,7 @@ class DataImport extends Page implements HasForms, HasTable
         $this->runImport('dry_run');
     }
 
-    public function commit(): void
+    public function commitImport(): void
     {
         $this->runImport('commit');
     }

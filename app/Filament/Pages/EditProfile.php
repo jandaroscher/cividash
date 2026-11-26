@@ -7,6 +7,7 @@
 namespace App\Filament\Pages;
 
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -195,6 +196,9 @@ class EditProfile extends Page implements HasForms
         $user->update([
             'password' => $data['password'],
         ]);
+
+        // Keep this session valid: AuthenticateSession signs out sessions whose stored hash is outdated.
+        session()->put('password_hash_'.Filament::getAuthGuard(), $user->getAuthPassword());
 
         $this->passwordForm->fill();
 

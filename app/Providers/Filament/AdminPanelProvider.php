@@ -242,7 +242,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            // Persistent, so Livewire updates on pages without a tenant in the URL (dashboard
+            // registration) restore the same tenant as the page load; Filament 4+ rejects a mismatch.
+            ->authMiddleware([
                 SetFilamentDefaultTenant::class,
-            ]);
+            ], isPersistent: true);
     }
 }

@@ -296,6 +296,7 @@ return [
             'ability_public_read_short' => 'Lesen',
             'ability_admin_api' => 'Lesen und Schreiben (vollständiger CRUD-Zugriff auf Admin-Endpunkte)',
             'ability_admin_api_short' => 'Lesen und Schreiben',
+            'token_warning_label' => 'Hinweis',
             'token_warning' => 'Wichtig: Der Token wird nur einmal nach der Erstellung angezeigt. Stellen Sie sicher, dass Sie ihn kopieren und sicher aufbewahren.',
             'create_modal_title' => 'API Token erstellen',
             'create_modal_submit' => 'Token erstellen',

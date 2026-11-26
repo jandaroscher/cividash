@@ -182,6 +182,25 @@ class PageResourceTest extends TestCase
         $this->assertTrue(array_is_list($page->getTranslation('blocks', 'de')));
     }
 
+    public function test_german_only_page_with_a_slug_in_every_locale_saves_in_german(): void
+    {
+        // The homepage gets the slug "/" in every locale, but its other fields only in German.
+        app()->setLocale('de');
+        $page = Page::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Startseite'],
+            'slug' => ['de' => '/', 'en' => '/'],
+            'layout' => 'landingpage',
+        ]);
+
+        $component = Livewire::test(EditPage::class, ['record' => $page->getRouteKey()])
+            ->fillForm(['title' => 'Neue Startseite'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('de', $component->get('activeLocale'));
+        $this->assertSame('Neue Startseite', $page->refresh()->getTranslation('title', 'de'));
+    }
+
     public function test_edit_page_renders(): void
     {
         $page = Page::factory()->forTenant($this->tenant)->create();

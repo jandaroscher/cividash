@@ -16,7 +16,9 @@ use Z3d0X\FilamentFabricator\Resources\PageResource\Pages\EditPage as Fabricator
 class EditPage extends FabricatorEditPage
 {
     use OpensInLinkedLocale;
-    use Translatable;
+    use Translatable {
+        fillForm as fillTranslatableForm;
+    }
 
     protected static string $resource = PageResource::class;
 
@@ -25,6 +27,19 @@ class EditPage extends FabricatorEditPage
         parent::mount($record);
 
         $this->openLinkedLocale();
+    }
+
+    protected function fillForm(): void
+    {
+        $this->fillTranslatableForm();
+
+        // Landing pages get the slug "/" in every locale, so a locale without a title would
+        // count as an existing translation and block saving the other locale until it is
+        // translated. A locale only counts once it has a title.
+        $this->otherLocaleData = array_filter(
+            $this->otherLocaleData,
+            fn (array $data): bool => filled($data['title'] ?? null),
+        );
     }
 
     protected function getHeaderActions(): array
