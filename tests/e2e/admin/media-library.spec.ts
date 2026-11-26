@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 import { test, expect, type Page } from '@playwright/test';
-import { login, pick, png, seedMedia, upload, type MediaFixtures, type Uploaded } from './media-helpers';
+import { artisan, login, pick, png, runId, seedMedia, upload, type MediaFixtures, type Uploaded } from './media-helpers';
 
 /**
  * The media library itself: uploading, finding and describing files, using them on a
@@ -36,10 +36,15 @@ test.describe('Media library', () => {
     fixtures = seedMedia();
   });
 
+  test.afterAll(() => {
+    artisan('e2e:seed-media --clean');
+  });
+
   test('an uploaded image is found, described in the library and shown with that description on a page', async ({ page, request }) => {
     test.setTimeout(120_000);
-    const name = `lake-${Date.now()}`;
-    const panel = await login(page, fixtures.defaultTenant);
+    const name = runId('lake');
+    const title = `Abendstimmung am See ${name}`;
+    const panel = await login(page, fixtures);
 
     // Upload: the file lands in the dashboard's own folder
     const media = await upload(page, panel, image(name));
@@ -55,20 +60,20 @@ test.describe('Media library', () => {
     // Describe it once in the library
     await page.goto(media.url);
     await page.getByLabel('Alternativer Text').fill('Ein See im Abendlicht');
-    await page.getByLabel('Titel', { exact: true }).fill('Abendstimmung am See');
+    await page.getByLabel('Titel', { exact: true }).fill(title);
     await page.getByLabel('Copyright').fill('© Stadtwerke');
     await page.getByRole('button', { name: 'Speichern', exact: true }).first().click();
     await expect(page.getByText('Gespeichert')).toBeVisible();
 
     // Use it in a block without own texts
-    await createPageWithImage(page, panel, name, media, 'Abendstimmung am See');
+    await createPageWithImage(page, panel, name, media, title);
     const pageId = page.url().match(/\/pages\/(\d+)\/edit/)![1];
 
     // The public API and page fall back to the library's description
     const props = (await request.get(`/api/v1/content/pages/${pageId}?locale=de`).then((r) => r.json())).blocks[0].props;
     expect(props.image).toBe(`media/${fixtures.defaultTenant}/${media.file}`);
     expect(props.image_alt).toBe('Ein See im Abendlicht');
-    expect(props.image_title).toBe('Abendstimmung am See');
+    expect(props.image_title).toBe(title);
     expect(props.image_copyright).toBe('© Stadtwerke');
 
     await page.goto(`/${name}`);
@@ -84,9 +89,9 @@ test.describe('Media library', () => {
 
   test('an image in use cannot be deleted, an unused one can', async ({ page }) => {
     test.setTimeout(120_000);
-    const used = `used-${Date.now()}`;
-    const unused = `unused-${Date.now()}`;
-    const panel = await login(page, fixtures.defaultTenant);
+    const used = runId('used');
+    const unused = runId('unused');
+    const panel = await login(page, fixtures);
 
     const usedMedia = await upload(page, panel, image(used));
     await createPageWithImage(page, panel, used, usedMedia);
@@ -110,8 +115,8 @@ test.describe('Media library', () => {
 
   test('another dashboard sees none of these files, neither in its library nor in the picker', async ({ page }) => {
     test.setTimeout(120_000);
-    const name = `private-${Date.now()}`;
-    const panel = await login(page, fixtures.defaultTenant);
+    const name = runId('private');
+    const panel = await login(page, fixtures);
     const media = await upload(page, panel, image(name));
     // In its own dashboard the search finds it
     await page.goto(`${panel}/media`);
@@ -131,7 +136,7 @@ test.describe('Media library', () => {
     const picker = page.locator('.fi-modal-window:visible');
     await expect(picker.getByPlaceholder('Suchen')).toBeVisible();
     await picker.getByPlaceholder('Suchen').fill(name);
-    await page.waitForTimeout(1_000); // the picker searches after a short debounce
+    await expect(picker.getByText('Keine Dateien in der Mediathek gefunden.')).toBeVisible();
     await expect(picker.locator(`img[src*="${media.file}"]`)).toHaveCount(0);
 
     // Opening the item's address in the other dashboard finds nothing

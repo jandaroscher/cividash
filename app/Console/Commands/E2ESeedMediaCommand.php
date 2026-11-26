@@ -6,7 +6,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Category;
 use App\Models\CategoryGroup;
+use App\Models\FooterNavigation;
+use App\Models\Media;
 use App\Models\Page;
 use App\Models\Tenant;
 use App\Models\Tile;
@@ -22,38 +25,41 @@ use Illuminate\Support\Str;
  * With --legacy it also stores content the way releases before the media library
  * did: file paths in blocks, tiles and settings, including a logo on the global
  * defaults that every dashboard inherits.
+ *
+ * Everything the suite creates carries MARKER in its title or file name, so --clean
+ * removes exactly that and leaves other content alone.
  */
 class E2ESeedMediaCommand extends Command
 {
+    public const MARKER = 'e2e-media';
+
     protected $signature = 'e2e:seed-media
                             {--legacy : Add content that references files by path}
-                            {--reset-branding : Remove the logos and favicons set by these tests}';
+                            {--clean : Remove what the media library tests created}';
 
     protected $description = 'Seed test data for the media library E2E tests (local and CI only)';
 
     public function handle(): int
     {
-        if (app()->isProduction()) {
-            $this->error('This command cannot run in production.');
+        if (! app()->environment(['local', 'testing'])) {
+            $this->error('This command only runs in the local and testing environments.');
 
             return self::FAILURE;
-        }
-
-        if ($this->option('reset-branding')) {
-            $default = Tenant::where('slug', 'default')->value('id');
-            DB::table('settings')->where('tenant_id', $default)->whereIn('name', ['logo_url', 'favicon'])->delete();
-            $this->setting(0, 'branding', 'logo_url', null);
-
-            return self::SUCCESS;
         }
 
         $default = Tenant::where('slug', 'default')->firstOrFail();
         $other = Tenant::where('slug', 'e2e-tenant-b')->firstOrFail();
         User::where('email', 'e2e-admin@example.com')->firstOrFail()->tenants()->syncWithoutDetaching([$default->id, $other->id]);
 
+        if ($this->option('clean')) {
+            $this->clean([$default->id, $other->id]);
+
+            return self::SUCCESS;
+        }
+
         $group = CategoryGroup::withoutGlobalScopes()->firstOrCreate(
-            ['tenant_id' => $default->id, 'key' => 'e2e-media'],
-            ['title' => ['de' => 'Handlungsfelder', 'en' => 'Fields of action'], 'position' => 99, 'is_active' => true],
+            ['tenant_id' => $default->id, 'key' => self::MARKER],
+            ['title' => ['de' => 'E2E Medien', 'en' => 'E2E media'], 'position' => 99, 'is_active' => true],
         );
 
         $result = ['defaultTenant' => $default->id, 'otherTenant' => $other->id, 'categoryGroup' => $group->key];
@@ -70,7 +76,7 @@ class E2ESeedMediaCommand extends Command
     /** @return array<string, mixed> */
     private function seedLegacy(Tenant $tenant): array
     {
-        $run = Str::lower(Str::random(6));
+        $run = self::MARKER.'-'.Str::lower(Str::random(6));
         $dir = "legacy-e2e/{$run}";
         $files = [];
         foreach (['harbour' => 'png', 'square' => 'png', 'water' => 'png', 'seo' => 'png', 'favicon' => 'png', 'logo' => 'png'] as $name => $ext) {
@@ -116,9 +122,51 @@ class E2ESeedMediaCommand extends Command
         ]);
 
         $this->setting($tenant->id, 'general', 'favicon', $files['favicon']);
+        // The dashboard's own logo would hide the inherited one
+        DB::table('settings')->where(['tenant_id' => $tenant->id, 'group' => 'branding', 'name' => 'logo_url'])->delete();
         $this->setting(0, 'branding', 'logo_url', $files['logo']);
 
         return ['run' => $run, 'files' => $files, 'page' => $page->id, 'slugs' => ['de' => "alte-bilder-{$run}", 'en' => "old-images-{$run}"], 'tile' => $tile->id];
+    }
+
+    /** @param list<int> $tenants */
+    private function clean(array $tenants): void
+    {
+        $like = '%'.self::MARKER.'%';
+        $marked = fn ($query, string $column) => $query->withoutGlobalScopes()->whereIn('tenant_id', $tenants)->whereRaw("CAST({$column} AS TEXT) LIKE ?", [$like]);
+        $media = $marked(Media::query(), 'title')->orWhere(fn ($q) => $q->whereIn('tenant_id', $tenants)->where('path', 'like', $like))->get();
+        // A setting holds a path or a media id, as a string or a number
+        $ours = function (mixed $value) use ($media): bool {
+            $value = is_scalar($value) ? (string) $value : '';
+
+            return str_contains($value, self::MARKER) || (ctype_digit($value) && $media->contains('id', (int) $value));
+        };
+
+        // Logos and favicons point at test files only if a test set them
+        DB::table('settings')->whereIn('tenant_id', [0, ...$tenants])->whereIn('name', ['logo_url', 'favicon'])->get()
+            ->filter(fn ($row) => $ours(json_decode($row->payload, true)))
+            ->each(fn ($row) => (int) $row->tenant_id === 0
+                ? $this->setting(0, $row->group, $row->name, null)
+                : DB::table('settings')->where('id', $row->id)->delete());
+
+        FooterNavigation::withoutGlobalScopes()->whereIn('tenant_id', $tenants)->get()->each(function (FooterNavigation $footer) {
+            foreach ($footer->getTranslations('sponsors') as $locale => $sponsors) {
+                $footer->setTranslation('sponsors', $locale, array_values(array_filter(
+                    (array) $sponsors,
+                    fn ($sponsor) => ! str_contains((string) ($sponsor['name'] ?? ''), self::MARKER),
+                )));
+            }
+            $footer->save();
+        });
+
+        $marked(Page::query(), 'title')->get()->each->delete();
+        $marked(Tile::query(), 'title')->get()->each->delete();
+        $groups = CategoryGroup::withoutGlobalScopes()->whereIn('tenant_id', $tenants)->where('key', self::MARKER)->pluck('id');
+        Category::withoutGlobalScopes()->whereIn('category_group_id', $groups)->get()->each->delete();
+        CategoryGroup::withoutGlobalScopes()->whereKey($groups)->delete();
+        // Deleting through the model also removes the stored file
+        $media->each->delete();
+        Storage::disk('public')->deleteDirectory('legacy-e2e');
     }
 
     private function setting(int $tenantId, string $group, string $name, ?string $value): void

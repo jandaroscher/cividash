@@ -28,7 +28,7 @@ test.describe('Media library: adopting existing images', () => {
   });
 
   test.afterAll(() => {
-    artisan('e2e:seed-media --reset-branding');
+    artisan('e2e:seed-media --clean');
   });
 
   test('pages, tiles and settings keep their images after the files move into the library', async ({ page, request }) => {
@@ -91,7 +91,7 @@ test.describe('Media library: adopting existing images', () => {
     expect(await harbourEn.getAttribute('src')).toContain(`-harbour-${legacy.run}.png`);
 
     // The library lists the copies of this dashboard, not the global logo
-    const panel = await login(page, fixtures.defaultTenant);
+    const panel = await login(page, fixtures);
     await page.goto(`${panel}/media`);
     await page.getByPlaceholder('Suche').fill(legacy.run);
     await expect(page.locator(`main img[src*="-${legacy.run}.png"]`)).toHaveCount(5);

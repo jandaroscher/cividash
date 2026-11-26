@@ -14,9 +14,13 @@ import { deflateSync } from 'zlib';
  * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full and e2e:seed-media
  */
 
-export const user = { email: 'e2e-admin@example.com', password: 'e2e-admin-password' };
-/** Theme and site settings are for administrators only. */
-export const admin = { email: 'e2e-superadmin@example.com', password: 'e2e-superadmin-password' };
+/** Part of every name the media specs create, so `e2e:seed-media --clean` finds it. */
+export const marker = 'e2e-media';
+
+/** A unique name for one test's content. */
+export function runId(kind: string): string {
+  return `${marker}-${kind}-${Date.now()}`;
+}
 
 export function artisan(command: string): string {
   const artisanCmd = process.env.E2E_ARTISAN_CMD ?? 'ddev exec php artisan';
@@ -24,7 +28,13 @@ export function artisan(command: string): string {
   return execSync(`${artisanCmd} ${command}`, { encoding: 'utf-8', cwd: process.cwd() }).trim();
 }
 
+type Credentials = { email: string; password: string };
+
 export type MediaFixtures = {
+  /** Editor of both test dashboards */
+  user: Credentials;
+  /** Administrator; theme and site settings are for administrators only */
+  admin: Credentials;
   defaultTenant: number;
   otherTenant: number;
   categoryGroup: string;
@@ -37,12 +47,13 @@ export type MediaFixtures = {
   };
 };
 
+const json = (output: string) => JSON.parse(output.slice(output.indexOf('{')));
+
 /** Seeds the E2E users and dashboards, then the media fixtures. */
 export function seedMedia(options = ''): MediaFixtures {
-  artisan('e2e:seed-full --clean --json');
-  const output = artisan(`e2e:seed-media ${options}`);
+  const { user, admin } = json(artisan('e2e:seed-full --clean --json'));
 
-  return JSON.parse(output.slice(output.indexOf('{')));
+  return { user, admin, ...json(artisan(`e2e:seed-media ${options}`)) };
 }
 
 /** A small solid PNG, so the test needs no fixture file. */
@@ -81,17 +92,17 @@ export function png(width: number, height: number): Buffer {
   ]);
 }
 
-
-export async function login(page: Page, tenant: number, as = user): Promise<string> {
+/** Logs in and returns the admin panel path of the default test dashboard. */
+export async function login(page: Page, fixtures: MediaFixtures, role: 'user' | 'admin' = 'user'): Promise<string> {
   await page.goto('/admin/login');
   // A click before Livewire has started on the page is lost
-  await page.waitForLoadState('networkidle');
-  await page.locator('input[type="email"]').fill(as.email);
-  await page.locator('input[type="password"]').fill(as.password);
+  await page.waitForFunction(() => (window as { Livewire?: { all(): unknown[] } }).Livewire?.all().length);
+  await page.locator('input[type="email"]').fill(fixtures[role].email);
+  await page.locator('input[type="password"]').fill(fixtures[role].password);
   await page.locator('button[type="submit"]').click();
   await page.waitForURL((url) => !url.pathname.includes('/login'));
 
-  return `/admin/${tenant}`;
+  return `/admin/${fixtures.defaultTenant}`;
 }
 
 export type Uploaded = { url: string; id: string; file: string };
@@ -107,7 +118,8 @@ export async function upload(
   meta: { alt?: string; title?: string; copyright?: string } = {},
 ): Promise<Uploaded> {
   await page.goto(`${panel}/media/create`);
-  await page.locator('input[type="file"]').setInputFiles(file);
+  // FilePond's own input exists only once it is ready; a file set earlier is dropped
+  await page.locator('input.filepond--browser').setInputFiles(file);
   await expect(page.getByRole('alert').filter({ hasText: 'Upload abgeschlossen' })).toBeVisible();
   if (meta.alt) await page.getByLabel('Alternativer Text').fill(meta.alt);
   if (meta.title) await page.getByLabel('Titel', { exact: true }).fill(meta.title);

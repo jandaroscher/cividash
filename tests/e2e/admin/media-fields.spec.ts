@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 import { test, expect, type APIRequestContext, type Locator, type Page } from '@playwright/test';
-import { admin, artisan, login, pdf, pick, png, seedMedia, upload, type MediaFixtures, type Uploaded } from './media-helpers';
+import { artisan, login, pdf, pick, png, runId, seedMedia, upload, type MediaFixtures, type Uploaded } from './media-helpers';
 
 /**
  * Every kind of field that takes a file picks it from the media library, and the
@@ -47,13 +47,13 @@ test.describe('Media library in content fields', () => {
   });
 
   test.afterAll(() => {
-    artisan('e2e:seed-media --reset-branding');
+    artisan('e2e:seed-media --clean');
   });
 
   test('page blocks: Text & Image, a slider item and a download', async ({ page, request }) => {
     test.setTimeout(180_000);
-    const run = `blocks-${Date.now()}`;
-    const panel = await login(page, fixtures.defaultTenant);
+    const run = runId('blocks');
+    const panel = await login(page, fixtures);
     const photo = await uploadImage(page, panel, `${run}-photo`);
     const slide = await uploadImage(page, panel, `${run}-slide`);
     const report = await upload(page, panel, { name: `${run}-report.pdf`, mimeType: 'application/pdf', buffer: pdf() });
@@ -99,8 +99,8 @@ test.describe('Media library in content fields', () => {
 
   test('tile icon, SEO image and metric icon', async ({ page, request }) => {
     test.setTimeout(180_000);
-    const run = `tile-${Date.now()}`;
-    const panel = await login(page, fixtures.defaultTenant);
+    const run = runId('tile');
+    const panel = await login(page, fixtures);
     const icon = await uploadImage(page, panel, `${run}-icon`);
     const seo = await uploadImage(page, panel, `${run}-seo`);
     const metricIcon = await uploadImage(page, panel, `${run}-metric`);
@@ -133,13 +133,13 @@ test.describe('Media library in content fields', () => {
 
   test('category icon', async ({ page, request }) => {
     test.setTimeout(120_000);
-    const run = `category-${Date.now()}`;
-    const panel = await login(page, fixtures.defaultTenant);
+    const run = runId('category');
+    const panel = await login(page, fixtures);
     const icon = await uploadImage(page, panel, `${run}-icon`);
 
     await page.goto(`${panel}/categories/create`);
     await field(page, 'Kategorie-Gruppe').locator('button.fi-select-input-btn').click();
-    await page.getByRole('option', { name: 'Handlungsfelder' }).first().click();
+    await page.getByRole('option', { name: 'E2E Medien', exact: true }).click();
     await page.getByLabel('Titel').first().fill(`Klima ${run}`);
     await pick(page, field(page, 'Icon'), `${run}-icon`, icon.file);
     await page.getByRole('button', { name: 'Erstellen', exact: true }).click();
@@ -153,8 +153,8 @@ test.describe('Media library in content fields', () => {
 
   test('dashboard logo and favicon', async ({ page, request }) => {
     test.setTimeout(120_000);
-    const run = `brand-${Date.now()}`;
-    const panel = await login(page, fixtures.defaultTenant, admin);
+    const run = runId('brand');
+    const panel = await login(page, fixtures, 'admin');
     const logo = await uploadImage(page, panel, `${run}-logo`);
     const favicon = await uploadImage(page, panel, `${run}-favicon`);
 
@@ -170,8 +170,8 @@ test.describe('Media library in content fields', () => {
 
   test('footer sponsor logo', async ({ page, request }) => {
     test.setTimeout(120_000);
-    const run = `sponsor-${Date.now()}`;
-    const panel = await login(page, fixtures.defaultTenant, admin);
+    const run = runId('sponsor');
+    const panel = await login(page, fixtures, 'admin');
     const logo = await uploadImage(page, panel, `${run}-logo`);
 
     await page.goto(`${panel}/site-settings`);
