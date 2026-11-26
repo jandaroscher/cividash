@@ -45,6 +45,14 @@ class ManageContentTest extends TestCase
             ->assertSuccessful();
     }
 
+    public function test_add_block_button_keeps_the_capitalised_label(): void
+    {
+        app()->setLocale('de');
+
+        Livewire::test(ManageContent::class)
+            ->assertSee('Zu Hero-Blöcke hinzufügen');
+    }
+
     public function test_hero_content_heading_block_saves(): void
     {
         Livewire::test(ManageContent::class)

@@ -25,6 +25,7 @@ return [
             'search_label' => 'Suche',
             'search_placeholder' => 'Kachel oder Kennzahl suchen …',
             'search_no_results' => 'Keine Kacheln oder Kennzahlen gefunden.',
+            'empty_state' => 'Für diese Auswahl gibt es keine Kacheln mit aktiven Kennzahlen.',
             'action_save' => 'Speichern',
             'badge_new' => 'neu',
             'hint_filtered' => 'Es werden nur Kacheln angezeigt, deren Granularität mit der gewählten übereinstimmt.',

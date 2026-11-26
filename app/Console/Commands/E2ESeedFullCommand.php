@@ -32,6 +32,13 @@ class E2ESeedFullCommand extends Command
 
     public function handle(): int
     {
+        // Seeds users with known passwords, one of them a panel-wide admin.
+        if (app()->isProduction()) {
+            $this->error('e2e:seed-full must not run in production.');
+
+            return self::FAILURE;
+        }
+
         return DB::transaction(function () {
             if ($this->option('clean')) {
                 $this->cleanExistingData();
@@ -231,6 +238,9 @@ class E2ESeedFullCommand extends Command
             CategoryGroup::whereIn('tenant_id', $tenantIds)->delete();
             Tenant::whereIn('id', $tenantIds)->delete();
         }
+
+        // Dashboards the admin backend suite registers
+        Tenant::where('slug', 'like', 'e2e-neu-%')->delete();
 
         // Also remove any tenants that hold the domains we need (e.g. from tenant-resolution spec)
         Tenant::whereIn('domain', [

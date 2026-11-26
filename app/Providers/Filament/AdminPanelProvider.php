@@ -17,6 +17,7 @@ use App\Http\Middleware\SetFilamentDefaultTenant;
 use App\Models\Tenant;
 use Filament\Facades\Filament;
 use Filament\FontProviders\LocalFontProvider;
+use Filament\Forms\Components\Builder;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -117,6 +118,12 @@ class AdminPanelProvider extends PanelProvider
         Fieldset::configureUsing(fn (Fieldset $fieldset) => $fieldset->columnSpanFull());
         Grid::configureUsing(fn (Grid $grid) => $grid->columnSpanFull());
         Section::configureUsing(fn (Section $section) => $section->columnSpanFull());
+
+        // Filament lowercases the first letter of the builder label in "Add to …", which
+        // breaks German nouns ("Zu hero-Blöcke hinzufügen").
+        Builder::configureUsing(fn (Builder $builder) => $builder->addActionLabel(
+            fn (Builder $component): string => __('filament-forms::components.builder.actions.add.label', ['label' => $component->getLabel()]),
+        ));
     }
 
     /**

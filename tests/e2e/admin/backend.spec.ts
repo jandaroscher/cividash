@@ -355,7 +355,7 @@ test('dashboard texts and contact are saved', async () => {
 test('hero blocks are saved', async () => {
   await open(`${admin}/manage-content`);
   const count = await page.locator('.fi-fo-builder-item').count();
-  await page.getByRole('button', { name: /Zu hero-Blöcke hinzufügen/ }).click();
+  await page.getByRole('button', { name: 'Zu Hero-Blöcke hinzufügen' }).click();
   await page.getByRole('menuitem', { name: 'Überschrift', exact: true }).click();
   const block = page.locator('.fi-fo-builder-item').nth(count);
   await block.getByLabel(label('Überschriftstext')).fill(`E2E Hero ${RUN}`);

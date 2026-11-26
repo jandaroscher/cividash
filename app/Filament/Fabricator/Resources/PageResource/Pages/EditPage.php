@@ -9,6 +9,7 @@ namespace App\Filament\Fabricator\Resources\PageResource\Pages;
 use App\Filament\Concerns\OpensInLinkedLocale;
 use App\Filament\Fabricator\Resources\PageResource;
 use Filament\Actions\Action;
+use Illuminate\Support\Arr;
 use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable;
 use Z3d0X\FilamentFabricator\Resources\PageResource\Pages\EditPage as FabricatorEditPage;
@@ -33,12 +34,12 @@ class EditPage extends FabricatorEditPage
     {
         $this->fillTranslatableForm();
 
-        // Landing pages get the slug "/" in every locale, so a locale without a title would
-        // count as an existing translation and block saving the other locale until it is
-        // translated. A locale only counts once it has a title.
+        // Landing pages get the slug "/" in every locale, so a locale with nothing but that slug
+        // would count as an existing translation and block saving the other locale until it is
+        // translated. Such a locale only counts once it has content besides the slug.
         $this->otherLocaleData = array_filter(
             $this->otherLocaleData,
-            fn (array $data): bool => filled($data['title'] ?? null),
+            fn (array $data): bool => collect(Arr::except($data, 'slug'))->contains(fn (mixed $value): bool => filled($value)),
         );
     }
 

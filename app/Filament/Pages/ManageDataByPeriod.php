@@ -209,6 +209,15 @@ class ManageDataByPeriod extends Page implements HasForms
     }
 
     /**
+     * Whether the selection has no tile with active metrics to fill in.
+     * Exposed as public for blade access.
+     */
+    public function hasNoTileSections(): bool
+    {
+        return $this->buildTileMatrixSchema() === [];
+    }
+
+    /**
      * Whether an active search term matched none of the currently loaded tiles.
      * Exposed as public for blade access.
      */

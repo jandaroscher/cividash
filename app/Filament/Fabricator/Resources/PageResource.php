@@ -8,6 +8,7 @@ namespace App\Filament\Fabricator\Resources;
 
 use App\Filament\Concerns\HasBlockActiveToggleAction;
 use App\Filament\Concerns\HasSortableTranslations;
+use App\Filament\Concerns\HasTranslatableRecordTitle;
 use App\Filament\Fabricator\Resources\PageResource\Pages;
 use App\Filament\Fabricator\Resources\PageResource\Pages\CreatePage;
 use App\Filament\Fabricator\Resources\PageResource\Pages\EditPage;
@@ -45,6 +46,7 @@ class PageResource extends FabricatorPageResource
 {
     use HasBlockActiveToggleAction;
     use HasSortableTranslations;
+    use HasTranslatableRecordTitle;
     use Translatable;
 
     protected static ?int $navigationSort = 1;

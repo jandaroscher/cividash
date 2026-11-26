@@ -201,6 +201,20 @@ class PageResourceTest extends TestCase
         $this->assertSame('Neue Startseite', $page->refresh()->getTranslation('title', 'de'));
     }
 
+    public function test_a_locale_without_a_title_keeps_its_other_fields_when_switched_to(): void
+    {
+        app()->setLocale('de');
+        $page = Page::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Seite'],
+            'slug' => ['de' => 'seite', 'en' => 'page'],
+            'meta_description' => ['de' => 'Beschreibung', 'en' => 'Description'],
+        ]);
+
+        Livewire::test(EditPage::class, ['record' => $page->getRouteKey()])
+            ->set('activeLocale', 'en')
+            ->assertSchemaStateSet(['meta_description' => 'Description']);
+    }
+
     public function test_edit_page_renders(): void
     {
         $page = Page::factory()->forTenant($this->tenant)->create();

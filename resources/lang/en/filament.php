@@ -25,6 +25,7 @@ return [
             'search_label' => 'Search',
             'search_placeholder' => 'Search tile or metric …',
             'search_no_results' => 'No tiles or metrics found.',
+            'empty_state' => 'There are no tiles with active metrics for this selection.',
             'action_save' => 'Save',
             'badge_new' => 'new',
             'hint_filtered' => 'Only tiles whose granularity matches the selected one are shown.',
