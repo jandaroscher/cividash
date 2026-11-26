@@ -49,7 +49,7 @@ Write tests first (TDD).
 
 ## Architecture
 
-- Headless SPA: Laravel 12 serves a REST API and the Filament admin panel; Vue 3 renders
+- Headless SPA: Laravel 13 serves a REST API and the Filament admin panel; Vue 3 renders
   all public routes client-side. `resources/views/app.blade.php` boots the SPA, and the
   Laravel catch-all route hands everything except `/api/*`, `/admin/*` and `/filament/*`
   to Vue Router.
@@ -114,5 +114,5 @@ Follow [CONTRIBUTING.md](CONTRIBUTING.md). In short:
 
 ## Tech stack
 
-Laravel 12 (PHP 8.4, Sanctum), Filament 5 with Filament Fabricator, Vue 3 with Vue
+Laravel 13 (PHP 8.4, Sanctum), Filament 5 with Filament Fabricator, Vue 3 with Vue
 Router 4 and Pinia, Tailwind CSS 4, Vite 6, PostgreSQL 16, PHPUnit, Vitest, Playwright.
