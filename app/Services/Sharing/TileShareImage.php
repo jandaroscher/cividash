@@ -467,13 +467,17 @@ class TileShareImage
             $best = $candidate;
         }
 
-        return $best ?? $this->fit($words[0] ?? '', $px, $maxWidth, $bold);
+        return $best ?? $this->fit($words[0] ?? '', $px, $maxWidth, $bold, count($words) > 1);
     }
 
-    protected function fit(string $text, int $px, int $maxWidth, bool $bold): string
+    /** $cut forces the ellipsis, for text that already lost words after it. */
+    protected function fit(string $text, int $px, int $maxWidth, bool $bold, bool $cut = false): string
     {
-        if ($this->width($text, $px, $bold) <= $maxWidth) {
+        if (! $cut && $this->width($text, $px, $bold) <= $maxWidth) {
             return $text;
+        }
+        if ($this->width('…', $px, $bold) > $maxWidth) {
+            return '';
         }
         while ($text !== '' && $this->width($text.'…', $px, $bold) > $maxWidth) {
             $text = mb_substr($text, 0, -1);

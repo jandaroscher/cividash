@@ -235,6 +235,13 @@ class TileShareImageTest extends TestCase
 
         $this->assertSame('Hafen MACEIÓ…', $fitWords('Hafen MACEIÓ Ankunft und Abfahrt', $width('Hafen MACEIÓ…') + 2));
         $this->assertSame('Label…', $fitWords('Label · 2024', $width('Label · 20')));
+
+        // Left-out words are always marked, even when the first word alone would just fit.
+        $cut = $fitWords('Gesamtverbrauch der Haushalte', $width('Gesamtverbrauch'));
+        $this->assertStringEndsWith('…', $cut);
+        $this->assertLessThanOrEqual($width('Gesamtverbrauch'), $width($cut));
+        // No room even for the ellipsis: nothing is drawn.
+        $this->assertSame('', $fitWords('kWh', 1));
     }
 
     public function test_further_metrics_are_left_out_when_one_is_too_wide(): void
