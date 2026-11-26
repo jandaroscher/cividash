@@ -104,6 +104,28 @@ npx playwright test --project=admin-backend
 
 Start the app with `CIVITAS_ENABLED=true` to include the integrations page.
 
+### Keycloak login
+
+`tests/e2e/admin/keycloak-sso.spec.ts` (project `admin-keycloak-sso`) signs in to the admin
+panel through a real Keycloak that requires PKCE, as CIVITAS/CORE 2 does. It runs only when
+`E2E_KEYCLOAK_PASSWORD` is set. Start Keycloak from `docker/keycloak`; its realm requires
+PKCE for the client `cividash-dashboard`:
+
+```bash
+docker build -t cividash-keycloak docker/keycloak
+docker run -d --network host -e CLIENT_SECRET=<secret> -e DEMO_PASSWORD=<password> \
+  -e DASHBOARD_URL=http://localhost:8000 -e KC_HTTP_ENABLED=true -e KC_HOSTNAME_STRICT=false \
+  cividash-keycloak
+```
+
+Start the app with `KEYCLOAK_SSO_ENABLED=true`, `KEYCLOAK_BASE_URL=http://localhost:8080`,
+`KEYCLOAK_CLIENT_ID=cividash-dashboard`, `KEYCLOAK_CLIENT_SECRET=<secret>` and
+`KEYCLOAK_REDIRECT_URI=http://localhost:8000/admin/auth/keycloak/callback`, then run:
+
+```bash
+E2E_KEYCLOAK_PASSWORD=<password> npx playwright test --project=admin-keycloak-sso
+```
+
 ### Accessibility audit
 
 `tests/e2e/accessibility/a11y-audit.spec.ts` runs axe-core with the tags `wcag2a` and

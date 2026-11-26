@@ -37,6 +37,9 @@
       "webOrigins": [
         "__DASHBOARD_URL__"
       ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
       "protocolMappers": [
         {
           "name": "realm-roles-to-groups",
