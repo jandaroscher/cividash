@@ -132,3 +132,10 @@ describe('sanitizeHtml', () => {
         expect(sanitizeHtml('')).toBe('');
     });
 });
+
+describe('sanitizeHtml text sizes', () => {
+    it('keeps lead paragraphs and small text from the rich text editor', () => {
+        const html = '<div class="lead"><p>Intro</p></div><p>Body <small>Note</small></p>';
+        expect(sanitizeHtml(html)).toBe(html);
+    });
+});

@@ -22,6 +22,8 @@ class RichEditorConfig
         'link',
         'h2',
         'h3',
+        'lead',
+        'small',
         'bulletList',
         'orderedList',
         'undo',

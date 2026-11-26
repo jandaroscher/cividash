@@ -57,6 +57,8 @@ A page's content is made up of **blocks** — individual content elements that c
 
 The following block types are available: **Tiles**, **Downloads**, **FAQ**, **Intro Text**, **Slider**, and **Text & Image**.
 
+**Formatted text:** The text fields of the blocks offer bold, italic, underline, strikethrough, links, two heading levels, lists and two text sizes: **Lead text** for a highlighted first paragraph and **Small text** for notes or sources. There is no free font size. The sizes are fixed steps, so pages stay consistent and easy to read.
+
 ### 2.4.1 Intro Text (Heading, Text, Image)
 
 An introductory text block with a **heading**, an optional **subheading**, formattable **text** (bold, italic, lists, links), an **image**, and an optional **second image** — each with its own image title, alt text and copyright (see [Chapter 5.3, Alt Text and Accessibility](05-images-and-files.md#53-alt-text-and-accessibility)).
