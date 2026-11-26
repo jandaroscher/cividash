@@ -96,13 +96,20 @@ async function choose(label: string, option: string | RegExp): Promise<void> {
 async function upload(label: string, name: string, content: Buffer): Promise<void> {
   await field(label).getByRole('button', { name: 'Aus Mediathek wählen' }).click();
   const picker = page.locator('.fi-modal-window:visible');
-  await picker.locator('input[type=file]').setInputFiles({ name, mimeType: 'image/png', buffer: content });
+  // FilePond's own input exists only once it is ready; a file set earlier is dropped
+  await picker.locator('input.filepond--browser').setInputFiles({ name, mimeType: 'image/png', buffer: content });
   // FilePond uploads to Livewire before the file can be added to the library
   await expect(picker.locator('.filepond--file-status-main', { hasText: /abgeschlossen|complete/i })).toBeVisible({ timeout: 15000 });
   await picker.getByRole('button', { name: 'Dateien hinzufügen' }).click();
+  // The added file must be in the selection, or the insert button closes the modal with nothing
+  await expect(picker.locator('.curator-panel-sidebar img')).toHaveAttribute('src', tenantMedia());
   await picker.getByRole('button', { name: 'Einfügen' }).click();
   await expect(picker).toBeHidden();
-  await expect(field(label).locator('.curator-media-picker img')).toHaveCount(1);
+  await expect(field(label).locator('.curator-media-picker img')).toHaveAttribute('src', tenantMedia());
+}
+
+function tenantMedia(): RegExp {
+  return new RegExp(`/media/${fx.tenants.tenantA.id}/`);
 }
 
 async function richText(label: string, text: string): Promise<void> {
@@ -338,7 +345,7 @@ test('branding: logo upload and colour are saved', async () => {
   await page.getByRole('tab', { name: 'Farben' }).click();
   await expect(page.getByLabel(label('Primärfarbe'))).toHaveValue('#123456');
   await page.getByRole('tab', { name: 'Logo' }).click();
-  await expect(field('Logo').locator('.curator-media-picker img')).toHaveCount(1);
+  await expect(field('Logo').locator('.curator-media-picker img')).toHaveAttribute('src', tenantMedia());
 });
 
 test('site settings are saved', async () => {
