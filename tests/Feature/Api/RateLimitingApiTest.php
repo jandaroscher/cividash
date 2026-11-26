@@ -16,10 +16,23 @@ class RateLimitingApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_public_endpoint_allows_many_page_views_from_one_ip(): void
+    {
+        // One SPA page view fires about ten public API requests; 25 page views
+        // a minute from a shared network must not hit the limit.
+        for ($i = 0; $i < 250; $i++) {
+            $this->getJson('/api/v1/config/header?locale=de')->assertOk();
+        }
+
+        $this->getJson('/api/v1/tiles?locale=de')->assertOk();
+    }
+
     public function test_public_endpoint_returns_429_after_exceeding_rate_limit(): void
     {
-        for ($i = 0; $i < 60; $i++) {
-            $this->getJson('/api/v1/tiles?locale=de');
+        config(['dashboard.public_api_rate_limit' => 5]);
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->getJson('/api/v1/tiles?locale=de')->assertOk();
         }
 
         $response = $this->getJson('/api/v1/tiles?locale=de');
@@ -32,8 +45,21 @@ class RateLimitingApiTest extends TestCase
     {
         $response = $this->getJson('/api/v1/tiles?locale=de');
 
-        $response->assertHeader('X-RateLimit-Limit', 60);
+        $response->assertHeader('X-RateLimit-Limit', 300);
         $response->assertHeader('X-RateLimit-Remaining');
+    }
+
+    public function test_public_rate_limit_is_counted_per_ip(): void
+    {
+        config(['dashboard.public_api_rate_limit' => 2]);
+
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.1']);
+        $this->getJson('/api/v1/tiles')->assertOk();
+        $this->getJson('/api/v1/tiles')->assertOk();
+        $this->getJson('/api/v1/tiles')->assertStatus(429);
+
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.2']);
+        $this->getJson('/api/v1/tiles')->assertOk();
     }
 
     public function test_admin_endpoint_has_higher_rate_limit(): void

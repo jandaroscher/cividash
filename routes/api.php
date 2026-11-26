@@ -37,7 +37,7 @@ Route::middleware(['throttle:60,1', 'auth:sanctum'])->prefix('me')->group(functi
 });
 
 // Public API routes with tenant resolution (Token > Domain > Default)
-Route::middleware(['throttle:60,1', 'resolve.tenant'])->group(function () {
+Route::middleware(['throttle:public-api', 'resolve.tenant'])->group(function () {
     Route::get('/tiles', [TileController::class, 'index']);
     Route::get('/tiles/{slug}', [TileController::class, 'show']);
     Route::get('/filters', [FilterController::class, 'index']);

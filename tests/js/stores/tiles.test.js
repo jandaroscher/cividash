@@ -114,6 +114,18 @@ describe('tilesStore', () => {
             expect(store.loading).toBe(false);
         });
 
+        it('sets error and keeps tiles an empty list when the API answers 429', async () => {
+            globalThis.fetch = mockFetch({ message: 'Too Many Attempts.' }, { ok: false, status: 429 });
+
+            const store = useTilesStore();
+            await store.fetchAll('de');
+
+            expect(store.error).toBeInstanceOf(Error);
+            expect(store.error.message).toContain('429');
+            expect(store.tiles).toEqual([]);
+            expect(store.loading).toBe(false);
+        });
+
         it('toggles loading state during fetch', async () => {
             let resolvePromise;
             globalThis.fetch = vi.fn().mockReturnValue(

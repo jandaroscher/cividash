@@ -34,4 +34,19 @@ return [
 
     'seed_admin_password' => env('SEED_ADMIN_PASSWORD'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Public API rate limit
+    |--------------------------------------------------------------------------
+    |
+    | Requests per minute and client IP for the public read endpoints (tiles,
+    | filters, config, content pages). One page view in the SPA triggers about
+    | ten of these requests, and visitors behind a shared network (public
+    | administration, companies, schools) share one IP, so the limit has to
+    | cover many page views per minute.
+    |
+    */
+
+    'public_api_rate_limit' => (int) env('PUBLIC_API_RATE_LIMIT', 300),
+
 ];
