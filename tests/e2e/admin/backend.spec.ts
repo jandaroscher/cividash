@@ -92,10 +92,17 @@ async function choose(label: string, option: string | RegExp): Promise<void> {
   await wrapper.getByRole('option', { name: option }).first().click();
 }
 
+/** Uploads a new file through the field's media library picker and inserts it into the field. */
 async function upload(label: string, name: string, content: Buffer): Promise<void> {
-  await field(label).locator('input[type=file]').setInputFiles({ name, mimeType: 'image/png', buffer: content });
-  // FilePond uploads to Livewire before the form can be saved
-  await expect(field(label).locator('.filepond--file-status-main', { hasText: /abgeschlossen|complete/i })).toBeVisible({ timeout: 15000 });
+  await field(label).getByRole('button', { name: 'Aus Mediathek wählen' }).click();
+  const picker = page.locator('.fi-modal-window:visible');
+  await picker.locator('input[type=file]').setInputFiles({ name, mimeType: 'image/png', buffer: content });
+  // FilePond uploads to Livewire before the file can be added to the library
+  await expect(picker.locator('.filepond--file-status-main', { hasText: /abgeschlossen|complete/i })).toBeVisible({ timeout: 15000 });
+  await picker.getByRole('button', { name: 'Dateien hinzufügen' }).click();
+  await picker.getByRole('button', { name: 'Einfügen' }).click();
+  await expect(picker).toBeHidden();
+  await expect(field(label).locator('.curator-media-picker img')).toHaveCount(1);
 }
 
 async function richText(label: string, text: string): Promise<void> {
@@ -331,7 +338,7 @@ test('branding: logo upload and colour are saved', async () => {
   await page.getByRole('tab', { name: 'Farben' }).click();
   await expect(page.getByLabel(label('Primärfarbe'))).toHaveValue('#123456');
   await page.getByRole('tab', { name: 'Logo' }).click();
-  await expect(field('Logo').locator('.filepond--item')).toHaveCount(1);
+  await expect(field('Logo').locator('.curator-media-picker img')).toHaveCount(1);
 });
 
 test('site settings are saved', async () => {
