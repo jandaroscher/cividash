@@ -88,6 +88,10 @@ export default defineConfig({
       testMatch: /media-library\.spec\.ts/,
     },
     {
+      name: 'admin-keycloak-sso',
+      testMatch: /admin\/keycloak-sso\.spec\.ts/,
+    },
+    {
       name: 'dashboard-navigation',
       testMatch: /dashboard-navigation\.spec\.ts/,
     },
