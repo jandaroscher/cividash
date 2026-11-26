@@ -72,6 +72,13 @@ Specs that seed fixtures run `${E2E_ARTISAN_CMD} e2e:seed-full --json`.
 ```bash
 ddev exec php artisan e2e:seed-full --clean --json
 npm run test:e2e                                  # all projects
+
+# The frontend specs (the same five projects as CI) need the demo-city tenant.
+# dashboard:reset deletes the content of the default and Demo City tenants.
+ddev exec php artisan dashboard:reset --force
+PLAYWRIGHT_BASE_URL=http://demo-city.open-source-dashboard.ddev.site \
+  npx playwright test --project=dashboard-navigation --project=filter-search \
+  --project=locale-switching --project=content-pages --project=branding
 npx playwright test --project=accessibility       # accessibility audit only
 ```
 

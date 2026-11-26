@@ -117,7 +117,7 @@ test.describe('Filter and Search', () => {
 
       const searchInput = page.getByRole('textbox', { name: /^(Kacheln durchsuchen|Search tiles)$/ });
       await searchInput.fill(title);
-      await expect(page).toHaveURL(new RegExp(`[?&]search=${escapeRegExp(encodeURIComponent(title)).replace(/%20/g, '(\\+|%20)')}`));
+      await expect.poll(() => new URL(page.url()).searchParams.get('search')).toBe(title);
       await expect.poll(() => page.locator(VISIBLE_TILES).count()).toBeLessThan(tiles.length);
       const filteredCount = await page.locator(VISIBLE_TILES).count();
 

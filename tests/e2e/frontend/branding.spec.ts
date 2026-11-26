@@ -25,6 +25,7 @@ type Branding = {
   header_background_color: string;
   footer_background_color: string;
   typography_font_family: string;
+  typography_custom_font_name: string | null;
   font_family_body: string | null;
 };
 
@@ -87,7 +88,7 @@ test.describe('Branding', () => {
   test.describe('Typography', () => {
     test('body text uses the body font from branding', async ({ page }) => {
       const branding = await openHomeWithBranding(page);
-      const expected = firstFamily(branding.font_family_body || branding.typography_font_family);
+      const expected = firstFamily(branding.font_family_body || branding.typography_custom_font_name || branding.typography_font_family);
 
       await expect
         .poll(() => page.evaluate(() => getComputedStyle(document.body).fontFamily).then(firstFamily))
