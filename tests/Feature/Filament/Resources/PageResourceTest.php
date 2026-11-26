@@ -226,6 +226,20 @@ class PageResourceTest extends TestCase
         $this->assertEquals('aktualisiert', $page->getTranslation('slug', 'de'));
     }
 
+    public function test_edit_page_explains_where_the_title_appears(): void
+    {
+        $page = Page::factory()->forTenant($this->tenant)->create([
+            'title' => ['de' => 'Startseite', 'en' => 'Home'],
+            'layout' => 'landingpage',
+        ]);
+
+        app()->setLocale('de');
+
+        Livewire::test(EditPage::class, ['record' => $page->getRouteKey()])
+            ->assertSee('Erscheint im Browser-Tab')
+            ->assertSee('Intro-Text-Block');
+    }
+
     public function test_edit_page_title_is_required(): void
     {
         $page = Page::factory()->forTenant($this->tenant)->create();

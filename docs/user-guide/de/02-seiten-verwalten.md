@@ -28,7 +28,7 @@ Mit **Erstellen** oben rechts eine neue Seite anlegen. Das Formular gliedert sic
 
 | Feld | Beschreibung |
 |------|-------------|
-| **Titel** | Name der Seite, erscheint auch im Frontend |
+| **Titel** | Name der Seite. Erscheint, solange kein SEO-Titel gesetzt ist, im Browser-Tab, in Suchmaschinen und beim Teilen. Wird die Seite in der Navigation ausgewählt, übernimmt der Menüpunkt den Titel als Linktext. Die sichtbare Überschrift der Seite kommt aus dem Intro-Text-Block (siehe [Kapitel 2.4.1](#241-intro-text-überschrift-text-bild)). |
 | **URL-Slug** | Adressteil der Seite, wird beim Tippen des Titels automatisch vorgeschlagen |
 | **Layout** | `Landingpage`, `Subpage` oder `default` |
 | **Übergeordnete Seite** | Optionale Elternseite für eine hierarchische URL-Struktur |
@@ -66,6 +66,8 @@ Einleitender Textblock mit **Überschrift**, optionaler **Unterüberschrift**, f
 
 **Wirkung im Frontend:** Überschrift, Unterüberschrift und Text erscheinen als Kopfbereich der Seite. Wird kein Bild hochgeladen, bleibt der Bildbereich leer, der restliche Inhalt wird trotzdem angezeigt.
 
+![Intro-Text-Block im Frontend](../assets/screenshots/de/02-frontend-intro-text.png)
+
 ### 2.4.2 Text-Bild-Block (Text mit positioniertem Bild)
 
 Kombiniert eine **Überschrift**, formatierbaren **Text** und ein **Bild** (mit Bildtitel, Alt-Text und Copyright, siehe [Kapitel 5.3](05-bilder-und-dateien.md#53-alt-texte-und-barrierefreiheit)) mit wählbarer **Bildposition** (Links/Rechts).
@@ -74,6 +76,8 @@ Kombiniert eine **Überschrift**, formatierbaren **Text** und ein **Bild** (mit 
 ![Text-Bild-Block](../assets/screenshots/de/02-block-text-bild.png)
 
 **Wirkung im Frontend:** Das Bild erscheint je nach gewählter Position links oder rechts neben dem Text. Details zum Bild-Upload: siehe [Kapitel 5, Bilder und Dateien](05-bilder-und-dateien.md).
+
+![Text-Bild-Block im Frontend](../assets/screenshots/de/02-frontend-text-bild.png)
 
 ### 2.4.3 Slider (Bildkarussell mit Links)
 
@@ -84,6 +88,8 @@ Ein Slider besteht aus einer optionalen **Überschrift** und beliebig vielen **S
 
 **Wirkung im Frontend:** Jedes Slider-Element erscheint als eigene Karte mit Bild, Titel, Beschreibung und einem Link-Button (Beschriftung aus **Link Text**).
 
+![Slider im Frontend](../assets/screenshots/de/02-frontend-slider.png)
+
 ### 2.4.4 FAQ-Block (Frage-Antwort-Paare)
 
 Sammlung von **FAQ-Einträgen**, jeweils mit **Frage** und formatierbarer **Antwort**. Über **Zu FAQ-Einträgen hinzufügen** weitere Einträge ergänzen.
@@ -92,6 +98,8 @@ Sammlung von **FAQ-Einträgen**, jeweils mit **Frage** und formatierbarer **Antw
 ![FAQ-Block](../assets/screenshots/de/02-block-faq.png)
 
 **Wirkung im Frontend:** Jeder Eintrag erscheint als aufklappbares Element (Akkordeon) — die Antwort ist erst nach Klick auf die Frage sichtbar.
+
+![FAQ-Block im Frontend, erste Frage aufgeklappt](../assets/screenshots/de/02-frontend-faq.png)
 
 ### 2.4.5 Kacheln (Dashboard-Kacheln einbetten)
 
@@ -104,6 +112,8 @@ Bettet Dashboard-Kacheln (siehe [Kapitel 3, Kacheln verwalten](03-kacheln-verwal
 
 **Wirkung im Frontend:** Der Block rendert ein durchsuchbares Kachel-Raster mit Suchfeld. Ohne angelegte Kacheln bleibt das Raster leer, das Suchfeld wird trotzdem angezeigt.
 
+![Kacheln-Block im Frontend](../assets/screenshots/de/02-frontend-kacheln.png)
+
 ### 2.4.6 Downloads (Dateien zum Download anbieten)
 
 Stellt Dateien zum Download bereit. Ein Downloads-Block hat eine optionale **Überschrift**, einen formatierbaren **Text** und beliebig viele **Dateien**-Einträge mit optionalem **Titel** (wenn leer, wird der Dateiname angezeigt) und einer Pflicht-**Datei**.
@@ -112,6 +122,8 @@ Stellt Dateien zum Download bereit. Ein Downloads-Block hat eine optionale **Üb
 ![Downloads-Block](../assets/screenshots/de/02-block-downloads.png)
 
 **Wirkung im Frontend:** Jede Datei erscheint als klickbarer Download-Link mit Dateityp-Kennzeichnung (z. B. „PDF").
+
+![Downloads-Block im Frontend](../assets/screenshots/de/02-frontend-downloads.png)
 
 Kombiniert ergeben mehrere Blöcke eine vollständige Seite:
 

@@ -31,7 +31,7 @@ SPDX-License-Identifier: EUPL-1.2+
           class="pt-6 text-black relative"
         >
           <div class="flex flex-row justify-between gap-2 px-4">
-            <div class="text-theme-h3 font-bold mb-4 hyphens-auto">
+            <div class="min-w-0 text-theme-h3 font-bold mb-4 hyphens-auto wrap-anywhere">
               {{ header }}
             </div>
             <!-- Additive region, renders nothing unless a tenant

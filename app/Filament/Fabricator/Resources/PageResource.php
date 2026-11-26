@@ -305,6 +305,7 @@ class PageResource extends FabricatorPageResource
             ->schema([
                 TextInput::make('title')
                     ->label(__('filament.resources.page.title'))
+                    ->helperText(__('filament.resources.page.title_helper'))
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull()

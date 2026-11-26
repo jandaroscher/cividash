@@ -19,7 +19,7 @@ SPDX-License-Identifier: EUPL-1.2+
     <div class="container relative" style="z-index: var(--z-dropdown);">
         <div>
             @if(isset($title) && $title)
-                <h1 class="text-4xl lg:text-5xl text-white font-bold mb-6 hyphens-auto">{{ $title }}</h1>
+                <h1 class="text-4xl lg:text-5xl text-white font-bold mb-6 hyphens-auto wrap-anywhere">{{ $title }}</h1>
             @endif
             @if(isset($subtitle) && $subtitle)
                 <p class="text-xl md:text-2xl mb-8 text-gray-200">{{ $subtitle }}</p>

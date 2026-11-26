@@ -28,7 +28,7 @@ SPDX-License-Identifier: EUPL-1.2+
       <div>
         <h1
           v-if="block.props.title"
-          class="content-heading text-white mb-6 hyphens-auto"
+          class="content-heading text-white mb-6 hyphens-auto wrap-anywhere"
         >
           {{ block.props.title }}
         </h1>

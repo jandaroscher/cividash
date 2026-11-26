@@ -8,7 +8,7 @@ SPDX-License-Identifier: EUPL-1.2+
   <div class="container">
     <h1
       v-if="block.props.heading"
-      class="content-heading mb-6 hyphens-auto"
+      class="content-heading mb-6 hyphens-auto wrap-anywhere"
     >
       {{ block.props.heading }}
     </h1>
@@ -17,7 +17,7 @@ SPDX-License-Identifier: EUPL-1.2+
       <div class="col-span-2">
         <h2
           v-if="block.props.subheading"
-          class="content-heading mb-6 lg:mb-12 hyphens-auto"
+          class="content-heading mb-6 lg:mb-12 hyphens-auto wrap-anywhere"
         >
           {{ block.props.subheading }}
         </h2>

@@ -13,7 +13,7 @@ SPDX-License-Identifier: EUPL-1.2+
       <component
         :is="headingLevel"
         v-if="tile"
-        class="text-theme-primary font-bold text-theme-h1 hyphens-auto min-w-0"
+        class="text-theme-primary font-bold text-theme-h1 hyphens-auto wrap-anywhere min-w-0"
       >
         {{ title }}
       </component>
