@@ -4,21 +4,30 @@ Media handling in the admin panel.
 
 ## 5.1 Media Library
 
-The media library is the central store for a dashboard's images and files. It is in the navigation under **Content → Media library**. Each dashboard has its own media library; files of other dashboards are not visible there.
+The media library is the central store for a dashboard's images and files. It is in the navigation under **Content → Media Library**. Each dashboard has its own media library; files of other dashboards are not visible there.
+
+<!-- Screenshot: Media library grid with thumbnails, search and the "Upload Multiple" and "New Media item" buttons -->
+![Media library grid](../assets/screenshots/en/05-media-library-grid.png)
 
 ### Upload a File
 
-1. Open **Content → Media library** and click **Create**. Several files at once can be added via **Upload Multiple**.
+1. Open **Content → Media Library** and click **New Media item**. Several files at once can be added via **Upload Multiple**.
 2. Drop the file onto the area or pick it via **Browse**.
 3. Wait until "Upload complete" appears.
 4. Optionally fill in **Alt Text**, **Title** and **Copyright**.
 5. Click **Create**.
 
+<!-- Screenshot: "Create Media Item" page with an uploaded file and filled Alt Text and Copyright fields -->
+![Upload a file to the media library](../assets/screenshots/en/05-media-upload.png)
+
+New files go to the dashboard's folder automatically (shown under **Details → Directory**, for example `media/2`). There is no folder to choose or create.
+
 These details apply to all languages. Content images use them wherever the companion fields in the block stay empty (see [5.3](#53-alt-text-and-accessibility)).
 
 The media library takes images, Lottie animations, PDF, Word, Excel and ZIP files up to 25 MB. The field that later uses the file can have a smaller limit (see [5.2](#52-supported-formats-and-sizes)).
 
-<!-- Screenshot: Media library, "Edit media" page with preview, details, meta fields and "Used in" -->
+<!-- Screenshot: Media library, "Edit Media Item" page with preview, details, meta fields and "Used in" -->
+!["Edit Media Item" page with "Used in"](../assets/screenshots/en/05-edit-media.png)
 
 ### Use a File in a Field
 
@@ -28,15 +37,21 @@ Image and file fields in pages, tiles, theme and footer show the button **Choose
 2. Find the file via search, or open the folder, and click the file.
 3. Click **Insert**.
 
+<!-- Screenshot: Media library picker opened from a Text & Image block, one file selected -->
+![Media library picker](../assets/screenshots/en/05-media-picker.png)
+
 A new file can also be uploaded directly in the picker under **Add Files**. It is stored in the media library and is then available to other fields too.
 
 The same file can be used in any number of fields. A file cannot be swapped: for a new version, upload the new file and pick it in the fields.
 
 ### Check Usage and Delete Files
 
-The **Edit media** page lists under **Used in** all pages, tiles and settings that use the file, each with a link.
+The **Edit Media Item** page lists under **Used in** all pages, tiles and settings that use the file, each with a link.
 
 A file that is still in use cannot be deleted. The admin area then reports that the file is still in use. First remove or replace the file in every listed place, then delete it.
+
+<!-- Screenshot: Notice "This file is still in use …" after a delete attempt -->
+![Deleting a file in use is refused](../assets/screenshots/en/05-delete-refused.png)
 
 ### Existing Files
 

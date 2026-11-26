@@ -6,6 +6,9 @@ Medienhandling im Adminbereich.
 
 Die Mediathek ist die zentrale Ablage für Bilder und Dateien eines Dashboards. Sie liegt in der Navigation unter **Inhalte → Mediathek**. Jedes Dashboard hat eine eigene Mediathek; Dateien anderer Dashboards sind dort nicht sichtbar.
 
+<!-- Screenshot: Mediathek, Rasteransicht mit Vorschaubildern, Suche und den Schaltflächen „Mehrere hochladen“ und „Erstellen“ -->
+![Rasteransicht der Mediathek](../assets/screenshots/de/05-mediathek-raster.png)
+
 ### Datei hochladen
 
 1. **Inhalte → Mediathek** öffnen und auf **Erstellen** klicken. Mehrere Dateien auf einmal lassen sich über **Mehrere hochladen** übernehmen.
@@ -14,11 +17,17 @@ Die Mediathek ist die zentrale Ablage für Bilder und Dateien eines Dashboards. 
 4. Optional **Alternativer Text**, **Titel** und **Copyright** ausfüllen.
 5. Auf **Erstellen** klicken.
 
+<!-- Screenshot: Seite „Medium erstellen“ mit hochgeladener Datei und ausgefüllten Feldern Alternativer Text und Copyright -->
+![Datei in die Mediathek hochladen](../assets/screenshots/de/05-mediathek-hochladen.png)
+
+Neue Dateien landen automatisch im Ordner des Dashboards (unter **Details → Verzeichnis**, z. B. `media/2`). Einen Ordner wählen oder anlegen ist nicht nötig.
+
 Diese Angaben gelten für alle Sprachen. Inhaltsbilder übernehmen sie überall dort, wo die Begleitfelder im Block leer bleiben (siehe [5.3](#53-alt-texte-und-barrierefreiheit)).
 
 Die Mediathek nimmt Bilder, Lottie-Animationen, PDF-, Word-, Excel- und ZIP-Dateien bis 25 MB an. Das Feld, in dem die Datei später verwendet wird, kann ein kleineres Limit haben (siehe [5.2](#52-unterstützte-formate-und-größen)).
 
 <!-- Screenshot: Mediathek, Seite „Medium bearbeiten“ mit Vorschau, Details, Meta-Feldern und „Verwendet in“ -->
+![Seite „Medium bearbeiten“ mit „Verwendet in“](../assets/screenshots/de/05-medium-bearbeiten.png)
 
 ### Datei in einem Feld verwenden
 
@@ -27,6 +36,9 @@ Bild- und Dateifelder in Seiten, Kacheln, Theme und Footer zeigen die Schaltflä
 1. Auf **Aus Mediathek wählen** klicken. Ein Auswahlfenster mit den Dateien der Mediathek öffnet sich.
 2. Datei über die Suche finden oder den Ordner öffnen und die Datei anklicken.
 3. Auf **Einfügen** klicken.
+
+<!-- Screenshot: Auswahlfenster der Mediathek aus einem Text-&-Bild-Block, eine Datei ausgewählt -->
+![Auswahlfenster der Mediathek](../assets/screenshots/de/05-mediathek-auswahl.png)
 
 Eine neue Datei lässt sich auch direkt im Auswahlfenster unter **Dateien hinzufügen** hochladen. Sie landet dabei in der Mediathek und steht danach auch anderen Feldern zur Verfügung.
 
@@ -37,6 +49,9 @@ Dieselbe Datei kann in beliebig vielen Feldern verwendet werden. Eine Datei läs
 Die Seite **Medium bearbeiten** listet unter **Verwendet in** alle Seiten, Kacheln und Einstellungen, die die Datei nutzen, jeweils mit Link.
 
 Eine Datei, die noch verwendet wird, lässt sich nicht löschen. Der Adminbereich meldet dann, dass die Datei noch verwendet wird. Zuerst die Datei an allen aufgeführten Stellen entfernen oder ersetzen, danach löschen.
+
+<!-- Screenshot: Hinweis „Die Datei wird noch verwendet …“ nach dem Löschversuch -->
+![Löschen einer verwendeten Datei wird verweigert](../assets/screenshots/de/05-loeschen-verweigert.png)
 
 ### Bestehende Dateien
 
@@ -105,7 +120,7 @@ Die Angaben in der Mediathek gibt es nur einmal, sie gelten für alle Sprachen. 
 
 Das Icon-Feld einer Kachel (siehe [Kapitel 3.2, Neue Kachel anlegen](03-kacheln-verwalten.md)) akzeptiert neben Bildformaten auch Lottie-Animationen: `.json`-Dateien im Bodymovin/Lottie-Format sowie `.lottie`-Dateien (dotLottie-Container). Nach dem Speichern einer Kachel mit einer solchen Datei zeigt das Formular eine **Lottie-Vorschau** mit abspielender Animation:
 
-<!-- Screenshot: Icon-Feld einer Kachel mit hochgeladener Lottie-Datei und Lottie-Vorschau -->
+<!-- Screenshot: Icon-Feld einer Kachel mit einer Lottie-Datei aus der Mediathek und Lottie-Vorschau -->
 ![Lottie-Vorschau im Icon-Feld](../assets/screenshots/de/05-icon-lottie-upload.png)
 
 > **Hinweis:** Die Lottie-Vorschau aktualisiert sich nicht live während des Hochladens — sie erscheint erst nach dem Speichern der Kachel und einem erneuten Laden der Seite. Wird keine Lottie-Datei erkannt (Dateiendung weder `.json` noch `.lottie`), zeigt das Formular stattdessen den Hinweis „Keine Lottie-Animation".
