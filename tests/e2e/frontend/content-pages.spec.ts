@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2+
 
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+import { fetchApi, resetApiThrottle } from './helpers';
 
 /**
  * E2E Tests for CMS Content Pages
@@ -16,148 +17,63 @@ import { test, expect } from '@playwright/test';
  * Prerequisites:
  * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
  * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
+ * - CMS pages for the demo-city tenant: dashboard:reset (see docs/testing/README.md)
  */
+
+type CmsPage = { slug: string; title: string };
+
+/** Open the first non-root CMS page of the tenant and return it. */
+async function openCmsPage(page: Page): Promise<CmsPage> {
+  await page.goto('/');
+  const pages = await fetchApi<CmsPage[]>(page, '/api/v1/content/pages?locale=de');
+  const cmsPage = pages.find((p) => p.slug && p.slug !== '/' && p.title);
+  expect(cmsPage, 'a non-root CMS page with a title').toBeDefined();
+
+  await page.goto(`/${cmsPage!.slug}`);
+  return cmsPage!;
+}
+
+test.beforeEach(resetApiThrottle);
 
 test.describe('Content Pages', () => {
   test.describe('CMS page rendering', () => {
-    test('a CMS page loads successfully from the API', async ({ page, request }) => {
-      // First, fetch available pages from the API to find a valid slug
-      const response = await request.get('/api/v1/pages?locale=de');
+    test('a CMS page loads successfully from the API', async ({ page }) => {
+      await openCmsPage(page);
 
-      if (!response.ok()) {
-        test.skip(true, 'Pages API not available');
-        return;
-      }
-
-      const json = await response.json();
-      const pages = json.data || json;
-
-      if (!Array.isArray(pages) || pages.length === 0) {
-        test.skip(true, 'No CMS pages available');
-        return;
-      }
-
-      // Find a page with a slug (not the root page)
-      const cmsPage = pages.find((p: { slug: string }) => p.slug && p.slug !== '/' && p.slug !== '');
-
-      if (!cmsPage) {
-        test.skip(true, 'No non-root CMS pages found');
-        return;
-      }
-
-      // Navigate to the CMS page
-      await page.goto(`/${cmsPage.slug}`);
-      await page.waitForLoadState('networkidle');
-
-      // The page should not show an error
-      const bodyText = await page.locator('body').textContent();
-      expect(bodyText).not.toContain('500');
-      expect(bodyText).not.toContain('Server Error');
-
-      // The dynamic-page container should be present
-      const dynamicPage = page.locator('.dynamic-page');
-      await expect(dynamicPage).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('.dynamic-page .page-view')).toBeVisible();
+      await expect(page.locator('#not-found-title')).toHaveCount(0);
+      await expect(page.locator('.dynamic-page')).not.toContainText(/Fehler beim Laden|Error loading|Server Error/);
     });
 
-    test('page renders block content (not empty)', async ({ page, request }) => {
-      // Fetch available pages from the API
-      const response = await request.get('/api/v1/pages?locale=de');
+    test('page renders block content (not empty)', async ({ page }) => {
+      await openCmsPage(page);
 
-      if (!response.ok()) {
-        test.skip(true, 'Pages API not available');
-        return;
-      }
-
-      const json = await response.json();
-      const pages = json.data || json;
-
-      if (!Array.isArray(pages) || pages.length === 0) {
-        test.skip(true, 'No CMS pages available');
-        return;
-      }
-
-      // Find a non-root page (index API doesn't include blocks, so just pick by slug)
-      const cmsPage = pages.find((p: { slug: string }) =>
-        p.slug && p.slug !== '/' && p.slug !== ''
-      );
-
-      if (!cmsPage) {
-        test.skip(true, 'No suitable CMS pages found');
-        return;
-      }
-
-      await page.goto(`/${cmsPage.slug}`);
-
-      await page.waitForLoadState('networkidle');
-
-      // The page-view or page-content area should have rendered content
-      const pageContent = page.locator('.page-view, .dynamic-page');
-      await expect(pageContent).toBeVisible({ timeout: 10000 });
-
-      // The page should contain some meaningful text content
-      const textContent = await pageContent.textContent();
-      expect(textContent?.trim().length).toBeGreaterThan(0);
+      const pageContent = page.locator('.page-view .page-content');
+      await expect(pageContent).toBeVisible();
+      await expect(pageContent).not.toHaveText(/^\s*$/);
     });
   });
 
   test.describe('404 handling', () => {
     test('404 page shows for non-existent slug', async ({ page }) => {
       await page.goto('/this-page-does-not-exist-xyz-123');
-      await page.waitForLoadState('networkidle');
 
-      // The 404 page should render with the not-found title
       const notFoundHeading = page.locator('#not-found-title');
-      await expect(notFoundHeading).toBeVisible({ timeout: 10000 });
+      await expect(notFoundHeading).toBeVisible();
+      await expect(notFoundHeading).toContainText('404');
 
-      // Should contain "404" text
-      const headingText = await notFoundHeading.textContent();
-      expect(headingText).toContain('404');
-
-      // Should contain the description text
-      const description = page.locator('main[role="main"] p');
-      await expect(description).toBeVisible();
+      await expect(page.getByRole('main').locator('#not-found-title ~ p')).toBeVisible();
     });
   });
 
   test.describe('Page title', () => {
-    test('page title is visible on CMS page', async ({ page, request }) => {
-      // Fetch available pages from the API
-      const response = await request.get('/api/v1/pages?locale=de');
+    test('page title is visible on CMS page', async ({ page }) => {
+      const cmsPage = await openCmsPage(page);
 
-      if (!response.ok()) {
-        test.skip(true, 'Pages API not available');
-        return;
-      }
-
-      const json = await response.json();
-      const pages = json.data || json;
-
-      if (!Array.isArray(pages) || pages.length === 0) {
-        test.skip(true, 'No CMS pages available');
-        return;
-      }
-
-      const cmsPage = pages.find((p: { slug: string; title?: string }) =>
-        p.slug && p.slug !== '/' && p.slug !== '' && p.title
-      );
-
-      if (!cmsPage) {
-        test.skip(true, 'No CMS pages with titles found');
-        return;
-      }
-
-      await page.goto(`/${cmsPage.slug}`);
-      await page.waitForLoadState('networkidle');
-
-      // The page should have a heading element visible
-      const heading = page.locator('.page-view h1, .page-view h2, .page-content h1, .page-content h2').first();
-      const isHeadingVisible = await heading.isVisible().catch(() => false);
-
-      if (isHeadingVisible) {
-        const headingText = await heading.textContent();
-        expect(headingText?.trim().length).toBeGreaterThan(0);
-      }
-      // Some pages may not have explicit headings (e.g., hero blocks) - that's acceptable
+      await expect(page).toHaveTitle(new RegExp(cmsPage.title));
+      const heading = page.locator('.page-content h1, .page-content h2').first();
+      await expect(heading).toBeVisible();
+      await expect(heading).not.toHaveText(/^\s*$/);
     });
   });
 });

@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: EUPL-1.2+
 
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+import { resetApiThrottle } from './helpers';
 
 /**
  * E2E Tests for Locale Switching
@@ -11,153 +12,98 @@ import { test, expect } from '@playwright/test';
  * - Default page loads in German (DE)
  * - Language switcher is visible in header
  * - Switching to EN changes URL to /en/...
- * - Content changes to English (check header/footer text)
+ * - Content changes to English (check header navigation text)
  * - Switching back to DE removes /en/ prefix
- * - API calls use correct ?locale= parameter
+ * - The app requests API data with the matching ?locale= parameter
  *
  * Prerequisites:
  * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
  * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
- * - English translation must be enabled for the tenant
+ * - The demo-city tenant with English translation active and its "Kontakt"/"Contact"
+ *   header navigation item (dashboard:reset, see docs/testing/README.md)
  */
+
+/**
+ * Open a home page and wait until the router has resolved it. The app mounts
+ * (header included) before its first navigation finishes, and a language
+ * switch clicked in that window is overridden by that navigation.
+ */
+async function openHome(page: Page, path: '/' | '/en'): Promise<void> {
+  await page.goto(path);
+  await expect(page.locator('.home-page .page-content')).toBeVisible();
+}
+
+test.beforeEach(resetApiThrottle);
 
 test.describe('Locale Switching', () => {
   test.describe('Default locale', () => {
     test('default page loads in German (DE)', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
 
-      // The URL should not contain /en prefix
       expect(page.url()).not.toMatch(/\/en(\/|$)/);
 
-      // Check that the page loaded (header should be visible)
-      const header = page.locator('header');
-      await expect(header).toBeVisible();
+      await expect(page.locator('header')).toBeVisible();
+      const nav = page.locator('.desktop-nav');
+      await expect(nav.getByRole('link', { name: 'Kontakt' })).toHaveAttribute('href', '/kontakt');
     });
   });
 
   test.describe('Language switcher', () => {
     test('language switcher is visible in header', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
 
-      // The desktop language switcher contains DE / EN buttons
       const languageSwitcher = page.locator('.language-switcher-desktop');
-
-      // Check if English translation is active (switcher might not be rendered)
-      const isVisible = await languageSwitcher.isVisible().catch(() => false);
-
-      if (isVisible) {
-        // Should have DE and EN buttons
-        const deButton = languageSwitcher.locator('button', { hasText: 'DE' });
-        const enButton = languageSwitcher.locator('button', { hasText: 'EN' });
-
-        await expect(deButton).toBeVisible();
-        await expect(enButton).toBeVisible();
-      } else {
-        // English translation might be disabled for this tenant - skip gracefully
-        test.skip(true, 'English translation not active for this tenant');
-      }
+      await expect(languageSwitcher.getByRole('button', { name: 'DE' })).toBeVisible();
+      await expect(languageSwitcher.getByRole('button', { name: 'EN' })).toBeVisible();
     });
 
     test('switching to EN changes URL to /en/...', async ({ page }) => {
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await openHome(page, '/');
 
-      const languageSwitcher = page.locator('.language-switcher-desktop');
-      const isVisible = await languageSwitcher.isVisible().catch(() => false);
+      await page.locator('.language-switcher-desktop').getByRole('button', { name: 'EN' }).click();
 
-      if (!isVisible) {
-        test.skip(true, 'English translation not active for this tenant');
-        return;
-      }
-
-      // Click EN button
-      const enButton = languageSwitcher.locator('button', { hasText: 'EN' });
-      await enButton.click();
-      await page.waitForLoadState('networkidle');
-
-      // URL should now contain /en
-      expect(page.url()).toMatch(/\/en(\/|$)/);
+      await expect(page).toHaveURL(/\/en(\/|$)/);
     });
 
     test('content changes to English after switching locale', async ({ page }) => {
-      // Navigate directly to English home page
-      await page.goto('/en');
-      await page.waitForLoadState('networkidle');
+      await openHome(page, '/');
+      const nav = page.locator('.desktop-nav');
+      await expect(nav.getByRole('link', { name: 'Kontakt' })).toBeVisible();
 
-      // Check if we were redirected back to DE (English might be disabled)
-      if (!page.url().includes('/en')) {
-        test.skip(true, 'English translation not active for this tenant');
-        return;
-      }
+      await page.locator('.language-switcher-desktop').getByRole('button', { name: 'EN' }).click();
 
-      // The header logo link should point to /en
-      const header = page.locator('header');
-      await expect(header).toBeVisible();
-
-      const logoLink = header.locator('a').first();
-      const href = await logoLink.getAttribute('href');
-      expect(href).toBe('/en');
+      // The header navigation is now English and links to English pages
+      await expect(nav.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/en/contact');
+      await expect(nav.getByRole('link', { name: 'Kontakt' })).toHaveCount(0);
     });
 
     test('switching back to DE removes /en/ prefix', async ({ page }) => {
-      await page.goto('/en');
-      await page.waitForLoadState('networkidle');
+      await openHome(page, '/en');
+      await expect(page).toHaveURL(/\/en$/);
+      const nav = page.locator('.desktop-nav');
+      await expect(nav.getByRole('link', { name: 'Contact' })).toBeVisible();
 
-      if (!page.url().includes('/en')) {
-        test.skip(true, 'English translation not active for this tenant');
-        return;
-      }
+      await page.locator('.language-switcher-desktop').getByRole('button', { name: 'DE' }).click();
 
-      const languageSwitcher = page.locator('.language-switcher-desktop');
-      const isVisible = await languageSwitcher.isVisible().catch(() => false);
-
-      if (!isVisible) {
-        test.skip(true, 'Language switcher not visible');
-        return;
-      }
-
-      // Click DE button
-      const deButton = languageSwitcher.locator('button', { hasText: 'DE' });
-      await deButton.click();
-      await page.waitForLoadState('networkidle');
-
-      // URL should not contain /en anymore
-      expect(page.url()).not.toMatch(/\/en(\/|$)/);
+      await expect(page).not.toHaveURL(/\/en(\/|$)/);
+      await expect(nav.getByRole('link', { name: 'Kontakt' })).toBeVisible();
     });
   });
 
   test.describe('API locale parameter', () => {
-    test('API calls use correct ?locale= parameter', async ({ request }) => {
-      // Test German locale
-      const deResponse = await request.get('/api/v1/tiles?locale=de');
-      expect(deResponse.ok()).toBeTruthy();
+    test('API calls use correct ?locale= parameter', async ({ page }) => {
+      for (const [path, locale] of [['/tiles', 'de'], ['/en/tiles', 'en']]) {
+        const tilesResponse = page.waitForResponse((response) => {
+          const url = new URL(response.url());
+          return url.pathname === '/api/v1/tiles' && url.searchParams.get('locale') === locale;
+        });
 
-      const deData = await deResponse.json();
-      expect(deData.data).toBeDefined();
+        await page.goto(path);
 
-      // Test English locale
-      const enResponse = await request.get('/api/v1/tiles?locale=en');
-      expect(enResponse.ok()).toBeTruthy();
-
-      const enData = await enResponse.json();
-      expect(enData.data).toBeDefined();
-
-      // Both should return tile data
-      expect(deData.data.length).toBeGreaterThan(0);
-      expect(enData.data.length).toBeGreaterThan(0);
-
-      // Verify locale-specific content: compare translatable fields
-      // TileResource returns locale-specific title/description strings
-      if (deData.data.length > 0 && enData.data.length > 0) {
-        const deTile = deData.data[0];
-        const enTile = enData.data.find((t: { id: number }) => t.id === deTile.id);
-        if (enTile && deTile.title && enTile.title) {
-          // Titles should either differ (translated) or both exist (at minimum)
-          expect(typeof deTile.title).toBe('string');
-          expect(typeof enTile.title).toBe('string');
-        }
+        const response = await tilesResponse;
+        expect(response.ok()).toBeTruthy();
+        expect((await response.json()).data.length).toBeGreaterThan(0);
+        await expect(page.locator('.shadow-card').first()).toBeVisible();
       }
     });
   });
