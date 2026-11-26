@@ -3,123 +3,138 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 import { test, expect, type Page } from '@playwright/test';
-import { execSync } from 'child_process';
-import { deflateSync } from 'zlib';
+import { login, pick, png, seedMedia, upload, type MediaFixtures, type Uploaded } from './media-helpers';
 
 /**
- * E2E test for the media library: an editor uploads an image to the library,
- * picks it in a Text & Image block of a new page, and the public page shows it.
- *
- * Prerequisites:
- * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default) with built assets
- * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
+ * The media library itself: uploading, finding and describing files, using them on a
+ * page, refusing to delete what is in use, and keeping each dashboard's files apart.
  */
 
-let user: { email: string; password: string };
+let fixtures: MediaFixtures;
 
-/** A small solid PNG, so the test needs no fixture file. */
-function png(width: number, height: number): Buffer {
-  const crcTable = Array.from({ length: 256 }, (_, n) => {
-    let c = n;
-    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-    return c >>> 0;
-  });
-  const crc = (buf: Buffer) => {
-    let c = 0xffffffff;
-    for (const byte of buf) c = crcTable[(c ^ byte) & 0xff] ^ (c >>> 8);
-    return (c ^ 0xffffffff) >>> 0;
-  };
-  const chunk = (type: string, data: Buffer) => {
-    const body = Buffer.concat([Buffer.from(type), data]);
-    const out = Buffer.alloc(body.length + 8);
-    out.writeUInt32BE(data.length, 0);
-    body.copy(out, 4);
-    out.writeUInt32BE(crc(body), body.length + 4);
-    return out;
-  };
-  const header = Buffer.alloc(13);
-  header.writeUInt32BE(width, 0);
-  header.writeUInt32BE(height, 4);
-  header[8] = 8;
-  header[9] = 2;
-  const row = Buffer.concat([Buffer.from([0]), Buffer.alloc(width * 3, 0x50)]);
-  const pixels = Buffer.concat(Array.from({ length: height }, () => row));
+const image = (name: string) => ({ name: `${name}.png`, mimeType: 'image/png', buffer: png(64, 48) });
 
-  return Buffer.concat([
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    chunk('IHDR', header),
-    chunk('IDAT', deflateSync(pixels)),
-    chunk('IEND', Buffer.alloc(0)),
-  ]);
-}
-
-async function login(page: Page): Promise<string> {
-  await page.goto('/admin/login');
-  await page.locator('input[type="email"]').fill(user.email);
-  await page.locator('input[type="password"]').fill(user.password);
-  await page.locator('button[type="submit"]').click();
-  await page.waitForURL((url) => !url.pathname.includes('/login'));
-
-  // The panel URL starts with the current dashboard: /admin/{tenant}
-  return new URL(page.url()).pathname.split('/').slice(0, 3).join('/');
+/** Creates a subpage with one Text & Image block that shows `media`, found in the picker by `search`. */
+async function createPageWithImage(page: Page, panel: string, slug: string, media: Uploaded, search = slug): Promise<void> {
+  await page.goto(`${panel}/pages/create`);
+  await page.getByLabel('Titel').first().fill(`Seeblick ${slug}`);
+  await page.getByRole('button', { name: 'Zu Blöcke hinzufügen' }).click();
+  await page.getByRole('button', { name: 'Text & Bild' }).click();
+  const block = page.locator('.fi-fo-builder-item').first();
+  await block.locator('[contenteditable="true"]').fill('Blick auf den See.');
+  await pick(page, block, search, media.file);
+  // A dashboard without pages suggests a landing page, which has no slug
+  await page.getByRole('combobox', { name: /^Layout/ }).selectOption('subpage');
+  // The slug follows the title until it is set, so set it last
+  await page.getByLabel('URL-Slug').fill(slug);
+  await page.getByRole('button', { name: 'Erstellen', exact: true }).click();
+  await page.waitForURL(/\/pages\/(\d+)\/edit/);
 }
 
 test.describe('Media library', () => {
   test.beforeAll(() => {
-    const artisanCmd = process.env.E2E_ARTISAN_CMD ?? 'ddev exec php artisan';
-    const fixtures = JSON.parse(
-      execSync(`${artisanCmd} e2e:seed-full --clean --json`, { encoding: 'utf-8', cwd: process.cwd() }).trim(),
-    );
-    user = fixtures.user;
+    fixtures = seedMedia();
   });
 
-  test('an image uploaded to the library can be picked in a block and shows on the page', async ({ page }) => {
-    test.setTimeout(90_000);
+  test('an uploaded image is found, described in the library and shown with that description on a page', async ({ page, request }) => {
+    test.setTimeout(120_000);
     const name = `lake-${Date.now()}`;
-    const panel = await login(page);
+    const panel = await login(page, fixtures.defaultTenant);
 
-    // Upload the image in the media library
-    await page.goto(`${panel}/media/create`);
-    await page.locator('input[type="file"]').setInputFiles({ name: `${name}.png`, mimeType: 'image/png', buffer: png(64, 48) });
-    await expect(page.getByRole('alert').filter({ hasText: 'Upload abgeschlossen' })).toBeVisible();
-    await page.getByLabel('Alternativer Text').fill('Ein See im Abendlicht');
-    await page.getByRole('button', { name: 'Erstellen', exact: true }).click();
-    await page.waitForURL(/\/media\/\d+\/edit/);
-    const mediaUrl = page.url();
+    // Upload: the file lands in the dashboard's own folder
+    const media = await upload(page, panel, image(name));
+    expect(media.file).not.toContain(name);
+    await expect(page.getByText(`media/${fixtures.defaultTenant}`, { exact: true })).toBeVisible();
     await expect(page.getByText('Wird nirgends verwendet.')).toBeVisible();
 
-    // Create a page with a Text & Image block and pick the image from the library
-    await page.goto(`${panel}/pages/create`);
-    await page.getByLabel('Titel').first().fill(`Seeblick ${name}`);
+    // Search finds it in the library
+    await page.goto(`${panel}/media`);
+    await page.getByPlaceholder('Suche').fill(name);
+    await expect(page.locator(`main img[src*="${media.file}"]`)).toHaveCount(1);
+
+    // Describe it once in the library
+    await page.goto(media.url);
+    await page.getByLabel('Alternativer Text').fill('Ein See im Abendlicht');
+    await page.getByLabel('Titel', { exact: true }).fill('Abendstimmung am See');
+    await page.getByLabel('Copyright').fill('© Stadtwerke');
+    await page.getByRole('button', { name: 'Speichern', exact: true }).first().click();
+    await expect(page.getByText('Gespeichert')).toBeVisible();
+
+    // Use it in a block without own texts
+    await createPageWithImage(page, panel, name, media, 'Abendstimmung am See');
+    const pageId = page.url().match(/\/pages\/(\d+)\/edit/)![1];
+
+    // The public API and page fall back to the library's description
+    const props = (await request.get(`/api/v1/content/pages/${pageId}?locale=de`).then((r) => r.json())).blocks[0].props;
+    expect(props.image).toBe(`media/${fixtures.defaultTenant}/${media.file}`);
+    expect(props.image_alt).toBe('Ein See im Abendlicht');
+    expect(props.image_title).toBe('Abendstimmung am See');
+    expect(props.image_copyright).toBe('© Stadtwerke');
+
+    await page.goto(`/${name}`);
+    const shown = page.getByAltText('Ein See im Abendlicht');
+    await expect(shown).toBeVisible({ timeout: 15_000 });
+    expect(await shown.getAttribute('src')).toMatch(/\/storage\/(_resized\/\d+\/)?media\/\d+\/.+\.png$/);
+    expect(await shown.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+
+    // The library lists the page as a usage
+    await page.goto(media.url);
+    await expect(page.getByRole('link', { name: `Seite: Seeblick ${name}` })).toBeVisible();
+  });
+
+  test('an image in use cannot be deleted, an unused one can', async ({ page }) => {
+    test.setTimeout(120_000);
+    const used = `used-${Date.now()}`;
+    const unused = `unused-${Date.now()}`;
+    const panel = await login(page, fixtures.defaultTenant);
+
+    const usedMedia = await upload(page, panel, image(used));
+    await createPageWithImage(page, panel, used, usedMedia);
+    const unusedMedia = await upload(page, panel, image(unused));
+
+    // Refused: the notice names the reason and the item stays
+    await page.goto(usedMedia.url);
+    await page.getByRole('button', { name: 'Löschen' }).first().click();
+    await page.locator('.fi-modal-window:visible').getByRole('button', { name: 'Löschen' }).click();
+    await expect(page.getByText('Die Datei wird noch verwendet und kann nicht gelöscht werden.')).toBeVisible();
+    await page.goto(usedMedia.url);
+    await expect(page.getByRole('link', { name: `Seite: Seeblick ${used}` })).toBeVisible();
+
+    // Allowed: the unused item is gone
+    await page.goto(unusedMedia.url);
+    await page.getByRole('button', { name: 'Löschen' }).first().click();
+    await page.locator('.fi-modal-window:visible').getByRole('button', { name: 'Löschen' }).click();
+    await page.waitForURL(/\/media$/);
+    expect((await page.goto(unusedMedia.url))?.status()).toBe(404);
+  });
+
+  test('another dashboard sees none of these files, neither in its library nor in the picker', async ({ page }) => {
+    test.setTimeout(120_000);
+    const name = `private-${Date.now()}`;
+    const panel = await login(page, fixtures.defaultTenant);
+    const media = await upload(page, panel, image(name));
+    // In its own dashboard the search finds it
+    await page.goto(`${panel}/media`);
+    await page.getByPlaceholder('Suche').fill(name);
+    await expect(page.locator(`main img[src*="${media.file}"]`)).toHaveCount(1);
+
+    const other = `/admin/${fixtures.otherTenant}`;
+    await page.goto(`${other}/media`);
+    await page.getByPlaceholder('Suche').fill(name);
+    await expect(page.getByText('Keine Mediathek')).toBeVisible();
+    await expect(page.locator(`main img[src*="${media.file}"]`)).toHaveCount(0);
+
+    await page.goto(`${other}/pages/create`);
     await page.getByRole('button', { name: 'Zu Blöcke hinzufügen' }).click();
     await page.getByRole('button', { name: 'Text & Bild' }).click();
-    const block = page.locator('.fi-fo-builder-item').first();
-    await block.locator('[contenteditable="true"]').fill('Blick auf den See.');
-    await block.getByRole('button', { name: 'Aus Mediathek wählen' }).click();
-
+    await page.locator('.fi-fo-builder-item').first().getByRole('button', { name: 'Aus Mediathek wählen' }).click();
     const picker = page.locator('.fi-modal-window:visible');
+    await expect(picker.getByPlaceholder('Suchen')).toBeVisible();
     await picker.getByPlaceholder('Suchen').fill(name);
-    await picker.getByAltText('Ein See im Abendlicht').click();
-    await picker.getByRole('button', { name: 'Einfügen' }).click();
-    await expect(picker).toBeHidden();
+    await page.waitForTimeout(1_000); // the picker searches after a short debounce
+    await expect(picker.locator(`img[src*="${media.file}"]`)).toHaveCount(0);
 
-    // A dashboard without pages suggests a landing page, which has no slug
-    await page.getByRole('combobox', { name: /^Layout/ }).selectOption('subpage');
-    // The slug follows the title until it is set, so set it last
-    await page.getByLabel('URL-Slug').fill(name);
-
-    await page.getByRole('button', { name: 'Erstellen', exact: true }).click();
-    await page.waitForURL(/\/pages\/\d+\/edit/);
-
-    // The public page shows the image with the alt text kept in the library
-    await page.goto(`/${name}`);
-    const image = page.getByAltText('Ein See im Abendlicht');
-    await expect(image).toBeVisible({ timeout: 15_000 });
-    expect(await image.getAttribute('src')).toMatch(/\/storage\/(_resized\/\d+\/)?media\/\d+\/.+\.png$/);
-    expect(await image.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
-
-    // The library now lists the page as a usage
-    await page.goto(mediaUrl);
-    await expect(page.getByRole('link', { name: `Seite: Seeblick ${name}` })).toBeVisible();
+    // Opening the item's address in the other dashboard finds nothing
+    expect((await page.goto(`${other}/media/${media.id}/edit`))?.status()).toBe(404);
   });
 });
