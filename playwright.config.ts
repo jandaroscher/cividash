@@ -80,6 +80,10 @@ export default defineConfig({
       testMatch: /smoke-test\.spec\.ts/,
     },
     {
+      name: 'media-library',
+      testMatch: /media-library\.spec\.ts/,
+    },
+    {
       name: 'dashboard-navigation',
       testMatch: /dashboard-navigation\.spec\.ts/,
     },
