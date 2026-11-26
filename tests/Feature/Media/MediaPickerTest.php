@@ -13,10 +13,12 @@ use App\Models\Category;
 use App\Models\CategoryGroup;
 use App\Models\Media;
 use App\Models\Tenant;
+use App\Models\Theme;
 use App\Models\Tile;
 use App\Models\User;
 use App\Services\Media\MediaLibrary;
 use App\Settings\BrandingSettings;
+use App\Settings\GeneralSettings;
 use Awcodes\Curator\Resources\Media\Pages\CreateMedia;
 use Awcodes\Curator\Resources\Media\Pages\EditMedia;
 use Awcodes\Curator\Resources\Media\Pages\ListMedia;
@@ -230,5 +232,38 @@ class MediaPickerTest extends TestCase
         $this->assertStringNotContainsString('onload', $stored);
         $this->assertStringNotContainsString('alert', $stored);
         $this->assertStringContainsString('<circle', $stored);
+    }
+
+    public function test_saving_the_theme_page_keeps_inherited_logo_and_favicon_as_paths(): void
+    {
+        Storage::disk('public')->put('themes/demo/logo.png', UploadedFile::fake()->image('logo.png')->getContent());
+        Storage::disk('public')->put('branding/favicon.png', UploadedFile::fake()->image('favicon.png')->getContent());
+        $theme = Theme::create(['name' => 'Demo', 'slug' => 'demo', 'settings' => ['branding' => ['logo_url' => 'themes/demo/logo.png']]]);
+        $this->tenant->update(['theme_id' => $theme->id]);
+        DB::table('settings')->updateOrInsert(
+            ['group' => 'general', 'name' => 'favicon', 'tenant_id' => 0],
+            ['payload' => json_encode('branding/favicon.png'), 'locked' => false]
+        );
+        DB::table('settings')->where('tenant_id', $this->tenant->id)->whereIn('name', ['logo_url', 'favicon'])->delete();
+
+        Livewire::test(ManageBranding::class)
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(0, Media::withoutGlobalScopes()->count());
+        $this->assertSame('themes/demo/logo.png', app(BrandingSettings::class)->logo_url);
+        $this->assertSame('branding/favicon.png', app(GeneralSettings::class)->favicon);
+    }
+
+    public function test_an_older_file_larger_than_the_field_allows_does_not_block_saving(): void
+    {
+        $large = $this->media($this->tenant, 'uploads/large.png', 6 * 1024 * 1024);
+        $tile = $this->tile(['meta_image' => $large->id]);
+
+        Livewire::test(EditTile::class, ['record' => $tile->getRouteKey()])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertEquals($large->id, DB::table('tiles')->where('id', $tile->id)->value('meta_image'));
     }
 }

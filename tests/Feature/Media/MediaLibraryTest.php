@@ -336,4 +336,25 @@ class MediaLibraryTest extends TestCase
 
         $this->get('/curator/media/1/photo.png?w=100')->assertNotFound();
     }
+
+    public function test_the_admin_api_refuses_foreign_ids_in_localized_category_icons(): void
+    {
+        $other = Tenant::create(['name' => 'Demo City', 'slug' => 'demo-city']);
+        $own = $this->upload('media/1/own.png');
+        $foreign = $this->upload('media/2/foreign.png', $other);
+        $group = CategoryGroup::create(['title' => ['de' => 'Themen', 'en' => 'Topics'], 'key' => 'topics', 'tenant_id' => $this->tenant->id]);
+        $user = User::factory()->create();
+        $user->tenants()->syncWithoutDetaching([$this->tenant->id]);
+        $token = $user->createToken('test', ['admin-api']);
+        $token->accessToken->forceFill(['tenant_id' => $this->tenant->id])->save();
+        $headers = ['Authorization' => 'Bearer '.$token->plainTextToken];
+        $category = ['category_group_id' => $group->id, 'slug' => ['de' => 'Wasser', 'en' => 'Water'], 'key' => 'water'];
+
+        $this->postJson('/api/v1/admin/categories', [...$category, 'icon' => json_encode(['de' => (string) $foreign->id])], $headers)
+            ->assertUnprocessable()->assertJsonValidationErrors('icon');
+        $this->postJson('/api/v1/admin/categories', [...$category, 'icon' => (string) $foreign->id], $headers)
+            ->assertUnprocessable()->assertJsonValidationErrors('icon');
+        $this->postJson('/api/v1/admin/categories', [...$category, 'icon' => json_encode(['de' => (string) $own->id])], $headers)
+            ->assertCreated();
+    }
 }

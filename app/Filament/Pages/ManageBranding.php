@@ -10,6 +10,7 @@ use App\Filament\Support\MediaPicker;
 use App\Models\CategoryGroup;
 use App\Settings\BrandingSettings;
 use App\Settings\GeneralSettings;
+use App\Settings\TenantAwareDatabaseSettingsRepository;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\ColorPicker;
@@ -94,6 +95,7 @@ class ManageBranding extends SettingsPage
                                             ->label(__('filament.pages.manage_branding.logo'))
                                             ->acceptedFileTypes(['image/*'])
                                             ->maxSize(2048)
+                                            ->inheritedValue(fn () => static::inheritedSetting('branding', 'logo_url'))
                                             ->required(false),
                                     ]),
 
@@ -103,6 +105,7 @@ class ManageBranding extends SettingsPage
                                             ->label(__('filament.pages.manage_general.favicon'))
                                             ->acceptedFileTypes(['image/x-icon', 'image/png', 'image/svg+xml', 'image/vnd.microsoft.icon'])
                                             ->maxSize(512)
+                                            ->inheritedValue(fn () => static::inheritedSetting('general', 'favicon'))
                                             ->helperText(__('filament.pages.manage_general.favicon_helper')),
                                     ]),
                             ]),
@@ -515,6 +518,14 @@ class ManageBranding extends SettingsPage
         }
 
         return $data;
+    }
+
+    /** The value of a setting the dashboard inherits from its theme or the global defaults. */
+    private static function inheritedSetting(string $group, string $name): mixed
+    {
+        $repository = new TenantAwareDatabaseSettingsRepository(config('settings.repositories.database'));
+
+        return $repository->getInheritedPropertiesInGroup($group)[$name] ?? null;
     }
 
     private function getActiveCategoryGroupOptions(): array

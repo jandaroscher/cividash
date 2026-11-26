@@ -90,6 +90,27 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
     }
 
     /**
+     * The values a dashboard inherits: global defaults with its theme on top, without
+     * its own values. Outside a dashboard these are the global defaults.
+     */
+    public function getInheritedPropertiesInGroup(string $group): array
+    {
+        $tenant = $this->resolveActiveTenant();
+
+        $globals = $this->getBuilder()
+            ->where('group', $group)
+            ->where('tenant_id', self::GLOBAL_TENANT_ID)
+            ->get(['name', 'payload'])
+            ->mapWithKeys(fn (object $row) => [$row->name => $this->decode($row->payload, true)])
+            ->toArray();
+
+        $theme = $tenant?->theme;
+        $themeSettings = is_array($theme?->settings) ? ($theme->settings[$group] ?? null) : null;
+
+        return is_array($themeSettings) ? $this->deepMergeSettings($globals, $themeSettings) : $globals;
+    }
+
+    /**
      * Load global defaults, overlay the active tenant's theme (if any), then
      * overlay tenant-specific values on top: global -> theme -> tenant.
      */
@@ -99,27 +120,12 @@ class TenantAwareDatabaseSettingsRepository extends DatabaseSettingsRepository
             return parent::getPropertiesInGroup($group);
         }
 
-        $tenant = $this->resolveActiveTenant();
-        $tenantId = $tenant?->id ?? self::GLOBAL_TENANT_ID;
-
-        // Start with global defaults (tenant_id = 0)
-        $globals = $this->getBuilder()
-            ->where('group', $group)
-            ->where('tenant_id', self::GLOBAL_TENANT_ID)
-            ->get(['name', 'payload'])
-            ->mapWithKeys(fn (object $row) => [$row->name => $this->decode($row->payload, true)])
-            ->toArray();
+        $tenantId = $this->resolveActiveTenant()?->id ?? self::GLOBAL_TENANT_ID;
+        $withTheme = $this->getInheritedPropertiesInGroup($group);
 
         if ($tenantId === self::GLOBAL_TENANT_ID) {
-            return $globals;
+            return $withTheme;
         }
-
-        // Overlay the tenant's theme, if it has one that defines this group.
-        $theme = $tenant->theme;
-        $themeSettings = is_array($theme?->settings) ? ($theme->settings[$group] ?? null) : null;
-        $withTheme = is_array($themeSettings)
-            ? $this->deepMergeSettings($globals, $themeSettings)
-            : $globals;
 
         // Overlay tenant-specific values
         $tenantValues = $this->getBuilder()

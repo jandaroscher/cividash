@@ -22,11 +22,14 @@ use Illuminate\Support\Str;
  *
  * A value that is still a file path (written through the admin API, a bundle import
  * or a theme default) is added to the library when the form loads. A path whose file
- * is missing is shown as it is and saved unchanged, so saving never clears it.
+ * is missing, a theme file or the inherited theme or global value is shown as it is
+ * and saved unchanged, so saving never clears it.
  */
 class MediaPicker extends CuratorPicker
 {
     protected bool $isLocalized = false;
+
+    protected ?Closure $inheritedValue = null;
 
     protected function setUp(): void
     {
@@ -48,7 +51,9 @@ class MediaPicker extends CuratorPicker
         // The library holds files of any size; each field takes only files up to its own limit.
         $this->rule(static fn (MediaPicker $component): Closure => static function (string $attribute, mixed $value, Closure $fail) use ($component): void {
             $limit = $component->getMaxSize() * 1024;
-            $tooLarge = Media::query()->whereKey(MediaScope::extractIds($value))
+            // Files saved before keep saving, so an older, larger file never blocks the form.
+            $ids = array_diff(MediaScope::extractIds($value), $component->getPersistedMediaIds());
+            $tooLarge = Media::query()->whereKey($ids)
                 ->where('size', '>', $limit)->exists();
 
             if ($tooLarge) {
@@ -73,6 +78,17 @@ class MediaPicker extends CuratorPicker
         return $this;
     }
 
+    /**
+     * The value the field inherits from the theme or the global defaults. That value
+     * stays a path, so later theme or default changes still reach the dashboard.
+     */
+    public function inheritedValue(?Closure $value): static
+    {
+        $this->inheritedValue = $value;
+
+        return $this;
+    }
+
     public function callAfterStateHydrated(): static
     {
         $state = $this->getRawState();
@@ -84,7 +100,9 @@ class MediaPicker extends CuratorPicker
         $legacy = null;
         $tenantId = Filament::getTenant()?->getKey();
         if (is_string($state) && $state !== '' && ! MediaLibrary::isId($state) && $tenantId !== null) {
-            $media = app(MediaLibrary::class)->adopt($state, (int) $tenantId);
+            $inherited = str_starts_with(MediaLibrary::normalizePath($state), 'themes/')
+                || $state === $this->evaluate($this->inheritedValue);
+            $media = $inherited ? null : app(MediaLibrary::class)->adopt($state, (int) $tenantId);
             $media ? $this->state($media->getKey()) : $legacy = $state;
         }
 
