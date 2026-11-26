@@ -456,15 +456,18 @@ class TileShareImage
             return $text;
         }
         $words = preg_split('/\s+/u', trim($text), -1, PREG_SPLIT_NO_EMPTY);
-        while (count($words) > 1) {
-            array_pop($words);
-            $candidate = rtrim(implode(' ', $words), ' .,;:·–-').'…';
-            if ($this->width($candidate, $px, $bold) <= $maxWidth) {
-                return $candidate;
+        $prefix = '';
+        $best = null;
+        foreach (array_slice($words, 0, -1) as $word) {
+            $prefix = ltrim($prefix.' '.$word);
+            $candidate = preg_replace('/[\s.,;:·–-]+$/u', '', $prefix).'…';
+            if ($this->width($candidate, $px, $bold) > $maxWidth) {
+                break;
             }
+            $best = $candidate;
         }
 
-        return $this->fit($words[0] ?? '', $px, $maxWidth, $bold);
+        return $best ?? $this->fit($words[0] ?? '', $px, $maxWidth, $bold);
     }
 
     protected function fit(string $text, int $px, int $maxWidth, bool $bold): string

@@ -227,6 +227,16 @@ class TileShareImageTest extends TestCase
         }
     }
 
+    public function test_cut_text_keeps_accented_letters_whole(): void
+    {
+        $image = app(TileShareImage::class);
+        $width = fn (string $text) => (new \ReflectionMethod($image, 'width'))->invoke($image, $text, 28, false);
+        $fitWords = fn (string $text, int $max) => (new \ReflectionMethod($image, 'fitWords'))->invoke($image, $text, 28, $max, false);
+
+        $this->assertSame('Hafen MACEIÓ…', $fitWords('Hafen MACEIÓ Ankunft und Abfahrt', $width('Hafen MACEIÓ…') + 2));
+        $this->assertSame('Label…', $fitWords('Label · 2024', $width('Label · 20')));
+    }
+
     public function test_further_metrics_are_left_out_when_one_is_too_wide(): void
     {
         $image = app(TileShareImage::class);
