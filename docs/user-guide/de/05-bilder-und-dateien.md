@@ -14,6 +14,8 @@ Die Mediathek ist die zentrale Ablage für Bilder und Dateien eines Dashboards. 
 4. Optional **Alternativer Text**, **Titel** und **Copyright** ausfüllen.
 5. Auf **Erstellen** klicken.
 
+Diese Angaben gelten für alle Sprachen. Inhaltsbilder übernehmen sie überall dort, wo die Begleitfelder im Block leer bleiben (siehe [5.3](#53-alt-texte-und-barrierefreiheit)).
+
 Die Mediathek nimmt Bilder, Lottie-Animationen, PDF-, Word-, Excel- und ZIP-Dateien bis 25 MB an. Das Feld, in dem die Datei später verwendet wird, kann ein kleineres Limit haben (siehe [5.2](#52-unterstützte-formate-und-größen)).
 
 <!-- Screenshot: Mediathek, Seite „Medium bearbeiten“ mit Vorschau, Details, Meta-Feldern und „Verwendet in“ -->
@@ -23,7 +25,7 @@ Die Mediathek nimmt Bilder, Lottie-Animationen, PDF-, Word-, Excel- und ZIP-Date
 Bild- und Dateifelder in Seiten, Kacheln, Theme und Footer zeigen die Schaltfläche **Aus Mediathek wählen**.
 
 1. Auf **Aus Mediathek wählen** klicken. Ein Auswahlfenster mit den Dateien der Mediathek öffnet sich.
-2. Datei über die Suche oder die Ordner finden und anklicken.
+2. Datei über die Suche finden oder den Ordner öffnen und die Datei anklicken.
 3. Auf **Einfügen** klicken.
 
 Eine neue Datei lässt sich auch direkt im Auswahlfenster unter **Dateien hinzufügen** hochladen. Sie landet dabei in der Mediathek und steht danach auch anderen Feldern zur Verfügung.
@@ -74,7 +76,9 @@ Welche Dateiformate und Größenbeschränkungen gelten, hängt vom jeweiligen Fe
 
 Jedes Inhaltsbild in den Blöcken **Intro-Text** (Haupt- und zweites Bild), **Text & Bild** und **Slider** hat drei Begleitfelder. Sie stehen zusammen mit dem Bildfeld in einem eigenen Rahmen.
 
-Ein leeres Begleitfeld übernimmt den Wert aus der Mediathek (**Alternativer Text**, **Titel**, **Copyright** der Datei). Ein im Block ausgefülltes Feld hat Vorrang. So genügt es, Alt-Text und Copyright einmal in der Mediathek zu pflegen.
+Ein leeres Begleitfeld übernimmt den Wert aus der Mediathek (**Alternativer Text**, **Titel**, **Copyright** der Datei). Ein im Block ausgefülltes Feld hat Vorrang. Das gilt für jeden Block und jede Sprache einzeln.
+
+Die Angaben in der Mediathek gibt es nur einmal, sie gelten für alle Sprachen. Sprachabhängige Texte, etwa ein englischer Alt-Text, gehören deshalb in das Begleitfeld im Block, in der jeweiligen Sprache. Sprachneutrale Angaben wie das Copyright genügt es, einmal in der Mediathek zu pflegen.
 
 <!-- Screenshot: Text-&-Bild-Block mit hochgeladenem Bild und ausgefüllten Feldern Bildtitel, Alt-Text und Copyright -->
 ![Bild mit Bildtitel, Alt-Text und Copyright](../assets/screenshots/de/05-block-bild-alt-text.png)
@@ -86,9 +90,9 @@ Ein leeres Begleitfeld übernimmt den Wert aus der Mediathek (**Alternativer Tex
 | **Copyright** | Urheber oder Rechteinhaber, z. B. „Max Muster / Musterstadt“ | Erscheint als kleiner Hinweis unten rechts auf dem Bild, mit vorangestelltem „©“ |
 
 - Alt-Text knapp halten und beschreiben, was auf dem Bild zu sehen ist, nicht „Bild von …“.
-- Alt-Text leer lassen, wenn das Bild rein dekorativ ist. Screenreader überspringen es dann.
+- Alt-Text leer lassen, wenn das Bild rein dekorativ ist, im Block und in der Mediathek. Screenreader überspringen es dann.
 - Das Zeichen „©“ muss nicht eingegeben werden, es wird automatisch ergänzt.
-- Alle drei Felder sind pro Sprache getrennt, wie die übrigen Blockinhalte.
+- Die drei Begleitfelder im Block sind pro Sprache getrennt, wie die übrigen Blockinhalte. Ein leeres Feld zeigt in jeder Sprache denselben Wert aus der Mediathek.
 
 **Wirkung im Frontend:** Der Copyright-Hinweis liegt als kleine Einblendung mit dunklem, halbtransparentem Hintergrund unten rechts auf dem Bild. Ist das Feld leer, erscheint keine Einblendung.
 

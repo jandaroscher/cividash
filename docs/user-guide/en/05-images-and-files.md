@@ -14,6 +14,8 @@ The media library is the central store for a dashboard's images and files. It is
 4. Optionally fill in **Alt Text**, **Title** and **Copyright**.
 5. Click **Create**.
 
+These details apply to all languages. Content images use them wherever the companion fields in the block stay empty (see [5.3](#53-alt-text-and-accessibility)).
+
 The media library takes images, Lottie animations, PDF, Word, Excel and ZIP files up to 25 MB. The field that later uses the file can have a smaller limit (see [5.2](#52-supported-formats-and-sizes)).
 
 <!-- Screenshot: Media library, "Edit media" page with preview, details, meta fields and "Used in" -->
@@ -23,7 +25,7 @@ The media library takes images, Lottie animations, PDF, Word, Excel and ZIP file
 Image and file fields in pages, tiles, theme and footer show the button **Choose from media library**.
 
 1. Click **Choose from media library**. A picker with the files of the media library opens.
-2. Find the file via search or the folders and click it.
+2. Find the file via search, or open the folder, and click the file.
 3. Click **Insert**.
 
 A new file can also be uploaded directly in the picker under **Add Files**. It is stored in the media library and is then available to other fields too.
@@ -74,7 +76,9 @@ Which file formats and size limits apply depends on the specific field. For fiel
 
 Every content image in the **Intro Text** (main and second image), **Text & Image** and **Slider** blocks has three companion fields. They sit in their own frame together with the image field.
 
-An empty companion field takes the value from the media library (the file's **Alt Text**, **Title** and **Copyright**). A field filled in the block takes precedence. This way alt text and copyright only need to be maintained once in the media library.
+An empty companion field takes the value from the media library (the file's **Alt Text**, **Title** and **Copyright**). A field filled in the block takes precedence. This applies to each block and each language separately.
+
+The media library holds one set of these details for all languages. Language-specific text, such as an English alt text, therefore belongs in the companion field in the block, in that language. Language-neutral details such as the copyright only need to be maintained once in the media library.
 
 <!-- Screenshot: Text & Image block with an uploaded image and filled image title, alt text and copyright fields -->
 ![Image with image title, alt text and copyright](../assets/screenshots/en/05-block-image-alt-text.png)
@@ -86,9 +90,9 @@ An empty companion field takes the value from the media library (the file's **Al
 | **Copyright** | Author or rights holder, e.g. “Jane Doe / Sample City” | Shown as a small notice in the bottom right corner of the image, prefixed with “©” |
 
 - Keep alt text short and describe what the image shows, not “image of …”.
-- Leave alt text empty if the image is purely decorative. Screen readers then skip it.
+- Leave alt text empty if the image is purely decorative, both in the block and in the media library. Screen readers then skip it.
 - There is no need to type “©”, it is added automatically.
-- All three fields are separate per language, like the rest of the block content.
+- The three companion fields in the block are separate per language, like the rest of the block content. An empty field shows the same media library value in every language.
 
 **Effect on the frontend:** The copyright notice sits as a small overlay with a dark, semi-transparent background in the bottom right corner of the image. If the field is empty, no overlay is shown.
 
