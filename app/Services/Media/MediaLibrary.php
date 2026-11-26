@@ -7,6 +7,7 @@
 namespace App\Services\Media;
 
 use App\Models\Media;
+use App\Models\Page;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -285,14 +286,22 @@ class MediaLibrary
     /** @param \Closure(mixed, int): mixed $map */
     private function rewriteReferences(\Closure $map): void
     {
+        $changedPages = [];
+
         foreach ($this->rows() as [$table, $column, $kind, $row]) {
             $value = $this->decodeColumn($row->{$column}, $kind);
             $converted = $this->mapColumn($value, $kind, fn ($v) => $map($v, (int) $row->tenant_id));
 
             if ($converted !== $value) {
                 DB::table($table)->where('id', $row->id)->update([$column => $this->encodeColumn($converted, $kind)]);
+                if ($table === 'pages') {
+                    $changedPages[] = $row->id;
+                }
             }
         }
+
+        // The rows were written without model events, so the cached page API responses are cleared here.
+        Page::withoutGlobalScopes()->whereKey(array_unique($changedPages))->get()->each->flushContentCache();
     }
 
     /**

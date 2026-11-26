@@ -7,10 +7,12 @@
 namespace Tests\Feature\Media;
 
 use App\Models\Media;
+use App\Models\Page;
 use App\Models\Tenant;
 use App\Models\Tile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -59,5 +61,22 @@ class AdoptExistingCommandTest extends TestCase
 
         $this->assertSame('tiles/icons/water.png', DB::table('tiles')->where('id', $tile->id)->value('icon'));
         Log::shouldHaveReceived('warning')->withArgs(fn (string $message) => str_contains($message, 'none of the referenced files were found'));
+    }
+
+    public function test_public_page_shows_the_library_copy_right_after_adoption(): void
+    {
+        Cache::flush();
+        Storage::disk('public')->put('text-images/lake.png', UploadedFile::fake()->image('lake.png')->getContent());
+        $page = Page::factory()->forTenant(Tenant::where('slug', 'default')->first())->create([
+            'title' => ['de' => 'Seeblick', 'en' => 'Lake view'],
+            'slug' => ['de' => 'seeblick', 'en' => 'lake-view'],
+            'blocks' => ['de' => [['type' => 'text-image', 'data' => ['heading' => 'Am See', 'image' => 'text-images/lake.png']]]],
+        ]);
+        $this->getJson("/api/v1/content/pages/{$page->id}?locale=de")->assertJsonPath('blocks.0.props.image', 'text-images/lake.png');
+
+        $this->artisan('media:adopt-existing')->assertSuccessful();
+
+        $copy = Media::withoutGlobalScopes()->sole()->path;
+        $this->getJson("/api/v1/content/pages/{$page->id}?locale=de")->assertJsonPath('blocks.0.props.image', $copy);
     }
 }
