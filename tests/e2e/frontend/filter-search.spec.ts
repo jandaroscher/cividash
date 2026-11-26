@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 import { test, expect, type Page } from '@playwright/test';
-import { fetchApi, resetApiThrottle } from './helpers';
+import { fetchApi, resetApiThrottle, escapeRegExp } from './helpers';
 
 /**
  * E2E Tests for Filter and Search Functionality
@@ -16,8 +16,7 @@ import { fetchApi, resetApiThrottle } from './helpers';
  * - Filter state persists in URL query parameters
  *
  * Prerequisites:
- * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
- * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
+ * - A running app at PLAYWRIGHT_BASE_URL, pointing at the demo-city tenant
  * - Tiles for the demo-city tenant: dashboard:reset (see docs/testing/README.md;
  *   it deletes tenant content)
  */
@@ -75,7 +74,7 @@ test.describe('Filter and Search', () => {
       const category = page.getByRole('tabpanel').getByRole('button', { name: item.title, exact: true });
       await category.click();
       await expect(category).toHaveAttribute('aria-pressed', 'true');
-      await expect(page).toHaveURL(new RegExp(`[?&]filterKey=${item.key ?? item.id}(&|$)`));
+      await expect(page).toHaveURL(new RegExp(`[?&]filterKey=${escapeRegExp(String(item.key ?? item.id))}(&|$)`));
 
       // Only the tiles of that category remain
       await expect(page.locator(VISIBLE_TILES)).toHaveCount(count);
@@ -118,7 +117,7 @@ test.describe('Filter and Search', () => {
 
       const searchInput = page.getByRole('textbox', { name: /^(Kacheln durchsuchen|Search tiles)$/ });
       await searchInput.fill(title);
-      await expect(page).toHaveURL(new RegExp(`[?&]search=${encodeURIComponent(title).replace(/%20/g, '(\\+|%20)')}`));
+      await expect(page).toHaveURL(new RegExp(`[?&]search=${escapeRegExp(encodeURIComponent(title)).replace(/%20/g, '(\\+|%20)')}`));
       await expect.poll(() => page.locator(VISIBLE_TILES).count()).toBeLessThan(tiles.length);
       const filteredCount = await page.locator(VISIBLE_TILES).count();
 

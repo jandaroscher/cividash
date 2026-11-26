@@ -28,3 +28,8 @@ export async function fetchApi<T = unknown>(page: Page, path: string): Promise<T
     return json.data ?? json;
   }, path);
 }
+
+/** Escape a value for use inside a RegExp, so data such as "CO2 (t)" matches literally. */
+export function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}

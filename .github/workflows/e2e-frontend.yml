@@ -9,18 +9,25 @@ on:
     branches:
       - main
     types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'resources/js/**'
-      - 'resources/css/**'
-      - 'resources/views/**'
+    paths: &frontend-e2e-paths
+      - 'resources/**'
       - 'routes/**'
-      - 'app/Http/**'
+      - 'app/**'
+      - 'config/**'
+      - 'database/**'
       - 'tests/e2e/frontend/**'
+      - 'tests/Fixtures/**'
+      - 'composer.lock'
       - 'package.json'
       - 'package-lock.json'
       - 'vite.config.js'
       - 'playwright.config.ts'
       - '.github/workflows/e2e-frontend.yml'
+  push:
+    branches:
+      - main
+    paths: *frontend-e2e-paths
+  workflow_dispatch:
 
 env:
   PHP_VERSION: '8.4'

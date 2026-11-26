@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 import { test, expect } from '@playwright/test';
-import { fetchApi, resetApiThrottle } from './helpers';
+import { fetchApi, resetApiThrottle, escapeRegExp } from './helpers';
 
 /**
  * E2E Tests for Dashboard Navigation
@@ -16,8 +16,7 @@ import { fetchApi, resetApiThrottle } from './helpers';
  * - Footer is visible with navigation items
  *
  * Prerequisites:
- * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
- * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
+ * - A running app at PLAYWRIGHT_BASE_URL, pointing at the demo-city tenant
  * - Tiles for the demo-city tenant: dashboard:reset (see docs/testing/README.md;
  *   it deletes tenant content)
  */
@@ -25,8 +24,8 @@ import { fetchApi, resetApiThrottle } from './helpers';
 test.beforeEach(resetApiThrottle);
 
 test.describe('Dashboard Navigation', () => {
-  test.describe('Home page', () => {
-    test('home page loads and shows tiles grid', async ({ page }) => {
+  test.describe('Tiles page', () => {
+    test('tiles page loads and shows the tile grid', async ({ page }) => {
       await page.goto('/tiles');
 
       await expect(page.locator('main')).toBeVisible();
@@ -36,7 +35,7 @@ test.describe('Dashboard Navigation', () => {
   });
 
   test.describe('Tile detail navigation', () => {
-    test('clicking a tile navigates to detail page', async ({ page }) => {
+    test('the Info button opens the tile details', async ({ page }) => {
       await page.goto('/tiles');
 
       const firstTile = page.locator('.shadow-card').first();
@@ -61,7 +60,7 @@ test.describe('Dashboard Navigation', () => {
       await expect(firstTile).toBeVisible();
     });
 
-    test('back button returns to tile grid', async ({ page }) => {
+    test('browser back from a shared tile link returns to the tile grid', async ({ page }) => {
       await page.goto('/tiles');
       await expect(page.locator('.shadow-card').first()).toBeVisible();
 
@@ -95,7 +94,7 @@ test.describe('Dashboard Navigation', () => {
       expect(href).toMatch(/^\//);
 
       await firstNavLink.click();
-      await expect(page).toHaveURL(new RegExp(`${href}$`));
+      await expect(page).toHaveURL(new RegExp(`${escapeRegExp(href)}$`));
       await expect(page.locator('.dynamic-page')).toBeVisible();
     });
   });

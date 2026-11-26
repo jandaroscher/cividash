@@ -154,8 +154,9 @@ to `main`:
 Both workflows skip changes that touch only `docs/**` or Markdown files.
 
 `e2e-frontend.yml` runs the frontend specs (projects `dashboard-navigation`,
-`filter-search`, `locale-switching`, `content-pages` and `branding`) on pull requests that
-change the SPA, its routes or controllers, or the specs. It seeds the demo-city tenant from
+`filter-search`, `locale-switching`, `content-pages` and `branding`) on pull requests and
+pushes to `main` that change the application, its data, its frontend or the specs. You can
+also start it by hand. It seeds the demo-city tenant from
 `tests/Fixtures/dashboard-full.json` on SQLite and uses the file cache and file sessions,
 because several PHP workers writing the database cache at once lock SQLite.
 

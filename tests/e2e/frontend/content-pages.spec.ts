@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2+
 
 import { test, expect, type Page } from '@playwright/test';
-import { fetchApi, resetApiThrottle } from './helpers';
+import { fetchApi, resetApiThrottle, escapeRegExp } from './helpers';
 
 /**
  * E2E Tests for CMS Content Pages
@@ -15,8 +15,7 @@ import { fetchApi, resetApiThrottle } from './helpers';
  * - Page title is visible
  *
  * Prerequisites:
- * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
- * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
+ * - A running app at PLAYWRIGHT_BASE_URL, pointing at the demo-city tenant
  * - CMS pages for the demo-city tenant: dashboard:reset (see docs/testing/README.md)
  */
 
@@ -70,7 +69,7 @@ test.describe('Content Pages', () => {
     test('page title is visible on CMS page', async ({ page }) => {
       const cmsPage = await openCmsPage(page);
 
-      await expect(page).toHaveTitle(new RegExp(cmsPage.title));
+      await expect(page).toHaveTitle(new RegExp(escapeRegExp(cmsPage.title)));
       const heading = page.locator('.page-content h1, .page-content h2').first();
       await expect(heading).toBeVisible();
       await expect(heading).not.toHaveText(/^\s*$/);

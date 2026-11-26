@@ -17,8 +17,7 @@ import { resetApiThrottle } from './helpers';
  * - The app requests API data with the matching ?locale= parameter
  *
  * Prerequisites:
- * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
- * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
+ * - A running app at PLAYWRIGHT_BASE_URL, pointing at the demo-city tenant
  * - The demo-city tenant with English translation active and its "Kontakt"/"Contact"
  *   header navigation item (dashboard:reset, see docs/testing/README.md)
  */

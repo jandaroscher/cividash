@@ -15,9 +15,8 @@ import { fetchApi, resetApiThrottle } from './helpers';
  * - Font family is applied from branding
  *
  * Prerequisites:
- * - A running app at PLAYWRIGHT_BASE_URL (DDEV by default)
- * - Test data seeded via: ${E2E_ARTISAN_CMD:-ddev exec php artisan} e2e:seed-full --json
- * - Branding for the demo-city tenant: dashboard:reset (see docs/testing/README.md)
+ * - A running app at PLAYWRIGHT_BASE_URL, pointing at the demo-city tenant
+ * - Demo data seeded via dashboard:reset (see docs/testing/README.md)
  */
 
 type Branding = {
@@ -25,6 +24,8 @@ type Branding = {
   accent_color: string | null;
   header_background_color: string;
   footer_background_color: string;
+  typography_font_family: string;
+  font_family_body: string | null;
 };
 
 async function openHomeWithBranding(page: Page): Promise<Branding> {
@@ -32,10 +33,21 @@ async function openHomeWithBranding(page: Page): Promise<Branding> {
   return fetchApi<Branding>(page, '/api/v1/config/branding');
 }
 
-/** '#E8EEF3' -> 'rgb(232, 238, 243)', the form computed styles report. */
-function hexToRgb(hex: string): string {
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-  return `rgb(${r}, ${g}, ${b})`;
+/** Any CSS colour -> the form computed styles report, e.g. 'rgb(232, 238, 243)'. */
+function toComputedColor(page: Page, color: string): Promise<string> {
+  return page.evaluate((c) => {
+    const probe = document.createElement('span');
+    probe.style.color = c;
+    document.body.append(probe);
+    const computed = getComputedStyle(probe).color;
+    probe.remove();
+    return computed;
+  }, color);
+}
+
+/** "'Source Sans 3', Arial" -> 'Source Sans 3' */
+function firstFamily(stack: string): string {
+  return stack.split(',')[0].replace(/['"]/g, '').trim();
 }
 
 function rootProperty(page: Page, name: string): Promise<string> {
@@ -58,7 +70,7 @@ test.describe('Branding', () => {
     test('header background color matches branding config', async ({ page }) => {
       const branding = await openHomeWithBranding(page);
 
-      await expect(page.locator('header')).toHaveCSS('background-color', hexToRgb(branding.header_background_color));
+      await expect(page.locator('header')).toHaveCSS('background-color', await toComputedColor(page, branding.header_background_color));
     });
   });
 
@@ -68,19 +80,18 @@ test.describe('Branding', () => {
 
       // The footer's bottom area (navigation links, social icons) carries the colour
       const footerBottom = page.locator('footer > div').filter({ has: page.locator('.footer-link') });
-      await expect(footerBottom).toHaveCSS('background-color', hexToRgb(branding.footer_background_color));
+      await expect(footerBottom).toHaveCSS('background-color', await toComputedColor(page, branding.footer_background_color));
     });
   });
 
   test.describe('Typography', () => {
-    test('font family is applied from branding', async ({ page }) => {
-      await page.goto('/');
+    test('body text uses the body font from branding', async ({ page }) => {
+      const branding = await openHomeWithBranding(page);
+      const expected = firstFamily(branding.font_family_body || branding.typography_font_family);
 
-      // The branding store sets --font-family; the body font must come from it
-      await expect.poll(() => rootProperty(page, '--font-family')).not.toBe('');
-      const fontFamily = await rootProperty(page, '--font-family');
-      const firstFont = fontFamily.split(',')[0].replace(/['"]/g, '').trim();
-      await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).fontFamily)).toContain(firstFont);
+      await expect
+        .poll(() => page.evaluate(() => getComputedStyle(document.body).fontFamily).then(firstFamily))
+        .toBe(expected);
     });
   });
 });
