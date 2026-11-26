@@ -85,13 +85,13 @@ const router = createRouter({
 });
 
 // Router guard for locale handling
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
     // Redirect /en/ routes to German equivalent when English translation is disabled
     if (/^\/en(\/|$)/.test(to.path)) {
         const headerStore = useHeaderStore();
         if (!headerStore.englishTranslationActive) {
             const dePath = to.path.replace(/^\/en\/?/, '/') || '/';
-            return next({ path: dePath, query: to.query, hash: to.hash });
+            return { path: dePath, query: to.query, hash: to.hash };
         }
     }
 
@@ -129,8 +129,6 @@ router.beforeEach((to, from, next) => {
     if (typeof window !== 'undefined') {
         localStorage.setItem('locale', locale);
     }
-
-    next();
 });
 
 export default router;

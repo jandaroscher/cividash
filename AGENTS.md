@@ -115,4 +115,4 @@ Follow [CONTRIBUTING.md](CONTRIBUTING.md). In short:
 ## Tech stack
 
 Laravel 13 (PHP 8.4, Sanctum), Filament 5 with Filament Fabricator, Vue 3 with Vue
-Router 4 and Pinia, Tailwind CSS 4, Vite 6, PostgreSQL 16, PHPUnit, Vitest, Playwright.
+Router 5 and Pinia, Tailwind CSS 4, Vite 8, PostgreSQL 16, PHPUnit, Vitest, Playwright.

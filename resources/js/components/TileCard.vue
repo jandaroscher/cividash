@@ -537,13 +537,11 @@ onMounted(() => {
             const label = definition.label?.[currentLocale.value] || definition.label || '';
             const labelEn = definition.label?.en || '';
             
-            // Handle unit - can be string, object, or empty array
+            // Handle unit - can be string, object, or empty array (no unit)
             let unitValue = '';
             let unitEnValue = '';
             if (Array.isArray(definition.unit)) {
-                // Empty array - no unit
-                unitValue = '';
-                unitEnValue = '';
+                // keep the empty defaults
             } else if (typeof definition.unit === 'object' && definition.unit !== null) {
                 // Object with translations
                 unitValue = definition.unit[currentLocale.value] || definition.unit.de || '';
