@@ -20,7 +20,7 @@ Auf einen Blick:
 
 CiviDash ist quelloffen und kann von Kommunen selbst betrieben werden.
 
-**Datenschutz:** CiviDash betreibt von Haus aus kein Tracking. Es gibt keine Web-Analyse, keine Drittanbieter-Einbindungen und keinen Cookie-Banner. Die öffentliche Seite setzt nur zwei technisch notwendige Cookies.
+**Datenschutz:** CiviDash betreibt von Haus aus kein Tracking. Es gibt keine Web-Analyse, keine Drittanbieter-Einbindungen und keinen Cookie-Banner. Eine Besucherstatistik mit Matomo lässt sich je Dashboard einschalten, ohne Cookies (siehe [Kapitel 6.1.7](06-einstellungen.md#617-besucherstatistik)). Die öffentliche Seite setzt nur zwei technisch notwendige Cookies.
 
 ## Über dieses Handbuch
 

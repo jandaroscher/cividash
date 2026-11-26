@@ -15,6 +15,7 @@ import { useFooterStore } from './stores/footer';
 import { resolveLocale } from './utils/locale';
 import { vIntersectionObserver } from '@vueuse/components';
 import { logError } from './lib/log.js';
+import { installTracking } from './lib/tracking/index.js';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -33,6 +34,8 @@ const headerStore = useHeaderStore();
 const footerStore = useFooterStore();
 
 const defaultLocale = resolveLocale();
+
+installTracking(router);
 
 Promise.all([
     branding.fetch(),

@@ -58,7 +58,7 @@ loose prefix match would let crafted paths such as `/embed/tiles/..%2fadmin` be 
 Why the relaxations are needed:
 
 - `'unsafe-inline'` in `script-src`: the SPA boots with an inline script that passes the tenant
-  to the frontend, and the admin panel (Filament, Livewire) uses inline scripts.
+  (and, if configured, the visitor statistics settings) to the frontend, and the admin panel (Filament, Livewire) uses inline scripts.
 - `'unsafe-eval'` in `script-src`: Livewire and Alpine.js in the admin panel evaluate
   expressions at runtime. It also allows the self-hosted WebAssembly module of the Lottie
   player used for animated tiles; if you drop `'unsafe-eval'`, keep `'wasm-unsafe-eval'`.
@@ -74,6 +74,11 @@ Extend the policy for your deployment:
 - Keycloak single sign-on: the login is a plain redirect and needs no CSP change. If your
   browser console reports a `form-action` violation on login, add the Keycloak origin to
   `form-action`.
+- Matomo visitor statistics (admin page **Visitor Statistics**): add the Matomo origin to
+  `script-src` and `img-src`, and add `connect-src 'self' https://matomo.example.org` with your
+  Matomo origin. This matches the
+  [Matomo CSP guide](https://matomo.org/faq/general/faq_20904/). Embedded tiles never load
+  Matomo, so the tile embed policy needs no change.
 
 This policy was checked against a running instance: public dashboard (German and English),
 tile embed page, a third-party page embedding a tile through `embed.js` and an iframe, the admin

@@ -35,7 +35,7 @@ Nicht sichtbar sind die Gruppen **Einstellungen** und **Benutzerverwaltung**:
 | Kacheln verwalten (inkl. Kennzahlen) | Ja | Ja |
 | Kategorien und Kategorie-Gruppen verwalten | Ja | Ja |
 | Zeiträume verwalten | Ja | Ja |
-| Einstellungen ändern (Seiteneinstellungen, Theme, Dashboard-Konfiguration, API-Schlüssel, Datenimport) | Ja | Nein |
+| Einstellungen ändern (Seiteneinstellungen, Theme, Dashboard-Konfiguration, API-Schlüssel, Datenimport, Besucherstatistik) | Ja | Nein |
 | Benutzer verwalten (Rollen, Dashboard-Freigaben) | Ja | Nein |
 | Zugriff auf mehrere/alle Dashboards | Alle Dashboards | Nur zugewiesene |
 

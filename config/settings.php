@@ -5,6 +5,7 @@ use App\Settings\ContentSettings;
 use App\Settings\DashboardSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\TenantAwareDatabaseSettingsRepository;
+use App\Settings\TrackingSettings;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelSettings\SettingsCasts\DataCast;
 use Spatie\LaravelSettings\SettingsCasts\DateTimeInterfaceCast;
@@ -22,6 +23,7 @@ return [
         BrandingSettings::class,
         DashboardSettings::class,
         ContentSettings::class,
+        TrackingSettings::class,
     ],
 
     /*

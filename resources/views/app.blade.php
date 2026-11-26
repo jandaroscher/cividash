@@ -63,6 +63,9 @@ SPDX-License-Identifier: EUPL-1.2+
     @endif
 
     <script>window.__TENANT__ = @json($tenant);</script>
+    @if($tracking ?? null)
+    <script>window.__TRACKING__ = @json($tracking);</script>
+    @endif
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
