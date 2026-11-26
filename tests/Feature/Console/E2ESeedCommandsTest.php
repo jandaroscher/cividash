@@ -197,7 +197,6 @@ class E2ESeedCommandsTest extends TestCase
     public function test_seed_media_clean_puts_back_the_logo_and_favicon_settings_the_legacy_content_replaced(): void
     {
         Storage::fake('public');
-        Storage::fake('local');
         $this->artisan('e2e:seed-full')->assertSuccessful();
         $default = Tenant::where('slug', 'default')->firstOrFail();
         $setting = fn (int $tenant, string $group, string $name) => DB::table('settings')->where(['tenant_id' => $tenant, 'group' => $group, 'name' => $name]);
@@ -216,5 +215,6 @@ class E2ESeedCommandsTest extends TestCase
         $this->assertSame('branding/city-logo.svg', json_decode($setting(0, 'branding', 'logo_url')->value('payload')));
         $this->assertSame('branding/dashboard-logo.svg', json_decode($setting($default->id, 'branding', 'logo_url')->value('payload')));
         $this->assertFalse($setting($default->id, 'general', 'favicon')->exists());
+        $this->assertFalse($setting(0, 'e2e', 'media_settings_backup')->exists(), 'The backup goes with the cleanup');
     }
 }

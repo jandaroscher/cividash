@@ -33,7 +33,8 @@ class E2ESeedMediaCommand extends Command
 {
     public const MARKER = 'e2e-media';
 
-    private const SETTINGS_BACKUP = 'e2e-media-settings.json';
+    /** The backup lives in the settings table itself, so a database reset drops it too. */
+    private const SETTINGS_BACKUP = ['tenant_id' => 0, 'group' => 'e2e', 'name' => 'media_settings_backup'];
 
     protected $signature = 'e2e:seed-media
                             {--legacy : Add content that references files by path}
@@ -182,31 +183,32 @@ class E2ESeedMediaCommand extends Command
      */
     private function backUpSettings(array $keys): void
     {
-        if (Storage::disk('local')->exists(self::SETTINGS_BACKUP)) {
+        if (DB::table('settings')->where(self::SETTINGS_BACKUP)->exists()) {
             return;
         }
 
-        Storage::disk('local')->put(self::SETTINGS_BACKUP, json_encode(array_map(function (array $key) {
+        DB::table('settings')->insert([...self::SETTINGS_BACKUP, 'locked' => false, 'payload' => json_encode(array_map(function (array $key) {
             $where = array_combine(['tenant_id', 'group', 'name'], $key);
             $row = DB::table('settings')->where($where)->first(['payload', 'locked']);
 
             return ['where' => $where, 'row' => $row ? (array) $row : null];
-        }, $keys)));
+        }, $keys))]);
     }
 
     /** Puts back the settings rows from before the seed, and removes those that did not exist. */
     private function restoreSettings(): void
     {
-        if (! Storage::disk('local')->exists(self::SETTINGS_BACKUP)) {
+        $backup = DB::table('settings')->where(self::SETTINGS_BACKUP)->value('payload');
+        if ($backup === null) {
             return;
         }
 
-        foreach (json_decode(Storage::disk('local')->get(self::SETTINGS_BACKUP), true) as ['where' => $where, 'row' => $row]) {
+        foreach (json_decode($backup, true) as ['where' => $where, 'row' => $row]) {
             $row === null
                 ? DB::table('settings')->where($where)->delete()
                 : DB::table('settings')->updateOrInsert($where, [...$row, 'updated_at' => now()]);
         }
-        Storage::disk('local')->delete(self::SETTINGS_BACKUP);
+        DB::table('settings')->where(self::SETTINGS_BACKUP)->delete();
     }
 
     private function setting(int $tenantId, string $group, string $name, ?string $value): void
