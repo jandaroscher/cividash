@@ -9,6 +9,7 @@ namespace App\Filament\Fabricator\Resources\PageResource\Pages;
 use App\Filament\Concerns\OpensInLinkedLocale;
 use App\Filament\Fabricator\Resources\PageResource;
 use Filament\Actions\Action;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable;
@@ -17,9 +18,7 @@ use Z3d0X\FilamentFabricator\Resources\PageResource\Pages\EditPage as Fabricator
 class EditPage extends FabricatorEditPage
 {
     use OpensInLinkedLocale;
-    use Translatable {
-        fillForm as fillTranslatableForm;
-    }
+    use Translatable;
 
     protected static string $resource = PageResource::class;
 
@@ -30,17 +29,22 @@ class EditPage extends FabricatorEditPage
         $this->openLinkedLocale();
     }
 
-    protected function fillForm(): void
+    protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        $this->fillTranslatableForm();
-
         // Landing pages get the slug "/" in every locale, so a locale with nothing but that slug
         // would count as an existing translation and block saving the other locale until it is
-        // translated. Such a locale only counts once it has content besides the slug.
-        $this->otherLocaleData = array_filter(
+        // translated. Such a locale is left out of the save, but stays loaded for the switcher.
+        $slugOnlyLocales = array_filter(
             $this->otherLocaleData,
-            fn (array $data): bool => collect(Arr::except($data, 'slug'))->contains(fn (mixed $value): bool => filled($value)),
+            fn (array $data): bool => ! collect(Arr::except($data, 'slug'))->contains(fn (mixed $value): bool => filled($value)),
         );
+        $this->otherLocaleData = array_diff_key($this->otherLocaleData, $slugOnlyLocales);
+
+        try {
+            return parent::handleRecordUpdate($record, $data);
+        } finally {
+            $this->otherLocaleData += $slugOnlyLocales;
+        }
     }
 
     protected function getHeaderActions(): array

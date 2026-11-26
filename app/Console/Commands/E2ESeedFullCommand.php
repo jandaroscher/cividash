@@ -93,6 +93,7 @@ class E2ESeedFullCommand extends Command
                     'last_name' => 'Super Admin',
                     'password' => bcrypt('e2e-superadmin-password'),
                     'is_admin' => true,
+                    'is_active' => true,
                 ]
             );
 
